@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <Folder Include="DataSeedings\" />
-    <Folder Include="Enums\" />
   </ItemGroup>
 
   <ItemGroup>

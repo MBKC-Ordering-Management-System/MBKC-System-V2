@@ -1,4 +1,6 @@
 ﻿using MBKC.DAL.DBContext;
+using MBKC.DAL.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +15,18 @@ namespace MBKC.DAL.DAOs
         public RoleDAO(MBKCDbContext dbContext)
         {
             this._dbContext = dbContext;
+        }
+
+        public async Task<Role> GetRoleById(int id)
+        {
+            try
+            {
+                return await _dbContext.Roles.SingleOrDefaultAsync(r => r.RoleId == id);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }

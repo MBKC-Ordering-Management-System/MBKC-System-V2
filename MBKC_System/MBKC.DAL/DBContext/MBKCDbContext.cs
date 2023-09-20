@@ -25,12 +25,16 @@ namespace MBKC.DAL.DBContext
         public DbSet<Account> Accounts { get; set; }
         public DbSet<BankingAccount> BankingAccounts { get; set; }
         public DbSet<Brand> Brands { get; set; }
+        public DbSet<BrandAccount> BrandAccounts { get; set; }
         public DbSet<Cashier> Cashiers { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<ExtraCategory> ExtraCategories { get; set; }
         public DbSet<KitchenCenter> KitchenCenters { get; set; }
         public DbSet<MappingProduct> MappingProducts { get; set; }
         public DbSet<MoneyExchange> MoneyExchanges { get; set; }
+        public DbSet<CashierMoneyExchange> CashierMoneyExchanges { get; set; }
+        public DbSet<KitchenCenterMoneyExchange> KitchenCenterMoneyExchanges { get; set; }
+        public DbSet<StoreMoneyExchange> StoreMoneyExchanges { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<Partner> Partners { get; set; }
@@ -38,6 +42,7 @@ namespace MBKC.DAL.DBContext
         public DbSet<Role> Roles { get; set; }
         public DbSet<ShipperPayment> ShipperPayments { get; set; }
         public DbSet<Store> Stores { get; set; }
+        public DbSet<StoreAccount> StoreAccounts { get; set; }
         public DbSet<StorePartner> StorePartners { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<Wallet> Wallets { get; set; }

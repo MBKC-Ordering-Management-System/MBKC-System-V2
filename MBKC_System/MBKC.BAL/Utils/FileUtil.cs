@@ -46,7 +46,7 @@ namespace MBKC.BAL.Utils
         #endregion
 
         #region Upload Image
-        public static async Task<Tuple<string, string>> UploadImage(FileStream stream, string folder)
+        public static async Task<string> UploadImage(FileStream stream, string folder)
         {
             try
             {
@@ -73,7 +73,7 @@ namespace MBKC.BAL.Utils
 
                 // error during upload will be thrown when you await the task
                 string link = await task;
-                return Tuple.Create(link, fileId);
+                return link;
             }
             catch (Exception ex)
             {

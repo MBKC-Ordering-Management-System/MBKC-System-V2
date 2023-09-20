@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MBKC.BAL.DTOs.Brands;
+using MBKC.BAL.DTOs.FireBase;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,5 +10,6 @@ namespace MBKC.BAL.Repositories.Interfaces
 {
     public interface IBrandRepository
     {
+        public Task CreateBrand(PostBrandRequest postBrandRequest, FireBaseImage fireBaseImage);
     }
 }
