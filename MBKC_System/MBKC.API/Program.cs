@@ -1,11 +1,15 @@
+using FluentValidation;
 using MBKC.API.Extentions;
 using MBKC.API.Middlewares;
+using MBKC.BAL.DTOs.Accounts;
+using MBKC.BAL.DTOs.AccountTokens;
 using MBKC.BAL.DTOs.FireBase;
 using MBKC.BAL.DTOs.JWTs;
 using MBKC.BAL.Errors;
 using MBKC.BAL.Repositories.Implementations;
 using MBKC.BAL.Repositories.Interfaces;
 using MBKC.BAL.Utils;
+using MBKC.BAL.Validators.Authentications;
 using MBKC.DAL.Infrastructures;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -26,7 +30,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
     // using System.Reflection;
-   
+    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 
     options.SwaggerDoc("v1", new OpenApiInfo
     {
@@ -106,6 +111,7 @@ builder.Services.Configure<JWTAuth>(builder.Configuration.GetSection("JWTAuth"))
 builder.Services.AddScoped<IDbFactory, DbFactory>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+builder.Services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
 builder.Services.AddScoped<IBankingAccountRepository, BankingAccountRepository>();
 builder.Services.AddScoped<IBrandRepository, BrandRepository>();
 builder.Services.AddScoped<IBrandAccountRepository, BrandAccountRepository>();
@@ -132,24 +138,24 @@ builder.Services.AddScoped<IWalletRepository, WalletRepository>();
 //Firebase Image
 builder.Services.Configure<FireBaseImage>(builder.Configuration.GetSection("FireBaseImage"));
 
-
 //AutoMapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
-//Validation
-
-
-//Middlewares
-builder.Services.AddTransient<ExceptionMiddleware>();
 
 //add CORS
 builder.Services.AddCors(cors => cors.AddPolicy(
                             name: "WebPolicy",
-                            build =>
+                            policy =>
                             {
-                                build.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+                                policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
                             }
                         ));
+
+//Validation
+builder.Services.AddScoped<IValidator<AccountRequest>, AccountRequestValidator>();
+builder.Services.AddScoped<IValidator<AccountTokenRequest>, AccountTokenRequestValidator>();
+
+//Middlewares
+builder.Services.AddTransient<ExceptionMiddleware>();
 
 var app = builder.Build();
 

@@ -1,4 +1,5 @@
 ﻿using MBKC.DAL.DBContext;
+using Redis.OM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,5 +11,6 @@ namespace MBKC.DAL.Infrastructures
     public interface IDbFactory : IDisposable
     {
         public MBKCDbContext InitDbContext();
+        public Task<RedisConnectionProvider> InitRedisConnectionProvider();
     }
 }
