@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using MBKC.DAL.RedisModels;
 using Microsoft.EntityFrameworkCore;
 using MBKC.DAL.Enums;
+using MBKC.DAL.Models;
 
 namespace MBKC.DAL.RedisDAOs
 {
@@ -37,7 +38,19 @@ namespace MBKC.DAL.RedisDAOs
         {
             try
             {
-                return await this._accountCollection.SingleOrDefaultAsync(x => x.AccountId == accountId);
+                return await this._accountCollection.FirstOrDefaultAsync(x => x.AccountId == accountId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<AccountRedisModel> GetAccountWithEmailAsync(string email)
+        {
+            try
+            {
+                return await this._accountCollection.FirstOrDefaultAsync(x => x.Email == email);
             }
             catch (Exception ex)
             {

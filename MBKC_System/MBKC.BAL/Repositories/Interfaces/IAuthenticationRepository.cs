@@ -13,5 +13,6 @@ namespace MBKC.BAL.Repositories.Interfaces
     {
         public Task<AccountResponse> LoginAsync(AccountRequest accountRequest, JWTAuth jwtAuth);
         public Task<AccountTokenResponse> ReGenerateTokensAsync(AccountTokenRequest accountTokenRequest, JWTAuth jwtAuth);
+        public Task ChangePasswordAsync(ResetPasswordRequest resetPassword);
     }
 }

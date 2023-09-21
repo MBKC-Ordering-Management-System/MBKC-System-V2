@@ -40,6 +40,7 @@ namespace MBKC.DAL.Infrastructures
         private RedisConnectionProvider _redisConnectionProvider;
         private AccountRedisDAO _accountRedisDAO;
         private AccountTokenRedisDAO  _accountTokenRedisDAO;
+        private EmailVerificationRedisDAO  _emailVerificationRedisDAO;
 
         public UnitOfWork(IDbFactory dbFactory)
         {
@@ -89,6 +90,17 @@ namespace MBKC.DAL.Infrastructures
             }
         }
 
+        public EmailVerificationRedisDAO EmailVerificationRedisDAO
+        {
+            get
+            {
+                if(this._emailVerificationRedisDAO == null)
+                {
+                    this._emailVerificationRedisDAO = new EmailVerificationRedisDAO(this._redisConnectionProvider);
+                }
+                return this._emailVerificationRedisDAO;
+            }
+        }
         public BankingAccountDAO BankingAccountDAO
         {
             get

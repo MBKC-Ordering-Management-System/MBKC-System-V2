@@ -42,5 +42,30 @@ namespace MBKC.DAL.DAOs
                 throw new Exception(ex.Message);
             }
         }
+
+        public async Task<Account> GetAccountAsync(string email)
+        {
+            try
+            {
+                return await this._dbContext.Accounts.Include(x => x.Role)
+                                                     .SingleOrDefaultAsync(x => x.Email == email);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public void UpdateAccount(Account account)
+        {
+            try
+            {
+                this._dbContext.Accounts.Update(account);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }

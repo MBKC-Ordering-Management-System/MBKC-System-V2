@@ -20,13 +20,16 @@ namespace MBKC.API.Controllers
         private IOptions<JWTAuth> _jwtAuthOptions;
         private IValidator<AccountRequest> _accountRequestValidator;
         private IValidator<AccountTokenRequest> _accountTokenRequestValidator;
+        private IValidator<ResetPasswordRequest> _resetPasswordValidator;
         public AuthenticationsController(IAuthenticationRepository authenticationRepository, IOptions<JWTAuth> jwtAuthOptions,
-            IValidator<AccountRequest> accountRequestValidator, IValidator<AccountTokenRequest> accountTokenRequestValidator)
+            IValidator<AccountRequest> accountRequestValidator, IValidator<AccountTokenRequest> accountTokenRequestValidator,
+            IValidator<ResetPasswordRequest> resetPasswordValidator)
         {
             this._authenticationRepository = authenticationRepository;
             this._jwtAuthOptions = jwtAuthOptions;
             this._accountRequestValidator = accountRequestValidator;
             this._accountTokenRequestValidator = accountTokenRequestValidator;
+            this._resetPasswordValidator = resetPasswordValidator;
         }
 
         [HttpPost("login")]
@@ -35,8 +38,8 @@ namespace MBKC.API.Controllers
             ValidationResult validationResult = await this._accountRequestValidator.ValidateAsync(account);
             if(validationResult.IsValid == false)
             {
-                string error = ErrorUtil.GetErrorsString(validationResult);
-                throw new BadRequestException(error);
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
             }
 
             AccountResponse accountResponse = await this._authenticationRepository.LoginAsync(account, this._jwtAuthOptions.Value);
@@ -49,11 +52,27 @@ namespace MBKC.API.Controllers
             ValidationResult validationResult = await this._accountTokenRequestValidator.ValidateAsync(accountToken);
             if(validationResult.IsValid == false)
             {
-                string error = ErrorUtil.GetErrorsString(validationResult);
-                throw new BadRequestException(error);
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
             }
             AccountTokenResponse accountTokenResponse = await this._authenticationRepository.ReGenerateTokensAsync(accountToken, this._jwtAuthOptions.Value);
             return Ok(accountTokenResponse);
+        }
+
+        [HttpPut("reset-password")]
+        public async Task<IActionResult> PutResetPasswordAsync([FromBody]ResetPasswordRequest resetPassword)
+        {
+            ValidationResult validationResult = await this._resetPasswordValidator.ValidateAsync(resetPassword);
+            if(validationResult.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
+            }
+            await this._authenticationRepository.ChangePasswordAsync(resetPassword);
+            return Ok(new
+            {
+                Message = "Reset Password Successfully"
+            });
         }
     }
 }

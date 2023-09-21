@@ -2,6 +2,7 @@
 using MBKC.BAL.DTOs.Accounts;
 using MBKC.BAL.DTOs.AccountTokens;
 using MBKC.BAL.DTOs.JWTs;
+using MBKC.BAL.DTOs.Verifications;
 using MBKC.BAL.Exceptions;
 using MBKC.BAL.Repositories.Interfaces;
 using MBKC.BAL.Utils;
@@ -18,6 +19,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -156,6 +158,61 @@ namespace MBKC.BAL.Repositories.Implementations
             }
         }
 
+        public async Task ChangePasswordAsync(ResetPasswordRequest resetPassword)
+        {
+            try
+            {
+                AccountRedisModel accountRedisModel = await this._unitOfWork.AccountRedisDAO.GetAccountAsync(resetPassword.Email);
+                if (accountRedisModel == null)
+                {
+                    Account account = await this._unitOfWork.AccountDAO.GetAccountAsync(resetPassword.Email);
+                    if (account == null)
+                    {
+                        throw new BadRequestException("Email does not exist in the system.");
+                    }
+                    accountRedisModel = this._mapper.Map<AccountRedisModel>(account);
+                    await this._unitOfWork.AccountRedisDAO.AddAccountAsync(accountRedisModel);
+                }
+                EmailVerificationRedisModel emailVerificationRedisModel = await this._unitOfWork.EmailVerificationRedisDAO.GetEmailVerificationAsync(resetPassword.Email);
+                if (emailVerificationRedisModel == null)
+                {
+                    throw new BadRequestException("Email has not been previously authenticated.");
+                }
+                if(emailVerificationRedisModel.IsVerified == Convert.ToBoolean((int)EmailVerificationEnum.Status.NOT_VERIFIRED))
+                {
+                    throw new BadRequestException("Email is not yet authenticated with the previously sent OTP code.");
+                }
+                Account existedAccount = await this._unitOfWork.AccountDAO.GetAccountAsync(resetPassword.Email);
+                if (existedAccount == null)
+                {
+                    throw new BadRequestException("Email does not exist in the system.");
+                }
+                existedAccount.Password = resetPassword.NewPassword;
+                this._unitOfWork.AccountDAO.UpdateAccount(existedAccount);
+                await this._unitOfWork.CommitAsync();
+                accountRedisModel.Password = resetPassword.NewPassword;
+                await this._unitOfWork.AccountRedisDAO.UpdateAccountAsync(accountRedisModel);
+                await this._unitOfWork.EmailVerificationRedisDAO.DeleteEmailVerificationAsync(emailVerificationRedisModel);
+            }
+            catch (BadRequestException ex)
+            {
+                string fieldName = "";
+                if (ex.Message.Equals("Email does not exist in the system.")
+                    || ex.Message.Equals("Email has not been previously authenticated.")
+                    || ex.Message.Equals("Email is not yet authenticated."))
+                {
+                    fieldName = "Email";
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new BadRequestException(error);
+            }
+            catch (Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                throw new Exception(error);
+            }
+        }
+
         private async Task<AccountResponse> GenerateTokenAsync(AccountResponse accountResponse, JWTAuth jwtAuth)
         {
             try
@@ -173,8 +230,8 @@ namespace MBKC.BAL.Repositories.Implementations
                         new Claim(JwtRegisteredClaimNames.Sid, accountResponse.AccountId.ToString()),
                         new Claim("Role", accountResponse.RoleName),
                         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-                    }), //1h-hdays
-                    Expires = DateTime.UtcNow.AddMinutes(1),
+                    }),
+                    Expires = DateTime.UtcNow.AddHours(1),
                     SigningCredentials = credentials
                 };
 
@@ -186,7 +243,7 @@ namespace MBKC.BAL.Repositories.Implementations
                 {
                     JWTId = token.Id,
                     RefreshToken = refreshToken,
-                    ExpiredDate = DateTime.UtcNow.AddMinutes(3),
+                    ExpiredDate = DateTime.UtcNow.AddDays(5),
                     AccountId = accountResponse.AccountId
                 };
 
@@ -217,5 +274,6 @@ namespace MBKC.BAL.Repositories.Implementations
                 return Convert.ToBase64String(random);
             }
         }
+
     }
 }

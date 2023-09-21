@@ -5,11 +5,14 @@ using MBKC.BAL.DTOs.Accounts;
 using MBKC.BAL.DTOs.AccountTokens;
 using MBKC.BAL.DTOs.FireBase;
 using MBKC.BAL.DTOs.JWTs;
+using MBKC.BAL.DTOs.Verifications;
 using MBKC.BAL.Errors;
 using MBKC.BAL.Repositories.Implementations;
 using MBKC.BAL.Repositories.Interfaces;
 using MBKC.BAL.Utils;
+using MBKC.BAL.Validators.Accounts;
 using MBKC.BAL.Validators.Authentications;
+using MBKC.BAL.Validators.Verifications;
 using MBKC.DAL.Infrastructures;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -108,10 +111,12 @@ builder.Services.AddAuthentication(options =>
 
 //DI
 builder.Services.Configure<JWTAuth>(builder.Configuration.GetSection("JWTAuth"));
+builder.Services.Configure<Email>(builder.Configuration.GetSection("Verification:Email"));
 builder.Services.AddScoped<IDbFactory, DbFactory>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
+builder.Services.AddScoped<IVerificationRepository, VerificationRepository>();
 builder.Services.AddScoped<IBankingAccountRepository, BankingAccountRepository>();
 builder.Services.AddScoped<IBrandRepository, BrandRepository>();
 builder.Services.AddScoped<IBrandAccountRepository, BrandAccountRepository>();
@@ -153,6 +158,9 @@ builder.Services.AddCors(cors => cors.AddPolicy(
 //Validation
 builder.Services.AddScoped<IValidator<AccountRequest>, AccountRequestValidator>();
 builder.Services.AddScoped<IValidator<AccountTokenRequest>, AccountTokenRequestValidator>();
+builder.Services.AddScoped<IValidator<EmailVerificationRequest>, EmailVerificationRequestValidator>();
+builder.Services.AddScoped<IValidator<OTPCodeVerificationRequest>, OTPCodeVerifycationRequestValidator>();
+builder.Services.AddScoped<IValidator<ResetPasswordRequest>, ResetPasswordRequestValidator>();
 
 //Middlewares
 builder.Services.AddTransient<ExceptionMiddleware>();

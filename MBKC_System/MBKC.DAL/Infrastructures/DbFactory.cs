@@ -39,6 +39,7 @@ namespace MBKC.DAL.Infrastructures
                 this._redisConnectionProvider = new RedisConnectionProvider(configuration.GetConnectionString("RedisDbStore"));
                 await this._redisConnectionProvider.Connection.CreateIndexAsync(typeof(AccountRedisModel));
                 await this._redisConnectionProvider.Connection.CreateIndexAsync(typeof(AccountTokenRedisModel));
+                await this._redisConnectionProvider.Connection.CreateIndexAsync(typeof(EmailVerificationRedisModel));
             }
             return this._redisConnectionProvider;
         }
