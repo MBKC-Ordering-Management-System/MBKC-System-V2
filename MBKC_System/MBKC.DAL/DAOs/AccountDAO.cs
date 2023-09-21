@@ -1,5 +1,6 @@
 ﻿using MBKC.DAL.DBContext;
 using MBKC.DAL.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,18 @@ namespace MBKC.DAL.DAOs
             try
             {
                 await this._dbContext.Accounts.AddAsync(account);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<Account> GetAccountByEmail(string email)
+        {
+            try
+            {
+                return await _dbContext.Accounts.SingleOrDefaultAsync(r => r.Email.Equals(email));
             }
             catch (Exception ex)
             {

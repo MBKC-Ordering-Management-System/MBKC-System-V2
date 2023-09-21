@@ -8,11 +8,11 @@ namespace MBKC.BAL.Utils
 {
     public static class RandomNumberUtil
     {
-       public static int GenerateSixDigitNumber()
+        public static int GenerateEightDigitNumber()
         {
             Random random = new Random();
-            int sixDigitNumber = random.Next(100000, 1000000);
-            return sixDigitNumber;
+            int eightDigitNumber = random.Next(10000000, 99999999);
+            return eightDigitNumber;
         }
     }
 }

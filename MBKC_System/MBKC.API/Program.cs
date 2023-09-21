@@ -1,11 +1,14 @@
+using FluentValidation;
 using MBKC.API.Extentions;
 using MBKC.API.Middlewares;
+using MBKC.BAL.DTOs.Brands;
 using MBKC.BAL.DTOs.FireBase;
 using MBKC.BAL.DTOs.JWTs;
 using MBKC.BAL.Errors;
 using MBKC.BAL.Repositories.Implementations;
 using MBKC.BAL.Repositories.Interfaces;
 using MBKC.BAL.Utils;
+using MBKC.BAL.Validators;
 using MBKC.DAL.Infrastructures;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -137,6 +140,8 @@ builder.Services.Configure<FireBaseImage>(builder.Configuration.GetSection("Fire
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 //Validation
+builder.Services.AddScoped<IValidator<PostBrandRequest>, PostBrandValidation>();
+builder.Services.AddScoped<IValidator<UpdateBrandRequest>, UpdateBrandValidation>();
 
 
 //Middlewares
