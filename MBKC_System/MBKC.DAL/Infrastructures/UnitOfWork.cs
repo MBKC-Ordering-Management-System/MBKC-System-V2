@@ -1,5 +1,7 @@
 ﻿using MBKC.DAL.DAOs;
 using MBKC.DAL.DBContext;
+using MBKC.DAL.RedisDAOs;
+using Redis.OM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,12 +37,20 @@ namespace MBKC.DAL.Infrastructures
         private StoreMoneyExchangeDAO _storeMoneyExchangeDAO;
         private CashierMoneyExchangeDAO _cashierMoneyExchangeDAO;
         private KitchenCenterMoneyExchangeDAO _kitchenCenterMoneyExchangeDAO;
+        private RedisConnectionProvider _redisConnectionProvider;
+        private AccountRedisDAO _accountRedisDAO;
+        private AccountTokenRedisDAO  _accountTokenRedisDAO;
+        private EmailVerificationRedisDAO  _emailVerificationRedisDAO;
 
         public UnitOfWork(IDbFactory dbFactory)
         {
             if (this._dbContext == null)
             {
                 this._dbContext = dbFactory.InitDbContext();
+            }
+            if (this._redisConnectionProvider == null)
+            {
+                this._redisConnectionProvider = dbFactory.InitRedisConnectionProvider().Result;
             }
         }
 
@@ -58,6 +68,41 @@ namespace MBKC.DAL.Infrastructures
             }
         }
 
+        public AccountRedisDAO AccountRedisDAO
+        {
+            get
+            {
+                if(this._accountRedisDAO == null)
+                {
+                    this._accountRedisDAO = new AccountRedisDAO(this._redisConnectionProvider);
+                }
+                return this._accountRedisDAO;
+            }
+        }
+
+        public AccountTokenRedisDAO AccountTokenRedisDAO
+        {
+            get
+            {
+                if(this._accountTokenRedisDAO == null)
+                {
+                    this._accountTokenRedisDAO = new AccountTokenRedisDAO(this._redisConnectionProvider);
+                }
+                return this._accountTokenRedisDAO;
+            }
+        }
+
+        public EmailVerificationRedisDAO EmailVerificationRedisDAO
+        {
+            get
+            {
+                if(this._emailVerificationRedisDAO == null)
+                {
+                    this._emailVerificationRedisDAO = new EmailVerificationRedisDAO(this._redisConnectionProvider);
+                }
+                return this._emailVerificationRedisDAO;
+            }
+        }
         public BankingAccountDAO BankingAccountDAO
         {
             get

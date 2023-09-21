@@ -8,13 +8,13 @@ namespace MBKC.DAL.Enums
 {
     public static class RoleEnum
     {
-        public enum RoleName
+        public enum Role
         {
-            MBKCAdmin = 1,
-            BrandManager = 2,
-            KitchenCenterManager = 3,
-            StoreManager = 4,
-            Cashier = 5
+            MBKC_ADMIN = 1,
+            BRAND_MANAGER = 2,
+            KITCHEN_CENTER_MANAGER = 3,
+            STORE_MANAGER = 4,
+            CASHIER = 5
         }
     }
 }
