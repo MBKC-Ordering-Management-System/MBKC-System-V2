@@ -42,8 +42,12 @@ namespace MBKC.BAL.Repositories.Implementations
                 AccountRedisModel accountRedisModel = await this._unitOfWork.AccountRedisDAO.GetAccountAsync(accountRequest.Email, accountRequest.Password);
                 if (accountRedisModel == null)
                 {
-                    Account accountModel = await this._unitOfWork.AccountDAO.GetAccountAsync(accountRequest.Email, accountRequest.Password);
+                    Account accountModel = await this._unitOfWork.AccountDAO.GetActiveAccountAsync(accountRequest.Email);
                     if (accountModel == null)
+                    {
+                        throw new NotFoundException("Email does not exist in the system.");
+                    }
+                    if(accountModel.Password.Equals(accountRequest.Password) == false)
                     {
                         throw new BadRequestException("Email or Password is invalid.");
                     }
@@ -53,6 +57,11 @@ namespace MBKC.BAL.Repositories.Implementations
                 AccountResponse accountResponse = this._mapper.Map<AccountResponse>(accountRedisModel);
                 accountResponse = await GenerateTokenAsync(accountResponse, jwtAuth);
                 return accountResponse;
+            }
+            catch(NotFoundException ex)
+            {
+                string error = ErrorUtil.GetErrorString("Email", ex.Message);
+                throw new NotFoundException(error);
             }
             catch (BadRequestException ex)
             {
@@ -168,7 +177,7 @@ namespace MBKC.BAL.Repositories.Implementations
                     Account account = await this._unitOfWork.AccountDAO.GetAccountAsync(resetPassword.Email);
                     if (account == null)
                     {
-                        throw new BadRequestException("Email does not exist in the system.");
+                        throw new NotFoundException("Email does not exist in the system.");
                     }
                     accountRedisModel = this._mapper.Map<AccountRedisModel>(account);
                     await this._unitOfWork.AccountRedisDAO.AddAccountAsync(accountRedisModel);
@@ -193,12 +202,15 @@ namespace MBKC.BAL.Repositories.Implementations
                 accountRedisModel.Password = resetPassword.NewPassword;
                 await this._unitOfWork.AccountRedisDAO.UpdateAccountAsync(accountRedisModel);
                 await this._unitOfWork.EmailVerificationRedisDAO.DeleteEmailVerificationAsync(emailVerificationRedisModel);
+            } catch (NotFoundException ex)
+            {
+                string error = ErrorUtil.GetErrorString("Email", ex.Message);
+                throw new NotFoundException(error);
             }
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals("Email does not exist in the system.")
-                    || ex.Message.Equals("Email has not been previously authenticated.")
+                if (ex.Message.Equals("Email has not been previously authenticated.")
                     || ex.Message.Equals("Email is not yet authenticated."))
                 {
                     fieldName = "Email";

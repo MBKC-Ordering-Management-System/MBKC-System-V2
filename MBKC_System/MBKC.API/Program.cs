@@ -40,7 +40,7 @@ builder.Services.AddSwaggerGen(options =>
     {
         Version = "v1",
         Title = "MBKC Application API",
-        Description = "JWT Authentication API"
+        Description = "The MBKC Application API is built for the Order Management System for Multi-Brand Kitchen Center."
     });
 
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
@@ -168,11 +168,9 @@ builder.Services.AddTransient<ExceptionMiddleware>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
+
     app.UseSwagger();
     app.UseSwaggerUI();
-}
 
 app.UseCors("WebPolicy");
 
