@@ -43,11 +43,12 @@ namespace MBKC.DAL.DAOs
         }
 
         public async Task<Account> GetAccountAsync(string email, string password)
+        public async Task<Account> GetActiveAccountAsync(string email)
         {
             try
             {
                 return await this._dbContext.Accounts.Include(x => x.Role)
-                                                     .SingleOrDefaultAsync(x => x.Email.Equals(email) && x.Password.Equals(password) && x.Status == Convert.ToBoolean((int)AccountEnum.Status.ACTIVE));
+                                                     .SingleOrDefaultAsync(x => x.Email.Equals(email) && x.Status == Convert.ToBoolean((int)AccountEnum.Status.ACTIVE));
             } catch(Exception ex)
             {
                 throw new Exception(ex.Message);

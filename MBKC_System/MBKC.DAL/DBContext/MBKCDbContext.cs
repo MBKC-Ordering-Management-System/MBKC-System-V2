@@ -1,4 +1,5 @@
-﻿using MBKC.DAL.Models;
+﻿using MBKC.DAL.DataSeedings;
+using MBKC.DAL.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -251,6 +252,7 @@ namespace MBKC.DAL.DBContext
                 product.Property(prop => prop.Image).IsUnicode(true).HasMaxLength(int.MaxValue).IsRequired(true);
                 product.Property(prop => prop.HistoricalPrice).HasColumnType("decimal(9,2)").IsRequired(true);
                 product.Property(prop => prop.Status).IsRequired(true);
+                product.Property(prop => prop.DisplayOrder).IsRequired(true);
             });
 
             modelBuilder.Entity<Product>()
@@ -405,6 +407,10 @@ namespace MBKC.DAL.DBContext
            .WithOne()
            .HasForeignKey<StoreMoneyExchange>(storeMoneyExchange => storeMoneyExchange.ExchangeId);
             #endregion
+
+
+            modelBuilder.RoleData();
+
         }
     }
 }

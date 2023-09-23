@@ -35,7 +35,7 @@ namespace MBKC.BAL.Repositories.Implementations
                     Account account = await this._unitOfWork.AccountDAO.GetAccountAsync(emailVerificationRequest.Email);
                     if(account == null)
                     {
-                        throw new BadRequestException("Email does not exist in the system.");
+                        throw new NotFoundException("Email does not exist in the system.");
                     }
                     accountRedisModel = this._mapper.Map<AccountRedisModel>(account);
                     await this._unitOfWork.AccountRedisDAO.AddAccountAsync(accountRedisModel);
@@ -43,10 +43,10 @@ namespace MBKC.BAL.Repositories.Implementations
                 EmailVerification emailVerification = EmailUtil.SendEmailToResetPassword(email, emailVerificationRequest);
                 EmailVerificationRedisModel emailVerificationRedisModel = this._mapper.Map<EmailVerificationRedisModel>(emailVerification);
                 await this._unitOfWork.EmailVerificationRedisDAO.AddEmailVerificationAsync(emailVerificationRedisModel);
-            } catch(BadRequestException ex)
+            } catch(NotFoundException ex)
             {
                 string error = ErrorUtil.GetErrorString("Email", ex.Message);
-                throw new BadRequestException(error);
+                throw new NotFoundException(error);
             } 
             catch(Exception ex)
             {
@@ -65,7 +65,7 @@ namespace MBKC.BAL.Repositories.Implementations
                     Account account = await this._unitOfWork.AccountDAO.GetAccountAsync(otpCodeVerificationRequest.Email);
                     if (account == null)
                     {
-                        throw new BadRequestException("Email does not exist in the system.");
+                        throw new NotFoundException("Email does not exist in the system.");
                     }
                     accountRedisModel = this._mapper.Map<AccountRedisModel>(account);
                     await this._unitOfWork.AccountRedisDAO.AddAccountAsync(accountRedisModel);
@@ -86,11 +86,15 @@ namespace MBKC.BAL.Repositories.Implementations
                 emailVerificationRedisModel.IsVerified = Convert.ToBoolean((int)EmailVerificationEnum.Status.VERIFIED);
                 await this._unitOfWork.EmailVerificationRedisDAO.UpdateEmailVerificationAsync(emailVerificationRedisModel);
             }
+            catch (NotFoundException ex)
+            {
+                string error = ErrorUtil.GetErrorString("Email", ex.Message);
+                throw new NotFoundException(error);
+            }
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if(ex.Message.Equals("Email does not exist in the system.")
-                    || ex.Message.Equals("Email has not been previously authenticated."))
+                if(ex.Message.Equals("Email has not been previously authenticated."))
                 {
                     fieldName = "Email";
                 } else if(ex.Message.Equals("OTP code has expired.")
