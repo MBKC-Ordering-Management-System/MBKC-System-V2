@@ -40,6 +40,7 @@ namespace MBKC.DAL.Infrastructures
                 await this._redisConnectionProvider.Connection.CreateIndexAsync(typeof(AccountRedisModel));
                 await this._redisConnectionProvider.Connection.CreateIndexAsync(typeof(AccountTokenRedisModel));
                 await this._redisConnectionProvider.Connection.CreateIndexAsync(typeof(EmailVerificationRedisModel));
+                await this._redisConnectionProvider.Connection.CreateIndexAsync(typeof(KitchenCenterRedisModel));
             }
             return this._redisConnectionProvider;
         }

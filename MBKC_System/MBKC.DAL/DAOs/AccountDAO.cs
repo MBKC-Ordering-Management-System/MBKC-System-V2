@@ -23,7 +23,7 @@ namespace MBKC.DAL.DAOs
             try
             {
                 return await this._dbContext.Accounts.Include(x => x.Role)
-                                                     .SingleOrDefaultAsync(x => x.Email.Equals(email) && x.Status == Convert.ToBoolean((int)AccountEnum.Status.ACTIVE));
+                                                     .SingleOrDefaultAsync(x => x.Email.Equals(email) && x.Status == (int)AccountEnum.Status.ACTIVE);
             } catch(Exception ex)
             {
                 throw new Exception(ex.Message);

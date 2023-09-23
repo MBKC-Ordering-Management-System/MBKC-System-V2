@@ -14,7 +14,6 @@ namespace MBKC.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Consumes("application/json")]
     public class AuthenticationsController : ControllerBase
     {
         private IAuthenticationRepository _authenticationRepository;
@@ -62,6 +61,7 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Consumes("application/json")]
         [Produces("application/json")]
         [HttpPost("login")]
         public async Task<IActionResult> PostLoginAsync([FromBody]AccountRequest account)
@@ -106,6 +106,7 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Consumes("application/json")]
         [Produces("application/json")]
         [HttpPost("tokens-regeneration")]
         public async Task<IActionResult> PostReGenerateTokensAsync([FromBody]AccountTokenRequest accountToken)
@@ -147,6 +148,7 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Consumes("application/json")]
         [Produces("application/json")]
         [HttpPut("reset-password")]
         public async Task<IActionResult> PutResetPasswordAsync([FromBody]ResetPasswordRequest resetPassword)

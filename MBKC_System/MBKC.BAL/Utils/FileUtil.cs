@@ -46,13 +46,10 @@ namespace MBKC.BAL.Utils
         #endregion
 
         #region Upload Image
-        public static async Task<Tuple<string, string>> UploadImage(FileStream stream, string folder)
+        public static async Task<string> UploadImageAsync(FileStream stream, string folder, string fileId)
         {
             try
             {
-                Guid guid = Guid.NewGuid();
-                var fileId = guid.ToString();
-
                 var auth = new FirebaseAuthProvider(new FirebaseConfig(ApiKey));
                 var a = await auth.SignInWithEmailAndPasswordAsync(AuthEmail, AuthPassword);
 
@@ -73,7 +70,7 @@ namespace MBKC.BAL.Utils
 
                 // error during upload will be thrown when you await the task
                 string link = await task;
-                return Tuple.Create(link, fileId);
+                return link;
             }
             catch (Exception ex)
             {
@@ -115,7 +112,7 @@ namespace MBKC.BAL.Utils
         #region HaveSupportedFileType
         public static bool HaveSupportedFileType(string fileName)
         {
-            string[] validFileTypes = { ".png", ".jpg", ".jpeg" };
+            string[] validFileTypes = { ".png", ".jpg", ".jpeg" , ".webp" };
             string extensionFile = Path.GetExtension(fileName);
             if (validFileTypes.Contains(extensionFile))
             {

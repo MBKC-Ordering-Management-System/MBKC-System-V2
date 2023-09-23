@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MBKC.DAL.Enums
 {
-    public static class AccountEnum
+    public static class KitchenCenterEnum
     {
         public enum Status
         {

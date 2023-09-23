@@ -41,6 +41,7 @@ namespace MBKC.DAL.Infrastructures
         private AccountRedisDAO _accountRedisDAO;
         private AccountTokenRedisDAO  _accountTokenRedisDAO;
         private EmailVerificationRedisDAO  _emailVerificationRedisDAO;
+        private KitchenCenterRedisDAO  _kitchenCenterRedisDAO;
 
         public UnitOfWork(IDbFactory dbFactory)
         {
@@ -170,6 +171,18 @@ namespace MBKC.DAL.Infrastructures
                     this._kitchenCenterDAO = new KitchenCenterDAO(this._dbContext);
                 }
                 return this._kitchenCenterDAO;
+            }
+        }
+
+        public KitchenCenterRedisDAO KitchenCenterRedisDAO
+        {
+            get
+            {
+                if(this._kitchenCenterRedisDAO == null)
+                {
+                    this._kitchenCenterRedisDAO = new KitchenCenterRedisDAO(this._redisConnectionProvider);
+                }
+                return this._kitchenCenterRedisDAO;
             }
         }
 
