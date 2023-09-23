@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using MBKC.BAL.DTOs.Brands;
 using MBKC.DAL.Models;
+using MBKC.DAL.RedisModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,9 @@ namespace MBKC.BAL.Profiles.Brands
         public BrandProfile()
         {
             CreateMap<Brand, GetBrandResponse>().ReverseMap();
+            CreateMap<BrandRedisModel, GetBrandResponse>().ReverseMap();
             CreateMap<Brand, UpdateBrandRequest>().ReverseMap();
+            CreateMap<Brand, BrandRedisModel>().ReverseMap();
         }
     }
 }

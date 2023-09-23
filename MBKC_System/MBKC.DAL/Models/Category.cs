@@ -18,7 +18,7 @@ namespace MBKC.DAL.Models
         public int DisplayOrder { get; set; }
         public string Description { get; set; }
         public string ImageUrl { get; set; }
-        public bool Status { get; set; }
+        public int Status { get; set; }
 
         [ForeignKey("BrandId")]
         public virtual Brand Brand { get; set; }

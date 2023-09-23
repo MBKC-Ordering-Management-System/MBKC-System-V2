@@ -9,11 +9,13 @@ using MBKC.DAL.DBContext;
 using MBKC.DAL.Enums;
 using MBKC.DAL.Infrastructures;
 using MBKC.DAL.Models;
+using MBKC.DAL.RedisModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace MBKC.BAL.Repositories.Implementations
 {
@@ -64,7 +66,7 @@ namespace MBKC.BAL.Repositories.Implementations
                 {
                     Name = postBrandRequest.Name,
                     Address = postBrandRequest.Address,
-                    Logo = urlImage,
+                    Logo = urlImage + $"&logoId={logoId}",
                     Status = (int)BrandEnum.Status.ACTIVE,
                 };
                 await _unitOfWork.BrandDAO.CreateBrand(brand);
@@ -80,6 +82,16 @@ namespace MBKC.BAL.Repositories.Implementations
 
                 //Send password to email of Brand Manager
                 await EmailUtil.SendEmailAndPasswordToEmail(emailSystem, account.Email, EmailUtil.MessageRegisterAccount(emailSystem.SystemName, account.Email, unEncryptedPassword), "Brand Manager");
+                // add to Redis
+                var brandRedisModel = new BrandRedisModel();
+                var accountRedisModel = new AccountRedisModel();
+                var brandAcocuntRedisModel = new BrandAccountRedisModel();
+                _mapper.Map(brand, brandRedisModel);
+                _mapper.Map(account, accountRedisModel);
+                _mapper.Map(brandAccount, brandAcocuntRedisModel);
+                await this._unitOfWork.AccountRedisDAO.AddAccountAsync(accountRedisModel);
+                await this._unitOfWork.BrandRedisDAO.AddBrandAsync(brandRedisModel);
+                await this._unitOfWork.BrandAccountRedisDAO.AddBrandAccountAsync(brandAcocuntRedisModel);
                 return _mapper.Map<GetBrandResponse>(brand);
             }
             catch (ConflictException ex)
@@ -121,7 +133,7 @@ namespace MBKC.BAL.Repositories.Implementations
                 {
                     throw new BadRequestException("Can't update Brand DEACTIVED");
                 }
-                if (updateBrandRequest.Status != (int)BrandEnum.Status.ACTIVE ||
+                if (updateBrandRequest.Status != (int)BrandEnum.Status.ACTIVE &&
                     updateBrandRequest.Status != (int)BrandEnum.Status.INACTIVE)
                 {
                     throw new BadRequestException("Status of Brand are 0(INACTIVE), 1(ACTIVE)");
@@ -130,8 +142,9 @@ namespace MBKC.BAL.Repositories.Implementations
                 {
                     //Delete image from database
                     FileUtil.SetCredentials(fireBaseImage);
-                    string fileId = SplitStringUtil.SplitString(brand.Logo, "Brand");
-                    await FileUtil.DeleteImageAsync(fileId, "Brand");
+                    Uri uri = new Uri(brand.Logo);
+                    logoId = HttpUtility.ParseQueryString(uri.Query).Get("logoId");
+                    await FileUtil.DeleteImageAsync(logoId, "Brand");
 
                     // Upload image to firebase
                     FileStream fileStream = Utils.FileUtil.ConvertFormFileToStream(updateBrandRequest.Logo);
@@ -147,6 +160,12 @@ namespace MBKC.BAL.Repositories.Implementations
                 brand.Status = updateBrandRequest.Status;
                 _unitOfWork.BrandDAO.UpdateBrand(brand);
                 _unitOfWork.Commit();
+
+                //Get brand from Redis
+                var brandRedis = await _unitOfWork.BrandRedisDAO.GetBrandByIdAsync(brandId.ToString());
+                _mapper.Map(brand, brandRedis);
+                //Update brand to Redis
+                await this._unitOfWork.BrandRedisDAO.UpdateBrandAsync(brandRedis);
                 return _mapper.Map<GetBrandResponse>(brand);
             }
             catch (BadRequestException ex)
@@ -188,8 +207,9 @@ namespace MBKC.BAL.Repositories.Implementations
             try
             {
                 var brandResponse = new List<GetBrandResponse>();
-                var brands = await _unitOfWork.BrandDAO.GetBrands();
-                _mapper.Map(brands, brandResponse);
+                var brandsRedis = await this._unitOfWork.BrandRedisDAO.GetBrandsAsync();
+
+                _mapper.Map(brandsRedis, brandResponse);
                 if (PAGE_SIZE == null)
                 {
                     PAGE_SIZE = 10;
@@ -260,12 +280,17 @@ namespace MBKC.BAL.Repositories.Implementations
         {
             try
             {
-                var brand = await _unitOfWork.BrandDAO.GetBrandById(id);
-                if (brand == null)
+                var brandRedis = await this._unitOfWork.BrandRedisDAO.GetBrandByIdAsync(id.ToString());
+                var brand = new Brand();
+                if (brandRedis == null)
                 {
-                    throw new NotFoundException("Brand does not exist in the system");
+                    brand = await _unitOfWork.BrandDAO.GetBrandById(id);
+                    if (brand == null)
+                    {
+                        throw new NotFoundException("Brand does not exist in the system");
+                    }
                 }
-                return _mapper.Map<GetBrandResponse>(brand);
+                return _mapper.Map<GetBrandResponse>(brandRedis);
             }
             catch (NotFoundException ex)
             {
@@ -297,9 +322,10 @@ namespace MBKC.BAL.Repositories.Implementations
                     throw new NotFoundException("Brand does not exist in the system");
                 }
 
+
+
                 // Deactive status of brand
                 brand.Status = (int)BrandEnum.Status.DEACTIVE;
-
 
                 // Inactive Manager Account of brand
                 foreach (var brandAccount in brand.BrandAccounts)
@@ -312,7 +338,7 @@ namespace MBKC.BAL.Repositories.Implementations
                 {
                     foreach (var product in brand.Products)
                     {
-                        product.Status = Convert.ToBoolean(ProductEnum.Status.INACTIVE);
+                        product.Status = (int)ProductEnum.Status.DEACTIVE;
                     }
                 }
 
@@ -322,14 +348,14 @@ namespace MBKC.BAL.Repositories.Implementations
                 {
                     foreach (var category in brand.Categories)
                     {
-                        category.Status = Convert.ToBoolean(CategoryEnum.Status.INACTIVE);
+                        category.Status = (int)CategoryEnum.Status.DEACTIVE;
                     }
                     // Inactive extra categories belong to brand
                     foreach (var category in brand.Categories)
                     {
                         foreach (var extra in category.ExtraCategoryProductCategories)
                         {
-                            extra.Status = Convert.ToBoolean(ExtraCategoryEnum.Status.INACTIVE);
+                            extra.Status = (int)ExtraCategoryEnum.Status.DEACTIVE;
                         }
                     }
                 }
@@ -344,6 +370,13 @@ namespace MBKC.BAL.Repositories.Implementations
                 }
                 _unitOfWork.BrandDAO.UpdateBrand(brand);
                 _unitOfWork.Commit();
+
+                var brandRedis = await _unitOfWork.BrandRedisDAO.GetBrandByIdAsync(id.ToString());
+                if (brandRedis == null)
+                {
+                    throw new NotFoundException("Brand does not exist in the system");
+                }
+
             }
             catch (NotFoundException ex)
             {

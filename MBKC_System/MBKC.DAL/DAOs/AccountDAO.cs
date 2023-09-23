@@ -42,7 +42,6 @@ namespace MBKC.DAL.DAOs
             }
         }
 
-        public async Task<Account> GetAccountAsync(string email, string password)
         public async Task<Account> GetActiveAccountAsync(string email)
         {
             try

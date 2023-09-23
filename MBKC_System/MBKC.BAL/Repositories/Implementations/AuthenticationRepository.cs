@@ -52,7 +52,7 @@ namespace MBKC.BAL.Repositories.Implementations
                         throw new BadRequestException("Email or Password is invalid.");
                     }
                     accountRedisModel = this._mapper.Map<AccountRedisModel>(accountModel);
-                    await this._unitOfWork.AccountRedisDAO.AddAccountAsync(accountRedisModel);
+                    await this._unitOfWork.AccountRedisDAO. AddAccountAsync(accountRedisModel);
                 }
                 AccountResponse accountResponse = this._mapper.Map<AccountResponse>(accountRedisModel);
                 accountResponse = await GenerateTokenAsync(accountResponse, jwtAuth);
