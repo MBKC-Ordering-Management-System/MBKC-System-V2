@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace MBKC.DAL.Enums
 {
-    public static class AccountEnum
+    public class ExtraCategoryEnum
     {
         public enum Status
         {
-            INACTIVE = 0, 
-            ACTIVE = 1, 
+            INACTIVE = 0,
+            ACTIVE = 1,
             DEACTIVE = 2
         }
     }

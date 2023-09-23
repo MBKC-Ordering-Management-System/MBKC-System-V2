@@ -1,5 +1,6 @@
 ﻿using MBKC.BAL.DTOs.Brands;
 using MBKC.BAL.DTOs.FireBase;
+using MBKC.BAL.DTOs.Verifications;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,10 +11,10 @@ namespace MBKC.BAL.Repositories.Interfaces
 {
     public interface IBrandRepository
     {
-        public Task<GetBrandResponse> CreateBrand(PostBrandRequest postBrandRequest, FireBaseImage fireBaseImage);
-        public Task<GetBrandResponse> UpdateBrand( int brandId, UpdateBrandRequest updateBrandRequest, FireBaseImage fireBaseImage);
-        public Task<List<GetBrandResponse>> GetBrands();
-        public Task<GetBrandResponse> GetBrandById(int id);
-
+        public Task<GetBrandResponse> CreateBrandAsync(PostBrandRequest postBrandRequest, FireBaseImage fireBaseImage, Email emailSystem);
+        public Task<GetBrandResponse> UpdateBrandAsync( int brandId, UpdateBrandRequest updateBrandRequest, FireBaseImage fireBaseImage);
+        public Task<Tuple<List<GetBrandResponse>, int, int?, int?>> GetBrandsAsync(SearchBrandRequest? searchBrandRequest, int? PAGE_NUMBER, int? PAGE_SIZE);
+        public Task<GetBrandResponse> GetBrandByIdAsync(int id);
+        public Task DeActiveBrandByIdAsync(int id);
     }
 }

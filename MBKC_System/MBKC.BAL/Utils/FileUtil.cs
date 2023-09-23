@@ -46,13 +46,11 @@ namespace MBKC.BAL.Utils
         #endregion
 
         #region Upload Image
-        public static async Task<string> UploadImage(FileStream stream, string folder)
+        public static async Task<string> UploadImage(FileStream stream, string folder, string fileId)
         {
             try
             {
-                Guid guid = Guid.NewGuid();
-                var fileId = guid.ToString();
-
+               
                 var auth = new FirebaseAuthProvider(new FirebaseConfig(ApiKey));
                 var a = await auth.SignInWithEmailAndPasswordAsync(AuthEmail, AuthPassword);
 
@@ -69,7 +67,6 @@ namespace MBKC.BAL.Utils
                     .Child(folder)
                     .Child(fileId)
                     .PutAsync(stream, cancellation.Token);
-
 
                 // error during upload will be thrown when you await the task
                 string link = await task;

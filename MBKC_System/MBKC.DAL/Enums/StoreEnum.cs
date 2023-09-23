@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace MBKC.DAL.Enums
 {
-    public static class AccountEnum
+    public class StoreEnum
     {
         public enum Status
         {
-            INACTIVE = 0, 
-            ACTIVE = 1, 
-            DEACTIVE = 2
+            INACTIVE = 0,
+            NOT_RENT = 1,
+            RENT = 2
         }
     }
 }

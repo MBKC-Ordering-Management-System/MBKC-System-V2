@@ -18,7 +18,7 @@ namespace MBKC.DAL.DAOs
             this._dbContext = dbContext;
         }
 
-        public async Task CreateAccount(Account account)
+        public async Task CreateAccountAsync(Account account)
         {
             try
             {
@@ -30,7 +30,7 @@ namespace MBKC.DAL.DAOs
             }
         }
 
-        public async Task<Account> GetAccountByEmail(string email)
+        public async Task<Account> GetAccountByEmailAsync(string email)
         {
             try
             {

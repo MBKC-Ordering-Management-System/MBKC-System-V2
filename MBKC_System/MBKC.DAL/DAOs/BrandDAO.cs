@@ -52,6 +52,10 @@ namespace MBKC.DAL.DAOs
             {
                 return await _dbContext.Brands.Include(brand => brand.BrandAccounts)
                                               .ThenInclude(brandAccount => brandAccount.Account)
+                                              .Include(brand => brand.Categories)
+                                              .ThenInclude(category => category.ExtraCategoryProductCategories)
+                                              .Include(brand => brand.Products)
+                                              .Include(brand => brand.Stores)
                                               .SingleOrDefaultAsync(b => b.BrandId == id);
             }
             catch (Exception ex)

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using MBKC.DAL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,6 @@ namespace MBKC.BAL.Profiles.Categories
     {
         public CategoryProfile()
         {
-
         }
     }
 }
