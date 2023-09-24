@@ -125,7 +125,7 @@ namespace MBKC.BAL.Repositories.Implementations
             {
                 var brand = await _unitOfWork.BrandDAO.GetBrandByIdAsync(brandId);
                 var brands = await _unitOfWork.BrandDAO.GetBrandsAsync();
-                var checkDupplicatedName = brands.Where(b => b.Name == updateBrandRequest.Name && b.BrandId != brandId).SingleOrDefault();
+                var checkDupplicatedName = brands.SingleOrDefault(b => b.Name == updateBrandRequest.Name && b.BrandId != brandId);
                 if (brand == null)
                 {
                     throw new NotFoundException("Brand does not exist in the system");
@@ -333,8 +333,6 @@ namespace MBKC.BAL.Repositories.Implementations
                 {
                     throw new NotFoundException("Brand does not exist in the system");
                 }
-
-
 
                 // Deactive status of brand
                 brand.Status = (int)BrandEnum.Status.DEACTIVE;

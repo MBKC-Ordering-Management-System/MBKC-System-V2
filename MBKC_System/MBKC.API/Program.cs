@@ -23,6 +23,8 @@ using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Filters;
 using System.Reflection;
 using System.Text;
+using MBKC.BAL.Validators.Categories;
+using MBKC.BAL.DTOs.Categories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -171,6 +173,9 @@ builder.Services.AddScoped<IValidator<OTPCodeVerificationRequest>, OTPCodeVerify
 builder.Services.AddScoped<IValidator<ResetPasswordRequest>, ResetPasswordRequestValidator>();
 builder.Services.AddScoped<IValidator<PostBrandRequest>, PostBrandValidation>();
 builder.Services.AddScoped<IValidator<UpdateBrandRequest>, UpdateBrandValidation>();
+builder.Services.AddScoped<IValidator<PostCategoryRequest>, PostCategoryValidation>();
+builder.Services.AddScoped<IValidator<UpdateCategoryRequest>, UpdateCategoryValidation>();
+
 //Middlewares
 builder.Services.AddTransient<ExceptionMiddleware>();
 
@@ -178,8 +183,8 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
-    app.UseSwagger();
-    app.UseSwaggerUI();
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseCors("WebPolicy");
 
