@@ -323,11 +323,16 @@ namespace MBKC.BAL.Repositories.Implementations
 
         }
 
-        public async Task<Tuple<List<GetProductResponse>, int, int?, int?>> GetProductsInCategory(int categoryId, int? PAGE_NUMBER, int? PAGE_SIZE)
+        public async Task<Tuple<List<GetProductResponse>, int, int?, int?>> GetProductsInCategory(int categoryId, SearchProductsInCategory searchProductsInCategory, int? PAGE_NUMBER, int? PAGE_SIZE)
         {
             try
             {
                 var productResponse = new List<GetProductResponse>();
+                var category = await this._unitOfWork.CategoryDAO.GetCategoryByIdAsync(categoryId);
+                if (category == null)
+                {
+                    throw new NotFoundException("Category does not exist in the system.");
+                }
                 var products = await this._unitOfWork.ProductDAO.GetProductsByCategoryIdAsync(categoryId);
                 _mapper.Map(products, productResponse);
 
@@ -341,6 +346,12 @@ namespace MBKC.BAL.Repositories.Implementations
                     PAGE_NUMBER = 1;
                 }
 
+                //Search
+                if (searchProductsInCategory.KeySearchName != "" && searchProductsInCategory.KeySearchName != null)
+                {
+                    productResponse = productResponse.Where(b => b.Name.ToLower().Contains(searchProductsInCategory.KeySearchName.Trim().ToLower())).ToList();
+                }
+
                 // Count total page
                 int totalRecords = productResponse.Count();
                 int totalPages = (int)Math.Ceiling((double)((double)totalRecords / PAGE_SIZE));
@@ -351,11 +362,89 @@ namespace MBKC.BAL.Repositories.Implementations
                 return Tuple.Create(productResponse, totalPages, PAGE_NUMBER, PAGE_SIZE);
 
             }
+            catch (NotFoundException ex)
+            {
+
+                string fileName = "";
+                if (ex.Message.Equals("Category does not exist in the system."))
+                {
+                    fileName = "CategoryId";
+                }
+                string error = ErrorUtil.GetErrorString(fileName, ex.Message);
+                throw new NotFoundException(error);
+            }
             catch (Exception ex)
             {
                 string error = ErrorUtil.GetErrorString("Error", ex.Message);
                 throw new Exception(error);
             }
         }
+
+        public async Task<Tuple<List<GetCategoryResponse>, int, int?, int?>> GetExtraCategoriesByCategoryId(int categoryId, SearchCategoryRequest? searchCategoryRequest, int? PAGE_NUMBER, int? PAGE_SIZE)
+        {
+            try
+            {
+                var categoryResponse = new List<GetCategoryResponse>();
+                var listExtraCategoriesInNormalCategory = new List<Category>();
+                var category = await this._unitOfWork.CategoryDAO.GetCategoryByIdAsync(categoryId);
+                if (category == null)
+                {
+                    throw new NotFoundException("Category does not exist in the system.");
+                }
+                var extraCategories = await this._unitOfWork.ExtraCategoryDAO.GetExtraCategoriesByCategoryIdAsync(categoryId);
+
+                foreach (var extraCategory in extraCategories)
+                {
+                    var extraCategoryInNormalCategory = await this._unitOfWork.CategoryDAO.GetCategoryByIdAsync(extraCategory.ExtraCategoryId);
+                    listExtraCategoriesInNormalCategory.Add(extraCategoryInNormalCategory);
+                }
+
+                _mapper.Map(listExtraCategoriesInNormalCategory, categoryResponse);
+
+                if (PAGE_SIZE == null)
+                {
+                    PAGE_SIZE = 10;
+                }
+
+                if (PAGE_NUMBER == null)
+                {
+                    PAGE_NUMBER = 1;
+                }
+
+                //Search
+                if (searchCategoryRequest.KeySearchName != "" && searchCategoryRequest.KeySearchName != null)
+                {
+                    categoryResponse = categoryResponse.Where(b => b.Name.ToLower().Contains(searchCategoryRequest.KeySearchName.Trim().ToLower())).ToList();
+                }
+
+                // Count total page
+                int totalRecords = categoryResponse.Count();
+                int totalPages = (int)Math.Ceiling((double)((double)totalRecords / PAGE_SIZE));
+
+                // Paing
+                categoryResponse = categoryResponse.Skip((int)((PAGE_NUMBER - 1) * PAGE_SIZE)).Take((int)PAGE_SIZE).ToList();
+
+                return Tuple.Create(categoryResponse, totalPages, PAGE_NUMBER, PAGE_SIZE);
+
+            }
+            catch (NotFoundException ex)
+            {
+
+                string fileName = "";
+                if (ex.Message.Equals("Category does not exist in the system."))
+                {
+                    fileName = "CategoryId";
+                }
+                string error = ErrorUtil.GetErrorString(fileName, ex.Message);
+                throw new NotFoundException(error);
+            }
+            catch (Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Error", ex.Message);
+                throw new Exception(error);
+            }
+        }
+
+
     }
 }

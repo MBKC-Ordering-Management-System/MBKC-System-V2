@@ -233,5 +233,87 @@ namespace MBKC.API.Controllers
             });
         }
         #endregion
+
+        #region Get Products By category id
+        /// <summary>
+        /// Brand Manager get Products by category Id.
+        /// </summary>
+        /// <param name="id">
+        ///  Id of Category.
+        /// </param>
+        /// <returns>
+        /// An Object will return CategoryId, Code, Name, Type, DisplayOrder, Description, ImgUrl, Status.
+        /// </returns>
+        /// <remarks>
+        ///     Sample request:
+        ///     
+        ///         GET
+        ///         id: 1
+        ///         KeySearchName: Bánh Quy Bơ
+        ///         PAGE_SIZE: 5
+        ///         PAGE_NUMBER: 1
+        /// </remarks>
+        /// <response code="200">Get products Successfully.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
+        /// <response code="404">Some Error about request data not found.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
+        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [HttpGet("{id}/products")]
+        public async Task<IActionResult> GetProductsByIdAsync([FromRoute] int id, [FromQuery] SearchProductsInCategory? searchProductsInCategory, [FromQuery] int? PAGE_NUMBER, [FromQuery] int? PAGE_SIZE)
+        {
+            var data = await this._categoryRepository.GetProductsInCategory(id, searchProductsInCategory, PAGE_NUMBER, PAGE_SIZE);
+
+            return Ok(new
+            {
+                products = data.Item1,
+                totalPage = data.Item2,
+                pageNumber = data.Item3,
+                pageSize = data.Item4
+            });
+        }
+        #endregion
+
+        #region Get ExtraCategories By category id
+        /// <summary>
+        /// Brand Manager get ExtraCategories by category Id.
+        /// </summary>
+        /// <param name="id">
+        ///  Id of Category.
+        /// </param>
+        /// <returns>
+        /// An Object will return CategoryId, Code, Name, Type, DisplayOrder, Description, ImgUrl, Status.
+        /// </returns>
+        /// <remarks>
+        ///     Sample request:
+        ///     
+        ///         GET
+        ///         id: 1
+        ///         KeySearchName: Ngò gai
+        ///         PAGE_SIZE: 5
+        ///         PAGE_NUMBER: 1
+        /// </remarks>
+        /// <response code="200">Get Extra categories Successfully.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
+        /// <response code="404">Some Error about request data not found.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
+        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [HttpGet("{id}/extra-categories")]
+        public async Task<IActionResult> GetExtraCategoriesByCategoryId([FromRoute] int id, [FromQuery] SearchCategoryRequest? searchCategoryRequest, [FromQuery] int? PAGE_NUMBER, [FromQuery] int? PAGE_SIZE)
+        {
+            var data = await this._categoryRepository.GetExtraCategoriesByCategoryId(id, searchCategoryRequest, PAGE_NUMBER, PAGE_SIZE);
+
+            return Ok(new
+            {
+                extraCategories = data.Item1,
+                totalPage = data.Item2,
+                pageNumber = data.Item3,
+                pageSize = data.Item4
+            });
+        }
+        #endregion
     }
 }

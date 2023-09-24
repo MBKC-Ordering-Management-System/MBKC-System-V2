@@ -17,6 +17,8 @@ namespace MBKC.BAL.Repositories.Interfaces
         public Task<Tuple<List<GetCategoryResponse>, int, int?, int?>> GetCategoriesAsync(SearchCategoryRequest? searchCategoryRequest, int? PAGE_NUMBER, int? PAGE_SIZE);
         public Task<GetCategoryResponse> GetCategoryByIdAsync(int id);
         public Task DeActiveCategoryByIdAsync(int id);
-        public Task<Tuple<List<GetProductResponse>, int, int?, int?>> GetProductsInCategory(int categoryId, int? PAGE_NUMBER, int? PAGE_SIZE);
+        public Task<Tuple<List<GetProductResponse>, int, int?, int?>> GetProductsInCategory(int categoryId, SearchProductsInCategory? searchProductsInCategory, int? PAGE_NUMBER, int? PAGE_SIZE);
+        public Task<Tuple<List<GetCategoryResponse>, int, int?, int?>> GetExtraCategoriesByCategoryId(int categoryId, SearchCategoryRequest? searchCategoryRequest, int? PAGE_NUMBER, int? PAGE_SIZE);
+
     }
 }
