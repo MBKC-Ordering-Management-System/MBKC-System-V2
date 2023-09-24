@@ -41,6 +41,6 @@ namespace MBKC.DAL.RedisModels
         [Indexed]
         public int CategoryId { get; set; }
         [Indexed]
-        public int BrandId { get; set; }
+        public string BrandId { get; set; }
     }
 }

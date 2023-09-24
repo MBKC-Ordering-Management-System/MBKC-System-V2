@@ -10,12 +10,20 @@ namespace MBKC.DAL.RedisModels
     [Document(StorageType = StorageType.Json, Prefixes = new[] { "Store" }, IndexName = "stores")]
     public class StoreRedisModel
     {
-        public int StoreId { get; set; }
+        [RedisIdField]
+        [Indexed]
+        public string StoreId { get; set; }
+        [Indexed]
         public string Name { get; set; }
+        [Indexed]
         public int Status { get; set; }
+        [Indexed]
         public string Logo { get; set; }
+        [Indexed]
         public int KitchenCenterId { get; set; }
-        public int BrandId { get; set; }
+        [Indexed]
+        public string BrandId { get; set; }
+        [Indexed]
         public int WalletId { get; set; }
     }
 }

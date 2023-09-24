@@ -11,14 +11,24 @@ namespace MBKC.DAL.RedisModels
 
     public class CategoryRedisModel
     {
-        public int CategoryId { get; set; }
+        [RedisIdField]
+        [Indexed]
+        public string CategoryId { get; set; }
+        [Indexed]
         public string Code { get; set; }
+        [Indexed]
         public string Name { get; set; }
+        [Indexed]
         public string Type { get; set; }
+        [Indexed]
         public int DisplayOrder { get; set; }
+        [Indexed]
         public string Description { get; set; }
+        [Indexed]
         public string ImageUrl { get; set; }
+        [Indexed]
         public int Status { get; set; }
-        public int BrandId { get; set; }
+        [Indexed]
+        public string BrandId { get; set; }
     }
 }

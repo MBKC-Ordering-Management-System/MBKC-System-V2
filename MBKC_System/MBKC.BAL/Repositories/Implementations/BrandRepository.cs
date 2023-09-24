@@ -124,11 +124,16 @@ namespace MBKC.BAL.Repositories.Implementations
             try
             {
                 var brand = await _unitOfWork.BrandDAO.GetBrandById(brandId);
+                var brands = await _unitOfWork.BrandDAO.GetBrands();
+                var checkDupplicatedName = brands.Where(b => b.Name == updateBrandRequest.Name && b.BrandId != brandId).SingleOrDefault();
                 if (brand == null)
                 {
                     throw new NotFoundException("Brand does not exist in the system");
                 }
-
+                if (checkDupplicatedName != null)
+                {
+                    throw new ConflictException("Brand name already exist in the system");
+                }
                 if (brand.Status == (int)BrandEnum.Status.DEACTIVE)
                 {
                     throw new BadRequestException("Can't update Brand DEACTIVED");
@@ -188,6 +193,16 @@ namespace MBKC.BAL.Repositories.Implementations
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new NotFoundException(error);
+            }
+            catch (ConflictException ex)
+            {
+                string fieldName = "";
+                if (ex.Message.Equals("Brand name already exist in the system"))
+                {
+                    fieldName = "Name";
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new ConflictException(error);
             }
             catch (Exception ex)
             {
@@ -371,12 +386,43 @@ namespace MBKC.BAL.Repositories.Implementations
                 _unitOfWork.BrandDAO.UpdateBrand(brand);
                 _unitOfWork.Commit();
 
+                //Deactive brand, Brand Manager account, product, categories, extra categories from Redis
                 var brandRedis = await _unitOfWork.BrandRedisDAO.GetBrandByIdAsync(id.ToString());
                 if (brandRedis == null)
                 {
                     throw new NotFoundException("Brand does not exist in the system");
                 }
+                brandRedis.Status = (int)BrandEnum.Status.DEACTIVE;
+                var categoriesRedis = await _unitOfWork.CategoryRedisDAO.GetCategoriesByBrandIdAsync(brandRedis.BrandId);
+                var extraCategoriesRedis = await _unitOfWork.ExtraCategoryRedisDAO.GetExtraCategoryByCategoriesIdAsync(brandRedis.BrandId);
+                var productsRedis = await this._unitOfWork.ProductRedisDAO.GetProductsByBrandIdAsync(brandRedis.BrandId);
+                var storesRedis = await this._unitOfWork.StoreRedisDAO.GetStoresByBrandIdAsync(brandRedis.BrandId);
+                var brandAccountRedis = await this._unitOfWork.BrandAccountRedisDAO.GetBrandAccountsByBrandIdAsync(brandRedis.BrandId);
 
+                foreach (var category in categoriesRedis)
+                {
+                    category.Status = (int)CategoryEnum.Status.DEACTIVE;
+                }
+
+                foreach (var extraCategory in extraCategoriesRedis)
+                {
+                    extraCategory.Status = (int)ExtraCategoryEnum.Status.DEACTIVE;
+                }
+
+                foreach (var product in productsRedis)
+                {
+                    product.Status = (int)ProductEnum.Status.DEACTIVE;
+                }
+
+                foreach (var store in storesRedis)
+                {
+                    store.Status = (int)StoreEnum.Status.NOT_RENT;
+                }
+                foreach (var brandAccount in brandAccountRedis)
+                {
+                    var accountRedis = await this._unitOfWork.AccountRedisDAO.GetAccountAsync(brandAccount.AccountId);
+                    accountRedis.Status = Convert.ToBoolean(AccountEnum.Status.INACTIVE);
+                }
             }
             catch (NotFoundException ex)
             {

@@ -42,7 +42,9 @@ namespace MBKC.DAL.Infrastructures
                 await this._redisConnectionProvider.Connection.CreateIndexAsync(typeof(EmailVerificationRedisModel));
                 await this._redisConnectionProvider.Connection.CreateIndexAsync(typeof(BrandRedisModel));
                 await this._redisConnectionProvider.Connection.CreateIndexAsync(typeof(ProductRedisModel));
-                /*await this._redisConnectionProvider.Connection.CreateIndexAsync(typeof(StoreRedisModel));*/
+                await this._redisConnectionProvider.Connection.CreateIndexAsync(typeof(StoreRedisModel));
+                await this._redisConnectionProvider.Connection.CreateIndexAsync(typeof(CategoryRedisModel));
+                await this._redisConnectionProvider.Connection.CreateIndexAsync(typeof(ExtraCategoryRedisModel));
                 await this._redisConnectionProvider.Connection.CreateIndexAsync(typeof(BrandAccountRedisModel));
 
 

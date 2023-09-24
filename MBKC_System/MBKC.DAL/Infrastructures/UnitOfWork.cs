@@ -44,6 +44,10 @@ namespace MBKC.DAL.Infrastructures
         private BrandRedisDAO _brandRedisDAO;
         private BrandAccountRedisDAO _brandAccountRedisDAO;
         private ProductRedisDAO _productRedisDAO;
+        private CategoryRedisDAO _categoryRedisDAO;
+        private ExtraCategoryRedisDAO _extraCategoryRedisDAO;
+        private StoreRedisDAO _storeRedisDAO;
+
 
         public UnitOfWork(IDbFactory dbFactory)
         {
@@ -140,6 +144,41 @@ namespace MBKC.DAL.Infrastructures
                     this._brandAccountRedisDAO = new BrandAccountRedisDAO(this._redisConnectionProvider);
                 }
                 return this._brandAccountRedisDAO;
+            }
+        }
+        public CategoryRedisDAO CategoryRedisDAO
+        {
+            get
+            {
+                if (this._categoryRedisDAO == null)
+                {
+                    this._categoryRedisDAO = new CategoryRedisDAO(this._redisConnectionProvider);
+                }
+                return this._categoryRedisDAO;
+            }
+        }
+
+        public ExtraCategoryRedisDAO ExtraCategoryRedisDAO
+        {
+            get
+            {
+                if (this._extraCategoryRedisDAO == null)
+                {
+                    this._extraCategoryRedisDAO = new ExtraCategoryRedisDAO(this._redisConnectionProvider);
+                }
+                return this._extraCategoryRedisDAO;
+            }
+        }
+
+        public StoreRedisDAO StoreRedisDAO
+        {
+            get
+            {
+                if (this._storeRedisDAO == null)
+                {
+                    this._storeRedisDAO = new StoreRedisDAO(this._redisConnectionProvider);
+                }
+                return this._storeRedisDAO;
             }
         }
 

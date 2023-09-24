@@ -31,11 +31,11 @@ namespace MBKC.DAL.RedisDAOs
             }
         }
 
-        public async Task<CategoryRedisModel> GetCategoryByBrandIdAsync(int brandId)
+        public async Task<List<CategoryRedisModel>> GetCategoriesByBrandIdAsync(string brandId)
         {
             try
             {
-                return await this._categoryCollection.SingleOrDefaultAsync(x => x.BrandId == brandId);
+                return (List<CategoryRedisModel>)await this._categoryCollection.Where(x => x.BrandId == brandId).ToListAsync();
             }
             catch (Exception ex)
             {

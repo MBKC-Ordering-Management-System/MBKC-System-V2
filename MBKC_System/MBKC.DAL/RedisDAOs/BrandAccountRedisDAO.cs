@@ -29,5 +29,17 @@ namespace MBKC.DAL.RedisDAOs
                 throw new Exception(ex.Message);
             }
         }
+
+        public async Task<List<BrandAccountRedisModel>> GetBrandAccountsByBrandIdAsync(string brandId)
+        {
+            try
+            {
+                return (List<BrandAccountRedisModel>)await this._brandAccountCollection.Where(x => x.BrandId == brandId).ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }
