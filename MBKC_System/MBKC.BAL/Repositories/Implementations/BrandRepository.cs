@@ -69,7 +69,7 @@ namespace MBKC.BAL.Repositories.Implementations
                     Logo = urlImage + $"&logoId={logoId}",
                     Status = (int)BrandEnum.Status.ACTIVE,
                 };
-                await _unitOfWork.BrandDAO.CreateBrand(brand);
+                await _unitOfWork.BrandDAO.CreateBrandAsync(brand);
 
                 // Create brand account
                 BrandAccount brandAccount = new BrandAccount
@@ -82,16 +82,16 @@ namespace MBKC.BAL.Repositories.Implementations
 
                 //Send password to email of Brand Manager
                 await EmailUtil.SendEmailAndPasswordToEmail(emailSystem, account.Email, EmailUtil.MessageRegisterAccount(emailSystem.SystemName, account.Email, unEncryptedPassword), "Brand Manager");
-                // add to Redis
-                var brandRedisModel = new BrandRedisModel();
-                var accountRedisModel = new AccountRedisModel();
-                var brandAcocuntRedisModel = new BrandAccountRedisModel();
-                _mapper.Map(brand, brandRedisModel);
-                _mapper.Map(account, accountRedisModel);
-                _mapper.Map(brandAccount, brandAcocuntRedisModel);
-                await this._unitOfWork.AccountRedisDAO.AddAccountAsync(accountRedisModel);
-                await this._unitOfWork.BrandRedisDAO.AddBrandAsync(brandRedisModel);
-                await this._unitOfWork.BrandAccountRedisDAO.AddBrandAccountAsync(brandAcocuntRedisModel);
+                /* // add to Redis
+                 var brandRedisModel = new BrandRedisModel();
+                 var accountRedisModel = new AccountRedisModel();
+                 var brandAcocuntRedisModel = new BrandAccountRedisModel();
+                 _mapper.Map(brand, brandRedisModel);
+                 _mapper.Map(account, accountRedisModel);
+                 _mapper.Map(brandAccount, brandAcocuntRedisModel);
+                 await this._unitOfWork.AccountRedisDAO.AddAccountAsync(accountRedisModel);
+                 await this._unitOfWork.BrandRedisDAO.AddBrandAsync(brandRedisModel);
+                 await this._unitOfWork.BrandAccountRedisDAO.AddBrandAccountAsync(brandAcocuntRedisModel);*/
                 return _mapper.Map<GetBrandResponse>(brand);
             }
             catch (ConflictException ex)
@@ -123,8 +123,8 @@ namespace MBKC.BAL.Repositories.Implementations
             bool uploaded = false;
             try
             {
-                var brand = await _unitOfWork.BrandDAO.GetBrandById(brandId);
-                var brands = await _unitOfWork.BrandDAO.GetBrands();
+                var brand = await _unitOfWork.BrandDAO.GetBrandByIdAsync(brandId);
+                var brands = await _unitOfWork.BrandDAO.GetBrandsAsync();
                 var checkDupplicatedName = brands.Where(b => b.Name == updateBrandRequest.Name && b.BrandId != brandId).SingleOrDefault();
                 if (brand == null)
                 {
@@ -156,7 +156,7 @@ namespace MBKC.BAL.Repositories.Implementations
                     Guid guild = Guid.NewGuid();
                     logoId = guild.ToString();
                     var urlImage = await Utils.FileUtil.UploadImage(fileStream, "Brand", logoId);
-                    brand.Logo = urlImage;
+                    brand.Logo = urlImage + $"&logoId={logoId}";
                     uploaded = true;
                 }
 
@@ -166,11 +166,11 @@ namespace MBKC.BAL.Repositories.Implementations
                 _unitOfWork.BrandDAO.UpdateBrand(brand);
                 _unitOfWork.Commit();
 
-                //Get brand from Redis
+                /*//Get brand from Redis
                 var brandRedis = await _unitOfWork.BrandRedisDAO.GetBrandByIdAsync(brandId.ToString());
                 _mapper.Map(brand, brandRedis);
                 //Update brand to Redis
-                await this._unitOfWork.BrandRedisDAO.UpdateBrandAsync(brandRedis);
+                await this._unitOfWork.BrandRedisDAO.UpdateBrandAsync(brandRedis);*/
                 return _mapper.Map<GetBrandResponse>(brand);
             }
             catch (BadRequestException ex)
@@ -222,9 +222,9 @@ namespace MBKC.BAL.Repositories.Implementations
             try
             {
                 var brandResponse = new List<GetBrandResponse>();
-                var brandsRedis = await this._unitOfWork.BrandRedisDAO.GetBrandsAsync();
+                var brands = await this._unitOfWork.BrandDAO.GetBrandsAsync();
 
-                _mapper.Map(brandsRedis, brandResponse);
+                _mapper.Map(brands, brandResponse);
                 if (PAGE_SIZE == null)
                 {
                     PAGE_SIZE = 10;
@@ -295,17 +295,14 @@ namespace MBKC.BAL.Repositories.Implementations
         {
             try
             {
-                var brandRedis = await this._unitOfWork.BrandRedisDAO.GetBrandByIdAsync(id.ToString());
-                var brand = new Brand();
-                if (brandRedis == null)
+
+                var brand = await _unitOfWork.BrandDAO.GetBrandByIdAsync(id);
+                if (brand == null)
                 {
-                    brand = await _unitOfWork.BrandDAO.GetBrandById(id);
-                    if (brand == null)
-                    {
-                        throw new NotFoundException("Brand does not exist in the system");
-                    }
+                    throw new NotFoundException("Brand does not exist in the system");
                 }
-                return _mapper.Map<GetBrandResponse>(brandRedis);
+
+                return _mapper.Map<GetBrandResponse>(brand);
             }
             catch (NotFoundException ex)
             {
@@ -330,7 +327,7 @@ namespace MBKC.BAL.Repositories.Implementations
         {
             try
             {
-                var brand = await _unitOfWork.BrandDAO.GetBrandById(id);
+                var brand = await _unitOfWork.BrandDAO.GetBrandByIdAsync(id);
 
                 if (brand == null)
                 {
@@ -386,43 +383,43 @@ namespace MBKC.BAL.Repositories.Implementations
                 _unitOfWork.BrandDAO.UpdateBrand(brand);
                 _unitOfWork.Commit();
 
-                //Deactive brand, Brand Manager account, product, categories, extra categories from Redis
-                var brandRedis = await _unitOfWork.BrandRedisDAO.GetBrandByIdAsync(id.ToString());
-                if (brandRedis == null)
-                {
-                    throw new NotFoundException("Brand does not exist in the system");
-                }
-                brandRedis.Status = (int)BrandEnum.Status.DEACTIVE;
-                var categoriesRedis = await _unitOfWork.CategoryRedisDAO.GetCategoriesByBrandIdAsync(brandRedis.BrandId);
-                var extraCategoriesRedis = await _unitOfWork.ExtraCategoryRedisDAO.GetExtraCategoryByCategoriesIdAsync(brandRedis.BrandId);
-                var productsRedis = await this._unitOfWork.ProductRedisDAO.GetProductsByBrandIdAsync(brandRedis.BrandId);
-                var storesRedis = await this._unitOfWork.StoreRedisDAO.GetStoresByBrandIdAsync(brandRedis.BrandId);
-                var brandAccountRedis = await this._unitOfWork.BrandAccountRedisDAO.GetBrandAccountsByBrandIdAsync(brandRedis.BrandId);
+                /* //Deactive brand, Brand Manager account, product, categories, extra categories from Redis
+                 var brandRedis = await _unitOfWork.BrandRedisDAO.GetBrandByIdAsync(id.ToString());
+                 if (brandRedis == null)
+                 {
+                     throw new NotFoundException("Brand does not exist in the system");
+                 }
+                 brandRedis.Status = (int)BrandEnum.Status.DEACTIVE;
+                 var categoriesRedis = await _unitOfWork.CategoryRedisDAO.GetCategoriesByBrandIdAsync(brandRedis.BrandId);
+                 var extraCategoriesRedis = await _unitOfWork.ExtraCategoryRedisDAO.GetExtraCategoryByCategoriesIdAsync(brandRedis.BrandId);
+                 var productsRedis = await this._unitOfWork.ProductRedisDAO.GetProductsByBrandIdAsync(brandRedis.BrandId);
+                 var storesRedis = await this._unitOfWork.StoreRedisDAO.GetStoresByBrandIdAsync(brandRedis.BrandId);
+                 var brandAccountRedis = await this._unitOfWork.BrandAccountRedisDAO.GetBrandAccountsByBrandIdAsync(brandRedis.BrandId);
 
-                foreach (var category in categoriesRedis)
-                {
-                    category.Status = (int)CategoryEnum.Status.DEACTIVE;
-                }
+                 foreach (var category in categoriesRedis)
+                 {
+                     category.Status = (int)CategoryEnum.Status.DEACTIVE;
+                 }
 
-                foreach (var extraCategory in extraCategoriesRedis)
-                {
-                    extraCategory.Status = (int)ExtraCategoryEnum.Status.DEACTIVE;
-                }
+                 foreach (var extraCategory in extraCategoriesRedis)
+                 {
+                     extraCategory.Status = (int)ExtraCategoryEnum.Status.DEACTIVE;
+                 }
 
-                foreach (var product in productsRedis)
-                {
-                    product.Status = (int)ProductEnum.Status.DEACTIVE;
-                }
+                 foreach (var product in productsRedis)
+                 {
+                     product.Status = (int)ProductEnum.Status.DEACTIVE;
+                 }
 
-                foreach (var store in storesRedis)
-                {
-                    store.Status = (int)StoreEnum.Status.NOT_RENT;
-                }
-                foreach (var brandAccount in brandAccountRedis)
-                {
-                    var accountRedis = await this._unitOfWork.AccountRedisDAO.GetAccountAsync(brandAccount.AccountId);
-                    accountRedis.Status = Convert.ToBoolean(AccountEnum.Status.INACTIVE);
-                }
+                 foreach (var store in storesRedis)
+                 {
+                     store.Status = (int)StoreEnum.Status.NOT_RENT;
+                 }
+                 foreach (var brandAccount in brandAccountRedis)
+                 {
+                     var accountRedis = await this._unitOfWork.AccountRedisDAO.GetAccountAsync(brandAccount.AccountId);
+                     accountRedis.Status = Convert.ToBoolean(AccountEnum.Status.INACTIVE);
+                 }*/
             }
             catch (NotFoundException ex)
             {

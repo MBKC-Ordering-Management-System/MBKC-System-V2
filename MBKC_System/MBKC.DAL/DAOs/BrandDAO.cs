@@ -18,7 +18,7 @@ namespace MBKC.DAL.DAOs
         }
 
         #region Create Brand
-        public async Task CreateBrand(Brand brand)
+        public async Task CreateBrandAsync(Brand brand)
         {
             try
             {
@@ -46,7 +46,7 @@ namespace MBKC.DAL.DAOs
         #endregion
 
         #region Get Brand By Id
-        public async Task<Brand> GetBrandById(int id)
+        public async Task<Brand> GetBrandByIdAsync(int id)
         {
             try
             {
@@ -66,7 +66,7 @@ namespace MBKC.DAL.DAOs
         #endregion
 
         #region Get Brands
-        public async Task<List<Brand>> GetBrands()
+        public async Task<List<Brand>> GetBrandsAsync()
         {
             try
             {
