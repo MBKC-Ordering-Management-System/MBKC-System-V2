@@ -75,25 +75,22 @@ namespace MBKC.API.Controllers
                 throw new BadRequestException(error);
             }
             var data = await this._brandRepository.CreateBrandAsync(postBrandRequest, _firebaseImageOptions.Value, _emailOption.Value);
-            return Ok(new
-            {
-                Data = data
-            });
+            return Ok(data);
         }
         #endregion
 
         #region Update Brand
         /// <summary>
-        /// MBKC admin update brand for system
+        /// MBKC admin update brand for system.
         /// </summary>
         /// <param name="id">
-        /// brand's id for update brand 
+        /// Brand's id for update brand.
         /// </param>
         /// /// <param name="updateBrandRequest">
-        /// Object include Name, Address, Status, Logo
+        /// Object include Name, Address, Status, Logo.
         ///     </param>
         /// <returns>
-        /// An Object will return BrandId, Name, Address, Logo and Status
+        /// An Object will return BrandId, Name, Address, Logo and Status.
         /// </returns>
         /// <remarks>
         ///     Sample request:
@@ -122,22 +119,19 @@ namespace MBKC.API.Controllers
                 throw new BadRequestException(error);
             }
             var data = await this._brandRepository.UpdateBrandAsync(id, updateBrandRequest, _firebaseImageOptions.Value);
-            return Ok(new
-            {
-                Data = data
-            });
+            return Ok(data);
         }
         #endregion
 
         #region Get Brands
         /// <summary>
-        /// MBKC admin get Brands from the system and also paging, searchByName and filterByStatus
+        /// MBKC admin get Brands from the system and also paging, searchByName and filterByStatus.
         /// </summary>
         /// <param name="searchBrandRequest">
-        ///  Include KeySearchName, KeyStatusFilter, PAGE_SIZE, PAGE_NUMBER
+        ///  Include KeySearchName, KeyStatusFilter, PAGE_SIZE, PAGE_NUMBER.
         /// </param>
         /// <returns>
-        /// An Object will return BrandId, Name, Address, Logo and Status
+        /// An Object will return BrandId, Name, Address, Logo and Status.
         /// </returns>
         /// <remarks>
         ///     Sample request:
@@ -172,13 +166,13 @@ namespace MBKC.API.Controllers
 
         #region Get Brand By Id
         /// <summary>
-        /// MBKC admin get Brand By Brand Id
+        /// MBKC admin get Brand By Brand Id.
         /// </summary>
         /// <param name="id">
-        ///  id of Brand
+        ///  Id of Brand.
         /// </param>
         /// <returns>
-        /// An Object will return BrandId, Name, Address, Logo and Status
+        /// An Object will return BrandId, Name, Address, Logo and Status.
         /// </returns>
         /// <remarks>
         ///     Sample request:
@@ -203,13 +197,13 @@ namespace MBKC.API.Controllers
 
         #region Deactive Brand By Id
         /// <summary>
-        /// MBKC admin Deactive brand by id
+        /// MBKC admin Deactive brand by id.
         /// </summary>
         /// <param name="id">
-        ///  id of Brand
+        ///  Id of Brand.
         /// </param>
         /// <returns>
-        /// An Object will return Message "Deactive brand successfully"
+        /// An Object will return Message "Deactive brand successfully".
         /// </returns>
         /// <remarks>
         ///     Sample request:
