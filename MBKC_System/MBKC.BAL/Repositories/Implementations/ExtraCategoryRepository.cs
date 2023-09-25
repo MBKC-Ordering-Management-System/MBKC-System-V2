@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using MBKC.BAL.Repositories.Interfaces;
 using MBKC.DAL.Infrastructures;
+using MBKC.DAL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,5 +19,7 @@ namespace MBKC.BAL.Repositories.Implementations
             this._unitOfWork = (UnitOfWork)unitOfWork;
             this._mapper = mapper;
         }
+
+        
     }
 }

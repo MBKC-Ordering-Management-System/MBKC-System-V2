@@ -2,6 +2,7 @@
 using MBKC.BAL.DTOs.Categories;
 using MBKC.BAL.DTOs.FireBase;
 using MBKC.BAL.DTOs.Products;
+using MBKC.BAL.DTOs.SplitIdCategories;
 using MBKC.BAL.Exceptions;
 using MBKC.BAL.Repositories.Interfaces;
 using MBKC.BAL.Utils;
@@ -201,12 +202,27 @@ namespace MBKC.BAL.Repositories.Implementations
 
         }
 
-        public async Task<Tuple<List<GetCategoryResponse>, int, int?, int?>> GetCategoriesAsync(SearchCategoryRequest? searchCategoryRequest, int? PAGE_NUMBER, int? PAGE_SIZE)
+        public async Task<Tuple<List<GetCategoryResponse>, int, int?, int?>> GetCategoriesAsync(string type, SearchCategoryRequest? searchCategoryRequest, int? PAGE_NUMBER, int? PAGE_SIZE)
         {
             try
             {
                 var categoryResponse = new List<GetCategoryResponse>();
                 var categories = await this._unitOfWork.CategoryDAO.GetCategoriesAsync();
+
+                if (!type.Equals("EXTRA") && !type.Equals("NORMAL"))
+                {
+                    throw new BadRequestException("Type are EXTRA and NORMAL");
+                }
+                if (type.Equals("EXTRA"))
+                {
+                    categories = categories.Where(c => c.Type.Equals("EXTRA")).ToList();
+                }
+                else if (type.Equals("NORMAL"))
+                {
+                    categories = categories.Where(c => c.Type.Equals("NORMAL")).ToList();
+                }
+
+
                 _mapper.Map(categories, categoryResponse);
 
                 if (PAGE_SIZE == null)
@@ -232,12 +248,21 @@ namespace MBKC.BAL.Repositories.Implementations
 
                 return Tuple.Create(categoryResponse, totalPages, PAGE_NUMBER, PAGE_SIZE);
             }
+            catch (BadRequestException ex)
+            {
+                string fieldName = "";
+                if (ex.Message.Equals("Type are EXTRA and NORMAL"))
+                {
+                    fieldName = "Type";
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new BadRequestException(error);
+            }
             catch (Exception ex)
             {
                 string error = ErrorUtil.GetErrorString("Error", ex.Message);
                 throw new Exception(error);
             }
-
         }
 
         public async Task<GetCategoryResponse> GetCategoryByIdAsync(int id)
@@ -254,12 +279,12 @@ namespace MBKC.BAL.Repositories.Implementations
             }
             catch (NotFoundException ex)
             {
-                string fileName = "";
+                string fieldName = "";
                 if (ex.Message.Equals("Category does not exist in the system"))
                 {
-                    fileName = "CategoryId";
+                    fieldName = "CategoryId";
                 }
-                string error = ErrorUtil.GetErrorString(fileName, ex.Message);
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new NotFoundException(error);
             }
             catch (Exception ex)
@@ -445,6 +470,43 @@ namespace MBKC.BAL.Repositories.Implementations
             }
         }
 
+        public async Task AddExtraCategoriesToNormalCategory(int categoryId, List<int> request)
+        {
+            var currentExtraCategoriesId = await this._unitOfWork.ExtraCategoryDAO.GetExtraCategoriesByCategoryIdAsync(categoryId);
+            var listExtraCategoryInNomalCategory = currentExtraCategoriesId.Select(e => e.ExtraCategoryId).ToList();
+            SplitIdCategoryResponse splittedExtraCategoriesIds = CustomListUtil.splitIdsToAddAndRemove(listExtraCategoryInNomalCategory, request);
 
+            //Handle add and remove to database
+            if (splittedExtraCategoriesIds.idsToAdd.Count > 0)
+            {
+                List<ExtraCategory> extraCategoriesToInsert = new List<ExtraCategory>();
+                splittedExtraCategoriesIds.idsToAdd.ForEach(id => extraCategoriesToInsert.Add(new ExtraCategory
+                {
+                    ProductCategoryId = categoryId,
+                    ExtraCategoryId = id,
+                    Status = (int)CategoryEnum.Status.ACTIVE
+                }));
+                _unitOfWork.ExtraCategoryDAO._dbContext.AddRange(extraCategoriesToInsert);
+            }
+
+            if (splittedExtraCategoriesIds.idsToRemove.Count > 0)
+            {
+                var listExtraCategoriesToDelete = new List<ExtraCategory>();
+                List<ExtraCategory> extraCategoriesToDelete = new List<ExtraCategory>();
+                extraCategoriesToDelete = (List<ExtraCategory>)await _unitOfWork.ExtraCategoryDAO.GetExtraCategoriesByCategoryIdAsync((int)categoryId);
+                foreach (var extraCategory in extraCategoriesToDelete)
+                {
+                    foreach (var id in splittedExtraCategoriesIds.idsToRemove)
+                    {
+                        if (id == extraCategory.ExtraCategoryId)
+                        {
+                            listExtraCategoriesToDelete.Add(extraCategory);
+                        }
+                    }
+                }
+                _unitOfWork.ExtraCategoryDAO._dbContext.RemoveRange((IEnumerable<ExtraCategory>)listExtraCategoriesToDelete);
+            }
+            await this._unitOfWork.CommitAsync();
+        }
     }
 }

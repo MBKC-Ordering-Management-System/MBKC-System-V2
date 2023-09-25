@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MBKC.BAL.Utils;
 using MBKC.BAL.Exceptions;
+using MBKC.BAL.Authorization;
 
 namespace MBKC.API.Controllers
 {
@@ -66,6 +67,7 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
         [HttpPost]
+        [PermissionAuthorize("Brand Manager")]
         public async Task<IActionResult> CreateCategoryAsync([FromForm] PostCategoryRequest postCategoryRequest)
         {
             ValidationResult validationResult = await _postCategoryRequest.ValidateAsync(postCategoryRequest);
@@ -110,6 +112,7 @@ namespace MBKC.API.Controllers
         /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
         /// <exception cref="Exception">Throw Error about the system.</exception>
         [HttpPut("{id}")]
+        [PermissionAuthorize("Brand Manager")]
         public async Task<IActionResult> UpdateCategoryAsync([FromRoute] int id, [FromForm] UpdateCategoryRequest updateCategoryRequest)
         {
             ValidationResult validationResult = await _updateCategoryRequest.ValidateAsync(updateCategoryRequest);
@@ -147,17 +150,18 @@ namespace MBKC.API.Controllers
         ///         PAGE_SIZE: 5
         ///         PAGE_NUMBER: 1
         /// </remarks>
-        /// <response code="200">Get brands Successfully.</response>
+        /// <response code="200">Get categories Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
         /// <response code="404">Some Error about request data not found.</response>
         /// <response code="500">Some Error about the system.</response>
         /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
         /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
         /// <exception cref="Exception">Throw Error about the system.</exception>
+        [PermissionAuthorize("Brand Manager")]
         [HttpGet]
-        public async Task<IActionResult> GetCategoriesAsync([FromQuery] SearchCategoryRequest? searchCategoryRequest, [FromQuery] int? PAGE_NUMBER, [FromQuery] int? PAGE_SIZE)
+        public async Task<IActionResult> GetCategoriesAsync(string type, [FromQuery] SearchCategoryRequest? searchCategoryRequest, [FromQuery] int? PAGE_NUMBER, [FromQuery] int? PAGE_SIZE)
         {
-            var data = await this._categoryRepository.GetCategoriesAsync(searchCategoryRequest, PAGE_NUMBER, PAGE_SIZE);
+            var data = await this._categoryRepository.GetCategoriesAsync(type, searchCategoryRequest, PAGE_NUMBER, PAGE_SIZE);
 
             return Ok(new
             {
@@ -185,7 +189,7 @@ namespace MBKC.API.Controllers
         ///         GET
         ///         id: 3
         /// </remarks>
-        /// <response code="200">Get brand Successfully.</response>
+        /// <response code="200">Get category Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
         /// <response code="404">Some Error about request data not found.</response>
         /// <response code="500">Some Error about the system.</response>
@@ -193,6 +197,7 @@ namespace MBKC.API.Controllers
         /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
         /// <exception cref="Exception">Throw Error about the system.</exception>
         [HttpGet("{id}")]
+        [PermissionAuthorize("Brand Manager")]
         public async Task<IActionResult> GetCategoryByIdAsync([FromRoute] int id)
         {
             var data = await this._categoryRepository.GetCategoryByIdAsync(id);
@@ -216,7 +221,7 @@ namespace MBKC.API.Controllers
         ///         DELETE
         ///         id: 3
         /// </remarks>
-        /// <response code="200">Deactive brand successfully.</response>
+        /// <response code="200">Deactive category successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
         /// <response code="404">Some Error about request data not found.</response>
         /// <response code="500">Some Error about the system.</response>
@@ -224,6 +229,7 @@ namespace MBKC.API.Controllers
         /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
         /// <exception cref="Exception">Throw Error about the system.</exception>
         [HttpDelete("{id}")]
+        [PermissionAuthorize("Brand Manager")]
         public async Task<IActionResult> DeActiveCategoryByIdAsync([FromRoute] int id)
         {
             await this._categoryRepository.DeActiveCategoryByIdAsync(id);
@@ -261,6 +267,7 @@ namespace MBKC.API.Controllers
         /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
         /// <exception cref="Exception">Throw Error about the system.</exception>
         [HttpGet("{id}/products")]
+        [PermissionAuthorize("Brand Manager")]
         public async Task<IActionResult> GetProductsByIdAsync([FromRoute] int id, [FromQuery] SearchProductsInCategory? searchProductsInCategory, [FromQuery] int? PAGE_NUMBER, [FromQuery] int? PAGE_SIZE)
         {
             var data = await this._categoryRepository.GetProductsInCategory(id, searchProductsInCategory, PAGE_NUMBER, PAGE_SIZE);
@@ -302,6 +309,7 @@ namespace MBKC.API.Controllers
         /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
         /// <exception cref="Exception">Throw Error about the system.</exception>
         [HttpGet("{id}/extra-categories")]
+        [PermissionAuthorize("Brand Manager")]
         public async Task<IActionResult> GetExtraCategoriesByCategoryId([FromRoute] int id, [FromQuery] SearchCategoryRequest? searchCategoryRequest, [FromQuery] int? PAGE_NUMBER, [FromQuery] int? PAGE_SIZE)
         {
             var data = await this._categoryRepository.GetExtraCategoriesByCategoryId(id, searchCategoryRequest, PAGE_NUMBER, PAGE_SIZE);
@@ -313,6 +321,42 @@ namespace MBKC.API.Controllers
                 pageNumber = data.Item3,
                 pageSize = data.Item4
             });
+        }
+        #endregion
+
+        #region Add extra category to normal category
+        /// <summary>
+        /// Brand Manager add extra category to normal category.
+        /// </summary>
+        /// <param name="id">
+        ///  Id of Category.
+        /// </param>
+        /// <param name="extraCategoryId">
+        ///  List extra categories user want to add to normal category.
+        /// </param>
+        /// <returns>
+        /// Return message Add extra category to normal category successfully.
+        /// </returns>
+        /// <remarks>
+        ///     Sample request:
+        ///     
+        ///         POST
+        ///         id: 1
+        ///         [2,3,4,5]
+        /// </remarks>
+        /// <response code="200">Add extra category to normal category successfully.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
+        /// <response code="404">Some Error about request data not found.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
+        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [HttpPost("{id}/add-extra-category")]
+        [PermissionAuthorize("Brand Manager")]
+        public async Task<IActionResult> AddExtraCategoriesToNormalCategory([FromRoute] int id, [FromBody] List<int> extraCategoryId)
+        {
+            await this._categoryRepository.AddExtraCategoriesToNormalCategory(id, extraCategoryId);
+            return Ok(new { Message = "Add extra category to normal category successfully." });
         }
         #endregion
     }

@@ -61,9 +61,9 @@ builder.Services.AddSwaggerGen(options =>
                     {
                         new OpenApiSecurityScheme
                         {
-                            Name = "Authorization",
+                            /*Name = "Authorization",
                             Type = SecuritySchemeType.ApiKey,
-                            In = ParameterLocation.Header,
+                            In = ParameterLocation.Header,*/
                             Reference = new OpenApiReference
                             {
                                 Type = ReferenceType.SecurityScheme,
@@ -73,7 +73,6 @@ builder.Services.AddSwaggerGen(options =>
                         new string[]{}
                     }
                 });
-    options.OperationFilter<SecurityRequirementsOperationFilter>();
 });
 
 //JWT
