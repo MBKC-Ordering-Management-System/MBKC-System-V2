@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MBKC.DAL.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -58,6 +59,23 @@ namespace MBKC.BAL.Utils
             bool result = Uri.TryCreate(url, UriKind.Absolute, out uriResult)
                 && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
             return result;
+        }
+
+        public static bool CheckKitchenCenterStatusName(string statusName)
+        {
+            if (statusName.ToLower().Equals(KitchenCenterEnum.Status.ACTIVE.ToString().ToLower()) ||
+                statusName.ToLower().Equals(KitchenCenterEnum.Status.INACTIVE.ToString().ToLower()))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public static bool  IsUnicode(string input)
+        {
+            var asciiBytesCount = Encoding.ASCII.GetByteCount(input);
+            var unicodBytesCount = Encoding.UTF8.GetByteCount(input);
+            return asciiBytesCount != unicodBytesCount;
         }
     }
 }

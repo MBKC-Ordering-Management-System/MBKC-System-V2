@@ -47,8 +47,10 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///
         ///         POST 
-        ///         "email": "abc@gmail.com"
-        ///         "password": "********"
+        ///         {
+        ///             "email": "abc@gmail.com"
+        ///             "password": "********"
+        ///         }
         /// </remarks>
         /// <response code="200">Login Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
@@ -58,8 +60,8 @@ namespace MBKC.API.Controllers
         /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
         /// <exception cref="Exception">Throw Error about the system.</exception>
         [ProducesResponseType(typeof(AccountResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Consumes("application/json")]
         [Produces("application/json")]
@@ -92,8 +94,10 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///
         ///         POST 
-        ///         "accessToken": "abcxyz"
-        ///         "refreshToken": "klmnopq"
+        ///         {
+        ///             "accessToken": "abcxyz"
+        ///             "refreshToken": "klmnopq"
+        ///         }
         /// </remarks>
         /// <response code="200">Re-Generate Token Successfully.</response>
         /// <response code="404">Some Error about request data that are not found.</response>
@@ -136,11 +140,13 @@ namespace MBKC.API.Controllers
         /// <remarks>
         ///     Sample request:
         ///
-        ///         PUT 
-        ///         "email": "abc@gmail.com"
-        ///         "newPassword": "********"
+        ///         PUT
+        ///         {
+        ///             "email": "abc@gmail.com"
+        ///             "newPassword": "********"
+        ///         }
         /// </remarks>
-        /// <response code="200">Reset password Successfully.</response>
+        /// <response code="200">A success message about the resetring password procedure.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
         /// <response code="500">Some Error about the system.</response>
         /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>

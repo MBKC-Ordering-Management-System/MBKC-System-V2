@@ -42,7 +42,7 @@ namespace MBKC.DAL.Utils
             "ÝỲỴỶỸ"
         };
 
-        public static string RemoveSign4VietnameseString(string str)
+        public static string RemoveSign4VietnameseString(this string str)
         {
             for (int i = 1; i < VietnameseSigns.Length; i++)
             {

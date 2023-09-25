@@ -44,7 +44,9 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///
         ///         POST 
-        ///         "email": "abc@gmail.com"
+        ///         {
+        ///             "email": "abc@gmail.com"
+        ///         }
         /// </remarks>
         /// <response code="200">Sent OTP Code to Email Successfully.</response>
         /// <response code="404">Some Error about request data that are not found.</response>
@@ -87,8 +89,10 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///
         ///         POST 
-        ///         "email": "abc@gmail.com",
-        ///         "otpCode": "000000"
+        ///         {
+        ///             "email": "abc@gmail.com",
+        ///             "otpCode": "000000"
+        ///         }
         /// </remarks>
         /// <response code="200">Sent OTP Code to Email Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>

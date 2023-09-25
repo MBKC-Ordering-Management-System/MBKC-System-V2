@@ -14,11 +14,7 @@ namespace MBKC.BAL.Profiles.KitchenCenters
     {
         public KitchenCenterProfile()
         {
-            CreateMap<KitchenCenter, KitchenCenterRedisModel>()
-                                                .ForMember(x => x.KitchenCenterId, opt => opt.MapFrom(src => src.KitchenCenterId.ToString()));
-
-            CreateMap<KitchenCenterRedisModel, GetKitchenCenterResponse>()
-                                                .ForMember(x => x.KitchenCenterId, otp => otp.MapFrom(src => int.Parse(src.KitchenCenterId)));
+            CreateMap<KitchenCenter, GetKitchenCenterResponse>().ForMember(dept => dept.KitchenCenterManagerEmail, opt => opt.MapFrom(src => src.Manager.Email));
         }
     }
 }

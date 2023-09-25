@@ -38,10 +38,8 @@ namespace MBKC.DAL.Infrastructures
         private CashierMoneyExchangeDAO _cashierMoneyExchangeDAO;
         private KitchenCenterMoneyExchangeDAO _kitchenCenterMoneyExchangeDAO;
         private RedisConnectionProvider _redisConnectionProvider;
-        private AccountRedisDAO _accountRedisDAO;
         private AccountTokenRedisDAO  _accountTokenRedisDAO;
         private EmailVerificationRedisDAO  _emailVerificationRedisDAO;
-        private KitchenCenterRedisDAO  _kitchenCenterRedisDAO;
 
         public UnitOfWork(IDbFactory dbFactory)
         {
@@ -64,18 +62,6 @@ namespace MBKC.DAL.Infrastructures
                     this._accountDAO = new AccountDAO(this._dbContext);
                 }
                 return this._accountDAO;
-            }
-        }
-
-        public AccountRedisDAO AccountRedisDAO
-        {
-            get
-            {
-                if(this._accountRedisDAO == null)
-                {
-                    this._accountRedisDAO = new AccountRedisDAO(this._redisConnectionProvider);
-                }
-                return this._accountRedisDAO;
             }
         }
 
@@ -171,18 +157,6 @@ namespace MBKC.DAL.Infrastructures
                     this._kitchenCenterDAO = new KitchenCenterDAO(this._dbContext);
                 }
                 return this._kitchenCenterDAO;
-            }
-        }
-
-        public KitchenCenterRedisDAO KitchenCenterRedisDAO
-        {
-            get
-            {
-                if(this._kitchenCenterRedisDAO == null)
-                {
-                    this._kitchenCenterRedisDAO = new KitchenCenterRedisDAO(this._redisConnectionProvider);
-                }
-                return this._kitchenCenterRedisDAO;
             }
         }
 

@@ -37,10 +37,8 @@ namespace MBKC.DAL.Infrastructures
                                   .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
                 IConfigurationRoot configuration = builder.Build();
                 this._redisConnectionProvider = new RedisConnectionProvider(configuration.GetConnectionString("RedisDbStore"));
-                await this._redisConnectionProvider.Connection.CreateIndexAsync(typeof(AccountRedisModel));
                 await this._redisConnectionProvider.Connection.CreateIndexAsync(typeof(AccountTokenRedisModel));
                 await this._redisConnectionProvider.Connection.CreateIndexAsync(typeof(EmailVerificationRedisModel));
-                await this._redisConnectionProvider.Connection.CreateIndexAsync(typeof(KitchenCenterRedisModel));
             }
             return this._redisConnectionProvider;
         }

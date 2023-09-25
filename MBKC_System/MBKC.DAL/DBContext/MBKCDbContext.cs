@@ -155,7 +155,6 @@ namespace MBKC.DAL.DBContext
             modelBuilder.Entity<KitchenCenter>()
                 .HasOne(kitchenCenter => kitchenCenter.Manager)
                 .WithOne()
-                .HasForeignKey<KitchenCenter>(kitchenCenter => kitchenCenter.ManagerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<KitchenCenter>()

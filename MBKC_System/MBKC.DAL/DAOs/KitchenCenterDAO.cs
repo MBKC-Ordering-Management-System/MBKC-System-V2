@@ -46,25 +46,70 @@ namespace MBKC.DAL.DAOs
         {
             try
             {
-                return await this._dbContext.KitchenCenters.FirstOrDefaultAsync(x => x.KitchenCenterId == id);
+                return await this._dbContext.KitchenCenters.Include(x => x.Manager)
+                                                           .Include(x => x.Stores)
+                                                           .FirstOrDefaultAsync(x => x.KitchenCenterId == id);
             } catch(Exception ex)
             {
                 throw new Exception(ex.Message);
             }
         }
-        
-        public async Task<List<KitchenCenter>> GetKitchenCentersAsync(string? searchValue, string? searchValueWithoutUnicode)
+
+        public async Task<int> GetNumberKitchenCentersAsync(string? searchValue, string? searchValueWithoutUnicode)
         {
             try
             {
-                if(searchValue == null && searchValueWithoutUnicode == null)
+                if (searchValue == null && searchValueWithoutUnicode != null)
                 {
-                    return await this._dbContext.KitchenCenters.ToListAsync();
+                    return this._dbContext.KitchenCenters.Where(delegate (KitchenCenter kitchenCenter)
+                    {
+                        if (StringUtil.RemoveSign4VietnameseString(kitchenCenter.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }).AsQueryable().Count();
+                } else if(searchValue != null && searchValueWithoutUnicode == null)
+                {
+                    return await this._dbContext.KitchenCenters.Where(x => x.Name.ToLower().Contains(searchValue.ToLower())).CountAsync();
                 }
-                return await this._dbContext.KitchenCenters.Where(x => x.Name.ToLower().Contains(searchValue.ToLower())||
-                                                                       x.Name.ToLower().Contains(searchValueWithoutUnicode.ToLower()) ||
-                                                                       StringUtil.RemoveSign4VietnameseString(x.Name).ToLower().Contains(searchValue.ToLower()) ||
-                                                                       StringUtil.RemoveSign4VietnameseString(x.Name).ToLower().Contains(searchValueWithoutUnicode.ToLower())).ToListAsync();
+                return await this._dbContext.KitchenCenters.CountAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        
+        public async Task<List<KitchenCenter>> GetKitchenCentersAsync(string? searchValue, string? searchValueWithoutUnicode, int numberItems, int itemsPerPage, int currentPage)
+        {
+            try
+            {
+                if (searchValue == null && searchValueWithoutUnicode != null)
+                {
+                    return this._dbContext.KitchenCenters.Include(x => x.Manager).AsQueryable().Where(delegate (KitchenCenter kitchenCenter)
+                    {
+                        if (StringUtil.RemoveSign4VietnameseString(kitchenCenter.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+                }
+                else if (searchValue != null && searchValueWithoutUnicode == null)
+                {
+                    return await this._dbContext.KitchenCenters.Include(x => x.Manager)
+                        .Where(x => x.Name.ToLower().Contains(searchValue.ToLower()))
+                        .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
+                }
+                return await this._dbContext.KitchenCenters.Include(x => x.Manager)
+                    .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
             } catch(Exception ex)
             {
                 throw new Exception(ex.Message);

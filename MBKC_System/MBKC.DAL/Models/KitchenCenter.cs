@@ -17,7 +17,6 @@ namespace MBKC.DAL.Models
         public int Status { get; set; }
         public string Logo { get; set; }
         public int WalletId { get; set; }
-        public int ManagerId { get; set; }
         [ForeignKey("ManagerId")]
         public virtual Account Manager { get; set; }
         [ForeignKey("WalletId")]

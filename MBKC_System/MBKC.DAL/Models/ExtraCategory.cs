@@ -12,7 +12,7 @@ namespace MBKC.DAL.Models
     {
         [Key]
         public int CategoryId { get; set; }
-        public bool Status { get; set; }
+        public int Status { get; set; }
         [ForeignKey("ExtraCategoryId")]
         public int ExtraCategoryId { get; set; }
         [ForeignKey("ProductCategoryId")]

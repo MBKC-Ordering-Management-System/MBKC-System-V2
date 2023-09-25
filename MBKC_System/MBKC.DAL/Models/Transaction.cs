@@ -13,7 +13,7 @@ namespace MBKC.DAL.Models
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int TracsactionId { get; set; }
         public DateTime TransactionTime { get; set; }
-        public bool Status { get; set; }
+        public int Status { get; set; }
         [ForeignKey("ExchangeId")]
         public virtual MoneyExchange MoneyExchange { get; set; }
         [ForeignKey("WalletId")]

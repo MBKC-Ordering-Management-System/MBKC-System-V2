@@ -13,7 +13,7 @@ namespace MBKC.DAL.Models
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int BankingAccountId { get; set; }
         public string NumberAccount { get; set; }
-        public bool Status { get; set; }
+        public int Status { get; set; }
         public string Name { get; set; }
         public string LogoUrl { get; set; }
         [ForeignKey("KitchenCenterId")]

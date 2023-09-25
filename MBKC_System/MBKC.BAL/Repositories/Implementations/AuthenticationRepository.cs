@@ -39,26 +39,20 @@ namespace MBKC.BAL.Repositories.Implementations
         {
             try
             {
-                AccountRedisModel accountRedisModel = await this._unitOfWork.AccountRedisDAO.GetAccountAsync(accountRequest.Email, accountRequest.Password);
-                if (accountRedisModel == null)
+                Account existedAccount = await this._unitOfWork.AccountDAO.GetActiveAccountAsync(accountRequest.Email);
+                if (existedAccount == null)
                 {
-                    Account accountModel = await this._unitOfWork.AccountDAO.GetActiveAccountAsync(accountRequest.Email);
-                    if (accountModel == null)
-                    {
-                        throw new NotFoundException("Email does not exist in the system.");
-                    }
-                    if(accountModel.Password.Equals(accountRequest.Password) == false)
-                    {
-                        throw new BadRequestException("Email or Password is invalid.");
-                    }
-                    accountRedisModel = this._mapper.Map<AccountRedisModel>(accountModel);
-                    await this._unitOfWork.AccountRedisDAO.AddAccountAsync(accountRedisModel);
+                    throw new NotFoundException("Email does not exist in the system.");
                 }
-                AccountResponse accountResponse = this._mapper.Map<AccountResponse>(accountRedisModel);
+                if (existedAccount.Password.Equals(accountRequest.Password) == false)
+                {
+                    throw new BadRequestException("Email or Password is invalid.");
+                }
+                AccountResponse accountResponse = this._mapper.Map<AccountResponse>(existedAccount);
                 accountResponse = await GenerateTokenAsync(accountResponse, jwtAuth);
                 return accountResponse;
             }
-            catch(NotFoundException ex)
+            catch (NotFoundException ex)
             {
                 string error = ErrorUtil.GetErrorString("Email", ex.Message);
                 throw new NotFoundException(error);
@@ -145,12 +139,12 @@ namespace MBKC.BAL.Repositories.Implementations
                     throw new BadRequestException("Your refresh token expired now.");
                 }
 
-                AccountRedisModel accountRedisModel = await this._unitOfWork.AccountRedisDAO.GetAccountAsync(accountId);
-                AccountResponse accountResponse = this._mapper.Map<AccountResponse>(accountRedisModel);
+                Account existedAccount = await this._unitOfWork.AccountDAO.GetAccountAsync(accountId);
+                AccountResponse accountResponse = this._mapper.Map<AccountResponse>(existedAccount);
                 accountResponse = await GenerateTokenAsync(accountResponse, jwtAuth);
                 return accountResponse.Tokens;
             }
-            catch(NotFoundException ex)
+            catch (NotFoundException ex)
             {
                 string error = ErrorUtil.GetErrorString("Authentication Tokens", ex.Message);
                 throw new NotFoundException(error);
@@ -171,38 +165,26 @@ namespace MBKC.BAL.Repositories.Implementations
         {
             try
             {
-                AccountRedisModel accountRedisModel = await this._unitOfWork.AccountRedisDAO.GetAccountAsync(resetPassword.Email);
-                if (accountRedisModel == null)
+                Account existedAccount = await this._unitOfWork.AccountDAO.GetAccountAsync(resetPassword.Email);
+                if (existedAccount == null)
                 {
-                    Account account = await this._unitOfWork.AccountDAO.GetAccountAsync(resetPassword.Email);
-                    if (account == null)
-                    {
-                        throw new NotFoundException("Email does not exist in the system.");
-                    }
-                    accountRedisModel = this._mapper.Map<AccountRedisModel>(account);
-                    await this._unitOfWork.AccountRedisDAO.AddAccountAsync(accountRedisModel);
+                    throw new NotFoundException("Email does not exist in the system.");
                 }
                 EmailVerificationRedisModel emailVerificationRedisModel = await this._unitOfWork.EmailVerificationRedisDAO.GetEmailVerificationAsync(resetPassword.Email);
                 if (emailVerificationRedisModel == null)
                 {
                     throw new BadRequestException("Email has not been previously authenticated.");
                 }
-                if(emailVerificationRedisModel.IsVerified == Convert.ToBoolean((int)EmailVerificationEnum.Status.NOT_VERIFIRED))
+                if (emailVerificationRedisModel.IsVerified == Convert.ToBoolean((int)EmailVerificationEnum.Status.NOT_VERIFIRED))
                 {
                     throw new BadRequestException("Email is not yet authenticated with the previously sent OTP code.");
-                }
-                Account existedAccount = await this._unitOfWork.AccountDAO.GetAccountAsync(resetPassword.Email);
-                if (existedAccount == null)
-                {
-                    throw new BadRequestException("Email does not exist in the system.");
                 }
                 existedAccount.Password = resetPassword.NewPassword;
                 this._unitOfWork.AccountDAO.UpdateAccount(existedAccount);
                 await this._unitOfWork.CommitAsync();
-                accountRedisModel.Password = resetPassword.NewPassword;
-                await this._unitOfWork.AccountRedisDAO.UpdateAccountAsync(accountRedisModel);
                 await this._unitOfWork.EmailVerificationRedisDAO.DeleteEmailVerificationAsync(emailVerificationRedisModel);
-            } catch (NotFoundException ex)
+            }
+            catch (NotFoundException ex)
             {
                 string error = ErrorUtil.GetErrorString("Email", ex.Message);
                 throw new NotFoundException(error);
@@ -260,7 +242,6 @@ namespace MBKC.BAL.Repositories.Implementations
                 };
 
                 AccountTokenRedisModel accountTokenRedisModel = this._mapper.Map<AccountTokenRedisModel>(accountToken);
-
                 await this._unitOfWork.AccountTokenRedisDAO.AddAccountToken(accountTokenRedisModel);
 
                 AccountTokenResponse tokens = new AccountTokenResponse()

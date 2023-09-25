@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MBKC.BAL.Validators.KitchenCenters
 {
-    public class UpdateKitchenCenterValidator: AbstractValidator<UpdateKitchenCenterRequest>
+    public class UpdateKitchenCenterValidator : AbstractValidator<UpdateKitchenCenterRequest>
     {
         private const int MAX_BYTES = 5242880;
         public UpdateKitchenCenterValidator()
@@ -26,17 +26,35 @@ namespace MBKC.BAL.Validators.KitchenCenters
                 .NotEmpty().WithMessage("{PropertyName} is not empty.")
                 .MaximumLength(255).WithMessage("{PropertyName} is required less then or equal to 255 characters.");
 
-            RuleFor(ckcr => ckcr.NewLogo.Length)
+            RuleFor(ckcr => ckcr.Status)
                 .Cascade(CascadeMode.StopOnFirstFailure)
-                .ExclusiveBetween(0, MAX_BYTES).WithMessage($"Logo is required file length greater than 0 and less than {MAX_BYTES / 1024 / 1024} MB.");
+                .NotNull().WithMessage("{PropertyName} is not null.")
+                .NotEmpty().WithMessage("{PropertyName} is not empty.")
+                .Must(StringUtil.CheckKitchenCenterStatusName).WithMessage("{PropertyName} is required \"Active\" or \"InActive\" Status");
 
-            RuleFor(ckcr => ckcr.NewLogo.FileName)
+            RuleFor(ukcr => ukcr.NewLogo)
                 .Cascade(CascadeMode.StopOnFirstFailure)
-                .Must(FileUtil.HaveSupportedFileType).WithMessage("Logo is required extension type .png, .jpg, .jpeg, .webp.");
+                .Custom((newLogo, context) =>
+                {
+                    if (newLogo != null && newLogo.Length < 0 || newLogo.Length > MAX_BYTES)
+                    {
+                        context.AddFailure($"Logo is required file length greater than 0 and less than {MAX_BYTES / 1024 / 1024} MB.");
+                    }
+                    if (newLogo != null && FileUtil.HaveSupportedFileType(newLogo.FileName) == false)
+                    {
+                        context.AddFailure("Logo is required extension type .png, .jpg, .jpeg, .webp.");
+                    }
+                });
 
             RuleFor(ukcr => ukcr.DeletedLogo)
                 .Cascade(CascadeMode.StopOnFirstFailure)
-                .Must(StringUtil.CheckUrlString).WithMessage("{PropertyName} is invalid URL format.");
+                .Custom((deletedLogo, context) =>
+                {
+                    if(deletedLogo != null && StringUtil.CheckUrlString(deletedLogo) == false)
+                    {
+                        context.AddFailure("Deleted Logo Url is invalid URL format.");
+                    }
+                });
 
             RuleFor(ckcr => ckcr.ManagerEmail)
                 .Cascade(CascadeMode.StopOnFirstFailure)
