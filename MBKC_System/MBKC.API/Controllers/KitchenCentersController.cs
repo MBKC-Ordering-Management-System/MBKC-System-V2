@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
+using MBKC.BAL.Authorization;
 using MBKC.BAL.DTOs.Accounts;
 using MBKC.BAL.DTOs.FireBase;
 using MBKC.BAL.DTOs.KitchenCenters;
@@ -35,6 +36,7 @@ namespace MBKC.API.Controllers
             this._updateKitchenCenterValidator = updateKitchenCenterValidator;
         }
 
+        #region Get KitchenCenters
         /// <summary>
         /// Get all kitchen centers in the system.
         /// </summary>
@@ -61,14 +63,16 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
+        [PermissionAuthorize("MBKC Admin")]
         [HttpGet]
         public async Task<IActionResult> GetKitchenCentersAsync([FromQuery]int? itemsPerPage, [FromQuery]int? currentPage, [FromQuery]string? searchValue)
         {
             GetKitchenCentersResponse getKitchenCentersResponse = await this._kitchenCenterRepository.GetKitchenCentersAsync(itemsPerPage, currentPage, searchValue);
             return Ok(getKitchenCentersResponse);
         }
+        #endregion
 
-
+        #region Get KitchenCenter
         /// <summary>
         /// Get a specific kitchen center by kitchen center id in the system.
         /// </summary>
@@ -94,14 +98,16 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
+        [PermissionAuthorize("MBKC Admin")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetKitchenCenterAsync([FromRoute]int id)
         {
             GetKitchenCenterResponse getKitchenCenterResponse = await this._kitchenCenterRepository.GetKitchenCenterAsync(id);
             return Ok(getKitchenCenterResponse);
         }
+        #endregion
 
-
+        #region Create New KitchenCenter
         /// <summary>
         /// Create new kitchen center.
         /// </summary>
@@ -133,6 +139,7 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Consumes("multipart/form-data")]
         [Produces("application/json")]
+        [PermissionAuthorize("MBKC Admin")]
         [HttpPost]
         public async Task<IActionResult> PostCreateKitchenCenterAsync([FromForm]CreateKitchenCenterRequest kitchenCenter)
         {
@@ -148,8 +155,9 @@ namespace MBKC.API.Controllers
                 Message = "Created Kitchen Center Successfully."
             });
         }
+        #endregion
 
-
+        #region Update Existed KitchenCenter
         /// <summary>
         /// Update information of an existed kitchen center.
         /// </summary>
@@ -186,6 +194,7 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Consumes("multipart/form-data")]
         [Produces("application/json")]
+        [PermissionAuthorize("MBKC Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUpdateKitchenCenterAsync([FromRoute]int id, [FromForm]UpdateKitchenCenterRequest kitchenCenter)
         {
@@ -198,7 +207,9 @@ namespace MBKC.API.Controllers
             await this._kitchenCenterRepository.UpdateKitchenCenterAsync(id, kitchenCenter, this._emailOption.Value, this._firebaseImageOption.Value);
             return NoContent();
         }
+        #endregion
 
+        #region Delete Existed KitchenCenter
         /// <summary>
         /// Delete an existed kitchen center.
         /// </summary>
@@ -224,6 +235,7 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
+        [PermissionAuthorize("MBKC Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteKitchenCenterAsync([FromRoute]int id)
         {
@@ -233,5 +245,6 @@ namespace MBKC.API.Controllers
                 Message = "Deleted Kitchen Center Successfully"
             });
         }
+        #endregion
     }
 }
