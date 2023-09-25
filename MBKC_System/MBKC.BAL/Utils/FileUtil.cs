@@ -112,7 +112,7 @@ namespace MBKC.BAL.Utils
         #region HaveSupportedFileType
         public static bool HaveSupportedFileType(string fileName)
         {
-            string[] validFileTypes = { ".png", ".jpg", ".jpeg" };
+            string[] validFileTypes = { ".png", ".jpg", ".jpeg" , ".webp" };
             string extensionFile = Path.GetExtension(fileName);
             if (validFileTypes.Contains(extensionFile))
             {

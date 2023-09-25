@@ -8,10 +8,10 @@ namespace MBKC.API.Controllers
     [ApiController]
     public class PartnersController : ControllerBase
     {
-        private IPartnerRepository _partnerRepository;
-        public PartnersController(IPartnerRepository partnerRepository)
+        private IPartnerService _partnerService;
+        public PartnersController(IPartnerService partnerService)
         {
-            _partnerRepository = partnerRepository;
+            _partnerService = partnerService;
         }
     }
 }

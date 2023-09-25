@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
 using MBKC.BAL.Authorization;
+using MBKC.BAL.DTOs;
 using MBKC.BAL.DTOs.Brands;
 using MBKC.BAL.DTOs.FireBase;
 using MBKC.BAL.DTOs.Verifications;
@@ -18,18 +19,18 @@ namespace MBKC.API.Controllers
     [ApiController]
     public class BrandsController : ControllerBase
     {
-        private IBrandRepository _brandRepository;
+        private IBrandService _brandService;
         private IOptions<FireBaseImage> _firebaseImageOptions;
         private IValidator<PostBrandRequest> _postBrandRequest;
         private IValidator<UpdateBrandRequest> _updateBrandRequest;
         private IOptions<Email> _emailOption;
-        public BrandsController(IBrandRepository brandRepository,
+        public BrandsController(IBrandService brandService,
             IOptions<FireBaseImage> firebaseImageOptions,
             IValidator<PostBrandRequest> postBrandRequest,
             IOptions<Email> emailOption,
             IValidator<UpdateBrandRequest> updateBrandRequest)
         {
-            this._brandRepository = brandRepository;
+            this._brandService = brandService;
             this._firebaseImageOptions = firebaseImageOptions;
             this._postBrandRequest = postBrandRequest;
             this._updateBrandRequest = updateBrandRequest;
@@ -37,60 +38,66 @@ namespace MBKC.API.Controllers
         }
         #region Create Brand
         /// <summary>
-        /// MBKC admin create new brand for system
+        ///  Create new brand.
         /// </summary>
         /// <param name="postBrandRequest">
-        /// Include information about brand for create new brand 
+        /// An object includes information about brand. 
         /// </param>
         /// <returns>
-        /// An Object will return BrandId, Name, Address, Logo and Status
+        /// A success message about creating new brand.
         /// </returns>
         /// <remarks>
         ///     Sample request:
         ///     
         ///         POST
-        ///         Name: MyBrand
-        ///         Address: 123 Main St
-        ///         ManagerEmail: manager@gmail.com
-        ///         Logo: [Upload a logo file] 
+        ///         {
+        ///             Name: MyBrand
+        ///             Address: 123 Main St
+        ///             ManagerEmail: manager@gmail.com
+        ///             Logo: [Upload a logo file] 
+        ///         }
         /// </remarks>
-        /// <response code="200">Create brand Successfully.</response>
+        /// <response code="200">Created new brand successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
         /// <response code="404">Some Error about request data not found.</response>
         /// <response code="500">Some Error about the system.</response>
         /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
         /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
         /// <exception cref="Exception">Throw Error about the system.</exception>
-        [ProducesResponseType(typeof(GetBrandResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Consumes("multipart/form-data")]
         [Produces("application/json")]
         [HttpPost]
         [PermissionAuthorize("MBKC Admin")]
-        public async Task<IActionResult> CreateBrandAsync([FromForm] PostBrandRequest postBrandRequest)
+        public async Task<IActionResult> PostCreateBrandAsync([FromForm] PostBrandRequest postBrandRequest)
         {
             ValidationResult validationResult = await _postBrandRequest.ValidateAsync(postBrandRequest);
             if (!validationResult.IsValid)
             {
-                string error = ErrorUtil.GetErrorsString(validationResult);
-                throw new BadRequestException(error);
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
             }
-            var data = await this._brandRepository.CreateBrandAsync(postBrandRequest, _firebaseImageOptions.Value, _emailOption.Value);
-            return Ok(data);
+            await this._brandService.CreateBrandAsync(postBrandRequest, _firebaseImageOptions.Value, _emailOption.Value);
+            return Ok(new
+            {
+                Message = "Created New Brand Successfully."
+            });
         }
         #endregion
 
         #region Update Brand
         /// <summary>
-        /// MBKC admin update brand for system.
+        ///  Update brand.
         /// </summary>
         /// <param name="id">
         /// Brand's id for update brand.
         /// </param>
-        /// /// <param name="updateBrandRequest">
-        /// Object include Name, Address, Status, Logo.
-        ///     </param>
+        ///  <param name="updateBrandRequest">
+        /// Object include information for update brand.
+        ///  </param>
         /// <returns>
         /// An Object will return BrandId, Name, Address, Logo and Status.
         /// </returns>
@@ -98,19 +105,27 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///     
         ///         PUT
-        ///         id: 3
-        ///         Name: MyBrand
-        ///         Address: 123 Main St
-        ///         Status: false
-        ///         Logo: [Upload a logo file] 
+        ///         {
+        ///             id: 3
+        ///             Name: MyBrand
+        ///             Address: 123 Main St
+        ///             Status: false
+        ///             Logo: [Upload a logo file] 
+        ///         }
         /// </remarks>
-        /// <response code="200">Update brand Successfully.</response>
+        /// <response code="200">Update Brand Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
         /// <response code="404">Some Error about request data not found.</response>
         /// <response code="500">Some Error about the system.</response>
         /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
         /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
         /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Consumes("multipart/form-data")]
+        [Produces("application/json")]
         [HttpPut("{id}")]
         [PermissionAuthorize("MBKC Admin")]
         public async Task<IActionResult> UpdateBrandAsync([FromRoute] int id, [FromForm] UpdateBrandRequest updateBrandRequest)
@@ -121,20 +136,32 @@ namespace MBKC.API.Controllers
                 string error = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(error);
             }
-            var data = await this._brandRepository.UpdateBrandAsync(id, updateBrandRequest, _firebaseImageOptions.Value);
-            return Ok(data);
+            await this._brandService.UpdateBrandAsync(id, updateBrandRequest, _firebaseImageOptions.Value);
+            return Ok(new
+            {
+                Message = "Update Brand Successfully."
+            });
         }
         #endregion
 
         #region Get Brands
         /// <summary>
-        /// MBKC admin get Brands from the system and also paging, searchByName and filterByStatus.
+        ///  Get a list of brands from the system with condition paging, searchByName and filterByStatus.
         /// </summary>
-        /// <param name="searchBrandRequest">
-        ///  Include KeySearchName, KeyStatusFilter, PAGE_SIZE, PAGE_NUMBER.
+        /// <param name="keySearchName">
+        ///  The brand name that the user wants to search.
+        /// </param>
+        /// <param name="keyStatusFilter">
+        /// The status of the brand that the user wants to filter.
+        /// </param>
+        /// <param name="pageNumber">
+        /// The current page the user wants to get next items.
+        /// </param>
+        /// <param name="pageSize">
+        /// number of elements on a page.
         /// </param>
         /// <returns>
-        /// An Object will return BrandId, Name, Address, Logo and Status.
+        /// A list of brands contains TotalItems, TotalPages, Brands' information
         /// </returns>
         /// <remarks>
         ///     Sample request:
@@ -142,41 +169,37 @@ namespace MBKC.API.Controllers
         ///         GET
         ///         KeySearchName: HighLand Coffee
         ///         KeyStatusFilter: ACTIVE
-        ///         PAGE_SIZE: 5
-        ///         PAGE_NUMBER: 1
+        ///         pageSize: 5
+        ///         pageNumber: 1
         /// </remarks>
         /// <response code="200">Get brands Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
-        /// <response code="404">Some Error about request data not found.</response>
         /// <response code="500">Some Error about the system.</response>
         /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
-        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
         /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(GetBrandsResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Produces("application/json")]
         [HttpGet]
         [PermissionAuthorize("MBKC Admin")]
-        public async Task<IActionResult> GetBrandsAsync([FromQuery] SearchBrandRequest? searchBrandRequest, [FromQuery] int? PAGE_NUMBER, [FromQuery] int? PAGE_SIZE)
+        public async Task<IActionResult> GetBrandsAsync([FromQuery] string? keySearchName, [FromQuery] string? keyStatusFilter, [FromQuery] int? pageNumber, [FromQuery] int? pageSize)
         {
-            var data = await this._brandRepository.GetBrandsAsync(searchBrandRequest, PAGE_NUMBER, PAGE_SIZE);
+            var data = await this._brandService.GetBrandsAsync(keySearchName, keyStatusFilter, pageNumber, pageSize);
 
-            return Ok(new
-            {
-                brands = data.Item1,
-                totalPage = data.Item2,
-                pageNumber = data.Item3,
-                pageSize = data.Item4
-            });
+            return Ok(data);
         }
         #endregion
 
         #region Get Brand By Id
         /// <summary>
-        /// MBKC admin get Brand By Brand Id.
+        /// Get specific Brand By Brand Id.
         /// </summary>
         /// <param name="id">
         ///  Id of Brand.
         /// </param>
         /// <returns>
-        /// An Object will return BrandId, Name, Address, Logo and Status.
+        /// An Object contains brand's information.
         /// </returns>
         /// <remarks>
         ///     Sample request:
@@ -185,30 +208,32 @@ namespace MBKC.API.Controllers
         ///         id: 3
         /// </remarks>
         /// <response code="200">Get brand Successfully.</response>
-        /// <response code="400">Some Error about request data and logic data.</response>
         /// <response code="404">Some Error about request data not found.</response>
         /// <response code="500">Some Error about the system.</response>
-        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
         /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
         /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(GetBrandResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Produces("application/json")]
         [HttpGet("{id}")]
         [PermissionAuthorize("MBKC Admin")]
         public async Task<IActionResult> GetBrandByIdAsync([FromRoute] int id)
         {
-            var data = await this._brandRepository.GetBrandByIdAsync(id);
+            var data = await this._brandService.GetBrandByIdAsync(id);
             return Ok(data);
         }
         #endregion
 
         #region Deactive Brand By Id
         /// <summary>
-        /// MBKC admin Deactive brand by id.
+        /// Deactive brand by id.
         /// </summary>
         /// <param name="id">
-        ///  Id of Brand.
+        ///  Id of brand.
         /// </param>
         /// <returns>
-        /// An Object will return Message "Deactive brand successfully".
+        /// An object will return message "Deactive brand successfully".
         /// </returns>
         /// <remarks>
         ///     Sample request:
@@ -217,20 +242,23 @@ namespace MBKC.API.Controllers
         ///         id: 3
         /// </remarks>
         /// <response code="200">Deactive brand successfully.</response>
-        /// <response code="400">Some Error about request data and logic data.</response>
         /// <response code="404">Some Error about request data not found.</response>
         /// <response code="500">Some Error about the system.</response>
         /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
         /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
         /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Produces("application/json")]
         [HttpDelete("{id}")]
         [PermissionAuthorize("MBKC Admin")]
         public async Task<IActionResult> DeActiveBrandByIdAsync([FromRoute] int id)
         {
-            await this._brandRepository.DeActiveBrandByIdAsync(id);
+            await this._brandService.DeActiveBrandByIdAsync(id);
             return Ok(new
             {
-                Message = "Deactive brand successfully"
+                Message = "Deactive brand successfully."
             });
         }
         #endregion

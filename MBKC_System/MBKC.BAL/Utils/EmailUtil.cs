@@ -49,7 +49,7 @@ namespace MBKC.BAL.Utils
             return emailBody;
         }
 
-        public static string MessageRegisterAccount(string systemName, string receiverEmail, string password)
+        public static string MessageRegisterAccount(string systemName, string receiverEmail, string password, string brandName)
         {
             string emailBody = "";
             string htmlTableDivStart = "<table style=\"border-collapse: collapse; width: 50%; margin: 20px auto; border: 1px solid #ddd;\">";
@@ -58,11 +58,11 @@ namespace MBKC.BAL.Utils
             string htmlTable = String.Format(@"
                                         <table>
                                       <tr>
-                                         <th>Tài khoản</th>
-                                         <th>Mật khẩu</th>
+                                         <th>Email</th>
+                                         <td>{0}</td>
                                       </tr>
                                     <tr>
-                                      <td>{0}</td>
+                                      <th>Password</th>
                                       <td>{1}</td>
                                     </tr>
                                        </table>
@@ -86,13 +86,13 @@ namespace MBKC.BAL.Utils
 
             emailBody += htmlParentDivStart;
             emailBody += htmlMainDivStart;
-            
+
             emailBody += htmlSystemNameDivStart + htmlSystemNameSpanStart
                         + systemName + htmlSystemNameSpanEnd + htmlSystemNameDivEnd
                         + htmlBreakLine;
 
             emailBody += htmlHeaderBodyStart + $"Hi {receiverEmail}," + htmlHeaderBodyEnd;
-            emailBody += htmlBodyStart + $"We've received a request to regiser account from {receiverEmail}. " +
+            emailBody += htmlBodyStart + $"You have been assigned as Brand Manager for the brand \"{brandName}\". " +
                                          $"Here is email and password to access to the system" + htmlBodyEnd;
             emailBody += htmlTableDivStart + htmlTable + htmlTableDivEnd;
             emailBody += htmlFooterBodyStart + "Regards," + htmlBreakLine + systemName + htmlFooterBodyEnd;
@@ -140,7 +140,7 @@ namespace MBKC.BAL.Utils
         {
             try
             {
-                
+
                 string subject = $"Tài khoản và mật khẩu cho {roleName} ";
                 SmtpClient smtpClient = new SmtpClient(email.Host, email.Port);
                 smtpClient.Credentials = new NetworkCredential(email.Sender, email.Password);

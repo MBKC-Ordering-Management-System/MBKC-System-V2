@@ -17,16 +17,16 @@ namespace MBKC.API.Controllers
     [Consumes("application/json")]
     public class AuthenticationsController : ControllerBase
     {
-        private IAuthenticationRepository _authenticationRepository;
+        private IAuthenticationService _authenticationService;
         private IOptions<JWTAuth> _jwtAuthOptions;
         private IValidator<AccountRequest> _accountRequestValidator;
         private IValidator<AccountTokenRequest> _accountTokenRequestValidator;
         private IValidator<ResetPasswordRequest> _resetPasswordValidator;
-        public AuthenticationsController(IAuthenticationRepository authenticationRepository, IOptions<JWTAuth> jwtAuthOptions,
+        public AuthenticationsController(IAuthenticationService authenticationService, IOptions<JWTAuth> jwtAuthOptions,
             IValidator<AccountRequest> accountRequestValidator, IValidator<AccountTokenRequest> accountTokenRequestValidator,
             IValidator<ResetPasswordRequest> resetPasswordValidator)
         {
-            this._authenticationRepository = authenticationRepository;
+            this._authenticationService = authenticationService;
             this._jwtAuthOptions = jwtAuthOptions;
             this._accountRequestValidator = accountRequestValidator;
             this._accountTokenRequestValidator = accountTokenRequestValidator;
@@ -73,7 +73,7 @@ namespace MBKC.API.Controllers
                 throw new BadRequestException(errors);
             }
 
-            AccountResponse accountResponse = await this._authenticationRepository.LoginAsync(account, this._jwtAuthOptions.Value);
+            AccountResponse accountResponse = await this._authenticationService.LoginAsync(account, this._jwtAuthOptions.Value);
             return Ok(accountResponse);
         }
         #endregion
@@ -116,7 +116,7 @@ namespace MBKC.API.Controllers
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
-            AccountTokenResponse accountTokenResponse = await this._authenticationRepository.ReGenerateTokensAsync(accountToken, this._jwtAuthOptions.Value);
+            AccountTokenResponse accountTokenResponse = await this._authenticationService.ReGenerateTokensAsync(accountToken, this._jwtAuthOptions.Value);
             return Ok(accountTokenResponse);
         }
         #endregion
@@ -157,7 +157,7 @@ namespace MBKC.API.Controllers
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
-            await this._authenticationRepository.ChangePasswordAsync(resetPassword);
+            await this._authenticationService.ChangePasswordAsync(resetPassword);
             return Ok(new
             {
                 Message = "Reset Password Successfully"

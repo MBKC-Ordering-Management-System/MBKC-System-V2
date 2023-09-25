@@ -17,14 +17,14 @@ namespace MBKC.API.Controllers
     [Consumes("application/json")]
     public class VerificationsController : ControllerBase
     {
-        private IVerificationRepository _verificationRepository;
+        private IVerificationService _verificationService;
         private IOptions<Email> _emailOption;
         private IValidator<EmailVerificationRequest> _emailVerificationValidator;
         private IValidator<OTPCodeVerificationRequest> _otpCodeVerificationValidator;
-        public VerificationsController(IVerificationRepository verificationRepository, IOptions<Email> emailOption,
+        public VerificationsController(IVerificationService verificationService, IOptions<Email> emailOption,
             IValidator<EmailVerificationRequest> emailVerificationValidator, IValidator<OTPCodeVerificationRequest> otpCodeVerificationValidator)
         {
-            this._verificationRepository = verificationRepository;
+            this._verificationService = verificationService;
             this._emailOption = emailOption;
             this._emailVerificationValidator = emailVerificationValidator;
             this._otpCodeVerificationValidator = otpCodeVerificationValidator;
@@ -64,7 +64,7 @@ namespace MBKC.API.Controllers
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
-            await this._verificationRepository.VerifyEmailToResetPasswordAsync(this._emailOption.Value, emailVerificationRequest);
+            await this._verificationService.VerifyEmailToResetPasswordAsync(this._emailOption.Value, emailVerificationRequest);
             return Ok(new
             {
                 Message = "Sent Email Confirmation Successfully."
@@ -110,7 +110,7 @@ namespace MBKC.API.Controllers
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
-            await this._verificationRepository.ConfirmOTPCodeToResetPasswordAsync(otpCodeVerificationRequest);
+            await this._verificationService.ConfirmOTPCodeToResetPasswordAsync(otpCodeVerificationRequest);
             return Ok(new
             {
                 Message = "Confirmed OTP Code Successfully."

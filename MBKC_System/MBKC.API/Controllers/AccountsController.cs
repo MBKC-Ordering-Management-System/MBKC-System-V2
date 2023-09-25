@@ -8,10 +8,10 @@ namespace MBKC.API.Controllers
     [ApiController]
     public class AccountsController : ControllerBase
     {
-        private IAccountRepository _accountRepository;
-        public AccountsController(IAccountRepository accountRepository)
+        private IAccountService _accountService;
+        public AccountsController(IAccountService accountService)
         {
-            _accountRepository = accountRepository;
+            _accountService = accountService;
         }
     }
 }

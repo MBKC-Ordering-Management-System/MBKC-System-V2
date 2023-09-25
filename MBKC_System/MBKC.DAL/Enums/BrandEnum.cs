@@ -14,12 +14,6 @@ namespace MBKC.DAL.Enums
             ACTIVE = 1,
             DEACTIVE = 2
         }
-
-        public enum StatusFilter
-        {
-            INACTIVE = 0,
-            ACTIVE = 1,
-            DEACTIVE = 2
-        }
+        
     }
 }

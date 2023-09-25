@@ -8,10 +8,10 @@ namespace MBKC.API.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private IProductRepository _productRepository;
-        public ProductsController(IProductRepository productRepository)
+        private IProductService _productService;
+        public ProductsController(IProductService productService)
         {
-            _productRepository = productRepository;
+            _productService = productService;
         }
     }
 }

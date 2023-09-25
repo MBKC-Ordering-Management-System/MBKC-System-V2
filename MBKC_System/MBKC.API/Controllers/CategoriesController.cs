@@ -8,10 +8,10 @@ namespace MBKC.API.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        private ICategoryRepository _categoryRepository;
-        public CategoriesController(ICategoryRepository categoryRepository)
+        private ICategoryService _categoryService;
+        public CategoriesController(ICategoryService categoryService)
         {
-            _categoryRepository = categoryRepository;
+            _categoryService = categoryService;
         }
     }
 }
