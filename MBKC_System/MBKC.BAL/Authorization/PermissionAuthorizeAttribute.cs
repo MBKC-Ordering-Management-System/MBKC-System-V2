@@ -26,7 +26,7 @@ namespace MBKC.BAL.Authorization
                 var expiredDate = DateUtil.ConvertUnixTimeToDateTime(expiredClaim);
                 if (expiredDate <= DateTime.UtcNow)
                 {
-                    context.Result = new ObjectResult("Unauthorized ") { StatusCode = 401, Value = "You are not allowed to access this API!" };
+                    context.Result = new ObjectResult("Unauthorized") { StatusCode = 401, Value = "You are not allowed to access this API!" };
                 }
                 else
                 {
@@ -43,7 +43,7 @@ namespace MBKC.BAL.Authorization
             }
             else
             {
-                context.Result = new ObjectResult("Unauthorized ") { StatusCode = 401, Value = "You are not allowed to access this API!" };
+                context.Result = new ObjectResult("Unauthorized") { StatusCode = 401, Value = "You are not allowed to access this API!" };
             }
         }
     }

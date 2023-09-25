@@ -20,7 +20,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
-using Swashbuckle.AspNetCore.Filters;
 using System.Reflection;
 using System.Text;
 
@@ -59,9 +58,6 @@ builder.Services.AddSwaggerGen(options =>
                     {
                         new OpenApiSecurityScheme
                         {
-                            Name = "Authorization",
-                            Type = SecuritySchemeType.ApiKey,
-                            In = ParameterLocation.Header,
                             Reference = new OpenApiReference
                             {
                                 Type = ReferenceType.SecurityScheme,
@@ -71,7 +67,6 @@ builder.Services.AddSwaggerGen(options =>
                         new string[]{}
                     }
                 });
-    options.OperationFilter<SecurityRequirementsOperationFilter>();
 });
 
 //JWT
