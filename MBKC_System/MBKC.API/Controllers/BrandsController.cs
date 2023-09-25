@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
+using MBKC.BAL.Authorization;
 using MBKC.BAL.DTOs.Brands;
 using MBKC.BAL.DTOs.FireBase;
 using MBKC.BAL.DTOs.Verifications;
@@ -66,6 +67,7 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
         [HttpPost]
+        [PermissionAuthorize("MBKC Admin")]
         public async Task<IActionResult> CreateBrandAsync([FromForm] PostBrandRequest postBrandRequest)
         {
             ValidationResult validationResult = await _postBrandRequest.ValidateAsync(postBrandRequest);
@@ -110,6 +112,7 @@ namespace MBKC.API.Controllers
         /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
         /// <exception cref="Exception">Throw Error about the system.</exception>
         [HttpPut("{id}")]
+        [PermissionAuthorize("MBKC Admin")]
         public async Task<IActionResult> UpdateBrandAsync([FromRoute] int id, [FromForm] UpdateBrandRequest updateBrandRequest)
         {
             ValidationResult validationResult = await _updateBrandRequest.ValidateAsync(updateBrandRequest);
@@ -150,6 +153,7 @@ namespace MBKC.API.Controllers
         /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
         /// <exception cref="Exception">Throw Error about the system.</exception>
         [HttpGet]
+        [PermissionAuthorize("MBKC Admin")]
         public async Task<IActionResult> GetBrandsAsync([FromQuery] SearchBrandRequest? searchBrandRequest, [FromQuery] int? PAGE_NUMBER, [FromQuery] int? PAGE_SIZE)
         {
             var data = await this._brandRepository.GetBrandsAsync(searchBrandRequest, PAGE_NUMBER, PAGE_SIZE);
@@ -188,6 +192,7 @@ namespace MBKC.API.Controllers
         /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
         /// <exception cref="Exception">Throw Error about the system.</exception>
         [HttpGet("{id}")]
+        [PermissionAuthorize("MBKC Admin")]
         public async Task<IActionResult> GetBrandByIdAsync([FromRoute] int id)
         {
             var data = await this._brandRepository.GetBrandByIdAsync(id);
@@ -219,6 +224,7 @@ namespace MBKC.API.Controllers
         /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
         /// <exception cref="Exception">Throw Error about the system.</exception>
         [HttpDelete("{id}")]
+        [PermissionAuthorize("MBKC Admin")]
         public async Task<IActionResult> DeActiveBrandByIdAsync([FromRoute] int id)
         {
             await this._brandRepository.DeActiveBrandByIdAsync(id);
