@@ -24,6 +24,7 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using System.Reflection;
 using System.Text;
+using MBKC.BAL.Repositories.Implementations;
 
 var builder = WebApplication.CreateBuilder(args);
 

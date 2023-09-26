@@ -101,64 +101,18 @@ namespace MBKC.DAL.Infrastructures
             }
         }
 
-        public BrandRepository BrandRepository
-        {
-            get
-            {
-                if (this._brandRepository == null)
-                {
-                    this._brandRepository = new BrandRepository(this._dbContext);
-                }
-                return this._brandRepository;
-            }
-        }
-
         public CashierRepository CashierRepository
         {
             get
             {
-                if (this._brandAccountRedisDAO == null)
+                if (this._cashierRepository == null)
                 {
-                    this._brandAccountRedisDAO = new BrandAccountRedisDAO(this._redisConnectionProvider);
+                    this._cashierRepository = new CashierRepository(this._dbContext);
                 }
-                return this._brandAccountRedisDAO;
+                return this._cashierRepository;
             }
         }
-        public CategoryRedisDAO CategoryRedisDAO
-        {
-            get
-            {
-                if (this._categoryRedisDAO == null)
-                {
-                    this._categoryRedisDAO = new CategoryRedisDAO(this._redisConnectionProvider);
-                }
-                return this._categoryRedisDAO;
-            }
-        }
-
-        public ExtraCategoryRedisDAO ExtraCategoryRedisDAO
-        {
-            get
-            {
-                if (this._extraCategoryRedisDAO == null)
-                {
-                    this._extraCategoryRedisDAO = new ExtraCategoryRedisDAO(this._redisConnectionProvider);
-                }
-                return this._extraCategoryRedisDAO;
-            }
-        }
-
-        public StoreRedisDAO StoreRedisDAO
-        {
-            get
-            {
-                if (this._storeRedisDAO == null)
-                {
-                    this._storeRedisDAO = new StoreRedisDAO(this._redisConnectionProvider);
-                }
-                return this._storeRedisDAO;
-            }
-        }
+       
 
         public BankingAccountRepository BankingAccountRepository
         {
@@ -181,18 +135,6 @@ namespace MBKC.DAL.Infrastructures
                     this._brandRepository = new BrandRepository(this._dbContext);
                 }
                 return this._brandRepository;
-            }
-        }
-
-        public CashierRepository CashierRepository
-        {
-            get
-            {
-                if (this._cashierRepository == null)
-                {
-                    this._cashierRepository = new CashierRepository(this._dbContext);
-                }
-                return this._cashierRepository;
             }
         }
 

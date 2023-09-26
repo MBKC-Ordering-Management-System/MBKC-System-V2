@@ -15,28 +15,30 @@ namespace MBKC.DAL.Repositories
         public RoleRepository(MBKCDbContext dbContext)
         {
             this._dbContext = dbContext;
-            public async Task<Role> GetRoleAsync(int roleId)
+        }
+        public async Task<Role> GetRoleAsync(int roleId)
+        {
+            try
             {
-                try
-                {
-                    return await this._dbContext.Roles.SingleOrDefaultAsync(x => x.RoleId == roleId);
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception(ex.Message);
-                }
+                return await this._dbContext.Roles.SingleOrDefaultAsync(x => x.RoleId == roleId);
             }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
 
-            public async Task<Role> GetRoleById(int id)
+        public async Task<Role> GetRoleById(int id)
+        {
+            try
             {
-                try
-                {
-                    return await _dbContext.Roles.SingleOrDefaultAsync(r => r.RoleId == id);
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception(ex.Message);
-                }
+                return await _dbContext.Roles.SingleOrDefaultAsync(r => r.RoleId == id);
             }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }
+

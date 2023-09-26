@@ -7,8 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-
-    {
+namespace MBKC.BAL.Services.Implementations
+{
     public class MoneyExchangeService : IMoneyExchangeService
     {
         private UnitOfWork _unitOfWork;

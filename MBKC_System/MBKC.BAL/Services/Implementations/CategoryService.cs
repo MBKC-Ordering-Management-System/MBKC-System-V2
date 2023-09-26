@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using MBKC.BAL.DTOs.FireBase;
 using MBKC.BAL.Exceptions;
-using MBKC.BAL.Repositories.Interfaces;
+using MBKC.BAL.Services.Interfaces;
 using MBKC.BAL.Utils;
 using MBKC.DAL.Enums;
 using MBKC.DAL.Infrastructures;

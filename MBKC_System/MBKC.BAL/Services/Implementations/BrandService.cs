@@ -4,7 +4,7 @@ using MBKC.BAL.DTOs.Brands;
 using MBKC.BAL.DTOs.FireBase;
 using MBKC.BAL.DTOs.Verifications;
 using MBKC.BAL.Exceptions;
-using MBKC.BAL.Repositories.Interfaces;
+using MBKC.BAL.Services.Interfaces;
 using MBKC.BAL.Utils;
 using MBKC.DAL.DBContext;
 using MBKC.DAL.Enums;
@@ -20,19 +20,14 @@ using System.Web;
 
 namespace MBKC.BAL.Repositories.Implementations
 {
-<<<<<<<< HEAD:MBKC_System/MBKC.BAL/Services/Implementations/OrderService.cs
-    public class OrderService : IOrderService
-    {
-        private UnitOfWork _unitOfWork;
-        private IMapper _mapper;
-        public OrderService(IUnitOfWork unitOfWork, IMapper mapper)
-========
+
+   
     public class BrandService : IBrandService
     {
         private UnitOfWork _unitOfWork;
         private IMapper _mapper;
         public BrandService(IUnitOfWork unitOfWork, IMapper mapper)
->>>>>>>> main:MBKC_System/MBKC.BAL/Services/Implementations/BrandService.cs
+
         {
             this._unitOfWork = (UnitOfWork)unitOfWork;
             this._mapper = mapper;
@@ -459,7 +454,7 @@ namespace MBKC.BAL.Repositories.Implementations
                 {
                     foreach (var store in brand.Stores)
                     {
-                        store.Status = (int)StoreEnum.Status.NOT_RENT;
+                        store.Status = (int)StoreEnum.Status.INACTIVE;
                     }
                 }
                 _unitOfWork.BrandRepository.UpdateBrand(brand);
