@@ -16,6 +16,17 @@ namespace MBKC.DAL.Repositories
         {
             this._dbContext = dbContext;
         }
+        public async Task<Role> GetRoleAsync(int roleId)
+        {
+            try
+            {
+                return await this._dbContext.Roles.SingleOrDefaultAsync(x => x.RoleId == roleId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
 
         public async Task<Role> GetRoleById(int id)
         {
@@ -30,3 +41,4 @@ namespace MBKC.DAL.Repositories
         }
     }
 }
+        

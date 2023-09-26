@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MBKC.DAL.Repositories
-{ 
+{
     public class StorePartnerRepository
     {
         private MBKCDbContext _dbContext;

@@ -1,4 +1,6 @@
-﻿using MBKC.DAL.DBContext;
+﻿using MBKC.DAL.Repositories;
+using MBKC.DAL.DBContext;
+using MBKC.DAL.RedisRepositories;
 using Redis.OM;
 using System;
 using System.Collections.Generic;
@@ -38,15 +40,8 @@ namespace MBKC.DAL.Infrastructures
         private CashierMoneyExchangeRepository _cashierMoneyExchangeRepository;
         private KitchenCenterMoneyExchangeRepository _kitchenCenterMoneyExchangeRepository;
         private RedisConnectionProvider _redisConnectionProvider;
-        private AccountRedisRepository _accountRedisRepository;
-        private AccountTokenRedisRepository _accountTokenRedisRepository;
-        private EmailVerificationRedisRepository _emailVerificationRedisRepository;
-        private BrandRedisRepository _brandRedisRepository;
-        private BrandAccountRedisRepository _brandAccountRedisRepository;
-        private ProductRedisRepository _productRedisRepository;
-        private CategoryRedisRepository _categoryRedisRepository;
-        private ExtraCategoryRedisRepository _extraCategoryRedisRepository;
-        private StoreRedisRepository _storeRedisRepository;
+        private AccountTokenRedisRepository  _accountTokenRedisRepository;
+        private EmailVerificationRedisRepository  _emailVerificationRedisRepository;
 
 
         public UnitOfWork(IDbFactory dbFactory)
@@ -61,8 +56,6 @@ namespace MBKC.DAL.Infrastructures
             }
         }
 
-
-
         public AccountRepository AccountRepository
         {
             get
@@ -75,23 +68,11 @@ namespace MBKC.DAL.Infrastructures
             }
         }
 
-        public AccountRedisRepository AccountRedisRepository
-        {
-            get
-            {
-                if (this._accountRedisRepository == null)
-                {
-                    this._accountRedisRepository = new AccountRedisRepository(this._redisConnectionProvider);
-                }
-                return this._accountRedisRepository;
-            }
-        }
-
         public AccountTokenRedisRepository AccountTokenRedisRepository
         {
             get
             {
-                if (this._accountTokenRedisRepository == null)
+                if(this._accountTokenRedisRepository == null)
                 {
                     this._accountTokenRedisRepository = new AccountTokenRedisRepository(this._redisConnectionProvider);
                 }
@@ -103,11 +84,22 @@ namespace MBKC.DAL.Infrastructures
         {
             get
             {
-                if (this._emailVerificationRedisRepository == null)
+                if(this._emailVerificationRedisRepository == null)
                 {
                     this._emailVerificationRedisRepository = new EmailVerificationRedisRepository(this._redisConnectionProvider);
                 }
                 return this._emailVerificationRedisRepository;
+            }
+        }
+        public BankingAccountRepository BankingAccountDAO
+        {
+            get
+            {
+                if (this._bankingAccountRepository == null)
+                {
+                    this._bankingAccountRepository = new BankingAccountRepository(this._dbContext);
+                }
+                return this._bankingAccountRepository;
             }
         }
 

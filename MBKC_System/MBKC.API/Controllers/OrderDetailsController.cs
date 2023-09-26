@@ -1,4 +1,4 @@
-﻿using MBKC.BAL.Repositories.Interfaces;
+﻿using MBKC.BAL.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,10 +8,10 @@ namespace MBKC.API.Controllers
     [ApiController]
     public class OrderDetailsController : ControllerBase
     {
-        private IOrderDetailService _orderDetailRepository;
-        public OrderDetailsController(IOrderDetailService orderDetailRepository)
+        private IOrderDetailService _orderDetailService;
+        public OrderDetailsController(IOrderDetailService orderDetailService)
         {
-            _orderDetailRepository = orderDetailRepository;
+            this._orderDetailService = orderDetailService;
         }
     }
 }

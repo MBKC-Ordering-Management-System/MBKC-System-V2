@@ -18,11 +18,19 @@ using System.Web;
 
 namespace MBKC.BAL.Repositories.Implementations
 {
+<<<<<<<< HEAD:MBKC_System/MBKC.BAL/Services/Implementations/CashierService.cs
+    public class CashierService : ICashierService
+    {
+        private UnitOfWork _unitOfWork;
+        private IMapper _mapper;
+        public CashierService(IUnitOfWork unitOfWork, IMapper mapper)
+========
     public class CategoryService : ICategoryService
     {
         private UnitOfWork _unitOfWork;
         private IMapper _mapper;
         public CategoryService(IUnitOfWork unitOfWork, IMapper mapper)
+>>>>>>>> main:MBKC_System/MBKC.BAL/Services/Implementations/CategoryService.cs
         {
             this._unitOfWork = (UnitOfWork)unitOfWork;
             this._mapper = mapper;

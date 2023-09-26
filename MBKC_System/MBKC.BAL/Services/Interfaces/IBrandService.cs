@@ -7,9 +7,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MBKC.BAL.Repositories.Interfaces
+namespace MBKC.BAL.Services.Interfaces
 {
+<<<<<<<< HEAD:MBKC_System/MBKC.BAL/Services/Interfaces/IOrderService.cs
+    public interface IOrderService
+========
     public interface IBrandService
+>>>>>>>> main:MBKC_System/MBKC.BAL/Services/Interfaces/IBrandService.cs
     {
         public Task<GetBrandResponse> CreateBrandAsync(PostBrandRequest postBrandRequest, FireBaseImage fireBaseImage, Email emailSystem);
         public Task<GetBrandResponse> UpdateBrandAsync( int brandId, UpdateBrandRequest updateBrandRequest, FireBaseImage fireBaseImage);

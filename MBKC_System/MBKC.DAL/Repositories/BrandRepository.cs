@@ -13,6 +13,7 @@ namespace MBKC.DAL.Repositories
     {
         private MBKCDbContext _dbContext;
         public BrandRepository(MBKCDbContext dbContext)
+>>>>>>>> main:MBKC_System/MBKC.DAL/Repositories/BrandRepository.cs
         {
             this._dbContext = dbContext;
         }

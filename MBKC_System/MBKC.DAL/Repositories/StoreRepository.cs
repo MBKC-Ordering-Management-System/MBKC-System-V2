@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace MBKC.DAL.Repositories
 {
+
     public class StoreRepository
     {
         private MBKCDbContext _dbContext;
@@ -16,3 +17,5 @@ namespace MBKC.DAL.Repositories
         }
     }
 }
+    
+

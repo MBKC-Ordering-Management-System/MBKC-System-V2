@@ -1,22 +1,33 @@
 ﻿using AutoMapper;
-using MBKC.BAL.Repositories.Interfaces;
+using MBKC.BAL.Services.Interfaces;
 using MBKC.DAL.Infrastructures;
+using MBKC.DAL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MBKC.BAL.Repositories.Implementations
+namespace MBKC.BAL.Services.Implementations
 {
+<<<<<<<< HEAD:MBKC_System/MBKC.BAL/Services/Implementations/ExtraCategoryService.cs
+    public class ExtraCategoryService : IExtraCategoryService
+    {
+        private UnitOfWork _unitOfWork;
+        private IMapper _mapper;
+        public ExtraCategoryService(IUnitOfWork unitOfWork, IMapper mapper)
+========
     public class KitchenCenterMoneyExchangeService : IKitchenCenterMoneyExchangeService
     {
         private UnitOfWork _unitOfWork;
         private IMapper _mapper;
         public KitchenCenterMoneyExchangeService(IUnitOfWork unitOfWork, IMapper mapper)
+>>>>>>>> main:MBKC_System/MBKC.BAL/Services/Implementations/KitchenCenterMoneyExchangeService.cs
         {
             this._unitOfWork = (UnitOfWork)unitOfWork;
             this._mapper = mapper;
         }
+
+        
     }
 }

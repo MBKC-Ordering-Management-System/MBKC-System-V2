@@ -9,7 +9,7 @@ namespace MBKC.DAL.Utils
     public static class StringUtil
     {
         private static readonly string[] VietnameseSigns = new string[]
-       {
+        {
 
             "aAeEoOuUiIdDyY",
 
@@ -40,7 +40,7 @@ namespace MBKC.DAL.Utils
             "ýỳỵỷỹ",
 
             "ÝỲỴỶỸ"
-       };
+        };
 
         public static string RemoveSign4VietnameseString(this string str)
         {

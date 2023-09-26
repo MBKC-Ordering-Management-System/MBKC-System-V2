@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using MBKC.BAL.DTOs.Verifications;
 using MBKC.BAL.Exceptions;
-using MBKC.BAL.Repositories.Interfaces;
+using MBKC.BAL.Services.Interfaces;
 using MBKC.BAL.Utils;
 using MBKC.DAL.Enums;
 using MBKC.DAL.Infrastructures;
@@ -13,9 +13,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MBKC.BAL.Repositories.Implementations
+namespace MBKC.BAL.Services.Implementations
 {
-    public class VerificationService: IVerificationService
+    public class VerificationService : IVerificationService
     {
         private UnitOfWork _unitOfWork;
         private IMapper _mapper;
@@ -29,26 +29,21 @@ namespace MBKC.BAL.Repositories.Implementations
         {
             try
             {
-                AccountRedisModel accountRedisModel = await this._unitOfWork.AccountRedisRepository.GetAccountAsync(emailVerificationRequest.Email);
-                if(accountRedisModel == null)
+                Account account = await this._unitOfWork.AccountRepository.GetAccountAsync(emailVerificationRequest.Email);
+                if (account == null)
                 {
-                    Account account = await this._unitOfWork.AccountRepository.GetAccountAsync(emailVerificationRequest.Email);
-                    if(account == null)
-                    {
-                        throw new NotFoundException("Email does not exist in the system.");
-                    }
-                    accountRedisModel = this._mapper.Map<AccountRedisModel>(account);
-                    await this._unitOfWork.AccountRedisRepository.AddAccountAsync(accountRedisModel);
+                    throw new NotFoundException("Email does not exist in the system.");
                 }
                 EmailVerification emailVerification = EmailUtil.SendEmailToResetPassword(email, emailVerificationRequest);
                 EmailVerificationRedisModel emailVerificationRedisModel = this._mapper.Map<EmailVerificationRedisModel>(emailVerification);
                 await this._unitOfWork.EmailVerificationRedisRepository.AddEmailVerificationAsync(emailVerificationRedisModel);
-            } catch(NotFoundException ex)
+            }
+            catch (NotFoundException ex)
             {
                 string error = ErrorUtil.GetErrorString("Email", ex.Message);
                 throw new NotFoundException(error);
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 string error = ErrorUtil.GetErrorString("Excception", ex.Message);
                 throw new Exception(error);
@@ -59,19 +54,13 @@ namespace MBKC.BAL.Repositories.Implementations
         {
             try
             {
-                AccountRedisModel accountRedisModel = await this._unitOfWork.AccountRedisRepository.GetAccountAsync(otpCodeVerificationRequest.Email);
-                if (accountRedisModel == null)
+                Account account = await this._unitOfWork.AccountRepository.GetAccountAsync(otpCodeVerificationRequest.Email);
+                if (account == null)
                 {
-                    Account account = await this._unitOfWork.AccountRepository.GetAccountAsync(otpCodeVerificationRequest.Email);
-                    if (account == null)
-                    {
-                        throw new NotFoundException("Email does not exist in the system.");
-                    }
-                    accountRedisModel = this._mapper.Map<AccountRedisModel>(account);
-                    await this._unitOfWork.AccountRedisRepository.AddAccountAsync(accountRedisModel);
+                    throw new NotFoundException("Email does not exist in the system.");
                 }
                 EmailVerificationRedisModel emailVerificationRedisModel = await this._unitOfWork.EmailVerificationRedisRepository.GetEmailVerificationAsync(otpCodeVerificationRequest.Email);
-                if(emailVerificationRedisModel == null)
+                if (emailVerificationRedisModel == null)
                 {
                     throw new BadRequestException("Email has not been previously authenticated.");
                 }
@@ -79,7 +68,7 @@ namespace MBKC.BAL.Repositories.Implementations
                 {
                     throw new BadRequestException("OTP code has expired.");
                 }
-                if(emailVerificationRedisModel.OTPCode.Equals(otpCodeVerificationRequest.OTPCode) == false)
+                if (emailVerificationRedisModel.OTPCode.Equals(otpCodeVerificationRequest.OTPCode) == false)
                 {
                     throw new BadRequestException("Your OTP code does not match with the previously sent OTP code.");
                 }
@@ -94,10 +83,11 @@ namespace MBKC.BAL.Repositories.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if(ex.Message.Equals("Email has not been previously authenticated."))
+                if (ex.Message.Equals("Email has not been previously authenticated."))
                 {
                     fieldName = "Email";
-                } else if(ex.Message.Equals("OTP code has expired.")
+                }
+                else if (ex.Message.Equals("OTP code has expired.")
                     || ex.Message.Equals("Your OTP code does not match with the previously sent OTP code."))
                 {
                     fieldName = "OTP Code";

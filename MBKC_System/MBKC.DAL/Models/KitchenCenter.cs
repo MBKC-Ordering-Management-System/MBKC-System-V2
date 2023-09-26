@@ -10,15 +10,15 @@ namespace MBKC.DAL.Models
 {
     public class KitchenCenter
     {
-        [Key]
-        public int AccountId { get; set; }
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int KitchenCenterId { get; set; }
         public string Name { get; set; }
         public string Address { get; set; }
-        public bool Status { get; set; }
+        public int Status { get; set; }
         public string Logo { get; set; }
         public int WalletId { get; set; }
-        [ForeignKey("AccountId")]
-        public virtual Account Account { get; set; }
+        [ForeignKey("ManagerId")]
+        public virtual Account Manager { get; set; }
         [ForeignKey("WalletId")]
         public virtual Wallet Wallet { get; set; }  
         public virtual IEnumerable<Cashier> Cashiers { get; set; }

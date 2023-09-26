@@ -1,4 +1,4 @@
-﻿using MBKC.BAL.Repositories.Interfaces;
+﻿using MBKC.BAL.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,10 +8,10 @@ namespace MBKC.API.Controllers
     [ApiController]
     public class PartnersController : ControllerBase
     {
-        private IPartnerService _partnerRepository;
-        public PartnersController(IPartnerService partnerRepository)
+        private IPartnerService _partnerService;
+        public PartnersController(IPartnerService partnerService)
         {
-            _partnerRepository = partnerRepository;
+            this._partnerService = partnerService;
         }
     }
 }
