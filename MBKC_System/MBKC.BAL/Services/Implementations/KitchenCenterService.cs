@@ -236,6 +236,9 @@ namespace MBKC.BAL.Services.Implementations
                 if (existedKitchenCenter == null)
                 {
                     throw new NotFoundException("Kitchen center id does not exist in the system.");
+                } else if(existedKitchenCenter.Status == (int)KitchenCenterEnum.Status.DEACTIVE)
+                {
+                    throw new BadRequestException("Kitchen center was deleted before, so this kitchen center cannot update.");
                 }
 
                 if (existedKitchenCenter.Manager.Email.Equals(updatedKitchenCenter.ManagerEmail) == false)
@@ -245,10 +248,10 @@ namespace MBKC.BAL.Services.Implementations
                     {
                         throw new BadRequestException("Manager Email already existed in the system.");
                     }
-                    //xoa cu
+                    
                     existedKitchenCenter.Manager.Status = (int)AccountEnum.Status.DEACTIVE;
                     this._unitOfWork.AccountRepository.UpdateAccount(existedKitchenCenter.Manager);
-                    // tao moi
+                    
                     Role kitchenCenterManagerRole = await this._unitOfWork.RoleRepository.GetRoleAsync((int)RoleEnum.Role.KITCHEN_CENTER_MANAGER);
                     Account newManagerAccount = new Account()
                     {
@@ -311,6 +314,9 @@ namespace MBKC.BAL.Services.Implementations
                 } else if (ex.Message.Equals("New logo is required when deleting the old logo."))
                 {
                     fieldName = "New Logo";
+                } else if (ex.Message.Equals("Kitchen center was deleted before, so this kitchen center cannot update."))
+                {
+                    fieldName = "Kitchen center";
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
@@ -335,6 +341,9 @@ namespace MBKC.BAL.Services.Implementations
                 if(existedKitchenCenter == null)
                 {
                     throw new NotFoundException("Kitchen center id does not exist in the system.");
+                } else if(existedKitchenCenter.Status == (int)KitchenCenterEnum.Status.DEACTIVE)
+                {
+                    throw new BadRequestException("Kitchen center cannot delete because that was deleted before.");
                 }
                 if(existedKitchenCenter.Stores != null && existedKitchenCenter.Stores.Count() > 0 && existedKitchenCenter.Stores.Any(x => x.Status == (int)StoreEnum.Status.ACTIVE) == false)
                 {
