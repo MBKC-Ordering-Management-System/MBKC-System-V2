@@ -34,7 +34,7 @@ namespace MBKC.BAL.Services.Implementations
             bool isUploaded = false;
             try
             {
-                Account existedAccount = await this._unitOfWork.AccountRepository.GetActiveAccountAsync(newKitchenCenter.ManagerEmail);
+                Account existedAccount = await this._unitOfWork.AccountRepository.GetAccountAsync(newKitchenCenter.ManagerEmail);
                 if (existedAccount != null)
                 {
                     throw new BadRequestException("Manager Email already existed in the system.");
@@ -104,18 +104,6 @@ namespace MBKC.BAL.Services.Implementations
                     throw new NotFoundException("Kitchen Center Id does not exist in the system.");
                 }
                 GetKitchenCenterResponse getKitchenCenterResponse = this._mapper.Map<GetKitchenCenterResponse>(kitchenCenter);
-                if (getKitchenCenterResponse.Status.Equals(((int)KitchenCenterEnum.Status.INACTIVE).ToString()))
-                {
-                    getKitchenCenterResponse.Status = char.ToUpper(KitchenCenterEnum.Status.INACTIVE.ToString()[0]) + KitchenCenterEnum.Status.INACTIVE.ToString().ToLower().Substring(1);
-                }
-                else if (getKitchenCenterResponse.Status.Equals(((int)KitchenCenterEnum.Status.ACTIVE).ToString()))
-                {
-                    getKitchenCenterResponse.Status = char.ToUpper(KitchenCenterEnum.Status.ACTIVE.ToString()[0]) + KitchenCenterEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
-                }
-                else if (getKitchenCenterResponse.Status.Equals(((int)KitchenCenterEnum.Status.DEACTIVE).ToString()))
-                {
-                    getKitchenCenterResponse.Status = char.ToUpper(KitchenCenterEnum.Status.DEACTIVE.ToString()[0]) + KitchenCenterEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
-                }
                 return getKitchenCenterResponse;
             }
             catch (BadRequestException ex)
@@ -158,15 +146,15 @@ namespace MBKC.BAL.Services.Implementations
                 if (searchValue != null && StringUtil.IsUnicode(searchValue))
                 {
                     numberItems = await this._unitOfWork.KitchenCenterRepository.GetNumberKitchenCentersAsync(searchValue, null);
-                    kitchenCenters = await this._unitOfWork.KitchenCenterRepository.GetKitchenCentersAsync(searchValue, null, numberItems, itemsPerPage.Value, currentPage.Value);
+                    kitchenCenters = await this._unitOfWork.KitchenCenterRepository.GetKitchenCentersAsync(searchValue, null, itemsPerPage.Value, currentPage.Value);
                 } else if (searchValue != null && StringUtil.IsUnicode(searchValue) == false)
                 {
                     numberItems = await this._unitOfWork.KitchenCenterRepository.GetNumberKitchenCentersAsync(null, searchValue);
-                    kitchenCenters = await this._unitOfWork.KitchenCenterRepository.GetKitchenCentersAsync(null, searchValue, numberItems, itemsPerPage.Value, currentPage.Value);
+                    kitchenCenters = await this._unitOfWork.KitchenCenterRepository.GetKitchenCentersAsync(null, searchValue, itemsPerPage.Value, currentPage.Value);
                 } else if(searchValue == null)
                 {
                     numberItems = await this._unitOfWork.KitchenCenterRepository.GetNumberKitchenCentersAsync(null, null);
-                    kitchenCenters = await this._unitOfWork.KitchenCenterRepository.GetKitchenCentersAsync(null, null, numberItems, itemsPerPage.Value, currentPage.Value);
+                    kitchenCenters = await this._unitOfWork.KitchenCenterRepository.GetKitchenCentersAsync(null, null, itemsPerPage.Value, currentPage.Value);
                 }
                 if (kitchenCenters == null || kitchenCenters != null && kitchenCenters.Count() == 0)
                 {
@@ -174,32 +162,17 @@ namespace MBKC.BAL.Services.Implementations
                     GetKitchenCentersResponse getKitchenCentersResponse = new GetKitchenCentersResponse()
                     {
                         NumberItems = 0,
-                        TotalPage = 0,
+                        TotalPages = 0,
                         KitchenCenters = kitchenCenterResponses
                     };
                     return getKitchenCentersResponse;
                 }
                 int totalPage = (int)((numberItems + itemsPerPage) / itemsPerPage);
                 List<GetKitchenCenterResponse> getKitchenCenterResponses = this._mapper.Map<List<GetKitchenCenterResponse>>(kitchenCenters);
-                foreach (var kitchenCenter in getKitchenCenterResponses)
-                {
-                    if (kitchenCenter.Status.Equals(((int)KitchenCenterEnum.Status.INACTIVE).ToString()))
-                    {
-                        kitchenCenter.Status = char.ToUpper(KitchenCenterEnum.Status.INACTIVE.ToString()[0]) + KitchenCenterEnum.Status.INACTIVE.ToString().ToLower().Substring(1);
-                    }
-                    else if (kitchenCenter.Status.Equals(((int)KitchenCenterEnum.Status.ACTIVE).ToString()))
-                    {
-                        kitchenCenter.Status = char.ToUpper(KitchenCenterEnum.Status.ACTIVE.ToString()[0]) + KitchenCenterEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
-                    }
-                    else if (kitchenCenter.Status.Equals(((int)KitchenCenterEnum.Status.DEACTIVE).ToString()))
-                    {
-                        kitchenCenter.Status = char.ToUpper(KitchenCenterEnum.Status.DEACTIVE.ToString()[0]) + KitchenCenterEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
-                    }
-                }
                 GetKitchenCentersResponse getKitchenCenters = new GetKitchenCentersResponse()
                 {
                     NumberItems = numberItems,
-                    TotalPage = totalPage,
+                    TotalPages = totalPage,
                     KitchenCenters = getKitchenCenterResponses
                 };
                 return getKitchenCenters;
@@ -229,6 +202,7 @@ namespace MBKC.BAL.Services.Implementations
         {
             string folderName = "KitchenCenters";
             bool isUploaded = false;
+            bool isDeleted = false; 
             string logoId = "";
             try
             {
@@ -263,23 +237,13 @@ namespace MBKC.BAL.Services.Implementations
                     existedKitchenCenter.Manager = newManagerAccount;
                 }
 
-                if(updatedKitchenCenter.DeletedLogo != null)
-                {
-                    string imageId = FileUtil.GetImageIdFromUrlImage(existedKitchenCenter.Logo, "logoId");
-                    FileUtil.SetCredentials(firebaseImageOption);
-                    await FileUtil.DeleteImageAsync(imageId, folderName);
-                    if(updatedKitchenCenter.NewLogo == null)
-                    {
-                        throw new BadRequestException("New logo is required when deleting the old logo.");
-                    }
-                }
-                
-                if(updatedKitchenCenter.NewLogo != null)
+                string oldLogo = existedKitchenCenter.Logo;
+                if (updatedKitchenCenter.Logo != null)
                 {
                     Guid guid = Guid.NewGuid();
                     logoId = guid.ToString();
                     FileUtil.SetCredentials(firebaseImageOption);
-                    FileStream logoFileStream = FileUtil.ConvertFormFileToStream(updatedKitchenCenter.NewLogo);
+                    FileStream logoFileStream = FileUtil.ConvertFormFileToStream(updatedKitchenCenter.Logo);
                     string logoLink = await FileUtil.UploadImageAsync(logoFileStream, folderName, logoId);
                     if (logoLink != null && logoLink.Length > 0)
                     {
@@ -287,7 +251,11 @@ namespace MBKC.BAL.Services.Implementations
                     }
                     logoLink += $"&logoId={logoId}";
                     existedKitchenCenter.Logo = logoLink;
+                    FileUtil.SetCredentials(firebaseImageOption);
+                    await FileUtil.DeleteImageAsync(FileUtil.GetImageIdFromUrlImage(oldLogo, "logoId"), folderName);
+                    isDeleted = true;
                 }
+
                 existedKitchenCenter.Name = updatedKitchenCenter.Name;
                 existedKitchenCenter.Address = updatedKitchenCenter.Address;
                 if (updatedKitchenCenter.Status.ToLower().Equals(KitchenCenterEnum.Status.ACTIVE.ToString().ToLower()))
@@ -323,7 +291,7 @@ namespace MBKC.BAL.Services.Implementations
             }
             catch (Exception ex)
             {
-                if (isUploaded)
+                if (isUploaded && isDeleted == false)
                 {
                     FileUtil.SetCredentials(firebaseImageOption);
                     await FileUtil.DeleteImageAsync(logoId, folderName);

@@ -37,11 +37,11 @@ namespace MBKC.BAL.Validators.Stores
 
             RuleFor(csr => csr.KitchenCenterId)
                 .Cascade(CascadeMode.StopOnFirstFailure)
-                .GreaterThan(0).WithMessage("{PropertyName} is not suitable in the system.");
+                .GreaterThan(0).WithMessage("{PropertyName} is not suitable id in the system.");
 
             RuleFor(csr => csr.BrandId)
                 .Cascade(CascadeMode.StopOnFirstFailure)
-                .GreaterThan(0).WithMessage("{PropertyName} is not suitable in the system.");
+                .GreaterThan(0).WithMessage("{PropertyName} is not suitable id in the system.");
 
             RuleFor(csr => csr.StoreManagerEmail)
                 .Cascade(CascadeMode.StopOnFirstFailure)

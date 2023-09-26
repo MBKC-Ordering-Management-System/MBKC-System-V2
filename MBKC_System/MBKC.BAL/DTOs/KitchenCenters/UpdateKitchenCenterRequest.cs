@@ -12,8 +12,7 @@ namespace MBKC.BAL.DTOs.KitchenCenters
         public string Name { get; set; }
         public string Address { get; set; }
         public string Status { get; set; }
-        public IFormFile? NewLogo { get; set; }
-        public string? DeletedLogo { get; set; }
+        public IFormFile? Logo { get; set; }
         public string ManagerEmail { get; set; }
     }
 }

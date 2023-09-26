@@ -8,7 +8,7 @@ namespace MBKC.BAL.DTOs.Stores
 {
     public class GetStoresResponse
     {
-        public int TotalItems { get; set; }
+        public int NumberItems { get; set; }
         public int TotalPages { get; set; }
         public List<GetStoreResponse> Stores { get; set; }
     }

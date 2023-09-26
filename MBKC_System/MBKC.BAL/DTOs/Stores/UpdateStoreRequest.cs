@@ -10,8 +10,7 @@ namespace MBKC.BAL.DTOs.Stores
     public class UpdateStoreRequest
     {
         public string Name { get; set; }
-        public IFormFile? NewLogo { get; set; }
-        public string? DeletedLogo { get; set; }
+        public IFormFile? Logo { get; set; }
         public string StoreManagerEmail { get; set; }
         public string Status { get; set; }
     }

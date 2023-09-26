@@ -30,29 +30,19 @@ namespace MBKC.BAL.Validators.KitchenCenters
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotNull().WithMessage("{PropertyName} is not null.")
                 .NotEmpty().WithMessage("{PropertyName} is not empty.")
-                .Must(StringUtil.CheckKitchenCenterStatusName).WithMessage("{PropertyName} is required \"Active\" or \"InActive\" Status");
+                .Must(StringUtil.CheckKitchenCenterStatusName).WithMessage("{PropertyName} is required 'Active' or 'InActive' Status.");
 
-            RuleFor(ukcr => ukcr.NewLogo)
+            RuleFor(ukcr => ukcr.Logo)
                 .Cascade(CascadeMode.StopOnFirstFailure)
-                .Custom((newLogo, context) =>
+                .Custom((Logo, context) =>
                 {
-                    if (newLogo != null && newLogo.Length < 0 || newLogo.Length > MAX_BYTES)
+                    if (Logo != null && Logo.Length < 0 || Logo != null && Logo.Length > MAX_BYTES)
                     {
                         context.AddFailure($"Logo is required file length greater than 0 and less than {MAX_BYTES / 1024 / 1024} MB.");
                     }
-                    if (newLogo != null && FileUtil.HaveSupportedFileType(newLogo.FileName) == false)
+                    if (Logo != null && FileUtil.HaveSupportedFileType(Logo.FileName) == false)
                     {
                         context.AddFailure("Logo is required extension type .png, .jpg, .jpeg, .webp.");
-                    }
-                });
-
-            RuleFor(ukcr => ukcr.DeletedLogo)
-                .Cascade(CascadeMode.StopOnFirstFailure)
-                .Custom((deletedLogo, context) =>
-                {
-                    if(deletedLogo != null && StringUtil.CheckUrlString(deletedLogo) == false)
-                    {
-                        context.AddFailure("Deleted Logo Url is invalid URL format.");
                     }
                 });
 

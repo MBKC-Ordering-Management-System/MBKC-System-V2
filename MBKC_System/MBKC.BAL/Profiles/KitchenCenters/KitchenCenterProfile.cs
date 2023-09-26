@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MBKC.BAL.DTOs.KitchenCenters;
+using MBKC.BAL.Utils;
 using MBKC.DAL.Models;
 using MBKC.DAL.RedisModels;
 using System;
@@ -14,7 +15,8 @@ namespace MBKC.BAL.Profiles.KitchenCenters
     {
         public KitchenCenterProfile()
         {
-            CreateMap<KitchenCenter, GetKitchenCenterResponse>().ForMember(dept => dept.KitchenCenterManagerEmail, opt => opt.MapFrom(src => src.Manager.Email));
+            CreateMap<KitchenCenter, GetKitchenCenterResponse>().ForMember(dept => dept.KitchenCenterManagerEmail, opt => opt.MapFrom(src => src.Manager.Email))
+                                                                .ForMember(dept => dept.Status, opt => opt.MapFrom(src => StatusUtil.ChangeKitchenCenterStatus(src.Status)));
         }
     }
 }
