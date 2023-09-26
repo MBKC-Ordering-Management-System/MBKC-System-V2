@@ -51,21 +51,19 @@ namespace MBKC.API.Controllers
         ///     
         ///         POST
         ///         {
-        ///             Name: MyBrand
-        ///             Address: 123 Main St
-        ///             ManagerEmail: manager@gmail.com
+        ///             "Name": "MyBrand"
+        ///             "Address": "123 Main St"
+        ///             "ManagerEmail": "manager@gmail.com"
         ///             Logo: [Upload a logo file] 
         ///         }
         /// </remarks>
         /// <response code="200">Created new brand successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
-        /// <response code="404">Some Error about request data not found.</response>
         /// <response code="500">Some Error about the system.</response>
         /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
         /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
         /// <exception cref="Exception">Throw Error about the system.</exception>
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Consumes("multipart/form-data")]
@@ -106,11 +104,11 @@ namespace MBKC.API.Controllers
         ///     
         ///         PUT
         ///         {
-        ///             id: 3
-        ///             Name: MyBrand
-        ///             Address: 123 Main St
-        ///             Status: false
-        ///             Logo: [Upload a logo file] 
+        ///             "id": 3
+        ///             "Name": "MyBrand"
+        ///             "Address": "123 Main St"
+        ///             "Status": INACTIVE
+        ///             "Logo": [Upload a logo file] 
         ///         }
         /// </remarks>
         /// <response code="200">Update Brand Successfully.</response>
@@ -167,10 +165,12 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///     
         ///         GET
-        ///         KeySearchName: HighLand Coffee
-        ///         KeyStatusFilter: ACTIVE
-        ///         pageSize: 5
-        ///         pageNumber: 1
+        ///         {    
+        ///             "keySearchName": "HighLand Coffee"
+        ///             "keyStatusFilter": "ACTIVE"
+        ///             "pageSize": 5
+        ///             "pageNumber": 1
+        ///         }
         /// </remarks>
         /// <response code="200">Get brands Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
@@ -205,15 +205,20 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///     
         ///         GET
-        ///         id: 3
+        ///         {
+        ///             "id": 3
+        ///         }
+        ///         
         /// </remarks>
         /// <response code="200">Get brand Successfully.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
         /// <response code="404">Some Error about request data not found.</response>
         /// <response code="500">Some Error about the system.</response>
         /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
         /// <exception cref="Exception">Throw Error about the system.</exception>
         [ProducesResponseType(typeof(GetBrandResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
         [HttpGet("{id}")]
@@ -239,9 +244,12 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///     
         ///         DELETE
-        ///         id: 3
+        ///         {
+        ///             "id": 3
+        ///         }
         /// </remarks>
         /// <response code="200">Deactive brand successfully.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
         /// <response code="404">Some Error about request data not found.</response>
         /// <response code="500">Some Error about the system.</response>
         /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
@@ -249,6 +257,7 @@ namespace MBKC.API.Controllers
         /// <exception cref="Exception">Throw Error about the system.</exception>
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
         [HttpDelete("{id}")]

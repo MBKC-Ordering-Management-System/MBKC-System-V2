@@ -39,6 +39,14 @@ namespace MBKC.BAL.Validators
             RuleFor(p => p.Logo)
                    .ChildRules(pro => pro.RuleFor(img => img.FileName).Must(FileUtil.HaveSupportedFileType).WithMessage("Logo is required extension type .png, .jpg, .jpeg, .webp"));
             #endregion
+
+            #region Status
+            RuleFor(b => b.Status)
+                     .Cascade(CascadeMode.StopOnFirstFailure)
+                     .NotNull().WithMessage("{PropertyName} is not null.")
+                     .NotEmpty().WithMessage("{PropertyName} is not empty.")
+                     .Must(StringUtil.CheckBrandStatusName).WithMessage("{PropertyName} is required INACTIVE or ACTIVE");
+            #endregion
         }
     }
 }

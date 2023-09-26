@@ -68,7 +68,7 @@ namespace MBKC.DAL.DAOs
         #endregion
 
         #region Get Brands
-        public async Task<List<Brand>> GetBrandsAsync(string? keySearchNameUniCode, string? keySearchNameNotUniCode, int? keyStatusFilter, int numberItems, int itemsPerPage, int currentPage)
+        public async Task<List<Brand>> GetBrandsAsync(string? keySearchNameUniCode, string? keySearchNameNotUniCode, int? keyStatusFilter, int itemsPerPage, int currentPage)
         {
             try
             {
@@ -127,6 +127,16 @@ namespace MBKC.DAL.DAOs
                                                        .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
                 }
 
+                else if (keySearchNameUniCode == null && keySearchNameNotUniCode == null && keyStatusFilter != null)
+                {
+                    return await this._dbContext.Brands
+                                                       .Include(brand => brand.BrandAccounts)
+                                                       .ThenInclude(brandAccount => brandAccount.Account)
+                                                       .ThenInclude(account => account.Role)
+                                                       .Where(x => x.Status == keyStatusFilter)
+                                                       .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
+                }
+
                 return await this._dbContext.Brands
                                                        .Include(brand => brand.BrandAccounts)
                                                        .ThenInclude(brandAccount => brandAccount.Account)
@@ -141,11 +151,11 @@ namespace MBKC.DAL.DAOs
         #endregion
 
         #region Get Number Brands
-        public async Task<int> GetNumberBrandsAsync(string? keySearchUniCode, string? keySearchNotUniCode)
+        public async Task<int> GetNumberBrandsAsync(string? keySearchUniCode, string? keySearchNotUniCode, int? keyStatusFilter)
         {
             try
             {
-                if (keySearchUniCode == null && keySearchNotUniCode != null)
+                if (keySearchUniCode == null && keySearchNotUniCode != null && keyStatusFilter == null)
                 {
                     return this._dbContext.Brands.Where(delegate (Brand brand)
                     {
@@ -159,9 +169,31 @@ namespace MBKC.DAL.DAOs
                         }
                     }).AsQueryable().Count();
                 }
-                else if (keySearchUniCode != null && keySearchNotUniCode == null)
+                else if (keySearchUniCode == null && keySearchNotUniCode != null && keyStatusFilter != null)
+                {
+                    return this._dbContext.Brands.Where(delegate (Brand brand)
+                    {
+                        if (StringUtil.RemoveSign4VietnameseString(brand.Name.ToLower()).Contains(keySearchNotUniCode.ToLower()))
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }).Where(b => b.Status == keyStatusFilter).AsQueryable().Count();
+                }
+                else if (keySearchUniCode != null && keySearchNotUniCode == null && keyStatusFilter == null)
                 {
                     return await this._dbContext.Brands.Where(x => x.Name.ToLower().Contains(keySearchUniCode.ToLower())).CountAsync();
+                }
+                else if (keySearchUniCode != null && keySearchNotUniCode == null && keyStatusFilter != null)
+                {
+                    return await this._dbContext.Brands.Where(x => x.Name.ToLower().Contains(keySearchUniCode.ToLower()) && x.Status == keyStatusFilter).CountAsync();
+                }
+                else if (keySearchUniCode == null && keySearchNotUniCode == null && keyStatusFilter != null)
+                {
+                    return await this._dbContext.Brands.Where(x => x.Status == keyStatusFilter).CountAsync();
                 }
                 return await this._dbContext.Brands.CountAsync();
 

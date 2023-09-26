@@ -1,6 +1,7 @@
 ﻿using Firebase.Auth;
 using Firebase.Storage;
 using MBKC.BAL.DTOs.FireBase;
+using MBKC.BAL.Exceptions;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -46,11 +47,11 @@ namespace MBKC.BAL.Utils
         #endregion
 
         #region Upload Image
-        public static async Task<string> UploadImage(FileStream stream, string folder, string fileId)
+        public static async Task<string> UploadImageAsync(FileStream stream, string folder, string fileId)
         {
             try
             {
-               
+
                 var auth = new FirebaseAuthProvider(new FirebaseConfig(ApiKey));
                 var a = await auth.SignInWithEmailAndPasswordAsync(AuthEmail, AuthPassword);
 
@@ -71,6 +72,10 @@ namespace MBKC.BAL.Utils
                 // error during upload will be thrown when you await the task
                 string link = await task;
                 return link;
+            }
+            catch (FirebaseAuthException)
+            {
+                throw new BadRequestException("Upload image to firebase failed.");
             }
             catch (Exception ex)
             {
@@ -102,6 +107,10 @@ namespace MBKC.BAL.Utils
                     .DeleteAsync();
                 await task;
             }
+            catch (FirebaseAuthException ex)
+            {
+                throw new BadRequestException("Delete image failed.");
+            }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message, ex);
@@ -112,7 +121,7 @@ namespace MBKC.BAL.Utils
         #region HaveSupportedFileType
         public static bool HaveSupportedFileType(string fileName)
         {
-            string[] validFileTypes = { ".png", ".jpg", ".jpeg" , ".webp" };
+            string[] validFileTypes = { ".png", ".jpg", ".jpeg", ".webp" };
             string extensionFile = Path.GetExtension(fileName);
             if (validFileTypes.Contains(extensionFile))
             {

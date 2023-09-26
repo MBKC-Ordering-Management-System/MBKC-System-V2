@@ -48,9 +48,11 @@ namespace MBKC.BAL.Repositories.Implementations
                 FileUtil.SetCredentials(fireBaseImage);
                 Guid guild = Guid.NewGuid();
                 logoId = guild.ToString();
-                string urlImage = await Utils.FileUtil.UploadImage(fileStream, "Brand", logoId);
-                uploaded = true;
-
+                string urlImage = await Utils.FileUtil.UploadImageAsync(fileStream, "Brands", logoId);
+                if (urlImage != null)
+                {
+                    uploaded = true;
+                }
                 // Create account
                 string unEncryptedPassword = RandomNumberUtil.GenerateEightDigitNumber().ToString();
                 var account = new Account
@@ -91,6 +93,14 @@ namespace MBKC.BAL.Repositories.Implementations
                 {
                     fieldName = "Email";
                 }
+                if (ex.Message.Equals("Upload image to firebase failed."))
+                {
+                    fieldName = "Upload image.";
+                }
+                else if (ex.Message.Equals("Delete image failed."))
+                {
+                    fieldName = "Delete image.";
+                }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
             }
@@ -98,7 +108,7 @@ namespace MBKC.BAL.Repositories.Implementations
             {
                 if (uploaded)
                 {
-                    await FileUtil.DeleteImageAsync(logoId, "Brand");
+                    await FileUtil.DeleteImageAsync(logoId, "Brands");
                 }
                 string error = ErrorUtil.GetErrorString("Exception", ex.Message);
                 throw new Exception(error);
@@ -106,59 +116,74 @@ namespace MBKC.BAL.Repositories.Implementations
         }
         #endregion
 
-        #region UpdateBrand
+        #region Update Brand
         public async Task UpdateBrandAsync(int brandId, UpdateBrandRequest updateBrandRequest, FireBaseImage fireBaseImage)
         {
             string logoId = "";
             bool uploaded = false;
             try
             {
+                if (brandId <= 0)
+                {
+                    throw new BadRequestException("Brand Id is not suitable for the system.");
+                }
                 var brand = await _unitOfWork.BrandRepository.GetBrandByIdAsync(brandId);
                 var brands = await _unitOfWork.BrandRepository.GetBrandsAsync();
                 if (brand == null)
                 {
-                    throw new NotFoundException("Brand does not exist in the system");
+                    throw new NotFoundException("Brand Id does not exist in the system");
                 }
 
-                if (brand.Status == (int)BrandEnum.Status.DEACTIVE)
-                {
-                    throw new BadRequestException("Can't update Brand DEACTIVED");
-                }
-                if (updateBrandRequest.Status != (int)BrandEnum.Status.ACTIVE &&
-                    updateBrandRequest.Status != (int)BrandEnum.Status.INACTIVE)
-                {
-                    throw new BadRequestException("Status of Brand are 0(INACTIVE), 1(ACTIVE)");
-                }
+
                 if (updateBrandRequest.Logo != null)
                 {
                     //Delete image from database
                     FileUtil.SetCredentials(fireBaseImage);
                     Uri uri = new Uri(brand.Logo);
                     logoId = HttpUtility.ParseQueryString(uri.Query).Get("logoId");
-                    await FileUtil.DeleteImageAsync(logoId, "Brand");
+                    await FileUtil.DeleteImageAsync(logoId, "Brands");
 
                     // Upload image to firebase
                     FileStream fileStream = Utils.FileUtil.ConvertFormFileToStream(updateBrandRequest.Logo);
                     Guid guild = Guid.NewGuid();
                     logoId = guild.ToString();
-                    var urlImage = await Utils.FileUtil.UploadImage(fileStream, "Brand", logoId);
+                    var urlImage = await Utils.FileUtil.UploadImageAsync(fileStream, "Brands", logoId);
+                    if (urlImage != null)
+                    {
+                        uploaded = true;
+                    }
                     brand.Logo = urlImage + $"&logoId={logoId}";
-                    uploaded = true;
                 }
 
                 brand.Address = updateBrandRequest.Address;
                 brand.Name = updateBrandRequest.Name;
-                brand.Status = updateBrandRequest.Status;
+
+                if (updateBrandRequest.Status.ToLower().Equals(CategoryEnum.Status.ACTIVE.ToString().ToLower()))
+                {
+                    brand.Status = (int)CategoryEnum.Status.ACTIVE;
+                }
+                else if (updateBrandRequest.Status.ToLower().Equals(CategoryEnum.Status.INACTIVE.ToString().ToLower()))
+                {
+                    brand.Status = (int)CategoryEnum.Status.INACTIVE;
+                }
+
                 _unitOfWork.BrandRepository.UpdateBrand(brand);
                 _unitOfWork.Commit();
             }
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals("Can't update Brand DEACTIVED") ||
-                    ex.Message.Equals("Status of Brand are 0(INACTIVE), 1(ACTIVE)"))
+                if (ex.Message.Equals("Brand Id is not suitable for the system."))
                 {
-                    fieldName = "Status";
+                    fieldName = "Brand Id";
+                }
+                if (ex.Message.Equals("Upload image to firebase failed."))
+                {
+                    fieldName = "Upload image.";
+                }
+                else if (ex.Message.Equals("Delete image failed."))
+                {
+                    fieldName = "Delete image.";
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
@@ -166,7 +191,7 @@ namespace MBKC.BAL.Repositories.Implementations
             catch (NotFoundException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals("Brand does not exist in the system"))
+                if (ex.Message.Equals("Brand Id does not exist in the system"))
                 {
                     fieldName = "Brand Id";
                 }
@@ -177,7 +202,7 @@ namespace MBKC.BAL.Repositories.Implementations
             {
                 if (uploaded)
                 {
-                    await FileUtil.DeleteImageAsync(logoId, "Brand");
+                    await FileUtil.DeleteImageAsync(logoId, "Brands");
                 }
                 string error = ErrorUtil.GetErrorString("Exception", ex.Message);
                 throw new Exception(error);
@@ -227,25 +252,25 @@ namespace MBKC.BAL.Repositories.Implementations
                     }
                     else
                     {
-                        throw new BadRequestException("Key Status Filter is not suitable (ACTIVE OR INACTIVE) in the system.");
+                        throw new BadRequestException("Key Status Filter is not suitable (ACTIVE, INACTIVE or DEACTIVE) in the system.");
                     }
                 }
 
                 int numberItems = 0;
                 if (keySearchName != null && StringUtil.IsUnicode(keySearchName))
                 {
-                    numberItems = await this._unitOfWork.BrandRepository.GetNumberBrandsAsync(keySearchName, null);
-                    brands = await this._unitOfWork.BrandRepository.GetBrandsAsync(keySearchName, null, keyStatus, numberItems, pageSize.Value, pageNumber.Value);
+                    numberItems = await this._unitOfWork.BrandRepository.GetNumberBrandsAsync(keySearchName, null, keyStatus);
+                    brands = await this._unitOfWork.BrandRepository.GetBrandsAsync(keySearchName, null, keyStatus, pageSize.Value, pageNumber.Value);
                 }
                 else if (keySearchName != null && StringUtil.IsUnicode(keySearchName) == false)
                 {
-                    numberItems = await this._unitOfWork.BrandRepository.GetNumberBrandsAsync(null, keySearchName);
-                    brands = await this._unitOfWork.BrandRepository.GetBrandsAsync(null, keySearchName, keyStatus, numberItems, pageSize.Value, pageNumber.Value);
+                    numberItems = await this._unitOfWork.BrandRepository.GetNumberBrandsAsync(null, keySearchName, keyStatus);
+                    brands = await this._unitOfWork.BrandRepository.GetBrandsAsync(null, keySearchName, keyStatus, pageSize.Value, pageNumber.Value);
                 }
                 else if (keySearchName == null)
                 {
-                    numberItems = await this._unitOfWork.BrandRepository.GetNumberBrandsAsync(null, null);
-                    brands = await this._unitOfWork.BrandRepository.GetBrandsAsync(null, null, keyStatus, numberItems, pageSize.Value, pageNumber.Value);
+                    numberItems = await this._unitOfWork.BrandRepository.GetNumberBrandsAsync(null, null, keyStatus);
+                    brands = await this._unitOfWork.BrandRepository.GetBrandsAsync(null, null, keyStatus, pageSize.Value, pageNumber.Value);
                 }
 
                 this._mapper.Map(brands, brandResponse);
@@ -287,7 +312,7 @@ namespace MBKC.BAL.Repositories.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals("Key Status Filter is not suitable in the system."))
+                if (ex.Message.Equals("Key Status Filter is not suitable (ACTIVE, INACTIVE or DEACTIVE) in the system."))
                 {
                     fieldName = "Key Status Filter";
                 }
@@ -316,6 +341,10 @@ namespace MBKC.BAL.Repositories.Implementations
         {
             try
             {
+                if (id <= 0)
+                {
+                    throw new BadRequestException("Brand Id is not suitable for the system.");
+                }
                 var brand = await _unitOfWork.BrandRepository.GetBrandByIdAsync(id);
                 if (brand == null)
                 {
@@ -337,6 +366,16 @@ namespace MBKC.BAL.Repositories.Implementations
                 }
 
                 return brandResponse;
+            }
+            catch (BadRequestException ex)
+            {
+                string fieldName = "";
+                if (ex.Message.Equals("Brand Id is not suitable for the system."))
+                {
+                    fieldName = "Brand Id";
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new NotFoundException(error);
             }
             catch (NotFoundException ex)
             {
@@ -361,6 +400,10 @@ namespace MBKC.BAL.Repositories.Implementations
         {
             try
             {
+                if (id <= 0)
+                {
+                    throw new BadRequestException("Brand Id is not suitable for the system.");
+                }
                 var brand = await _unitOfWork.BrandRepository.GetBrandByIdAsync(id);
 
                 if (brand == null)
@@ -413,6 +456,16 @@ namespace MBKC.BAL.Repositories.Implementations
                 }
                 _unitOfWork.BrandRepository.UpdateBrand(brand);
                 _unitOfWork.Commit();
+            }
+            catch (BadRequestException ex)
+            {
+                string fieldName = "";
+                if (ex.Message.Equals("Brand Id is not suitable for the system."))
+                {
+                    fieldName = "Brand Id";
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new NotFoundException(error);
             }
             catch (NotFoundException ex)
             {

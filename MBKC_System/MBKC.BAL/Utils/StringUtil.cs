@@ -92,5 +92,15 @@ namespace MBKC.BAL.Utils
             return stringBuilder.ToString();
         }
 
+        public static bool CheckBrandStatusName(string statusName)
+        {
+            if (statusName.ToLower().Equals(BrandEnum.Status.ACTIVE.ToString().ToLower()) ||
+                statusName.ToLower().Equals(BrandEnum.Status.INACTIVE.ToString().ToLower()))
+            {
+                return true;
+            }
+            return false;
+        }
+
     }
 }
