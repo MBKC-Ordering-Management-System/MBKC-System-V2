@@ -123,7 +123,7 @@ namespace MBKC.API.Controllers
         [Consumes("multipart/form-data")]
         [Produces("application/json")]
         [HttpPut("{id}")]
-        [PermissionAuthorize("Brand Manager")]
+        /*[PermissionAuthorize("Brand Manager")]*/
         public async Task<IActionResult> UpdateCategoryAsync([FromRoute] int id, [FromForm] UpdateCategoryRequest updateCategoryRequest)
         {
             ValidationResult validationResult = await this._updateCategoryRequest.ValidateAsync(updateCategoryRequest);
@@ -181,7 +181,7 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-        [PermissionAuthorize("Brand Manager")]
+        /*[PermissionAuthorize("Brand Manager")]*/
         [HttpGet]
         public async Task<IActionResult> GetCategoriesAsync(string type, [FromQuery] string? keySearchName, [FromQuery] int? pageNumber, [FromQuery] int? pageSize)
         {
@@ -222,7 +222,7 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
         [HttpGet("{id}")]
-        [PermissionAuthorize("Brand Manager")]
+        /*[PermissionAuthorize("Brand Manager")]*/
         public async Task<IActionResult> GetCategoryByIdAsync([FromRoute] int id)
         {
             var data = await this._categoryRepository.GetCategoryByIdAsync(id);
@@ -263,7 +263,7 @@ namespace MBKC.API.Controllers
         [Produces("application/json")]
 
         [HttpDelete("{id}")]
-        [PermissionAuthorize("Brand Manager")]
+        /*[PermissionAuthorize("Brand Manager")]*/
         public async Task<IActionResult> DeActiveCategoryByIdAsync([FromRoute] int id)
         {
             await this._categoryRepository.DeActiveCategoryByIdAsync(id);
@@ -317,7 +317,7 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
         [HttpGet("{id}/products")]
-        [PermissionAuthorize("Brand Manager")]
+        /*[PermissionAuthorize("Brand Manager")]*/
         public async Task<IActionResult> GetProductsByCategoryIdAsync([FromRoute] int id, [FromQuery] string? keySearchName, [FromQuery] int? pageNumber, [FromQuery] int? pageSize)
         {
             var data = await this._categoryRepository.GetProductsInCategory(id, keySearchName, pageNumber, pageSize);
@@ -369,7 +369,7 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
         [HttpGet("{id}/extra-categories")]
-        [PermissionAuthorize("Brand Manager")]
+        /*[PermissionAuthorize("Brand Manager")]*/
         public async Task<IActionResult> GetExtraCategoriesByCategoryId([FromRoute] int id, [FromQuery] string? keySearchName, [FromQuery] int? pageNumber, [FromQuery] int? pageSize)
         {
             var data = await this._categoryRepository.GetExtraCategoriesByCategoryId(id, keySearchName, pageNumber, pageSize);
@@ -384,7 +384,7 @@ namespace MBKC.API.Controllers
         /// <param name="id">
         ///  Id of normal category.
         /// </param>
-        /// <param name="extraCategoryId">
+        /// <param name="listExtraCategoryId">
         ///  List extra categories user want to add to normal category.
         /// </param>
         /// <returns>
@@ -413,10 +413,10 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
         [HttpPost("{id}/add-extra-category")]
-        [PermissionAuthorize("Brand Manager")]
-        public async Task<IActionResult> AddExtraCategoriesToNormalCategory([FromRoute] int id, [FromBody] List<int> extraCategoryId)
+        /*[PermissionAuthorize("Brand Manager")]*/
+        public async Task<IActionResult> AddExtraCategoriesToNormalCategory([FromRoute] int id, [FromBody] List<int> listExtraCategoryId)
         {
-            await this._categoryRepository.AddExtraCategoriesToNormalCategory(id, extraCategoryId);
+            await this._categoryRepository.AddExtraCategoriesToNormalCategory(id, listExtraCategoryId);
             return Ok(new { Message = "Add Extra Category To Normal Category Successfully." });
         }
         #endregion

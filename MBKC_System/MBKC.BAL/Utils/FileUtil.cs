@@ -106,6 +106,10 @@ namespace MBKC.BAL.Utils
                     .DeleteAsync();
                 await task;
             }
+            catch (FirebaseAuthException ex)
+            {
+                throw new BadRequestException("Delete image failed.");
+            }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message, ex);

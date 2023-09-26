@@ -82,6 +82,10 @@ namespace MBKC.BAL.Repositories.Implementations
                 {
                     fieldName = "Upload file";
                 }
+                else if (ex.Message.Equals("Delete image failed."))
+                {
+                    fieldName = "Delete file";
+                }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
             }
@@ -120,14 +124,15 @@ namespace MBKC.BAL.Repositories.Implementations
                 }
                 var category = await this._unitOfWork.CategoryRepository.GetCategoryByIdAsync(categoryId);
                 var categoryCode = await this._unitOfWork.CategoryRepository.GetCategoryByCodeAsync(updateCategoryRequest.Code);
-                if (categoryCode != null && !category.Code.ToLower().Equals(updateCategoryRequest.Code.ToLower()))
-                {
-                    throw new BadRequestException("Category code already exist in the system.");
-                }
                 if (category == null)
                 {
                     throw new NotFoundException("Category Id does not exist in the system");
                 }
+                if (categoryCode != null && !category.Code.ToLower().Equals(updateCategoryRequest.Code.ToLower()))
+                {
+                    throw new BadRequestException("Category code already exist in the system.");
+                }
+
 
                 if (updateCategoryRequest.ImageUrl != null)
                 {
@@ -152,6 +157,12 @@ namespace MBKC.BAL.Repositories.Implementations
                 category.Description = updateCategoryRequest.Description;
                 category.DisplayOrder = updateCategoryRequest.DisplayOrder;
                 category.Code = updateCategoryRequest.Code;
+
+                if (!updateCategoryRequest.Status.Equals(CategoryEnum.Status.ACTIVE.ToString().ToLower()) &&
+                    !updateCategoryRequest.Status.Equals(CategoryEnum.Status.INACTIVE.ToString().ToLower()))
+                {
+                    throw new BadRequestException("Status is ACTIVE or INACTIVE.");
+                }
                 if (updateCategoryRequest.Status.ToLower().Equals(CategoryEnum.Status.ACTIVE.ToString().ToLower()))
                 {
                     category.Status = (int)CategoryEnum.Status.ACTIVE;
@@ -166,11 +177,8 @@ namespace MBKC.BAL.Repositories.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals("Display order already exist in the system"))
-                {
-                    fieldName = "Display Order";
-                }
-                else if (ex.Message.Equals("Category Id is not suitable for the system."))
+
+                if (ex.Message.Equals("Category Id is not suitable for the system."))
                 {
                     fieldName = "Category Id";
                 }
@@ -178,9 +186,17 @@ namespace MBKC.BAL.Repositories.Implementations
                 {
                     fieldName = "Category Code";
                 }
+                else if (ex.Message.Equals("Status is ACTIVE or INACTIVE."))
+                {
+                    fieldName = "Status";
+                }
                 else if (ex.Message.Equals("Upload image to firebase failed."))
                 {
                     fieldName = "Upload file";
+                }
+                else if (ex.Message.Equals("Delete image failed."))
+                {
+                    fieldName = "Delete file";
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
@@ -197,7 +213,6 @@ namespace MBKC.BAL.Repositories.Implementations
             }
 
             catch (Exception ex)
-
             {
                 if (uploaded)
                 {
@@ -216,7 +231,7 @@ namespace MBKC.BAL.Repositories.Implementations
             {
                 if (id <= 0)
                 {
-                    throw new BadRequestException("Category ID must be a non-negative number.");
+                    throw new BadRequestException("Category Id is not suitable for the system.");
                 }
                 var categoryResponse = new GetCategoryResponse();
                 var category = await this._unitOfWork.CategoryRepository.GetCategoryByIdAsync(id);
@@ -239,7 +254,7 @@ namespace MBKC.BAL.Repositories.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals("Category ID must be a non-negative number."))
+                if (ex.Message.Equals("Category Id is not suitable for the system."))
                 {
                     fieldName = "Category Id";
                 }
@@ -273,7 +288,7 @@ namespace MBKC.BAL.Repositories.Implementations
             {
                 if (id <= 0)
                 {
-                    throw new BadRequestException("Category ID must be a non-negative number.");
+                    throw new BadRequestException("Category Id is not suitable for the system.");
                 }
                 var category = await _unitOfWork.CategoryRepository.GetCategoryByIdAsync(id);
 
@@ -308,7 +323,7 @@ namespace MBKC.BAL.Repositories.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals("Category ID must be a non-negative number."))
+                if (ex.Message.Equals("Category Id is not suitable for the system."))
                 {
                     fieldName = "Category Id";
                 }
@@ -339,13 +354,12 @@ namespace MBKC.BAL.Repositories.Implementations
         {
             try
             {
-
                 var categories = new List<Category>();
                 var categoryResponse = new List<GetCategoryResponse>();
 
                 if (!type.Equals("EXTRA") && !type.Equals("NORMAL"))
                 {
-                    throw new BadRequestException("Type are EXTRA and NORMAL");
+                    throw new BadRequestException("Type are EXTRA or NORMAL.");
                 }
                 if (pageNumber != null && pageNumber <= 0)
                 {
@@ -363,6 +377,7 @@ namespace MBKC.BAL.Repositories.Implementations
                 {
                     pageSize = 5;
                 }
+
                 int numberItems = 0;
                 if (keySearchName != null && StringUtil.IsUnicode(keySearchName))
                 {
@@ -408,15 +423,23 @@ namespace MBKC.BAL.Repositories.Implementations
                 {
                     Categories = categoryResponse,
                     TotalItems = numberItems,
-                    TotalPages = totalPages,
+                    TotalPages = totalPages
                 };
             }
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals("Type are EXTRA and NORMAL"))
+                if (ex.Message.Equals("Type are EXTRA or NORMAL."))
                 {
                     fieldName = "Type";
+                }
+                else if (ex.Message.Equals("Page number is required greater than 0."))
+                {
+                    fieldName = "Page Number";
+                }
+                else if (ex.Message.Equals("Page size is required greater than 0."))
+                {
+                    fieldName = "Page Size";
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
@@ -429,14 +452,14 @@ namespace MBKC.BAL.Repositories.Implementations
         }
         #endregion
 
-        #region Get Products
+        #region Get Products In Category
         public async Task<GetProductsResponse> GetProductsInCategory(int categoryId, string? keySearchName, int? pageNumber, int? pageSize)
         {
             try
             {
                 if (categoryId <= 0)
                 {
-                    throw new BadRequestException("Category ID must be a non-negative number.");
+                    throw new BadRequestException("Category Id is not suitable for the system.");
                 }
                 var products = new List<Product>();
                 var productResponse = new List<GetProductResponse>();
@@ -502,12 +525,20 @@ namespace MBKC.BAL.Repositories.Implementations
             catch (BadRequestException ex)
             {
 
-                string fileName = "";
-                if (ex.Message.Equals("Category ID must be a non-negative number."))
+                string fieldName = "";
+                if (ex.Message.Equals("Category Id is not suitable for the system."))
                 {
-                    fileName = "Category Id";
+                    fieldName = "Category Id";
                 }
-                string error = ErrorUtil.GetErrorString(fileName, ex.Message);
+                else if (ex.Message.Equals("Page number is required greater than 0."))
+                {
+                    fieldName = "Page Number";
+                }
+                else if (ex.Message.Equals("Page size is required greater than 0."))
+                {
+                    fieldName = "Page Size";
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
             }
             catch (NotFoundException ex)
@@ -536,7 +567,7 @@ namespace MBKC.BAL.Repositories.Implementations
             {
                 if (categoryId <= 0)
                 {
-                    throw new BadRequestException("Category ID must be a non-negative number.");
+                    throw new BadRequestException("Category Id is not suitable for the system.");
                 }
                 var categoryResponse = new List<GetCategoryResponse>();
                 var listExtraCategoriesInNormalCategory = new List<Category>();
@@ -623,12 +654,20 @@ namespace MBKC.BAL.Repositories.Implementations
             }
             catch (BadRequestException ex)
             {
-                string fileName = "";
-                if (ex.Message.Equals("Category ID must be a non-negative number."))
+                string fieldName = "";
+                if (ex.Message.Equals("Category Id is not suitable for the system."))
                 {
-                    fileName = "Category Id";
+                    fieldName = "Category Id";
                 }
-                string error = ErrorUtil.GetErrorString(fileName, ex.Message);
+                else if (ex.Message.Equals("Page number is required greater than 0."))
+                {
+                    fieldName = "Page Number";
+                }
+                else if (ex.Message.Equals("Page size is required greater than 0."))
+                {
+                    fieldName = "Page Size";
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
             }
             catch (NotFoundException ex)
@@ -650,21 +689,21 @@ namespace MBKC.BAL.Repositories.Implementations
         #endregion
 
         #region Add Extra Categories To Normal Category
-        public async Task AddExtraCategoriesToNormalCategory(int categoryId, List<int> request)
+        public async Task AddExtraCategoriesToNormalCategory(int categoryId, List<int> listExtraCategoryId)
         {
             try
             {
                 if (categoryId < 0)
                 {
-                    throw new BadRequestException("Category ID must be a non-negative number.");
+                    throw new BadRequestException("Category Id is not suitable for the system.");
                 }
 
-                var checkCategoryId = await this._unitOfWork.CategoryRepository.GetCategoryByIdAsync(categoryId);
-                var currentExtraCategoriesId = await this._unitOfWork.ExtraCategoryRepository.GetExtraCategoriesByCategoryIdAsync(categoryId);
-                var listExtraCategoryInNomalCategory = currentExtraCategoriesId.Select(e => e.ExtraCategoryId).ToList();
-                SplitIdCategoryResponse splittedExtraCategoriesIds = CustomListUtil.splitIdsToAddAndRemove(listExtraCategoryInNomalCategory, request);
+                var category = await this._unitOfWork.CategoryRepository.GetCategoryByIdAsync(categoryId);
+                var extraCategory = await this._unitOfWork.ExtraCategoryRepository.GetExtraCategoriesByCategoryIdAsync(categoryId);
+                var listIdExtraCategoriesInNomalCategory = extraCategory.Select(e => e.ExtraCategoryId).ToList();
+                SplitIdCategoryResponse splittedExtraCategoriesIds = CustomListUtil.splitIdsToAddAndRemove(listIdExtraCategoriesInNomalCategory, listExtraCategoryId);
 
-                if (checkCategoryId == null)
+                if (category == null)
                 {
                     throw new BadRequestException("Category Id does not exist in the system.");
                 }
@@ -672,6 +711,7 @@ namespace MBKC.BAL.Repositories.Implementations
                 //Handle add and remove to database
                 if (splittedExtraCategoriesIds.idsToAdd.Count > 0)
                 {
+                    // Add new extra category to normal category
                     List<ExtraCategory> extraCategoriesToInsert = new List<ExtraCategory>();
                     splittedExtraCategoriesIds.idsToAdd.ForEach(id => extraCategoriesToInsert.Add(new ExtraCategory
                     {
@@ -684,31 +724,39 @@ namespace MBKC.BAL.Repositories.Implementations
 
                 if (splittedExtraCategoriesIds.idsToRemove.Count > 0)
                 {
+                    // Delete extra category from normal category
                     var listExtraCategoriesToDelete = new List<ExtraCategory>();
                     List<ExtraCategory> extraCategoriesToDelete = new List<ExtraCategory>();
                     extraCategoriesToDelete = await _unitOfWork.ExtraCategoryRepository.GetExtraCategoriesByCategoryIdAsync(categoryId);
-                    foreach (var extraCategory in extraCategoriesToDelete)
+                    foreach (var extra in extraCategoriesToDelete)
                     {
                         foreach (var id in splittedExtraCategoriesIds.idsToRemove)
                         {
-                            if (id == extraCategory.ExtraCategoryId)
+                            if (id == extra.ExtraCategoryId)
                             {
-                                listExtraCategoriesToDelete.Add(extraCategory);
+                                listExtraCategoriesToDelete.Add(extra);
                             }
                         }
                     }
                     _unitOfWork.ExtraCategoryRepository._dbContext.RemoveRange(listExtraCategoriesToDelete);
                 }
-                await this._unitOfWork.CommitAsync();
+                this._unitOfWork.Commit();
             }
-            catch (BadRequestException ex)
+            catch (NotFoundException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals("Category ID must be a non-negative number."))
+                if (ex.Message.Equals("Category Id does not exist in the system."))
                 {
                     fieldName = "Category Id";
                 }
-                else if (ex.Message.Equals("Category Id does not exist in the system."))
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new BadRequestException(error);
+            }
+
+            catch (BadRequestException ex)
+            {
+                string fieldName = "";
+                if (ex.Message.Equals("Category Id is not suitable for the system."))
                 {
                     fieldName = "Category Id";
                 }
