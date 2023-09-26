@@ -1,4 +1,4 @@
-﻿using MBKC.BAL.Repositories.Interfaces;
+﻿using MBKC.BAL.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,10 +8,10 @@ namespace MBKC.API.Controllers
     [ApiController]
     public class AccountsController : ControllerBase
     {
-        private IAccountRepository _accountRepository;
-        public AccountsController(IAccountRepository accountRepository)
+        private IAccountService _accountService;
+        public AccountsController(IAccountService accountService)
         {
-            _accountRepository = accountRepository;
+            this._accountService = accountService;
         }
     }
 }

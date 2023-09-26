@@ -1,4 +1,4 @@
-﻿using MBKC.BAL.Repositories.Interfaces;
+﻿using MBKC.BAL.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,10 +8,10 @@ namespace MBKC.API.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        private ICategoryRepository _categoryRepository;
-        public CategoriesController(ICategoryRepository categoryRepository)
+        private ICategoryService _categoryService;
+        public CategoriesController(ICategoryService categoryService)
         {
-            _categoryRepository = categoryRepository;
+            this._categoryService = categoryService;
         }
     }
 }

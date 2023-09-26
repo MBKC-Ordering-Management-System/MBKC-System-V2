@@ -1,4 +1,4 @@
-﻿using MBKC.BAL.Repositories.Interfaces;
+﻿using MBKC.BAL.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,10 +8,10 @@ namespace MBKC.API.Controllers
     [ApiController]
     public class WalletsController : ControllerBase
     {
-        private IWalletRepository _walletRepository;
-        public WalletsController(IWalletRepository walletRepository)
+        private IWalletService _walletService;
+        public WalletsController(IWalletService walletService)
         {
-            _walletRepository = walletRepository;
+            this._walletService = walletService;
         }
     }
 }

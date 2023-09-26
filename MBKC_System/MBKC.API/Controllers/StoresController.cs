@@ -1,4 +1,4 @@
-﻿using MBKC.BAL.Repositories.Interfaces;
+﻿using MBKC.BAL.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,10 +8,10 @@ namespace MBKC.API.Controllers
     [ApiController]
     public class StoresController : ControllerBase
     {
-        private IStoreRepository _storeRepository;
-        public StoresController(IStoreRepository storeRepository)
+        private IStoreService _storeService;
+        public StoresController(IStoreService storeService)
         {
-            _storeRepository = storeRepository;
+            this._storeService = storeService;
         }
     }
 }

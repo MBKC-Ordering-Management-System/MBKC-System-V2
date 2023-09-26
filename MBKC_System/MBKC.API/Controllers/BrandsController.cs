@@ -1,4 +1,4 @@
-﻿using MBKC.BAL.Repositories.Interfaces;
+﻿using MBKC.BAL.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,10 +8,10 @@ namespace MBKC.API.Controllers
     [ApiController]
     public class BrandsController : ControllerBase
     {
-        private IBrandRepository _brandRepository;
-        public BrandsController(IBrandRepository brandRepository)
+        private IBrandService _brandService;
+        public BrandsController(IBrandService brandService)
         {
-            _brandRepository = brandRepository;
+            this._brandService = brandService;
         }
     }
 }

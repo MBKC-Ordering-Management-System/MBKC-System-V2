@@ -1,4 +1,4 @@
-﻿using MBKC.BAL.Repositories.Interfaces;
+﻿using MBKC.BAL.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,10 +8,10 @@ namespace MBKC.API.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private IProductRepository _productRepository;
-        public ProductsController(IProductRepository productRepository)
+        private IProductService _productService;
+        public ProductsController(IProductService productService)
         {
-            _productRepository = productRepository;
+            this._productService = productService;
         }
     }
 }

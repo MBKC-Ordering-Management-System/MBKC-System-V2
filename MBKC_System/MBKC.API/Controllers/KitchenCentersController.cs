@@ -7,7 +7,7 @@ using MBKC.BAL.DTOs.KitchenCenters;
 using MBKC.BAL.DTOs.Verifications;
 using MBKC.BAL.Errors;
 using MBKC.BAL.Exceptions;
-using MBKC.BAL.Repositories.Interfaces;
+using MBKC.BAL.Services.Interfaces;
 using MBKC.BAL.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -20,16 +20,16 @@ namespace MBKC.API.Controllers
     [ApiController]
     public class KitchenCentersController : ControllerBase
     {
-        private IKitchenCenterRepository _kitchenCenterRepository;
+        private IKitchenCenterService _kitchenCenterService;
         private IOptions<FireBaseImage> _firebaseImageOption;
         private IOptions<Email> _emailOption;
         private IValidator<CreateKitchenCenterRequest> _createKitchenCenterValidator;
         private IValidator<UpdateKitchenCenterRequest> _updateKitchenCenterValidator;
-        public KitchenCentersController(IKitchenCenterRepository kitchenCenterRepository, IOptions<FireBaseImage> firebaseImageOption,
+        public KitchenCentersController(IKitchenCenterService kitchenCenterService, IOptions<FireBaseImage> firebaseImageOption,
             IOptions<Email> emailOption, IValidator<CreateKitchenCenterRequest> createKitchenCenterValidator, 
             IValidator<UpdateKitchenCenterRequest> updateKitchenCenterValidator)
         {
-            this._kitchenCenterRepository = kitchenCenterRepository;
+            this._kitchenCenterService = kitchenCenterService;
             this._firebaseImageOption = firebaseImageOption;
             this._emailOption = emailOption;
             this._createKitchenCenterValidator = createKitchenCenterValidator;
@@ -67,7 +67,7 @@ namespace MBKC.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetKitchenCentersAsync([FromQuery]int? itemsPerPage, [FromQuery]int? currentPage, [FromQuery]string? searchValue)
         {
-            GetKitchenCentersResponse getKitchenCentersResponse = await this._kitchenCenterRepository.GetKitchenCentersAsync(itemsPerPage, currentPage, searchValue);
+            GetKitchenCentersResponse getKitchenCentersResponse = await this._kitchenCenterService.GetKitchenCentersAsync(itemsPerPage, currentPage, searchValue);
             return Ok(getKitchenCentersResponse);
         }
         #endregion
@@ -102,7 +102,7 @@ namespace MBKC.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetKitchenCenterAsync([FromRoute]int id)
         {
-            GetKitchenCenterResponse getKitchenCenterResponse = await this._kitchenCenterRepository.GetKitchenCenterAsync(id);
+            GetKitchenCenterResponse getKitchenCenterResponse = await this._kitchenCenterService.GetKitchenCenterAsync(id);
             return Ok(getKitchenCenterResponse);
         }
         #endregion
@@ -149,7 +149,7 @@ namespace MBKC.API.Controllers
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
-            await this._kitchenCenterRepository.CreateKitchenCenterAsync(kitchenCenter, this._emailOption.Value, this._firebaseImageOption.Value);
+            await this._kitchenCenterService.CreateKitchenCenterAsync(kitchenCenter, this._emailOption.Value, this._firebaseImageOption.Value);
             return Ok(new
             {
                 Message = "Created Kitchen Center Successfully."
@@ -204,7 +204,7 @@ namespace MBKC.API.Controllers
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
-            await this._kitchenCenterRepository.UpdateKitchenCenterAsync(id, kitchenCenter, this._emailOption.Value, this._firebaseImageOption.Value);
+            await this._kitchenCenterService.UpdateKitchenCenterAsync(id, kitchenCenter, this._emailOption.Value, this._firebaseImageOption.Value);
             return NoContent();
         }
         #endregion
@@ -239,7 +239,7 @@ namespace MBKC.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteKitchenCenterAsync([FromRoute]int id)
         {
-            await this._kitchenCenterRepository.DeleteKitchenCenterAsync(id);
+            await this._kitchenCenterService.DeleteKitchenCenterAsync(id);
             return Ok(new
             {
                 Message = "Deleted Kitchen Center Successfully"

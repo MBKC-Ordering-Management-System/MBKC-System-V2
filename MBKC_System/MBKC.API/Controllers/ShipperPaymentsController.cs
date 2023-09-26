@@ -1,4 +1,4 @@
-﻿using MBKC.BAL.Repositories.Interfaces;
+﻿using MBKC.BAL.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,10 +8,10 @@ namespace MBKC.API.Controllers
     [ApiController]
     public class ShipperPaymentsController : ControllerBase
     {
-        private IShipperPaymentRepository _shipperPaymentRepository;
-        public ShipperPaymentsController(IShipperPaymentRepository shipperPaymentRepository)
+        private IShipperPaymentService _shipperPaymentService;
+        public ShipperPaymentsController(IShipperPaymentService shipperPaymentService)
         {
-            _shipperPaymentRepository = shipperPaymentRepository;
+            this._shipperPaymentService = shipperPaymentService;
         }
     }
 }
