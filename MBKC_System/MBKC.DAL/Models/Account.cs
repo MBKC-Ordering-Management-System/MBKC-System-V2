@@ -14,7 +14,7 @@ namespace MBKC.DAL.Models
         public int AccountId { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
-        public bool Status { get; set; }
+        public int Status { get; set; }
         [ForeignKey("RoleId")]
         public virtual Role Role { get; set; }
     }

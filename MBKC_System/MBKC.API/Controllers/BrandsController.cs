@@ -17,12 +17,12 @@ namespace MBKC.API.Controllers
     [ApiController]
     public class BrandsController : ControllerBase
     {
-        private IBrandRepository _brandRepository;
+        private IBrandService _brandRepository;
         private IOptions<FireBaseImage> _firebaseImageOptions;
         private IValidator<PostBrandRequest> _postBrandRequest;
         private IValidator<UpdateBrandRequest> _updateBrandRequest;
         private IOptions<Email> _emailOption;
-        public BrandsController(IBrandRepository brandRepository,
+        public BrandsController(IBrandService brandRepository,
             IOptions<FireBaseImage> firebaseImageOptions,
             IValidator<PostBrandRequest> postBrandRequest,
             IOptions<Email> emailOption,

@@ -8,8 +8,8 @@ namespace MBKC.API.Controllers
     [ApiController]
     public class WalletsController : ControllerBase
     {
-        private IWalletRepository _walletRepository;
-        public WalletsController(IWalletRepository walletRepository)
+        private IWalletService _walletRepository;
+        public WalletsController(IWalletService walletRepository)
         {
             _walletRepository = walletRepository;
         }

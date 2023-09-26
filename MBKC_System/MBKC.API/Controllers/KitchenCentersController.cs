@@ -8,8 +8,8 @@ namespace MBKC.API.Controllers
     [ApiController]
     public class KitchenCentersController : ControllerBase
     {
-        private IKitchenCenterRepository _kitchenCenterRepository;
-        public KitchenCentersController(IKitchenCenterRepository kitchenCenterRepository)
+        private IKitchenCenterService _kitchenCenterRepository;
+        public KitchenCentersController(IKitchenCenterService kitchenCenterRepository)
         {
             _kitchenCenterRepository = kitchenCenterRepository;
         }

@@ -1,52 +1,52 @@
-﻿using MBKC.DAL.DAOs;
-using MBKC.DAL.DBContext;
-using MBKC.DAL.RedisDAOs;
+﻿using MBKC.DAL.DBContext;
 using Redis.OM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MBKC.DAL.RedisRepositories;
+using MBKC.DAL.Repositories;
 
 namespace MBKC.DAL.Infrastructures
 {
     public class UnitOfWork : IUnitOfWork
     {
         private MBKCDbContext _dbContext;
-        private AccountDAO _accountDAO;
-        private BankingAccountDAO _bankingAccountDAO;
-        private BrandDAO _brandDAO;
-        private CashierDAO _cashierDAO;
-        private CategoryDAO _categoryDAO;
-        private ExtraCategoryDAO _extraCategoryDAO;
-        private KitchenCenterDAO _kitchenCenterDAO;
-        private MappingProductDAO _mappingProductDAO;
-        private MoneyExchangeDAO _moneyExchangeDAO;
-        private OrderDAO _orderDAO;
-        private OrderDetailDAO _orderDetailDAO;
-        private PartnerDAO _partnerDAO;
-        private ProductDAO _productDAO;
-        private RoleDAO _roleDAO;
-        private ShipperPaymentDAO _shipperPaymentDAO;
-        private StoreDAO _storeDAO;
-        private StorePartnerDAO _storePartnerDAO;
-        private TransactionDAO _transactionDAO;
-        private WalletDAO _walletDAO;
-        private BrandAccountDAO _brandAccountDAO;
-        private StoreAccountDAO _storeAccountDAO;
-        private StoreMoneyExchangeDAO _storeMoneyExchangeDAO;
-        private CashierMoneyExchangeDAO _cashierMoneyExchangeDAO;
-        private KitchenCenterMoneyExchangeDAO _kitchenCenterMoneyExchangeDAO;
+        private AccountRepository _accountRepository;
+        private BankingAccountRepository _bankingAccountRepository;
+        private BrandRepository _brandRepository;
+        private CashierRepository _cashierRepository;
+        private CategoryRepository _categoryRepository;
+        private ExtraCategoryRepository _extraCategoryRepository;
+        private KitchenCenterRepository _kitchenCenterRepository;
+        private MappingProductRepository _mappingProductRepository;
+        private MoneyExchangeRepository _moneyExchangeRepository;
+        private OrderRepository _orderRepository;
+        private OrderDetailRepository _orderDetailRepository;
+        private PartnerRepository _partnerRepository;
+        private ProductRepository _productRepository;
+        private RoleRepository _roleRepository;
+        private ShipperPaymentRepository _shipperPaymentRepository;
+        private StoreRepository _storeRepository;
+        private StorePartnerRepository _storePartnerRepository;
+        private TransactionRepository _transactionRepository;
+        private WalletRepository _walletRepository;
+        private BrandAccountRepository _brandAccountRepository;
+        private StoreAccountRepository _storeAccountRepository;
+        private StoreMoneyExchangeRepository _storeMoneyExchangeRepository;
+        private CashierMoneyExchangeRepository _cashierMoneyExchangeRepository;
+        private KitchenCenterMoneyExchangeRepository _kitchenCenterMoneyExchangeRepository;
         private RedisConnectionProvider _redisConnectionProvider;
-        private AccountRedisDAO _accountRedisDAO;
-        private AccountTokenRedisDAO _accountTokenRedisDAO;
-        private EmailVerificationRedisDAO _emailVerificationRedisDAO;
-        private BrandRedisDAO _brandRedisDAO;
-        private BrandAccountRedisDAO _brandAccountRedisDAO;
-        private ProductRedisDAO _productRedisDAO;
-        private CategoryRedisDAO _categoryRedisDAO;
-        private ExtraCategoryRedisDAO _extraCategoryRedisDAO;
-        private StoreRedisDAO _storeRedisDAO;
+        private AccountRedisRepository _accountRedisRepository;
+        private AccountTokenRedisRepository _accountTokenRedisRepository;
+        private EmailVerificationRedisRepository _emailVerificationRedisRepository;
+        private BrandRedisRepository _brandRedisRepository;
+        private BrandAccountRedisRepository _brandAccountRedisRepository;
+        private ProductRedisRepository _productRedisRepository;
+        private CategoryRedisRepository _categoryRedisRepository;
+        private ExtraCategoryRedisRepository _extraCategoryRedisRepository;
+        private StoreRedisRepository _storeRedisRepository;
 
 
         public UnitOfWork(IDbFactory dbFactory)
@@ -63,398 +63,398 @@ namespace MBKC.DAL.Infrastructures
 
 
 
-        public AccountDAO AccountDAO
+        public AccountRepository AccountRepository
         {
             get
             {
-                if (this._accountDAO == null)
+                if (this._accountRepository == null)
                 {
-                    this._accountDAO = new AccountDAO(this._dbContext);
+                    this._accountRepository = new AccountRepository(this._dbContext);
                 }
-                return this._accountDAO;
+                return this._accountRepository;
             }
         }
 
-        public AccountRedisDAO AccountRedisDAO
+        public AccountRedisRepository AccountRedisRepository
         {
             get
             {
-                if (this._accountRedisDAO == null)
+                if (this._accountRedisRepository == null)
                 {
-                    this._accountRedisDAO = new AccountRedisDAO(this._redisConnectionProvider);
+                    this._accountRedisRepository = new AccountRedisRepository(this._redisConnectionProvider);
                 }
-                return this._accountRedisDAO;
+                return this._accountRedisRepository;
             }
         }
 
-        public AccountTokenRedisDAO AccountTokenRedisDAO
+        public AccountTokenRedisRepository AccountTokenRedisRepository
         {
             get
             {
-                if (this._accountTokenRedisDAO == null)
+                if (this._accountTokenRedisRepository == null)
                 {
-                    this._accountTokenRedisDAO = new AccountTokenRedisDAO(this._redisConnectionProvider);
+                    this._accountTokenRedisRepository = new AccountTokenRedisRepository(this._redisConnectionProvider);
                 }
-                return this._accountTokenRedisDAO;
+                return this._accountTokenRedisRepository;
             }
         }
 
-        public EmailVerificationRedisDAO EmailVerificationRedisDAO
+        public EmailVerificationRedisRepository EmailVerificationRedisRepository
         {
             get
             {
-                if (this._emailVerificationRedisDAO == null)
+                if (this._emailVerificationRedisRepository == null)
                 {
-                    this._emailVerificationRedisDAO = new EmailVerificationRedisDAO(this._redisConnectionProvider);
+                    this._emailVerificationRedisRepository = new EmailVerificationRedisRepository(this._redisConnectionProvider);
                 }
-                return this._emailVerificationRedisDAO;
+                return this._emailVerificationRedisRepository;
             }
         }
 
-        public BrandRedisDAO BrandRedisDAO
+        public BrandRedisRepository BrandRedisRepository
         {
             get
             {
-                if (this._brandRedisDAO == null)
+                if (this._brandRedisRepository == null)
                 {
-                    this._brandRedisDAO = new BrandRedisDAO(this._redisConnectionProvider);
+                    this._brandRedisRepository = new BrandRedisRepository(this._redisConnectionProvider);
                 }
-                return this._brandRedisDAO;
+                return this._brandRedisRepository;
             }
         }
 
-        public ProductRedisDAO ProductRedisDAO
+        public ProductRedisRepository ProductRedisRepository
         {
             get
             {
-                if (this._productRedisDAO == null)
+                if (this._productRedisRepository == null)
                 {
-                    this._productRedisDAO = new ProductRedisDAO(this._redisConnectionProvider);
+                    this._productRedisRepository = new ProductRedisRepository(this._redisConnectionProvider);
                 }
-                return this._productRedisDAO;
+                return this._productRedisRepository;
             }
         }
 
-        public BrandAccountRedisDAO BrandAccountRedisDAO
+        public BrandAccountRedisRepository BrandAccountRedisRepository
         {
             get
             {
-                if (this._brandAccountRedisDAO == null)
+                if (this._brandAccountRedisRepository == null)
                 {
-                    this._brandAccountRedisDAO = new BrandAccountRedisDAO(this._redisConnectionProvider);
+                    this._brandAccountRedisRepository = new BrandAccountRedisRepository(this._redisConnectionProvider);
                 }
-                return this._brandAccountRedisDAO;
+                return this._brandAccountRedisRepository;
             }
         }
-        public CategoryRedisDAO CategoryRedisDAO
+        public CategoryRedisRepository CategoryRedisRepository
         {
             get
             {
-                if (this._categoryRedisDAO == null)
+                if (this._categoryRedisRepository == null)
                 {
-                    this._categoryRedisDAO = new CategoryRedisDAO(this._redisConnectionProvider);
+                    this._categoryRedisRepository = new CategoryRedisRepository(this._redisConnectionProvider);
                 }
-                return this._categoryRedisDAO;
-            }
-        }
-
-        public ExtraCategoryRedisDAO ExtraCategoryRedisDAO
-        {
-            get
-            {
-                if (this._extraCategoryRedisDAO == null)
-                {
-                    this._extraCategoryRedisDAO = new ExtraCategoryRedisDAO(this._redisConnectionProvider);
-                }
-                return this._extraCategoryRedisDAO;
+                return this._categoryRedisRepository;
             }
         }
 
-        public StoreRedisDAO StoreRedisDAO
+        public ExtraCategoryRedisRepository ExtraCategoryRedisRepository
         {
             get
             {
-                if (this._storeRedisDAO == null)
+                if (this._extraCategoryRedisRepository == null)
                 {
-                    this._storeRedisDAO = new StoreRedisDAO(this._redisConnectionProvider);
+                    this._extraCategoryRedisRepository = new ExtraCategoryRedisRepository(this._redisConnectionProvider);
                 }
-                return this._storeRedisDAO;
+                return this._extraCategoryRedisRepository;
             }
         }
 
-        public BankingAccountDAO BankingAccountDAO
+        public StoreRedisRepository StoreRedisRepository
         {
             get
             {
-                if (this._bankingAccountDAO == null)
+                if (this._storeRedisRepository == null)
                 {
-                    this._bankingAccountDAO = new BankingAccountDAO(this._dbContext);
+                    this._storeRedisRepository = new StoreRedisRepository(this._redisConnectionProvider);
                 }
-                return this._bankingAccountDAO;
+                return this._storeRedisRepository;
             }
         }
 
-        public BrandDAO BrandDAO
+        public BankingAccountRepository BankingAccountRepository
         {
             get
             {
-                if (this._brandDAO == null)
+                if (this._bankingAccountRepository == null)
                 {
-                    this._brandDAO = new BrandDAO(this._dbContext);
+                    this._bankingAccountRepository = new BankingAccountRepository(this._dbContext);
                 }
-                return this._brandDAO;
+                return this._bankingAccountRepository;
             }
         }
 
-        public CashierDAO CashierDAO
+        public BrandRepository BrandRepository
         {
             get
             {
-                if (this._cashierDAO == null)
+                if (this._brandRepository == null)
                 {
-                    this._cashierDAO = new CashierDAO(this._dbContext);
+                    this._brandRepository = new BrandRepository(this._dbContext);
                 }
-                return this._cashierDAO;
+                return this._brandRepository;
             }
         }
 
-        public CategoryDAO CategoryDAO
+        public CashierRepository CashierRepository
         {
             get
             {
-                if (this._categoryDAO == null)
+                if (this._cashierRepository == null)
                 {
-                    this._categoryDAO = new CategoryDAO(this._dbContext);
+                    this._cashierRepository = new CashierRepository(this._dbContext);
                 }
-                return this._categoryDAO;
+                return this._cashierRepository;
             }
         }
 
-        public ExtraCategoryDAO ExtraCategoryDAO
+        public CategoryRepository CategoryRepository
         {
             get
             {
-                if (this._extraCategoryDAO == null)
+                if (this._categoryRepository == null)
                 {
-                    this._extraCategoryDAO = new ExtraCategoryDAO(this._dbContext);
+                    this._categoryRepository = new CategoryRepository(this._dbContext);
                 }
-                return this._extraCategoryDAO;
+                return this._categoryRepository;
             }
         }
 
-        public KitchenCenterDAO KitchenCenterDAO
+        public ExtraCategoryRepository ExtraCategoryRepository
         {
             get
             {
-                if (this._kitchenCenterDAO == null)
+                if (this._extraCategoryRepository == null)
                 {
-                    this._kitchenCenterDAO = new KitchenCenterDAO(this._dbContext);
+                    this._extraCategoryRepository = new ExtraCategoryRepository(this._dbContext);
                 }
-                return this._kitchenCenterDAO;
+                return this._extraCategoryRepository;
             }
         }
 
-        public MappingProductDAO MappingProductDAO
+        public KitchenCenterRepository KitchenCenterRepository
         {
             get
             {
-                if (this._mappingProductDAO == null)
+                if (this._kitchenCenterRepository == null)
                 {
-                    this._mappingProductDAO = new MappingProductDAO(this._dbContext);
+                    this._kitchenCenterRepository = new KitchenCenterRepository(this._dbContext);
                 }
-                return this._mappingProductDAO;
+                return this._kitchenCenterRepository;
             }
         }
 
-        public MoneyExchangeDAO MoneyExchangeDAO
+        public MappingProductRepository MappingProductRepository
         {
             get
             {
-                if (this._moneyExchangeDAO == null)
+                if (this._mappingProductRepository == null)
                 {
-                    this._moneyExchangeDAO = new MoneyExchangeDAO(this._dbContext);
+                    this._mappingProductRepository = new MappingProductRepository(this._dbContext);
                 }
-                return this._moneyExchangeDAO;
+                return this._mappingProductRepository;
             }
         }
 
-        public OrderDAO OrderDAO
+        public MoneyExchangeRepository MoneyExchangeRepository
         {
             get
             {
-                if (this._orderDAO == null)
+                if (this._moneyExchangeRepository == null)
                 {
-                    this._orderDAO = new OrderDAO(this._dbContext);
+                    this._moneyExchangeRepository = new MoneyExchangeRepository(this._dbContext);
                 }
-                return this._orderDAO;
+                return this._moneyExchangeRepository;
             }
         }
 
-        public OrderDetailDAO OrderDetailDAO
+        public OrderRepository OrderRepository
         {
             get
             {
-                if (this._orderDetailDAO == null)
+                if (this._orderRepository == null)
                 {
-                    this._orderDetailDAO = new OrderDetailDAO(this._dbContext);
+                    this._orderRepository = new OrderRepository(this._dbContext);
                 }
-                return this._orderDetailDAO;
+                return this._orderRepository;
             }
         }
 
-        public PartnerDAO PartnerDAO
+        public OrderDetailRepository OrderDetailRepository
         {
             get
             {
-                if (this._partnerDAO == null)
+                if (this._orderDetailRepository == null)
                 {
-                    this._partnerDAO = new PartnerDAO(this._dbContext);
+                    this._orderDetailRepository = new OrderDetailRepository(this._dbContext);
                 }
-                return this._partnerDAO;
+                return this._orderDetailRepository;
             }
         }
 
-        public ProductDAO ProductDAO
+        public PartnerRepository PartnerRepository
         {
             get
             {
-                if (this._productDAO == null)
+                if (this._partnerRepository == null)
                 {
-                    this._productDAO = new ProductDAO(this._dbContext);
+                    this._partnerRepository = new PartnerRepository(this._dbContext);
                 }
-                return this._productDAO;
+                return this._partnerRepository;
             }
         }
 
-        public RoleDAO RoleDAO
+        public ProductRepository ProductRepository
         {
             get
             {
-                if (this._roleDAO == null)
+                if (this._productRepository == null)
                 {
-                    this._roleDAO = new RoleDAO(this._dbContext);
+                    this._productRepository = new ProductRepository(this._dbContext);
                 }
-                return this._roleDAO;
+                return this._productRepository;
             }
         }
 
-        public ShipperPaymentDAO ShipperPaymentDAO
+        public RoleRepository RoleRepository
         {
             get
             {
-                if (this._shipperPaymentDAO == null)
+                if (this._roleRepository == null)
                 {
-                    this._shipperPaymentDAO = new ShipperPaymentDAO(this._dbContext);
+                    this._roleRepository = new RoleRepository(this._dbContext);
                 }
-                return this._shipperPaymentDAO;
+                return this._roleRepository;
             }
         }
 
-        public StoreDAO StoreDAO
+        public ShipperPaymentRepository ShipperPaymentRepository
         {
             get
             {
-                if (this._storeDAO == null)
+                if (this._shipperPaymentRepository == null)
                 {
-                    this._storeDAO = new StoreDAO(this._dbContext);
+                    this._shipperPaymentRepository = new ShipperPaymentRepository(this._dbContext);
                 }
-                return this._storeDAO;
+                return this._shipperPaymentRepository;
             }
         }
 
-        public StorePartnerDAO StorePartnerDAO
+        public StoreRepository StoreRepository
         {
             get
             {
-                if (this._storePartnerDAO == null)
+                if (this._storeRepository == null)
                 {
-                    this._storePartnerDAO = new StorePartnerDAO(this._dbContext);
+                    this._storeRepository = new StoreRepository(this._dbContext);
                 }
-                return this._storePartnerDAO;
+                return this._storeRepository;
             }
         }
 
-        public TransactionDAO TransactionDAO
+        public StorePartnerRepository StorePartnerRepository
         {
             get
             {
-                if (this._transactionDAO == null)
+                if (this._storePartnerRepository == null)
                 {
-                    this._transactionDAO = new TransactionDAO(this._dbContext);
+                    this._storePartnerRepository = new StorePartnerRepository(this._dbContext);
                 }
-                return this._transactionDAO;
+                return this._storePartnerRepository;
             }
         }
 
-        public WalletDAO WalletDAO
+        public TransactionRepository TransactionRepository
         {
             get
             {
-                if (this._walletDAO == null)
+                if (this._transactionRepository == null)
                 {
-                    this._walletDAO = new WalletDAO(this._dbContext);
+                    this._transactionRepository = new TransactionRepository(this._dbContext);
                 }
-                return this._walletDAO;
+                return this._transactionRepository;
             }
         }
 
-        public CashierMoneyExchangeDAO CashierMoneyExchangeDAO
+        public WalletRepository WalletRepository
         {
             get
             {
-                if (this._cashierMoneyExchangeDAO == null)
+                if (this._walletRepository == null)
                 {
-                    this._cashierMoneyExchangeDAO = new CashierMoneyExchangeDAO(this._dbContext);
+                    this._walletRepository = new WalletRepository(this._dbContext);
                 }
-                return this._cashierMoneyExchangeDAO;
+                return this._walletRepository;
             }
         }
 
-        public KitchenCenterMoneyExchangeDAO KitchenCenterMoneyExchangeDAO
+        public CashierMoneyExchangeRepository CashierMoneyExchangeRepository
         {
             get
             {
-                if (this._kitchenCenterMoneyExchangeDAO == null)
+                if (this._cashierMoneyExchangeRepository == null)
                 {
-                    this._kitchenCenterMoneyExchangeDAO = new KitchenCenterMoneyExchangeDAO(this._dbContext);
+                    this._cashierMoneyExchangeRepository = new CashierMoneyExchangeRepository(this._dbContext);
                 }
-                return this._kitchenCenterMoneyExchangeDAO;
+                return this._cashierMoneyExchangeRepository;
             }
         }
 
-        public StoreMoneyExchangeDAO StoreMoneyExchangeDAO
+        public KitchenCenterMoneyExchangeRepository KitchenCenterMoneyExchangeRepository
         {
             get
             {
-                if (this._storeMoneyExchangeDAO == null)
+                if (this._kitchenCenterMoneyExchangeRepository == null)
                 {
-                    this._storeMoneyExchangeDAO = new StoreMoneyExchangeDAO(this._dbContext);
+                    this._kitchenCenterMoneyExchangeRepository = new KitchenCenterMoneyExchangeRepository(this._dbContext);
                 }
-                return this._storeMoneyExchangeDAO;
+                return this._kitchenCenterMoneyExchangeRepository;
             }
         }
 
-        public BrandAccountDAO BrandAccountDAO
+        public StoreMoneyExchangeRepository StoreMoneyExchangeRepository
         {
             get
             {
-                if (this._brandAccountDAO == null)
+                if (this._storeMoneyExchangeRepository == null)
                 {
-                    this._brandAccountDAO = new BrandAccountDAO(this._dbContext);
+                    this._storeMoneyExchangeRepository = new StoreMoneyExchangeRepository(this._dbContext);
                 }
-                return this._brandAccountDAO;
+                return this._storeMoneyExchangeRepository;
             }
         }
 
-        public StoreAccountDAO StoreAccountDAO
+        public BrandAccountRepository BrandAccountRepository
         {
             get
             {
-                if (this._storeAccountDAO == null)
+                if (this._brandAccountRepository == null)
                 {
-                    this._storeAccountDAO = new StoreAccountDAO(this._dbContext);
+                    this._brandAccountRepository = new BrandAccountRepository(this._dbContext);
                 }
-                return this._storeAccountDAO;
+                return this._brandAccountRepository;
+            }
+        }
+
+        public StoreAccountRepository StoreAccountRepository
+        {
+            get
+            {
+                if (this._storeAccountRepository == null)
+                {
+                    this._storeAccountRepository = new StoreAccountRepository(this._dbContext);
+                }
+                return this._storeAccountRepository;
             }
         }
 

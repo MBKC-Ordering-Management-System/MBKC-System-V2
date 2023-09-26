@@ -8,8 +8,8 @@ namespace MBKC.API.Controllers
     [ApiController]
     public class OrdersController : ControllerBase
     {
-        private IOrderRepository _orderRepository;
-        public OrdersController(IOrderRepository orderRepository)
+        private IOrderService _orderRepository;
+        public OrdersController(IOrderService orderRepository)
         {
             _orderRepository = orderRepository;
         }

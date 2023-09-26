@@ -17,11 +17,11 @@ namespace MBKC.API.Controllers
     [Consumes("application/json")]
     public class VerificationsController : ControllerBase
     {
-        private IVerificationRepository _verificationRepository;
+        private IVerificationService _verificationRepository;
         private IOptions<Email> _emailOption;
         private IValidator<EmailVerificationRequest> _emailVerificationValidator;
         private IValidator<OTPCodeVerificationRequest> _otpCodeVerificationValidator;
-        public VerificationsController(IVerificationRepository verificationRepository, IOptions<Email> emailOption,
+        public VerificationsController(IVerificationService verificationRepository, IOptions<Email> emailOption,
             IValidator<EmailVerificationRequest> emailVerificationValidator, IValidator<OTPCodeVerificationRequest> otpCodeVerificationValidator)
         {
             this._verificationRepository = verificationRepository;

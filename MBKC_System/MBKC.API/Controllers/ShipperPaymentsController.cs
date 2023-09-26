@@ -8,8 +8,8 @@ namespace MBKC.API.Controllers
     [ApiController]
     public class ShipperPaymentsController : ControllerBase
     {
-        private IShipperPaymentRepository _shipperPaymentRepository;
-        public ShipperPaymentsController(IShipperPaymentRepository shipperPaymentRepository)
+        private IShipperPaymentService _shipperPaymentRepository;
+        public ShipperPaymentsController(IShipperPaymentService shipperPaymentRepository)
         {
             _shipperPaymentRepository = shipperPaymentRepository;
         }

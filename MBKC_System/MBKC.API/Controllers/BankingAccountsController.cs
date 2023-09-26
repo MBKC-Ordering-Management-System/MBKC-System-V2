@@ -8,8 +8,8 @@ namespace MBKC.API.Controllers
     [ApiController]
     public class BankingAccountsController : ControllerBase
     {
-        private IBankingAccountRepository _bankingAccountRepository;
-        public BankingAccountsController(IBankingAccountRepository bankingAccountRepository)
+        private IBankingAccountService _bankingAccountRepository;
+        public BankingAccountsController(IBankingAccountService bankingAccountRepository)
         {
             _bankingAccountRepository = bankingAccountRepository;
         }

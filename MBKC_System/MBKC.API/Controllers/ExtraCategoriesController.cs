@@ -8,8 +8,8 @@ namespace MBKC.API.Controllers
     [ApiController]
     public class ExtraCategoriesController : ControllerBase
     {
-        private IExtraCategoryRepository _extraCategoryRepository;
-        public ExtraCategoriesController(IExtraCategoryRepository extraCategoryRepository)
+        private IExtraCategoryService _extraCategoryRepository;
+        public ExtraCategoriesController(IExtraCategoryService extraCategoryRepository)
         {
             _extraCategoryRepository = extraCategoryRepository;
         }

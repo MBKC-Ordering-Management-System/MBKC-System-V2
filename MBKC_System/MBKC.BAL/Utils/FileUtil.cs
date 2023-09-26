@@ -1,6 +1,7 @@
 ﻿using Firebase.Auth;
 using Firebase.Storage;
 using MBKC.BAL.DTOs.FireBase;
+using MBKC.BAL.Exceptions;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -50,7 +51,6 @@ namespace MBKC.BAL.Utils
         {
             try
             {
-               
                 var auth = new FirebaseAuthProvider(new FirebaseConfig(ApiKey));
                 var a = await auth.SignInWithEmailAndPasswordAsync(AuthEmail, AuthPassword);
 
@@ -71,6 +71,10 @@ namespace MBKC.BAL.Utils
                 // error during upload will be thrown when you await the task
                 string link = await task;
                 return link;
+            }
+            catch (FirebaseAuthException ex)
+            {
+                throw new BadRequestException("Upload image to firebase failed.");
             }
             catch (Exception ex)
             {

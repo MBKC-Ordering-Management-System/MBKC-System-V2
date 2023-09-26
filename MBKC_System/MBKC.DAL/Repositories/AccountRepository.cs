@@ -1,0 +1,95 @@
+﻿using MBKC.DAL.DBContext;
+using MBKC.DAL.Enums;
+using MBKC.DAL.Models;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace MBKC.DAL.Repositories
+{
+    public class AccountRepository
+    {
+        private MBKCDbContext _dbContext;
+        public AccountRepository(MBKCDbContext dbContext)
+        {
+            this._dbContext = dbContext;
+        }
+
+        public async Task CreateAccountAsync(Account account)
+        {
+            try
+            {
+                await this._dbContext.Accounts.AddAsync(account);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<Account> GetAccountByEmailAsync(string email)
+        {
+            try
+            {
+                return await _dbContext.Accounts.SingleOrDefaultAsync(r => r.Email.Equals(email));
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<Account> GetActiveAccountAsync(string email)
+        {
+            try
+            {
+                return await this._dbContext.Accounts.Include(x => x.Role)
+                                                     .SingleOrDefaultAsync(x => x.Email.Equals(email) && x.Status == (int)AccountEnum.Status.ACTIVE);
+            } catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<Account> GetAccountAsync(int accountId)
+        {
+            try
+            {
+                return await this._dbContext.Accounts.Include(x => x.Role)
+                                                     .SingleOrDefaultAsync(x => x.AccountId == accountId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<Account> GetAccountAsync(string email)
+        {
+            try
+            {
+                return await this._dbContext.Accounts.Include(x => x.Role)
+                                                     .SingleOrDefaultAsync(x => x.Email == email);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public void UpdateAccount(Account account)
+        {
+            try
+            {
+                this._dbContext.Accounts.Update(account);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+    }
+}

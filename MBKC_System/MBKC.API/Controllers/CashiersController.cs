@@ -8,8 +8,8 @@ namespace MBKC.API.Controllers
     [ApiController]
     public class CashiersController : ControllerBase
     {
-        private ICashierRepository _cashierRepository;
-        public CashiersController(ICashierRepository cashierRepository)
+        private ICashierService _cashierRepository;
+        public CashiersController(ICashierService cashierRepository)
         {
             _cashierRepository = cashierRepository;
         }

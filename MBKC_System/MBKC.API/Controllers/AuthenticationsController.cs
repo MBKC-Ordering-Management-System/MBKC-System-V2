@@ -17,12 +17,12 @@ namespace MBKC.API.Controllers
     [Consumes("application/json")]
     public class AuthenticationsController : ControllerBase
     {
-        private IAuthenticationRepository _authenticationRepository;
+        private IAuthenticationService _authenticationRepository;
         private IOptions<JWTAuth> _jwtAuthOptions;
         private IValidator<AccountRequest> _accountRequestValidator;
         private IValidator<AccountTokenRequest> _accountTokenRequestValidator;
         private IValidator<ResetPasswordRequest> _resetPasswordValidator;
-        public AuthenticationsController(IAuthenticationRepository authenticationRepository, IOptions<JWTAuth> jwtAuthOptions,
+        public AuthenticationsController(IAuthenticationService authenticationRepository, IOptions<JWTAuth> jwtAuthOptions,
             IValidator<AccountRequest> accountRequestValidator, IValidator<AccountTokenRequest> accountTokenRequestValidator,
             IValidator<ResetPasswordRequest> resetPasswordValidator)
         {
