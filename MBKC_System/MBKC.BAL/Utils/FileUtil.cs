@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace MBKC.BAL.Utils
 {
@@ -121,7 +122,7 @@ namespace MBKC.BAL.Utils
         #region HaveSupportedFileType
         public static bool HaveSupportedFileType(string fileName)
         {
-            string[] validFileTypes = { ".png", ".jpg", ".jpeg", ".webp" };
+            string[] validFileTypes = { ".png", ".jpg", ".jpeg" , ".webp" };
             string extensionFile = Path.GetExtension(fileName);
             if (validFileTypes.Contains(extensionFile))
             {
@@ -130,5 +131,21 @@ namespace MBKC.BAL.Utils
             return false;
         }
         #endregion
+
+        public static string GetImageIdFromUrlImage(string urlImage, string queryName)
+        {
+            try
+            {
+                Uri imageUri = new Uri(urlImage);
+
+                string imageId = HttpUtility.ParseQueryString(imageUri.Query).Get(queryName);
+
+                return imageId;
+            }
+            catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }

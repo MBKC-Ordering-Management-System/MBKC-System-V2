@@ -1,6 +1,6 @@
-﻿using MBKC.DAL.DAOs;
+﻿using MBKC.DAL.Repositories;
 using MBKC.DAL.DBContext;
-using MBKC.DAL.RedisDAOs;
+using MBKC.DAL.RedisRepositories;
 using Redis.OM;
 using System;
 using System.Collections.Generic;
@@ -38,15 +38,8 @@ namespace MBKC.DAL.Infrastructures
         private CashierMoneyExchangeRepository _cashierMoneyExchangeRepository;
         private KitchenCenterMoneyExchangeRepository _kitchenCenterMoneyExchangeRepository;
         private RedisConnectionProvider _redisConnectionProvider;
-        private AccountRedisDAO _accountRedisDAO;
-        private AccountTokenRedisDAO _accountTokenRedisDAO;
-        private EmailVerificationRedisDAO _emailVerificationRedisDAO;
-        private BrandRedisDAO _brandRedisDAO;
-        private BrandAccountRedisDAO _brandAccountRedisDAO;
-        private ProductRedisDAO _productRedisDAO;
-        private CategoryRedisDAO _categoryRedisDAO;
-        private ExtraCategoryRedisDAO _extraCategoryRedisDAO;
-        private StoreRedisDAO _storeRedisDAO;
+        private AccountTokenRedisRepository  _accountTokenRedisRepository;
+        private EmailVerificationRedisRepository  _emailVerificationRedisRepository;
 
 
         public UnitOfWork(IDbFactory dbFactory)
@@ -61,8 +54,6 @@ namespace MBKC.DAL.Infrastructures
             }
         }
 
-
-
         public AccountRepository AccountRepository
         {
             get
@@ -75,67 +66,54 @@ namespace MBKC.DAL.Infrastructures
             }
         }
 
-        public AccountRedisDAO AccountRedisDAO
+        public AccountTokenRedisRepository AccountTokenRedisRepository
         {
             get
             {
-                if (this._accountRedisDAO == null)
+                if(this._accountTokenRedisRepository == null)
                 {
-                    this._accountRedisDAO = new AccountRedisDAO(this._redisConnectionProvider);
+                    this._accountTokenRedisRepository = new AccountTokenRedisRepository(this._redisConnectionProvider);
                 }
-                return this._accountRedisDAO;
+                return this._accountTokenRedisRepository;
             }
         }
 
-        public AccountTokenRedisDAO AccountTokenRedisDAO
+        public EmailVerificationRedisRepository EmailVerificationRedisRepository
         {
             get
             {
-                if (this._accountTokenRedisDAO == null)
+                if(this._emailVerificationRedisRepository == null)
                 {
-                    this._accountTokenRedisDAO = new AccountTokenRedisDAO(this._redisConnectionProvider);
+                    this._emailVerificationRedisRepository = new EmailVerificationRedisRepository(this._redisConnectionProvider);
                 }
-                return this._accountTokenRedisDAO;
+                return this._emailVerificationRedisRepository;
             }
         }
-
-        public EmailVerificationRedisDAO EmailVerificationRedisDAO
+        public BankingAccountRepository BankingAccountDAO
         {
             get
             {
-                if (this._emailVerificationRedisDAO == null)
+                if (this._bankingAccountRepository == null)
                 {
-                    this._emailVerificationRedisDAO = new EmailVerificationRedisDAO(this._redisConnectionProvider);
+                    this._bankingAccountRepository = new BankingAccountRepository(this._dbContext);
                 }
-                return this._emailVerificationRedisDAO;
+                return this._bankingAccountRepository;
             }
         }
 
-        public BrandRedisDAO BrandRedisDAO
+        public BrandRepository BrandRepository
         {
             get
             {
-                if (this._brandRedisDAO == null)
+                if (this._brandRepository == null)
                 {
-                    this._brandRedisDAO = new BrandRedisDAO(this._redisConnectionProvider);
+                    this._brandRepository = new BrandRepository(this._dbContext);
                 }
-                return this._brandRedisDAO;
+                return this._brandRepository;
             }
         }
 
-        public ProductRedisDAO ProductRedisDAO
-        {
-            get
-            {
-                if (this._productRedisDAO == null)
-                {
-                    this._productRedisDAO = new ProductRedisDAO(this._redisConnectionProvider);
-                }
-                return this._productRedisDAO;
-            }
-        }
-
-        public BrandAccountRedisDAO BrandAccountRedisDAO
+        public CashierRepository CashierRepository
         {
             get
             {
@@ -290,7 +268,7 @@ namespace MBKC.DAL.Infrastructures
             }
         }
 
-        public OrderDetailRepository OrderDetailDAO
+        public OrderDetailRepository OrderDetailRepository
         {
             get
             {

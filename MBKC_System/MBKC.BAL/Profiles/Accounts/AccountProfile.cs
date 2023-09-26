@@ -14,10 +14,7 @@ namespace MBKC.BAL.Profiles.Accounts
     {
         public AccountProfile()
         {
-            CreateMap<Account, AccountRedisModel>().ForMember(dept => dept.RoleId, opt => opt.MapFrom(src => src.Role.RoleId))
-                                                   .ForMember(dept => dept.RoleName, opt => opt.MapFrom(src => src.Role.RoleName));
-
-            CreateMap<AccountResponse, AccountRedisModel>().ReverseMap();
+            CreateMap<Account, AccountResponse>().ForMember(dept => dept.RoleName, opt => opt.MapFrom(src => src.Role.RoleName));
         }
     }
 }

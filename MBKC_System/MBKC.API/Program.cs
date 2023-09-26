@@ -6,13 +6,15 @@ using MBKC.BAL.DTOs.AccountTokens;
 using MBKC.BAL.DTOs.Brands;
 using MBKC.BAL.DTOs.FireBase;
 using MBKC.BAL.DTOs.JWTs;
+using MBKC.BAL.DTOs.KitchenCenters;
 using MBKC.BAL.DTOs.Verifications;
 using MBKC.BAL.Errors;
-using MBKC.BAL.Repositories.Implementations;
-using MBKC.BAL.Repositories.Interfaces;
+using MBKC.BAL.Services.Implementations;
+using MBKC.BAL.Services.Interfaces;
 using MBKC.BAL.Utils;
 using MBKC.BAL.Validators.Accounts;
 using MBKC.BAL.Validators.Authentications;
+using MBKC.BAL.Validators.KitchenCenters;
 using MBKC.BAL.Validators.Verifications;
 using MBKC.BAL.Validators;
 using MBKC.DAL.Infrastructures;
@@ -20,7 +22,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
-using Swashbuckle.AspNetCore.Filters;
 using System.Reflection;
 using System.Text;
 
@@ -28,7 +29,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().ConfigureApiBehaviorOptions(opts
+                    => opts.SuppressModelStateInvalidFilter = true);
 builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -59,9 +61,6 @@ builder.Services.AddSwaggerGen(options =>
                     {
                         new OpenApiSecurityScheme
                         {
-                            Name = "Authorization",
-                            Type = SecuritySchemeType.ApiKey,
-                            In = ParameterLocation.Header,
                             Reference = new OpenApiReference
                             {
                                 Type = ReferenceType.SecurityScheme,
@@ -170,6 +169,9 @@ builder.Services.AddScoped<IValidator<OTPCodeVerificationRequest>, OTPCodeVerify
 builder.Services.AddScoped<IValidator<ResetPasswordRequest>, ResetPasswordRequestValidator>();
 builder.Services.AddScoped<IValidator<PostBrandRequest>, PostBrandValidation>();
 builder.Services.AddScoped<IValidator<UpdateBrandRequest>, UpdateBrandValidation>();
+builder.Services.AddScoped<IValidator<CreateKitchenCenterRequest>, CreateKitchenCenterValidator>();
+builder.Services.AddScoped<IValidator<UpdateKitchenCenterRequest>, UpdateKitchenCenterValidator>();
+
 //Middlewares
 builder.Services.AddTransient<ExceptionMiddleware>();
 

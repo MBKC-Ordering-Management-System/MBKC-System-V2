@@ -7,13 +7,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MBKC.DAL.RedisDAOs
+namespace MBKC.DAL.RedisRepositories
 {
-    public class AccountTokenRedisDAO
+    public class AccountTokenRedisRepository
     {
         private RedisConnectionProvider _redisConnectionProvider;
         private IRedisCollection<AccountTokenRedisModel> _accounttokenCollection;
-        public AccountTokenRedisDAO(RedisConnectionProvider redisConnectionProvider)
+        public AccountTokenRedisRepository(RedisConnectionProvider redisConnectionProvider)
         {
             this._redisConnectionProvider = redisConnectionProvider;
             this._accounttokenCollection = this._redisConnectionProvider.RedisCollection<AccountTokenRedisModel>();

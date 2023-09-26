@@ -1,4 +1,4 @@
-﻿using MBKC.BAL.Repositories.Interfaces;
+﻿using MBKC.BAL.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,7 +11,7 @@ namespace MBKC.API.Controllers
         private ICashierService _cashierService;
         public CashiersController(ICashierService cashierService)
         {
-            _cashierService = cashierService;
+            this._cashierService = cashierService;
         }
     }
 }

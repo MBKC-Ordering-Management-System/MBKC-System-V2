@@ -20,11 +20,19 @@ using System.Web;
 
 namespace MBKC.BAL.Repositories.Implementations
 {
+<<<<<<<< HEAD:MBKC_System/MBKC.BAL/Services/Implementations/OrderService.cs
+    public class OrderService : IOrderService
+    {
+        private UnitOfWork _unitOfWork;
+        private IMapper _mapper;
+        public OrderService(IUnitOfWork unitOfWork, IMapper mapper)
+========
     public class BrandService : IBrandService
     {
         private UnitOfWork _unitOfWork;
         private IMapper _mapper;
         public BrandService(IUnitOfWork unitOfWork, IMapper mapper)
+>>>>>>>> main:MBKC_System/MBKC.BAL/Services/Implementations/BrandService.cs
         {
             this._unitOfWork = (UnitOfWork)unitOfWork;
             this._mapper = mapper;

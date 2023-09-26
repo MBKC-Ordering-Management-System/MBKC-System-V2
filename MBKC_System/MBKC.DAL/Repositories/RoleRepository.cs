@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MBKC.DAL.DAOs
+namespace MBKC.DAL.Repositories
 {
     public class RoleRepository
     {
@@ -15,18 +15,28 @@ namespace MBKC.DAL.DAOs
         public RoleRepository(MBKCDbContext dbContext)
         {
             this._dbContext = dbContext;
-        }
+            public async Task<Role> GetRoleAsync(int roleId)
+            {
+                try
+                {
+                    return await this._dbContext.Roles.SingleOrDefaultAsync(x => x.RoleId == roleId);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(ex.Message);
+                }
+            }
 
-        public async Task<Role> GetRoleById(int id)
-        {
-            try
+            public async Task<Role> GetRoleById(int id)
             {
-                return await _dbContext.Roles.SingleOrDefaultAsync(r => r.RoleId == id);
+                try
+                {
+                    return await _dbContext.Roles.SingleOrDefaultAsync(r => r.RoleId == id);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(ex.Message);
+                }
             }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
     }
 }

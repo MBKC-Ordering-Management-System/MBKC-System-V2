@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MBKC.BAL.Utils
 {
-    public class StringUtil
+    public static class StringUtil
     {
         private static readonly string[] VietnameseSigns = new string[]
         {

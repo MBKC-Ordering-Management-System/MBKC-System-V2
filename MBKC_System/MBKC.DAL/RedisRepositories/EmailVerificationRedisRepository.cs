@@ -7,13 +7,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MBKC.DAL.RedisDAOs
+namespace MBKC.DAL.RedisRepositories
 {
-    public class EmailVerificationRedisDAO
+    public class EmailVerificationRedisRepository
     {
         private RedisConnectionProvider _redisConnectionProvider;
         private IRedisCollection<EmailVerificationRedisModel> _emailVerificationCollection;
-        public EmailVerificationRedisDAO(RedisConnectionProvider redisConnectionProvider)
+        public EmailVerificationRedisRepository(RedisConnectionProvider redisConnectionProvider)
         {
             this._redisConnectionProvider = redisConnectionProvider;
             this._emailVerificationCollection = this._redisConnectionProvider.RedisCollection<EmailVerificationRedisModel>();

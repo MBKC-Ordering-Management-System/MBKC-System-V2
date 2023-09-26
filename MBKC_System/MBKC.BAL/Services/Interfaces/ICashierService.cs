@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MBKC.BAL.Repositories.Interfaces
+namespace MBKC.BAL.Services.Interfaces
 {
+
     public interface ICashierService
+
     {
     }
 }

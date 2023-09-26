@@ -5,7 +5,7 @@ using MBKC.BAL.DTOs.AccountTokens;
 using MBKC.BAL.DTOs.JWTs;
 using MBKC.BAL.Errors;
 using MBKC.BAL.Exceptions;
-using MBKC.BAL.Repositories.Interfaces;
+using MBKC.BAL.Services.Interfaces;
 using MBKC.BAL.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -14,7 +14,6 @@ namespace MBKC.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Consumes("application/json")]
     public class AuthenticationsController : ControllerBase
     {
         private IAuthenticationService _authenticationService;
@@ -48,8 +47,10 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///
         ///         POST 
-        ///         "email": "abc@gmail.com"
-        ///         "password": "********"
+        ///         {
+        ///             "email": "abc@gmail.com"
+        ///             "password": "********"
+        ///         }
         /// </remarks>
         /// <response code="200">Login Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
@@ -59,9 +60,10 @@ namespace MBKC.API.Controllers
         /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
         /// <exception cref="Exception">Throw Error about the system.</exception>
         [ProducesResponseType(typeof(AccountResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Consumes("application/json")]
         [Produces("application/json")]
         [HttpPost("login")]
         public async Task<IActionResult> PostLoginAsync([FromBody]AccountRequest account)
@@ -92,8 +94,10 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///
         ///         POST 
-        ///         "accessToken": "abcxyz"
-        ///         "refreshToken": "klmnopq"
+        ///         {
+        ///             "accessToken": "abcxyz"
+        ///             "refreshToken": "klmnopq"
+        ///         }
         /// </remarks>
         /// <response code="200">Re-Generate Token Successfully.</response>
         /// <response code="404">Some Error about request data that are not found.</response>
@@ -106,6 +110,7 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Consumes("application/json")]
         [Produces("application/json")]
         [HttpPost("tokens-regeneration")]
         public async Task<IActionResult> PostReGenerateTokensAsync([FromBody]AccountTokenRequest accountToken)
@@ -135,11 +140,13 @@ namespace MBKC.API.Controllers
         /// <remarks>
         ///     Sample request:
         ///
-        ///         PUT 
-        ///         "email": "abc@gmail.com"
-        ///         "newPassword": "********"
+        ///         PUT
+        ///         {
+        ///             "email": "abc@gmail.com"
+        ///             "newPassword": "********"
+        ///         }
         /// </remarks>
-        /// <response code="200">Reset password Successfully.</response>
+        /// <response code="200">A success message about the resetring password procedure.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
         /// <response code="500">Some Error about the system.</response>
         /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
@@ -147,6 +154,7 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Consumes("application/json")]
         [Produces("application/json")]
         [HttpPut("reset-password")]
         public async Task<IActionResult> PutResetPasswordAsync([FromBody]ResetPasswordRequest resetPassword)

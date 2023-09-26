@@ -158,7 +158,7 @@ namespace MBKC.DAL.DBContext
             });
 
             modelBuilder.Entity<KitchenCenter>()
-                .HasOne(kitchenCenter => kitchenCenter.Account)
+                .HasOne(kitchenCenter => kitchenCenter.Manager)
                 .WithOne()
                 .OnDelete(DeleteBehavior.Restrict);
 

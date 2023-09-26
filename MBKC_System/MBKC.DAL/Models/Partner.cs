@@ -15,7 +15,7 @@ namespace MBKC.DAL.Models
         public string Name { get; set; }
         public string Logo { get; set; }
         public string WebUrl { get; set; }
-        public bool Status { get; set; }
+        public int Status { get; set; }
 
         public virtual IEnumerable<Order> Orders { get; set; }
         public virtual IEnumerable<StorePartner> StorePartners { get; set; }

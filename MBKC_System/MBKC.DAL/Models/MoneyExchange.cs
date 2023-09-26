@@ -15,7 +15,7 @@ namespace MBKC.DAL.Models
         public decimal Amount { get; set; }
         public string ExchangeType { get; set; }
         public string Content { get; set; }
-        public bool Status { get; set; }
+        public int Status { get; set; }
         public int SenderId { get; set; }
         public int ReceiveId { get; set; }
         public virtual IEnumerable<Transaction> Transactions { get; set; }

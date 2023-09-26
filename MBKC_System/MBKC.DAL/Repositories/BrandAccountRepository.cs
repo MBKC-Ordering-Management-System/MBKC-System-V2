@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MBKC.DAL.DAOs
+namespace MBKC.DAL.Repositories
 {
     public class BrandAccountRepository
     {
@@ -26,7 +26,7 @@ namespace MBKC.DAL.DAOs
             {
                 throw new Exception(ex.Message);
             }
-        }
+    }
 
     }
 }
