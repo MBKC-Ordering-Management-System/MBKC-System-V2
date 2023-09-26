@@ -29,15 +29,16 @@ namespace MBKC.BAL.Validators.KitchenCenters
             RuleFor(ckcr => ckcr.Logo)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotNull().WithMessage("{PropertyName} is not null.")
-                .NotEmpty().WithMessage("{PropertyName} is not empty.");
+                .ChildRules(ckcr =>
+                {
+                    ckcr.RuleFor(ckcr => ckcr.Length)
+                        .Cascade(CascadeMode.StopOnFirstFailure)
+                        .ExclusiveBetween(0, MAX_BYTES).WithMessage($"Logo is required file length greater than 0 and less than {MAX_BYTES / 1024 / 1024} MB.");
 
-            RuleFor(ckcr => ckcr.Logo.Length)
-                .Cascade(CascadeMode.StopOnFirstFailure)
-                .ExclusiveBetween(0, MAX_BYTES).WithMessage($"Logo is required file length greater than 0 and less than {MAX_BYTES / 1024 / 1024} MB.");
-
-            RuleFor(ckcr => ckcr.Logo.FileName)
-                .Cascade(CascadeMode.StopOnFirstFailure)
-                .Must(FileUtil.HaveSupportedFileType).WithMessage("{PropertyName} is required extension type .png, .jpg, .jpeg, .webp.");
+                    ckcr.RuleFor(ckcr => ckcr.FileName)
+                        .Cascade(CascadeMode.StopOnFirstFailure)
+                        .Must(FileUtil.HaveSupportedFileType).WithMessage("{PropertyName} is required extension type .png, .jpg, .jpeg, .webp.");
+                });
 
             RuleFor(ckcr => ckcr.ManagerEmail)
                 .Cascade(CascadeMode.StopOnFirstFailure)

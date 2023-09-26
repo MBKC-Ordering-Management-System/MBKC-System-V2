@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using MBKC.BAL.DTOs.Stores;
 using MBKC.BAL.Services.Interfaces;
+using MBKC.BAL.Utils;
 using MBKC.DAL.Infrastructures;
 using System;
 using System.Collections.Generic;
@@ -17,6 +19,18 @@ namespace MBKC.BAL.Services.Implementations
         {
             this._unitOfWork = (UnitOfWork)unitOfWork;
             this._mapper = mapper;
+        }
+
+        public async Task<GetStoresResponse> GetStoresAsync(string? searchValue, int? currentPage, int? itemPerPage)
+        {
+            try
+            {
+                 this._unitOfWork.StoreRepository
+            } catch(Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                throw new Exception(error);
+            }
         }
     }
 }

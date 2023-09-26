@@ -71,6 +71,16 @@ namespace MBKC.BAL.Utils
             return false;
         }
 
+        public static bool CheckStoreStatusName(string statusName)
+        {
+            if (statusName.ToLower().Equals(StoreEnum.Status.ACTIVE.ToString().ToLower()) ||
+                statusName.ToLower().Equals(StoreEnum.Status.INACTIVE.ToString().ToLower()))
+            {
+                return true;
+            }
+            return false;
+        }
+
         public static bool  IsUnicode(string input)
         {
             var asciiBytesCount = Encoding.ASCII.GetByteCount(input);

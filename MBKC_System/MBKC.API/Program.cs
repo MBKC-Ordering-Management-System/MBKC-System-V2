@@ -6,6 +6,7 @@ using MBKC.BAL.DTOs.AccountTokens;
 using MBKC.BAL.DTOs.FireBase;
 using MBKC.BAL.DTOs.JWTs;
 using MBKC.BAL.DTOs.KitchenCenters;
+using MBKC.BAL.DTOs.Stores;
 using MBKC.BAL.DTOs.Verifications;
 using MBKC.BAL.Errors;
 using MBKC.BAL.Services.Implementations;
@@ -14,6 +15,7 @@ using MBKC.BAL.Utils;
 using MBKC.BAL.Validators.Accounts;
 using MBKC.BAL.Validators.Authentications;
 using MBKC.BAL.Validators.KitchenCenters;
+using MBKC.BAL.Validators.Stores;
 using MBKC.BAL.Validators.Verifications;
 using MBKC.DAL.Infrastructures;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -161,6 +163,8 @@ builder.Services.AddScoped<IValidator<OTPCodeVerificationRequest>, OTPCodeVerify
 builder.Services.AddScoped<IValidator<ResetPasswordRequest>, ResetPasswordRequestValidator>();
 builder.Services.AddScoped<IValidator<CreateKitchenCenterRequest>, CreateKitchenCenterValidator>();
 builder.Services.AddScoped<IValidator<UpdateKitchenCenterRequest>, UpdateKitchenCenterValidator>();
+builder.Services.AddScoped<IValidator<CreateStoreRequest>, CreateStoreRequestValidator>();
+builder.Services.AddScoped<IValidator<UpdateStoreRequest>, UpdateStoreRequestValidator>();
 
 //Middlewares
 builder.Services.AddTransient<ExceptionMiddleware>();
