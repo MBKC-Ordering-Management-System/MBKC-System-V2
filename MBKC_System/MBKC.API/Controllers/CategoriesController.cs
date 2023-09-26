@@ -4,13 +4,14 @@ using MBKC.BAL.DTOs.Products;
 using MBKC.BAL.Errors;
 using FluentValidation;
 using FluentValidation.Results;
-using MBKC.BAL.Repositories.Interfaces;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MBKC.BAL.Utils;
 using MBKC.BAL.Exceptions;
 using MBKC.BAL.Authorization;
+using MBKC.BAL.Services.Interfaces;
 
 namespace MBKC.API.Controllers
 {
@@ -18,16 +19,16 @@ namespace MBKC.API.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        private ICategoryService _categoryRepository;
+        private ICategoryService _categoryService;
         private IOptions<FireBaseImage> _firebaseImageOptions;
         private IValidator<PostCategoryRequest> _postCategoryRequest;
         private IValidator<UpdateCategoryRequest> _updateCategoryRequest;
-        public CategoriesController(ICategoryService categoryRepository,
+        public CategoriesController(ICategoryService categoryService,
             IValidator<PostCategoryRequest> postCategoryRequest,
             IValidator<UpdateCategoryRequest> updateCategoryRequest,
             IOptions<FireBaseImage> firebaseImageOptions)
         {
-            this._categoryRepository = categoryRepository;
+            this._categoryService = categoryService;
             this._firebaseImageOptions = firebaseImageOptions;
             this._postCategoryRequest = postCategoryRequest;
             this._updateCategoryRequest = updateCategoryRequest;
@@ -70,7 +71,7 @@ namespace MBKC.API.Controllers
         [Consumes("multipart/form-data")]
         [Produces("application/json")]
         [HttpPost]
-        /*[PermissionAuthorize("Brand Manager")]*/
+        [PermissionAuthorize("Brand Manager")]
         public async Task<IActionResult> CreateCategoryAsync([FromForm] PostCategoryRequest postCategoryRequest)
         {
             ValidationResult validationResult = await this._postCategoryRequest.ValidateAsync(postCategoryRequest);
@@ -79,7 +80,7 @@ namespace MBKC.API.Controllers
                 string error = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(error);
             }
-            await this._categoryRepository.CreateCategoryAsync(postCategoryRequest, _firebaseImageOptions.Value);
+            await this._categoryService.CreateCategoryAsync(postCategoryRequest, _firebaseImageOptions.Value);
             return Ok(new
             {
                 Message = "Created Category Successfylly."
@@ -123,7 +124,7 @@ namespace MBKC.API.Controllers
         [Consumes("multipart/form-data")]
         [Produces("application/json")]
         [HttpPut("{id}")]
-        /*[PermissionAuthorize("Brand Manager")]*/
+        [PermissionAuthorize("Brand Manager")]
         public async Task<IActionResult> UpdateCategoryAsync([FromRoute] int id, [FromForm] UpdateCategoryRequest updateCategoryRequest)
         {
             ValidationResult validationResult = await this._updateCategoryRequest.ValidateAsync(updateCategoryRequest);
@@ -132,7 +133,7 @@ namespace MBKC.API.Controllers
                 string error = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(error);
             }
-            await this._categoryRepository.UpdateCategoryAsync(id, updateCategoryRequest, _firebaseImageOptions.Value);
+            await this._categoryService.UpdateCategoryAsync(id, updateCategoryRequest, _firebaseImageOptions.Value);
             return Ok(new
             {
                 Message = "Updated Category Successfully."
@@ -181,11 +182,11 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-        /*[PermissionAuthorize("Brand Manager")]*/
+        [PermissionAuthorize("Brand Manager")]
         [HttpGet]
         public async Task<IActionResult> GetCategoriesAsync(string type, [FromQuery] string? keySearchName, [FromQuery] int? pageNumber, [FromQuery] int? pageSize)
         {
-            var data = await this._categoryRepository.GetCategoriesAsync(type, keySearchName, pageNumber, pageSize);
+            var data = await this._categoryService.GetCategoriesAsync(type, keySearchName, pageNumber, pageSize);
 
             return Ok(data);
         }
@@ -222,10 +223,10 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
         [HttpGet("{id}")]
-        /*[PermissionAuthorize("Brand Manager")]*/
+        [PermissionAuthorize("Brand Manager")]
         public async Task<IActionResult> GetCategoryByIdAsync([FromRoute] int id)
         {
-            var data = await this._categoryRepository.GetCategoryByIdAsync(id);
+            var data = await this._categoryService.GetCategoryByIdAsync(id);
             return Ok(data);
         }
         #endregion
@@ -263,10 +264,10 @@ namespace MBKC.API.Controllers
         [Produces("application/json")]
 
         [HttpDelete("{id}")]
-        /*[PermissionAuthorize("Brand Manager")]*/
+        [PermissionAuthorize("Brand Manager")]
         public async Task<IActionResult> DeActiveCategoryByIdAsync([FromRoute] int id)
         {
-            await this._categoryRepository.DeActiveCategoryByIdAsync(id);
+            await this._categoryService.DeActiveCategoryByIdAsync(id);
             return Ok(new
             {
                 Message = "Deactive Category Successfully."
@@ -317,10 +318,10 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
         [HttpGet("{id}/products")]
-        /*[PermissionAuthorize("Brand Manager")]*/
+        [PermissionAuthorize("Brand Manager")]
         public async Task<IActionResult> GetProductsByCategoryIdAsync([FromRoute] int id, [FromQuery] string? keySearchName, [FromQuery] int? pageNumber, [FromQuery] int? pageSize)
         {
-            var data = await this._categoryRepository.GetProductsInCategory(id, keySearchName, pageNumber, pageSize);
+            var data = await this._categoryService.GetProductsInCategory(id, keySearchName, pageNumber, pageSize);
             return Ok(data);
         }
         #endregion
@@ -369,10 +370,10 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
         [HttpGet("{id}/extra-categories")]
-        /*[PermissionAuthorize("Brand Manager")]*/
+        [PermissionAuthorize("Brand Manager")]
         public async Task<IActionResult> GetExtraCategoriesByCategoryId([FromRoute] int id, [FromQuery] string? keySearchName, [FromQuery] int? pageNumber, [FromQuery] int? pageSize)
         {
-            var data = await this._categoryRepository.GetExtraCategoriesByCategoryId(id, keySearchName, pageNumber, pageSize);
+            var data = await this._categoryService.GetExtraCategoriesByCategoryId(id, keySearchName, pageNumber, pageSize);
             return Ok(data);
         }
         #endregion
@@ -413,10 +414,10 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
         [HttpPost("{id}/add-extra-category")]
-        /*[PermissionAuthorize("Brand Manager")]*/
+        [PermissionAuthorize("Brand Manager")]
         public async Task<IActionResult> AddExtraCategoriesToNormalCategory([FromRoute] int id, [FromBody] List<int> listExtraCategoryId)
         {
-            await this._categoryRepository.AddExtraCategoriesToNormalCategory(id, listExtraCategoryId);
+            await this._categoryService.AddExtraCategoriesToNormalCategory(id, listExtraCategoryId);
             return Ok(new { Message = "Add Extra Category To Normal Category Successfully." });
         }
         #endregion

@@ -5,7 +5,7 @@ using MBKC.BAL.DTOs.FireBase;
 using MBKC.BAL.DTOs.Verifications;
 using MBKC.BAL.Errors;
 using MBKC.BAL.Exceptions;
-using MBKC.BAL.Repositories.Interfaces;
+using MBKC.BAL.Services.Interfaces;
 using MBKC.BAL.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

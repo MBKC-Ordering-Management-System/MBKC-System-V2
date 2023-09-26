@@ -103,77 +103,16 @@ namespace MBKC.DAL.Infrastructures
             }
         }
 
-        public BrandRedisRepository BrandRedisRepository
-        {
-            get
-            {
-                if (this._brandRedisRepository == null)
-                {
-                    this._brandRedisRepository = new BrandRedisRepository(this._redisConnectionProvider);
-                }
-                return this._brandRedisRepository;
-            }
-        }
+        
 
-        public ProductRedisRepository ProductRedisRepository
-        {
-            get
-            {
-                if (this._productRedisRepository == null)
-                {
-                    this._productRedisRepository = new ProductRedisRepository(this._redisConnectionProvider);
-                }
-                return this._productRedisRepository;
-            }
-        }
+        
 
-        public BrandAccountRedisRepository BrandAccountRedisRepository
-        {
-            get
-            {
-                if (this._brandAccountRedisRepository == null)
-                {
-                    this._brandAccountRedisRepository = new BrandAccountRedisRepository(this._redisConnectionProvider);
-                }
-                return this._brandAccountRedisRepository;
-            }
-        }
-        public CategoryRedisRepository CategoryRedisRepository
-        {
-            get
-            {
-                if (this._categoryRedisRepository == null)
-                {
-                    this._categoryRedisRepository = new CategoryRedisRepository(this._redisConnectionProvider);
-                }
-                return this._categoryRedisRepository;
-            }
-        }
+        
+        
 
-        public ExtraCategoryRedisRepository ExtraCategoryRedisRepository
-        {
-            get
-            {
-                if (this._extraCategoryRedisRepository == null)
-                {
-                    this._extraCategoryRedisRepository = new ExtraCategoryRedisRepository(this._redisConnectionProvider);
-                }
-                return this._extraCategoryRedisRepository;
-            }
-        }
+        
 
-        public StoreRedisRepository StoreRedisRepository
-        {
-            get
-            {
-                if (this._storeRedisRepository == null)
-                {
-                    this._storeRedisRepository = new StoreRedisRepository(this._redisConnectionProvider);
-                }
-                return this._storeRedisRepository;
-            }
-        }
-
+        
         public BankingAccountRepository BankingAccountRepository
         {
             get

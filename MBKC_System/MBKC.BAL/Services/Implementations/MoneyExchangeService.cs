@@ -7,10 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-    {
-        private UnitOfWork _unitOfWork;
-        private IMapper _mapper;
-        public BrandAccountService(IUnitOfWork unitOfWork, IMapper mapper)
 
     public class MoneyExchangeService : IMoneyExchangeService
     {
@@ -23,4 +19,4 @@ using System.Threading.Tasks;
             this._mapper = mapper;
         }
     }
-}
+
