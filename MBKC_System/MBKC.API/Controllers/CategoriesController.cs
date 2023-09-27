@@ -184,7 +184,7 @@ namespace MBKC.API.Controllers
         [Produces("application/json")]
         [PermissionAuthorize("Brand Manager")]
         [HttpGet]
-        public async Task<IActionResult> GetCategoriesAsync(string type, [FromQuery] string? keySearchName, [FromQuery] int? pageNumber, [FromQuery] int? pageSize)
+        public async Task<IActionResult> GetCategoriesAsync([FromQuery]  string type, [FromQuery] string? keySearchName, [FromQuery] int? pageNumber, [FromQuery] int? pageSize)
         {
             var data = await this._categoryService.GetCategoriesAsync(type, keySearchName, pageNumber, pageSize);
 
