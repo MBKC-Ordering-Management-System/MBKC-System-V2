@@ -140,9 +140,7 @@ namespace MBKC.BAL.Services.Implementations
                 {
                     //Delete image from database
                     FileUtil.SetCredentials(fireBaseImage);
-                    Uri uri = new Uri(category.ImageUrl);
-                    imageId = HttpUtility.ParseQueryString(uri.Query).Get("imageUrl");
-                    await FileUtil.DeleteImageAsync(imageId, "Categories");
+                    await FileUtil.DeleteImageAsync(FileUtil.GetImageIdFromUrlImage(category.ImageUrl, "imageUrl"), "Categories");
 
                     // Upload image to firebase
                     FileStream fileStream = Utils.FileUtil.ConvertFormFileToStream(updateCategoryRequest.ImageUrl);
