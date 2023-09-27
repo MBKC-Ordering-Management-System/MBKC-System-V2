@@ -707,7 +707,7 @@ namespace MBKC.BAL.Services.Implementations
 
                 if (listExtraCategoryId.Any(item => item <= 0))
                 {
-                    throw new BadRequestException("Extra category id must be greater than 0");
+                    throw new BadRequestException("Extra category id must be greater than 0.");
                 }
                 var checkListExtraCategoryId = this._unitOfWork.CategoryRepository.CheckListExtraCategoryId(listExtraCategoryId);
                 if (!checkListExtraCategoryId)
@@ -765,6 +765,10 @@ namespace MBKC.BAL.Services.Implementations
                     fieldName = "Category Id";
                 }
                 if (ex.Message.Equals("There is an Extra Category Id in the List that does not exist in the system."))
+                {
+                    fieldName = "List Extra Category Id";
+                }
+                if (ex.Message.Equals("Extra category id must be greater than 0."))
                 {
                     fieldName = "List Extra Category Id";
                 }
