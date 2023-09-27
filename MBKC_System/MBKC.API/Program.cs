@@ -28,6 +28,7 @@ using System.Reflection;
 using System.Text;
 using MBKC.BAL.Validators.Categories;
 using MBKC.BAL.DTOs.Categories;
+using MBKC.BAL.Repositories.Implementations;
 
 var builder = WebApplication.CreateBuilder(args);
 

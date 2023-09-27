@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 using MBKC.BAL.Utils;
 using MBKC.BAL.Exceptions;
 using MBKC.BAL.Authorization;
+using MBKC.BAL.Services.Interfaces;
 
 namespace MBKC.API.Controllers
 {
@@ -70,7 +71,7 @@ namespace MBKC.API.Controllers
         [Consumes("multipart/form-data")]
         [Produces("application/json")]
         [HttpPost]
-        /*[PermissionAuthorize("Brand Manager")]*/
+        [PermissionAuthorize("Brand Manager")]
         public async Task<IActionResult> CreateCategoryAsync([FromForm] PostCategoryRequest postCategoryRequest)
         {
             ValidationResult validationResult = await this._postCategoryRequest.ValidateAsync(postCategoryRequest);
@@ -187,7 +188,7 @@ namespace MBKC.API.Controllers
         {
             var data = await this._categoryService.GetCategoriesAsync(type, keySearchName, pageNumber, pageSize);
 
-            return Ok(data);
+             return Ok(data);
         }
         #endregion
 
@@ -274,7 +275,7 @@ namespace MBKC.API.Controllers
         }
         #endregion
 
-        #region Get Products By category id
+        #region Get Products By Category Id
         /// <summary>
         /// Get products by category Id.
         /// </summary>
@@ -325,7 +326,7 @@ namespace MBKC.API.Controllers
         }
         #endregion
 
-        #region Get ExtraCategories By category id
+        #region Get ExtraCategories By Category Id
         /// <summary>
         /// Get extraCategories by category Id.
         ///  </summary>
@@ -377,14 +378,14 @@ namespace MBKC.API.Controllers
         }
         #endregion
 
-        #region Add extra category to normal category
+        #region Add Extra Category To Normal Category
         /// <summary>
         ///  Add extra category to normal category.
         /// </summary>
         /// <param name="id">
         ///  Id of normal category.
         /// </param>
-        /// <param name="extraCategoryId">
+        /// <param name="listExtraCategoryId">
         ///  List extra categories user want to add to normal category.
         /// </param>
         /// <returns>
@@ -414,7 +415,7 @@ namespace MBKC.API.Controllers
         [Produces("application/json")]
         [HttpPost("{id}/add-extra-category")]
         [PermissionAuthorize("Brand Manager")]
-        public async Task<IActionResult> AddExtraCategoriesToNormalCategory([FromRoute] int id, [FromBody] List<int> extraCategoryId)
+        public async Task<IActionResult> AddExtraCategoriesToNormalCategory([FromRoute] int id, [FromBody] List<int> listExtraCategoryId)
         {
             await this._categoryService.AddExtraCategoriesToNormalCategory(id, extraCategoryId);
             return Ok(new { Message = "Add Extra Category To Normal Category Successfully." });
