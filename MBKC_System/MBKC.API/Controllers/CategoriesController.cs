@@ -275,7 +275,7 @@ namespace MBKC.API.Controllers
         }
         #endregion
 
-        #region Get Products By category id
+        #region Get Products By Category Id
         /// <summary>
         /// Get products by category Id.
         /// </summary>
@@ -326,7 +326,7 @@ namespace MBKC.API.Controllers
         }
         #endregion
 
-        #region Get ExtraCategories By category id
+        #region Get ExtraCategories By Category Id
         /// <summary>
         /// Get extraCategories by category Id.
         ///  </summary>
@@ -378,7 +378,7 @@ namespace MBKC.API.Controllers
         }
         #endregion
 
-        #region Add extra category to normal category
+        #region Add Extra Category To Normal Category
         /// <summary>
         ///  Add extra category to normal category.
         /// </summary>

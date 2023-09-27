@@ -15,9 +15,7 @@ namespace MBKC.BAL.Profiles.Brands
         public BrandProfile()
         {
             CreateMap<Brand, GetBrandResponse>().ReverseMap();
-            CreateMap<BrandRedisModel, GetBrandResponse>().ReverseMap();
             CreateMap<Brand, UpdateBrandRequest>().ReverseMap();
-            CreateMap<Brand, BrandRedisModel>().ReverseMap();
         }
     }
 }

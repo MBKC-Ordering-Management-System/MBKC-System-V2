@@ -91,27 +91,6 @@ namespace MBKC.DAL.Infrastructures
                 return this._emailVerificationRedisRepository;
             }
         }
-        public BankingAccountRepository BankingAccountDAO
-        {
-            get
-            {
-                if (this._bankingAccountRepository == null)
-                {
-                    this._bankingAccountRepository = new BankingAccountRepository(this._dbContext);
-                }
-                return this._bankingAccountRepository;
-            }
-        }
-
-        
-
-        
-
-        
-        
-
-        
-
         
         public BankingAccountRepository BankingAccountRepository
         {

@@ -13,7 +13,7 @@ namespace MBKC.BAL.Profiles.BrandAccounts
     {
         public BrandAccountProfile()
         {
-            CreateMap<BrandAccount, BrandAccountRedisModel>().ReverseMap();
+            
         }
     }
 }

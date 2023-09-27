@@ -52,7 +52,7 @@ namespace MBKC.DAL.Repositories
         {
             try
             {
-                return await _dbContext.Categories.SingleOrDefaultAsync(c => c.Name.Equals(name));
+                return await _dbContext.Categories.SingleOrDefaultAsync(c => c.Name.Equals(name) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE));
             }
             catch (Exception ex)
             {
