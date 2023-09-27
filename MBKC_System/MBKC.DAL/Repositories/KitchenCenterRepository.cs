@@ -84,7 +84,7 @@ namespace MBKC.DAL.Repositories
             }
         }
         
-        public async Task<List<KitchenCenter>> GetKitchenCentersAsync(string? searchValue, string? searchValueWithoutUnicode, int numberItems, int itemsPerPage, int currentPage)
+        public async Task<List<KitchenCenter>> GetKitchenCentersAsync(string? searchValue, string? searchValueWithoutUnicode, int itemsPerPage, int currentPage)
         {
             try
             {

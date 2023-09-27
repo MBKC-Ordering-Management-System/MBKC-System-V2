@@ -89,7 +89,7 @@ namespace MBKC.DAL.Infrastructures
                 return this._emailVerificationRedisRepository;
             }
         }
-        public BankingAccountRepository BankingAccountDAO
+        public BankingAccountRepository BankingAccountRepository
         {
             get
             {

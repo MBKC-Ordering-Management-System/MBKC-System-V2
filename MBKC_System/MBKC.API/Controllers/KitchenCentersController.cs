@@ -111,7 +111,7 @@ namespace MBKC.API.Controllers
         /// <summary>
         /// Create new kitchen center.
         /// </summary>
-        /// <param name="kitchenCenter">An kitchen center object contains created information.</param>
+        /// <param name="kitchenCenter">A kitchen center object contains created information.</param>
         /// <returns>
         /// A success message about creating kitchen center information.
         /// </returns>
@@ -122,7 +122,7 @@ namespace MBKC.API.Controllers
         ///         {
         ///             "Name": "Kitchen Center Example"
         ///             "Address": "Đường expamle, Tỉnh example"
-        ///             "Logo": Imgage File
+        ///             "Logo": [Imgage File]
         ///             "ManagerEmail": "abc@example.com"
         ///         }
         /// </remarks>
@@ -205,7 +205,10 @@ namespace MBKC.API.Controllers
                 throw new BadRequestException(errors);
             }
             await this._kitchenCenterService.UpdateKitchenCenterAsync(id, kitchenCenter, this._emailOption.Value, this._firebaseImageOption.Value);
-            return NoContent();
+            return Ok(new
+            {
+                Message = "Updated Kitchen Center Information Successfully."
+            });
         }
         #endregion
 

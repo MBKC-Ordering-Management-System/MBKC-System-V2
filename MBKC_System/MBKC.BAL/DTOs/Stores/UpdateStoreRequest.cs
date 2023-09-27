@@ -5,14 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MBKC.BAL.DTOs.KitchenCenters
+namespace MBKC.BAL.DTOs.Stores
 {
-    public class UpdateKitchenCenterRequest
+    public class UpdateStoreRequest
     {
         public string Name { get; set; }
-        public string Address { get; set; }
-        public string Status { get; set; }
         public IFormFile? Logo { get; set; }
-        public string ManagerEmail { get; set; }
+        public string StoreManagerEmail { get; set; }
+        public string Status { get; set; }
     }
 }
