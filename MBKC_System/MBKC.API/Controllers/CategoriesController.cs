@@ -33,6 +33,7 @@ namespace MBKC.API.Controllers
             this._postCategoryRequest = postCategoryRequest;
             this._updateCategoryRequest = updateCategoryRequest;
         }
+
         #region Create Category
         /// <summary>
         /// Create new category with type are NORMAL or EXTRA.
@@ -47,15 +48,13 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///     
         ///         POST
-        ///         {
-        ///              "Code": "BM988"
-        ///              "Name": "Bánh"
-        ///              "Type": "Normal"
-        ///              "DisplayOrder": 1
-        ///              "Description": "Bánh của hệ thống"
-        ///              "ImgUrl": [Upload a Image file] 
-        ///              "Status": 1
-        ///         }
+        ///         
+        ///         Code = BM988
+        ///         Name = Bánh
+        ///         Type = Normal | Extra
+        ///         DisplayOrder = 1
+        ///         Description = Bánh của hệ thống
+        ///         ImgUrl = [Image file]
         /// </remarks>
         /// <response code="200">Created Category Successfylly.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
@@ -105,12 +104,12 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///     
         ///         PUT
-        ///         {
-        ///              "Name": "Thịt nguội"
-        ///              "DisplayOrder": 3
-        ///              "Description": "Thịt thêm vào bánh mỳ"
-        ///              "ImgUrl": [Upload a Image file] 
-        ///         }
+        ///         Code = C001
+        ///         Name = Thịt nguội
+        ///         DisplayOrder = 3
+        ///         Description = Thịt thêm vào bánh mỳ
+        ///         ImgUrl = [Image file]
+        ///         Status = Active | Inactive
         /// </remarks>
         /// <response code="200">Updated Category Successfully.</response>
         /// <response code="404">Some Error about request data not found.</response>
@@ -164,12 +163,10 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///     
         ///         GET
-        ///         {
-        ///             "type": "NORMAL"
-        ///             "keySearchName": "Bánh"
-        ///             "pageNumber": 5
-        ///             "pageSize": 1
-        ///         }
+        ///         type = NORMAL | EXTRA
+        ///         keySearchName = Bánh
+        ///         pageNumber = 5
+        ///         pageSize = 1
         ///         
         /// </remarks>
         /// <response code="200">Get categories Successfully.</response>
@@ -206,9 +203,7 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///     
         ///         GET
-        ///         {
-        ///           "id": 3
-        ///         }
+        ///         id = 3
         /// </remarks>
         /// <response code="200">Get category Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
@@ -231,26 +226,24 @@ namespace MBKC.API.Controllers
         }
         #endregion
 
-        #region Deactive Category By Id
+        #region Deleted Existed Category By Id
         /// <summary>
-        ///  Deactive category by id.
+        ///  Delete existed category by id.
         /// </summary>
         /// <param name="id">
         ///  Id of category.
         /// </param>
         /// <returns>
-        /// Message Deactive Category Successfully.
+        /// A sucess message about deleting existed category.
         /// </returns>
         /// <remarks>
         ///     Sample request:
         ///     
         ///         DELETE
-        ///         {
-        ///            "id": 3
-        ///         }
+        ///         id = 3
         ///         
         /// </remarks>
-        /// <response code="200">Deactive Category Successfully.</response>
+        /// <response code="200">Deleted existed category successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
         /// <response code="404">Some Error about request data not found.</response>
         /// <response code="500">Some Error about the system.</response>
@@ -262,10 +255,9 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-
         [HttpDelete("{id}")]
         [PermissionAuthorize("Brand Manager")]
-        public async Task<IActionResult> DeActiveCategoryByIdAsync([FromRoute] int id)
+        public async Task<IActionResult> DeleteCategoryByIdAsync([FromRoute] int id)
         {
             await this._categoryService.DeActiveCategoryByIdAsync(id);
             return Ok(new
@@ -275,7 +267,7 @@ namespace MBKC.API.Controllers
         }
         #endregion
 
-        #region Get Products By Category Id
+        /*#region Get Products By Category Id
         /// <summary>
         /// Get products by category Id.
         /// </summary>
@@ -298,12 +290,10 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///     
         ///         GET
-        ///         {
-        ///            "id": 1
-        ///            "KeySearchName": "Bánh Quy Bơ"
-        ///            "pageSize": 5
-        ///            "pageNumber": 1
-        ///         }
+        ///         id = 1
+        ///         keySearchName = Bánh Quy Bơ
+        ///         pageSize = 5
+        ///         pageNumber = 1
         /// </remarks>
         /// <response code="200">Get products Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
@@ -324,7 +314,7 @@ namespace MBKC.API.Controllers
             var data = await this._categoryService.GetProductsInCategory(id, keySearchName, pageNumber, pageSize);
             return Ok(data);
         }
-        #endregion
+        #endregion*/
 
         #region Get ExtraCategories By Category Id
         /// <summary>
@@ -349,12 +339,10 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///     
         ///         GET
-        ///         {
-        ///            "id": 1
-        ///            "keySearchName": Ngò gai
-        ///            "pageNumber": 5
-        ///            "pageSize": 1
-        ///         }
+        ///         id = 1
+        ///         keySearchName = Ngò gai
+        ///         pageNumber = 5
+        ///         pageSize = 1
         ///        
         /// </remarks>
         /// <response code="200">Get Extra categories Successfully.</response>
@@ -395,8 +383,9 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///     
         ///         POST
+        ///         id = 1
+        /// 
         ///         {
-        ///            "id": 1
         ///            [2,3,4,5]
         ///         }
         ///         
@@ -417,9 +406,12 @@ namespace MBKC.API.Controllers
         [PermissionAuthorize("Brand Manager")]
         public async Task<IActionResult> AddExtraCategoriesToNormalCategory([FromRoute] int id, [FromBody] List<int> listExtraCategoryId)
         {
-            await this._categoryService.AddExtraCategoriesToNormalCategory(id, extraCategoryId);
-            return Ok(new { Message = "Add Extra Category To Normal Category Successfully." });
+            await this._categoryService.AddExtraCategoriesToNormalCategory(id, listExtraCategoryId);
+            return Ok(new { Message = "Added Extra Category To Normal Category Successfully." });
         }
         #endregion
+
+        // thiếu api lấy danh sách extra category
+
     }
 }

@@ -175,8 +175,8 @@ builder.Services.AddScoped<IValidator<CreateKitchenCenterRequest>, CreateKitchen
 builder.Services.AddScoped<IValidator<UpdateKitchenCenterRequest>, UpdateKitchenCenterValidator>();
 builder.Services.AddScoped<IValidator<CreateStoreRequest>, CreateStoreRequestValidator>();
 builder.Services.AddScoped<IValidator<UpdateStoreRequest>, UpdateStoreRequestValidator>();
-builder.Services.AddScoped<IValidator<PostBrandRequest>, PostBrandValidation>();
-builder.Services.AddScoped<IValidator<UpdateBrandRequest>, UpdateBrandValidation>();
+builder.Services.AddScoped<IValidator<PostBrandRequest>, PostBrandValidator>();
+builder.Services.AddScoped<IValidator<UpdateBrandRequest>, UpdateBrandValidator>();
 builder.Services.AddScoped<IValidator<PostCategoryRequest>, PostCategoryValidator>();
 builder.Services.AddScoped<IValidator<UpdateCategoryRequest>, UpdateCategoryValidator>();
 

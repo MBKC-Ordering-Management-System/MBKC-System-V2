@@ -112,19 +112,6 @@ namespace MBKC.DAL.Infrastructures
                 return this._cashierRepository;
             }
         }
-       
-
-        public BankingAccountRepository BankingAccountRepository
-        {
-            get
-            {
-                if (this._bankingAccountRepository == null)
-                {
-                    this._bankingAccountRepository = new BankingAccountRepository(this._dbContext);
-                }
-                return this._bankingAccountRepository;
-            }
-        }
 
         public BrandRepository BrandRepository
         {

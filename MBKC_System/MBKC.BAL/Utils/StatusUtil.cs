@@ -50,5 +50,19 @@ namespace MBKC.BAL.Utils
             return char.ToUpper(StoreEnum.Status.DEACTIVE.ToString()[0]) + StoreEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
 
         }
+        
+        public static string ChangeCategoryStatus(int status)
+        {
+            if (status == (int)CategoryEnum.Status.INACTIVE)
+            {
+                return char.ToUpper(CategoryEnum.Status.INACTIVE.ToString()[0]) + CategoryEnum.Status.INACTIVE.ToString().ToLower().Substring(1);
+            }
+            else if (status == (int)CategoryEnum.Status.ACTIVE)
+            {
+                return char.ToUpper(StoreEnum.Status.ACTIVE.ToString()[0]) + CategoryEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
+            }
+            return char.ToUpper(CategoryEnum.Status.DEACTIVE.ToString()[0]) + CategoryEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
+
+        }
     }
 }

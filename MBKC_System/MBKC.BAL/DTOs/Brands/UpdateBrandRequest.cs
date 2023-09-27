@@ -13,5 +13,6 @@ namespace MBKC.BAL.DTOs.Brands
         public string Address { get; set; }
         public string Status { get; set; }
         public IFormFile? Logo { get; set; }
+        public string BrandManagerEmail { get; set; }
     }
 }

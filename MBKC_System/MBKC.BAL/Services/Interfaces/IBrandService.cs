@@ -13,7 +13,7 @@ namespace MBKC.BAL.Services.Interfaces
     public interface IBrandService
     {
         public Task CreateBrandAsync(PostBrandRequest postBrandRequest, FireBaseImage fireBaseImage, Email emailSystem);
-        public Task UpdateBrandAsync( int brandId, UpdateBrandRequest updateBrandRequest, FireBaseImage fireBaseImage);
+        public Task UpdateBrandAsync( int brandId, UpdateBrandRequest updateBrandRequest, FireBaseImage fireBaseImage, Email emailOption);
         public Task<GetBrandsResponse> GetBrandsAsync(string? keySearchName, string? keyStatusFilter, int? pageNumber, int? pageSize);
         public Task<GetBrandResponse> GetBrandByIdAsync(int id);
         public Task DeActiveBrandByIdAsync(int id);

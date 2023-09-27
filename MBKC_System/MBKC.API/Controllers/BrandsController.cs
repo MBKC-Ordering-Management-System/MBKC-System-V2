@@ -9,8 +9,6 @@ using MBKC.BAL.Errors;
 using MBKC.BAL.Exceptions;
 using MBKC.BAL.Services.Interfaces;
 using MBKC.BAL.Utils;
-using MBKC.BAL.Services.Interfaces;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -51,12 +49,10 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///     
         ///         POST
-        ///         {
-        ///             "Name": "MyBrand"
-        ///             "Address": "123 Main St"
-        ///             "ManagerEmail": "manager@gmail.com"
-        ///             Logo: [Upload a logo file] 
-        ///         }
+        ///         Name = MyBrand
+        ///         Address = 123 Main St
+        ///         ManagerEmail = manager@gmail.com
+        ///         Logo =  [Image file]
         /// </remarks>
         /// <response code="200">Created new brand successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
@@ -87,15 +83,15 @@ namespace MBKC.API.Controllers
         }
         #endregion
 
-        #region Update Brand
+        #region Update Existed Brand
         /// <summary>
-        ///  Update brand.
+        ///  Update an existed brand information.
         /// </summary>
         /// <param name="id">
         /// Brand's id for update brand.
         /// </param>
         ///  <param name="updateBrandRequest">
-        /// Object include information for update brand.
+        /// An Object include information for updating brand.
         ///  </param>
         /// <returns>
         /// An Object will return BrandId, Name, Address, Logo and Status.
@@ -104,15 +100,13 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///     
         ///         PUT
-        ///         {
-        ///             "id": 3
-        ///             "Name": "MyBrand"
-        ///             "Address": "123 Main St"
-        ///             "Status": INACTIVE
-        ///             "Logo": [Upload a logo file] 
-        ///         }
+        ///         id = 3
+        ///         Name = MyBrand
+        ///         Address = 123 Main St
+        ///         Status = INACTIVE | ACTIVE
+        ///         Logo = [Image File]
         /// </remarks>
-        /// <response code="200">Update Brand Successfully.</response>
+        /// <response code="200">Updated Existed Brand Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
         /// <response code="404">Some Error about request data not found.</response>
         /// <response code="500">Some Error about the system.</response>
@@ -135,7 +129,7 @@ namespace MBKC.API.Controllers
                 string error = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(error);
             }
-            await this._brandService.UpdateBrandAsync(id, updateBrandRequest, _firebaseImageOptions.Value);
+            await this._brandService.UpdateBrandAsync(id, updateBrandRequest, _firebaseImageOptions.Value, this._emailOption.Value);
             return Ok(new
             {
                 Message = "Update Brand Successfully."
@@ -166,12 +160,10 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///     
         ///         GET
-        ///         {    
-        ///             "keySearchName": "HighLand Coffee"
-        ///             "keyStatusFilter": "ACTIVE"
-        ///             "pageSize": 5
-        ///             "pageNumber": 1
-        ///         }
+        ///         keySearchName = HighLand Coffee
+        ///         keyStatusFilter = ACTIVE | INACTIVE | DEACTIVE
+        ///         pageSize = 5
+        ///         pageNumber = 1
         /// </remarks>
         /// <response code="200">Get brands Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
@@ -206,9 +198,7 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///     
         ///         GET
-        ///         {
-        ///             "id": 3
-        ///         }
+        ///         id = 3
         ///         
         /// </remarks>
         /// <response code="200">Get brand Successfully.</response>
@@ -231,15 +221,15 @@ namespace MBKC.API.Controllers
         }
         #endregion
 
-        #region Deactive Brand By Id
+        #region Delete existed Brand By Id
         /// <summary>
-        /// Deactive brand by id.
+        /// Delete existed brand by id.
         /// </summary>
         /// <param name="id">
         ///  Id of brand.
         /// </param>
         /// <returns>
-        /// An object will return message "Deactive brand successfully".
+        /// An object will return message "Deleted brand successfully".
         /// </returns>
         /// <remarks>
         ///     Sample request:
@@ -268,7 +258,7 @@ namespace MBKC.API.Controllers
             await this._brandService.DeActiveBrandByIdAsync(id);
             return Ok(new
             {
-                Message = "Deactive brand successfully."
+                Message = "Deleted brand successfully."
             });
         }
         #endregion

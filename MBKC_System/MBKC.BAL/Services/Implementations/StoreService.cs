@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using MBKC.BAL.DTOs.Brands;
 using MBKC.BAL.DTOs.FireBase;
 using MBKC.BAL.DTOs.KitchenCenters;
 using MBKC.BAL.DTOs.Stores;
@@ -206,11 +207,11 @@ namespace MBKC.BAL.Services.Implementations
                 logoLink += $"&logoId={logoId}";
 
                 Role storeManagerRole = await this._unitOfWork.RoleRepository.GetRoleAsync((int)RoleEnum.Role.STORE_MANAGER);
-
+                string password = RandomPasswordUtil.CreateRandomPassword();
                 Account managerAccount = new Account()
                 {
                     Email = createStoreRequest.StoreManagerEmail,
-                    Password = "12345678",
+                    Password = password,
                     Status = (int)AccountEnum.Status.ACTIVE,
                     Role = storeManagerRole,
                 };
@@ -240,6 +241,9 @@ namespace MBKC.BAL.Services.Implementations
 
                 await this._unitOfWork.StoreRepository.CreateStoreAsync(newStore);
                 await this._unitOfWork.CommitAsync();
+
+                string message = EmailUtil.MessageRegisterAccountForStore(emailOption.SystemName, createStoreRequest.StoreManagerEmail, password, createStoreRequest.Name);
+                await EmailUtil.SendEmailAndPasswordToEmail(emailOption, createStoreRequest.StoreManagerEmail, message);
             }
             catch (NotFoundException ex)
             {
@@ -278,6 +282,7 @@ namespace MBKC.BAL.Services.Implementations
             bool isDeleted = false;
             string folderName = "Stores";
             string logoId = "";
+            bool isNewManager = false;
             try
             {
                 Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandByIdAsync(brandId);
@@ -297,6 +302,7 @@ namespace MBKC.BAL.Services.Implementations
                     throw new NotFoundException($"[Brand-{brandId}] does not have [store-{storeId}] in the system.");
                 }
 
+                string password = "";
                 if (existedStore.StoreAccounts.FirstOrDefault(x => x.Account.Role.RoleId == (int)RoleEnum.Role.STORE_MANAGER)
                                                         .Account.Email.Equals(updateStoreRequest.StoreManagerEmail) == false)
                 {
@@ -314,11 +320,11 @@ namespace MBKC.BAL.Services.Implementations
                     this._unitOfWork.AccountRepository.UpdateAccount(oldStoreManagerAccount);
 
                     Role storeManagerRole = await this._unitOfWork.RoleRepository.GetRoleAsync((int)RoleEnum.Role.STORE_MANAGER);
-
+                    password = RandomPasswordUtil.CreateRandomPassword();
                     Account newStoreManagerAccount = new Account()
                     {
                         Email = updateStoreRequest.StoreManagerEmail,
-                        Password = "12345678",
+                        Password = password,
                         Role = storeManagerRole,
                         Status = (int)AccountEnum.Status.ACTIVE
                     };
@@ -330,6 +336,7 @@ namespace MBKC.BAL.Services.Implementations
                     };
 
                     existedStore.StoreAccounts.ToList().Add(newStoreAccount);
+                    isNewManager = true;
                 }
 
                 string oldLogo = existedStore.Logo;
@@ -363,6 +370,12 @@ namespace MBKC.BAL.Services.Implementations
 
                 this._unitOfWork.StoreRepository.UpdateStore(existedStore);
                 await this._unitOfWork.CommitAsync();
+
+                if (isNewManager)
+                {
+                    string message = EmailUtil.MessageRegisterAccountForStore(emailOption.SystemName, updateStoreRequest.StoreManagerEmail, password, updateStoreRequest.Name);
+                    await EmailUtil.SendEmailAndPasswordToEmail(emailOption, updateStoreRequest.StoreManagerEmail, message);
+                }
             }
             catch (NotFoundException ex)
             {
