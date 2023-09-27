@@ -1,4 +1,4 @@
-﻿using MBKC.BAL.Repositories.Interfaces;
+﻿using MBKC.BAL.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,10 +8,10 @@ namespace MBKC.API.Controllers
     [ApiController]
     public class BankingAccountsController : ControllerBase
     {
-        private IBankingAccountService _bankingAccountRepository;
-        public BankingAccountsController(IBankingAccountService bankingAccountRepository)
+        private IBankingAccountService _bankingAccountService;
+        public BankingAccountsController(IBankingAccountService bankingAccountService)
         {
-            _bankingAccountRepository = bankingAccountRepository;
+            this._bankingAccountService = bankingAccountService;
         }
     }
 }

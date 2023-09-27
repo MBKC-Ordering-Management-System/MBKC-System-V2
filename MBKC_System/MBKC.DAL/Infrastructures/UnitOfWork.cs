@@ -1,12 +1,12 @@
-﻿using MBKC.DAL.DBContext;
+﻿using MBKC.DAL.Repositories;
+using MBKC.DAL.DBContext;
+using MBKC.DAL.RedisRepositories;
 using Redis.OM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MBKC.DAL.RedisRepositories;
-using MBKC.DAL.Repositories;
 
 namespace MBKC.DAL.Infrastructures
 {
@@ -38,15 +38,8 @@ namespace MBKC.DAL.Infrastructures
         private CashierMoneyExchangeRepository _cashierMoneyExchangeRepository;
         private KitchenCenterMoneyExchangeRepository _kitchenCenterMoneyExchangeRepository;
         private RedisConnectionProvider _redisConnectionProvider;
-        private AccountRedisRepository _accountRedisRepository;
-        private AccountTokenRedisRepository _accountTokenRedisRepository;
-        private EmailVerificationRedisRepository _emailVerificationRedisRepository;
-        private BrandRedisRepository _brandRedisRepository;
-        private BrandAccountRedisRepository _brandAccountRedisRepository;
-        private ProductRedisRepository _productRedisRepository;
-        private CategoryRedisRepository _categoryRedisRepository;
-        private ExtraCategoryRedisRepository _extraCategoryRedisRepository;
-        private StoreRedisRepository _storeRedisRepository;
+        private AccountTokenRedisRepository  _accountTokenRedisRepository;
+        private EmailVerificationRedisRepository  _emailVerificationRedisRepository;
 
 
         public UnitOfWork(IDbFactory dbFactory)
@@ -61,8 +54,6 @@ namespace MBKC.DAL.Infrastructures
             }
         }
 
-
-
         public AccountRepository AccountRepository
         {
             get
@@ -75,23 +66,11 @@ namespace MBKC.DAL.Infrastructures
             }
         }
 
-        public AccountRedisRepository AccountRedisRepository
-        {
-            get
-            {
-                if (this._accountRedisRepository == null)
-                {
-                    this._accountRedisRepository = new AccountRedisRepository(this._redisConnectionProvider);
-                }
-                return this._accountRedisRepository;
-            }
-        }
-
         public AccountTokenRedisRepository AccountTokenRedisRepository
         {
             get
             {
-                if (this._accountTokenRedisRepository == null)
+                if(this._accountTokenRedisRepository == null)
                 {
                     this._accountTokenRedisRepository = new AccountTokenRedisRepository(this._redisConnectionProvider);
                 }
@@ -103,85 +82,13 @@ namespace MBKC.DAL.Infrastructures
         {
             get
             {
-                if (this._emailVerificationRedisRepository == null)
+                if(this._emailVerificationRedisRepository == null)
                 {
                     this._emailVerificationRedisRepository = new EmailVerificationRedisRepository(this._redisConnectionProvider);
                 }
                 return this._emailVerificationRedisRepository;
             }
         }
-
-        public BrandRedisRepository BrandRedisRepository
-        {
-            get
-            {
-                if (this._brandRedisRepository == null)
-                {
-                    this._brandRedisRepository = new BrandRedisRepository(this._redisConnectionProvider);
-                }
-                return this._brandRedisRepository;
-            }
-        }
-
-        public ProductRedisRepository ProductRedisRepository
-        {
-            get
-            {
-                if (this._productRedisRepository == null)
-                {
-                    this._productRedisRepository = new ProductRedisRepository(this._redisConnectionProvider);
-                }
-                return this._productRedisRepository;
-            }
-        }
-
-        public BrandAccountRedisRepository BrandAccountRedisRepository
-        {
-            get
-            {
-                if (this._brandAccountRedisRepository == null)
-                {
-                    this._brandAccountRedisRepository = new BrandAccountRedisRepository(this._redisConnectionProvider);
-                }
-                return this._brandAccountRedisRepository;
-            }
-        }
-        public CategoryRedisRepository CategoryRedisRepository
-        {
-            get
-            {
-                if (this._categoryRedisRepository == null)
-                {
-                    this._categoryRedisRepository = new CategoryRedisRepository(this._redisConnectionProvider);
-                }
-                return this._categoryRedisRepository;
-            }
-        }
-
-        public ExtraCategoryRedisRepository ExtraCategoryRedisRepository
-        {
-            get
-            {
-                if (this._extraCategoryRedisRepository == null)
-                {
-                    this._extraCategoryRedisRepository = new ExtraCategoryRedisRepository(this._redisConnectionProvider);
-                }
-                return this._extraCategoryRedisRepository;
-            }
-        }
-
-        public StoreRedisRepository StoreRedisRepository
-        {
-            get
-            {
-                if (this._storeRedisRepository == null)
-                {
-                    this._storeRedisRepository = new StoreRedisRepository(this._redisConnectionProvider);
-                }
-                return this._storeRedisRepository;
-            }
-        }
-
         public BankingAccountRepository BankingAccountRepository
         {
             get
@@ -191,6 +98,17 @@ namespace MBKC.DAL.Infrastructures
                     this._bankingAccountRepository = new BankingAccountRepository(this._dbContext);
                 }
                 return this._bankingAccountRepository;
+            }
+        }
+        public BankingAccountDAO BankingAccountDAO
+        {
+            get
+            {
+                if (this._bankingAccountDAO == null)
+                {
+                    this._bankingAccountDAO = new BankingAccountDAO(this._dbContext);
+                }
+                return this._bankingAccountDAO;
             }
         }
 

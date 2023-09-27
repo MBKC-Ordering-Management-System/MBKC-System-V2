@@ -4,7 +4,7 @@ using MBKC.BAL.DTOs.Accounts;
 using MBKC.BAL.DTOs.Verifications;
 using MBKC.BAL.Errors;
 using MBKC.BAL.Exceptions;
-using MBKC.BAL.Repositories.Interfaces;
+using MBKC.BAL.Services.Interfaces;
 using MBKC.BAL.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,14 +17,14 @@ namespace MBKC.API.Controllers
     [Consumes("application/json")]
     public class VerificationsController : ControllerBase
     {
-        private IVerificationService _verificationRepository;
+        private IVerificationService _verificationService;
         private IOptions<Email> _emailOption;
         private IValidator<EmailVerificationRequest> _emailVerificationValidator;
         private IValidator<OTPCodeVerificationRequest> _otpCodeVerificationValidator;
-        public VerificationsController(IVerificationService verificationRepository, IOptions<Email> emailOption,
+        public VerificationsController(IVerificationService verificationService, IOptions<Email> emailOption,
             IValidator<EmailVerificationRequest> emailVerificationValidator, IValidator<OTPCodeVerificationRequest> otpCodeVerificationValidator)
         {
-            this._verificationRepository = verificationRepository;
+            this._verificationService = verificationService;
             this._emailOption = emailOption;
             this._emailVerificationValidator = emailVerificationValidator;
             this._otpCodeVerificationValidator = otpCodeVerificationValidator;
@@ -44,7 +44,9 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///
         ///         POST 
-        ///         "email": "abc@gmail.com"
+        ///         {
+        ///             "email": "abc@gmail.com"
+        ///         }
         /// </remarks>
         /// <response code="200">Sent OTP Code to Email Successfully.</response>
         /// <response code="404">Some Error about request data that are not found.</response>
@@ -54,6 +56,7 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Consumes("application/json")]
         [Produces("application/json")]
         [HttpPost("email-verification")]
         public async Task<IActionResult> PostVerifyEmail([FromBody]EmailVerificationRequest emailVerificationRequest)
@@ -64,7 +67,7 @@ namespace MBKC.API.Controllers
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
-            await this._verificationRepository.VerifyEmailToResetPasswordAsync(this._emailOption.Value, emailVerificationRequest);
+            await this._verificationService.VerifyEmailToResetPasswordAsync(this._emailOption.Value, emailVerificationRequest);
             return Ok(new
             {
                 Message = "Sent Email Confirmation Successfully."
@@ -86,8 +89,10 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///
         ///         POST 
-        ///         "email": "abc@gmail.com",
-        ///         "otpCode": "000000"
+        ///         {
+        ///             "email": "abc@gmail.com",
+        ///             "otpCode": "000000"
+        ///         }
         /// </remarks>
         /// <response code="200">Sent OTP Code to Email Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
@@ -100,6 +105,7 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Consumes("application/json")]
         [Produces("application/json")]
         [HttpPost("otp-verification")]
         public async Task<IActionResult> PostConfirmOTPCode([FromBody]OTPCodeVerificationRequest otpCodeVerificationRequest)
@@ -110,7 +116,7 @@ namespace MBKC.API.Controllers
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
-            await this._verificationRepository.ConfirmOTPCodeToResetPasswordAsync(otpCodeVerificationRequest);
+            await this._verificationService.ConfirmOTPCodeToResetPasswordAsync(otpCodeVerificationRequest);
             return Ok(new
             {
                 Message = "Confirmed OTP Code Successfully."

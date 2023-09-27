@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MBKC.BAL.Utils
 {
-    public class StringUtil
+    public static class StringUtil
     {
 
         private static readonly string[] VietnameseSigns = new string[]
@@ -73,27 +73,17 @@ namespace MBKC.BAL.Utils
             return false;
         }
 
-        public static bool CheckCategoryStatusName(string statusName)
+        public static bool CheckStoreStatusName(string statusName)
         {
-            if (statusName.ToLower().Equals(CategoryEnum.Status.ACTIVE.ToString().ToLower()) ||
-                statusName.ToLower().Equals(CategoryEnum.Status.INACTIVE.ToString().ToLower()))
+            if (statusName.ToLower().Equals(StoreEnum.Status.ACTIVE.ToString().ToLower()) ||
+                statusName.ToLower().Equals(StoreEnum.Status.INACTIVE.ToString().ToLower()))
             {
                 return true;
             }
             return false;
         }
 
-        public static bool CheckCategoryType(string type)
-        {
-            if (type.ToLower().Equals(CategoryEnum.Type.NORMAL.ToString().ToLower()) ||
-                type.ToLower().Equals(CategoryEnum.Type.EXTRA.ToString().ToLower()))
-            {
-                return true;
-            }
-            return false;
-        }
-
-        public static bool IsUnicode(string input)
+        public static bool  IsUnicode(string input)
         {
             var asciiBytesCount = Encoding.ASCII.GetByteCount(input);
             var unicodBytesCount = Encoding.UTF8.GetByteCount(input);
@@ -113,5 +103,24 @@ namespace MBKC.BAL.Utils
             return stringBuilder.ToString();
         }
 
+        public static bool CheckCategoryStatusName(string statusName)
+        {
+            if (statusName.ToLower().Equals(CategoryEnum.Status.ACTIVE.ToString().ToLower()) ||
+                statusName.ToLower().Equals(CategoryEnum.Status.INACTIVE.ToString().ToLower()))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public static bool CheckCategoryType(string type)
+        {
+            if (type.ToLower().Equals(CategoryEnum.Type.NORMAL.ToString().ToLower()) ||
+                type.ToLower().Equals(CategoryEnum.Type.EXTRA.ToString().ToLower()))
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

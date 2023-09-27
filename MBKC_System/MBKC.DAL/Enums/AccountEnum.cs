@@ -10,8 +10,8 @@ namespace MBKC.DAL.Enums
     {
         public enum Status
         {
-            INACTIVE = 0, 
-            ACTIVE = 1, 
+            INACTIVE = 0,
+            ACTIVE = 1,
             DEACTIVE = 2
         }
     }

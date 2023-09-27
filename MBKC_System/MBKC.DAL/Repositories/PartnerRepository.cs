@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace MBKC.DAL.Repositories
 {
+
     public class PartnerRepository
     {
         private MBKCDbContext _dbContext;

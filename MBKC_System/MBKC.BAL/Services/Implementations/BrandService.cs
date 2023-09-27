@@ -3,10 +3,10 @@ using MBKC.BAL.DTOs.Brands;
 using MBKC.BAL.DTOs.FireBase;
 using MBKC.BAL.DTOs.Verifications;
 using MBKC.BAL.Exceptions;
-using MBKC.BAL.Repositories.Interfaces;
 using MBKC.BAL.Utils;
 using MBKC.DAL.DBContext;
 using MBKC.DAL.Enums;
+using MBKC.BAL.Services.Interfaces;
 using MBKC.DAL.Infrastructures;
 using MBKC.DAL.Models;
 using MBKC.DAL.RedisModels;
@@ -17,8 +17,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace MBKC.BAL.Repositories.Implementations
+namespace MBKC.BAL.Services.Implementations
 {
+
     public class BrandService : IBrandService
     {
         private UnitOfWork _unitOfWork;

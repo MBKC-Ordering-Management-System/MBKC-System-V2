@@ -4,9 +4,9 @@ using MBKC.BAL.DTOs.FireBase;
 using MBKC.BAL.DTOs.Products;
 using MBKC.BAL.DTOs.SplitIdCategories;
 using MBKC.BAL.Exceptions;
-using MBKC.BAL.Repositories.Interfaces;
 using MBKC.BAL.Utils;
 using MBKC.DAL.Enums;
+using MBKC.BAL.Services.Interfaces;
 using MBKC.DAL.Infrastructures;
 using MBKC.DAL.Models;
 using System;
@@ -16,13 +16,21 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace MBKC.BAL.Repositories.Implementations
+namespace MBKC.BAL.Services.Implementations
 {
+<<<<<<<< HEAD:MBKC_System/MBKC.BAL/Services/Implementations/CashierService.cs
+    public class CashierService : ICashierService
+    {
+        private UnitOfWork _unitOfWork;
+        private IMapper _mapper;
+        public CashierService(IUnitOfWork unitOfWork, IMapper mapper)
+========
     public class CategoryService : ICategoryService
     {
         private UnitOfWork _unitOfWork;
         private IMapper _mapper;
         public CategoryService(IUnitOfWork unitOfWork, IMapper mapper)
+>>>>>>>> main:MBKC_System/MBKC.BAL/Services/Implementations/CategoryService.cs
         {
             this._unitOfWork = (UnitOfWork)unitOfWork;
             this._mapper = mapper;

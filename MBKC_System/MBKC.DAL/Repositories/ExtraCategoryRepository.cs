@@ -12,7 +12,7 @@ namespace MBKC.DAL.Repositories
 {
     public class ExtraCategoryRepository
     {
-        public MBKCDbContext _dbContext;
+        private MBKCDbContext _dbContext;
         public ExtraCategoryRepository(MBKCDbContext dbContext)
         {
             this._dbContext = dbContext;
