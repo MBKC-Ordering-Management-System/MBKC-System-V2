@@ -18,7 +18,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace MBKC.BAL.Repositories.Implementations
+namespace MBKC.BAL.Services.Implementations
 {
 
    
@@ -57,12 +57,12 @@ namespace MBKC.BAL.Repositories.Implementations
                     uploaded = true;
                 }
                 // Create account
-                string unEncryptedPassword = RandomNumberUtil.GenerateEightDigitNumber().ToString();
+                string unEncryptedPassword = RandomPasswordUtil.CreateRandomPassword();
                 var account = new Account
                 {
                     Email = postBrandRequest.ManagerEmail,
                     Password = StringUtil.EncryptData(unEncryptedPassword),
-                    Status = (int)(AccountEnum.Status.ACTIVE),
+                    Status = (int)AccountEnum.Status.ACTIVE,
                     Role = brandManagerRole
                 };
                 await _unitOfWork.AccountRepository.CreateAccountAsync(account);
@@ -87,7 +87,7 @@ namespace MBKC.BAL.Repositories.Implementations
                 await _unitOfWork.CommitAsync();
 
                 //Send password to email of Brand Manager
-                await EmailUtil.SendEmailAndPasswordToEmail(emailSystem, account.Email, EmailUtil.MessageRegisterAccount(emailSystem.SystemName, account.Email, unEncryptedPassword, brand.Name), "Brand Manager");
+                await EmailUtil.SendEmailAndPasswordToEmail(emailSystem, account.Email, EmailUtil.MessageRegisterAccountForBrand(emailSystem.SystemName, account.Email, unEncryptedPassword, brand.Name));
             }
             catch (BadRequestException ex)
             {
@@ -120,10 +120,12 @@ namespace MBKC.BAL.Repositories.Implementations
         #endregion
 
         #region Update Brand
-        public async Task UpdateBrandAsync(int brandId, UpdateBrandRequest updateBrandRequest, FireBaseImage fireBaseImage)
+        public async Task UpdateBrandAsync(int brandId, UpdateBrandRequest updateBrandRequest, FireBaseImage fireBaseImage, Email emailOption)
         {
             string logoId = "";
-            bool uploaded = false;
+            bool isUploaded = false;
+            bool isDeleted = false;
+            bool isNewManager = false;
             try
             {
                 if (brandId <= 0)
@@ -131,19 +133,45 @@ namespace MBKC.BAL.Repositories.Implementations
                     throw new BadRequestException("Brand Id is not suitable for the system.");
                 }
                 var brand = await _unitOfWork.BrandRepository.GetBrandByIdAsync(brandId);
-                var brands = await _unitOfWork.BrandRepository.GetBrandsAsync();
                 if (brand == null)
                 {
                     throw new NotFoundException("Brand Id does not exist in the system");
                 }
 
+                string password = "";
+                if(brand.BrandAccounts.FirstOrDefault(x => x.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER 
+                                                        && x.Account.Status == (int)AccountEnum.Status.ACTIVE).Account.Email.Equals(updateBrandRequest.BrandManagerEmail) == false)
+                {
+                    Account existedAccount = await this._unitOfWork.AccountRepository.GetAccountAsync(updateBrandRequest.BrandManagerEmail);
+                    if(existedAccount != null)
+                    {
+                        throw new BadRequestException("Brand Manager Email already existed in the system.");
+                    }
+                    brand.BrandAccounts.FirstOrDefault(x => x.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER
+                                                        && x.Account.Status == (int)AccountEnum.Status.ACTIVE).Account.Status = (int)AccountEnum.Status.DEACTIVE;
+
+                    Role brandManagerRole = await this._unitOfWork.RoleRepository.GetRoleById((int)RoleEnum.Role.BRAND_MANAGER);
+                    password = RandomPasswordUtil.CreateRandomPassword();
+                    Account newBrandManagerAccount = new Account()
+                    {
+                        Email = updateBrandRequest.BrandManagerEmail,
+                        Password = password,
+                        Role = brandManagerRole,
+                        Status = (int)AccountEnum.Status.ACTIVE
+                    };
+
+                    BrandAccount newBrandAccount = new BrandAccount()
+                    {
+                        Account = newBrandManagerAccount,
+                        Brand = brand
+                    };
+
+                    brand.BrandAccounts.ToList().Add(newBrandAccount);
+                    isNewManager = true;
+                }
 
                 if (updateBrandRequest.Logo != null)
                 {
-                    //Delete image from database
-                    FileUtil.SetCredentials(fireBaseImage);
-                    await FileUtil.DeleteImageAsync(FileUtil.GetImageIdFromUrlImage(brand.Logo, "logoId"),"Brands");
-
                     // Upload image to firebase
                     FileStream fileStream = Utils.FileUtil.ConvertFormFileToStream(updateBrandRequest.Logo);
                     Guid guild = Guid.NewGuid();
@@ -151,9 +179,14 @@ namespace MBKC.BAL.Repositories.Implementations
                     var urlImage = await Utils.FileUtil.UploadImageAsync(fileStream, "Brands", logoId);
                     if (urlImage != null)
                     {
-                        uploaded = true;
+                        isUploaded = true;
                     }
                     brand.Logo = urlImage + $"&logoId={logoId}";
+
+                    //Delete image from database
+                    FileUtil.SetCredentials(fireBaseImage);
+                    await FileUtil.DeleteImageAsync(FileUtil.GetImageIdFromUrlImage(brand.Logo, "logoId"), "Brands");
+                    isDeleted = true;
                 }
 
                 brand.Address = updateBrandRequest.Address;
@@ -169,7 +202,13 @@ namespace MBKC.BAL.Repositories.Implementations
                 }
 
                 _unitOfWork.BrandRepository.UpdateBrand(brand);
-                _unitOfWork.Commit();
+                await _unitOfWork.CommitAsync();
+
+                if (isNewManager)
+                {
+                    string message = EmailUtil.MessageRegisterAccountForBrand(emailOption.SystemName, updateBrandRequest.BrandManagerEmail, password, updateBrandRequest.Name);
+                    await EmailUtil.SendEmailAndPasswordToEmail(emailOption, updateBrandRequest.BrandManagerEmail, message);
+                }
             }
             catch (BadRequestException ex)
             {
@@ -201,7 +240,7 @@ namespace MBKC.BAL.Repositories.Implementations
             }
             catch (Exception ex)
             {
-                if (uploaded)
+                if (isUploaded && isDeleted == false)
                 {
                     await FileUtil.DeleteImageAsync(logoId, "Brands");
                 }
@@ -276,33 +315,11 @@ namespace MBKC.BAL.Repositories.Implementations
 
                 this._mapper.Map(brands, brandResponse);
 
-                foreach (var brand in brandResponse)
+                int totalPages = (int)((numberItems + pageSize) / pageSize);
+                if(numberItems == 0)
                 {
-                    if (brand.Status.Equals(((int)BrandEnum.Status.ACTIVE).ToString()))
-                    {
-                        brand.Status = BrandEnum.Status.ACTIVE.ToString().ToUpper()[0] + BrandEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
-                    }
-                    else if (brand.Status.Equals(((int)BrandEnum.Status.INACTIVE).ToString()))
-                    {
-                        brand.Status = BrandEnum.Status.INACTIVE.ToString().ToUpper()[0] + BrandEnum.Status.INACTIVE.ToString().ToLower().Substring(1);
-                    }
-                    else if (brand.Status.Equals(((int)BrandEnum.Status.DEACTIVE).ToString()))
-                    {
-                        brand.Status = BrandEnum.Status.DEACTIVE.ToString().ToUpper()[0] + BrandEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
-                    }
+                    totalPages = 0;
                 }
-
-                if (brandResponse == null || brandResponse.Count == 0)
-                {
-                    return new GetBrandsResponse()
-                    {
-                        Brands = brandResponse,
-                        TotalItems = 0,
-                        TotalPages = 0,
-                    };
-                }
-
-                int totalPages = (int)((numberItems + pageSize) / pageSize); ;
                 return new GetBrandsResponse()
                 {
                     Brands = brandResponse,
@@ -353,18 +370,6 @@ namespace MBKC.BAL.Repositories.Implementations
                 }
 
                 var brandResponse = this._mapper.Map<GetBrandResponse>(brand);
-                if (brandResponse.Status.Equals(((int)BrandEnum.Status.ACTIVE).ToString()))
-                {
-                    brandResponse.Status = BrandEnum.Status.ACTIVE.ToString().ToUpper()[0] + BrandEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
-                }
-                else if (brandResponse.Status.Equals(((int)BrandEnum.Status.INACTIVE).ToString()))
-                {
-                    brandResponse.Status = BrandEnum.Status.INACTIVE.ToString().ToUpper()[0] + BrandEnum.Status.INACTIVE.ToString().ToLower().Substring(1);
-                }
-                else if (brandResponse.Status.Equals(((int)BrandEnum.Status.DEACTIVE).ToString()))
-                {
-                    brandResponse.Status = BrandEnum.Status.DEACTIVE.ToString().ToUpper()[0] + BrandEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
-                }
 
                 return brandResponse;
             }

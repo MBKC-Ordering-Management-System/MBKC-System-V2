@@ -1,4 +1,5 @@
 ﻿using MBKC.DAL.DBContext;
+using MBKC.DAL.Enums;
 using MBKC.DAL.Models;
 using MBKC.DAL.Utils;
 using Microsoft.EntityFrameworkCore;
@@ -74,10 +75,10 @@ namespace MBKC.DAL.Repositories
             {
                 if (keySearchNameUniCode == null && keySearchNameNotUniCode != null && keyStatusFilter == null)
                 {
-                    return this._dbContext.Brands.AsQueryable()
-                                                 .Include(brand => brand.BrandAccounts)
+                    return this._dbContext.Brands.Include(brand => brand.BrandAccounts)
                                                  .ThenInclude(brandAccount => brandAccount.Account)
                                                  .ThenInclude(account => account.Role)
+                                                 .AsQueryable()
                                                  .Where(delegate (Brand brand)
                     {
                         if (StringUtil.RemoveSign4VietnameseString(brand.Name.ToLower()).Contains(keySearchNameNotUniCode.ToLower()))
@@ -92,10 +93,10 @@ namespace MBKC.DAL.Repositories
                 }
                 else if (keySearchNameUniCode == null && keySearchNameNotUniCode != null && keyStatusFilter != null)
                 {
-                    return this._dbContext.Brands.AsQueryable()
-                                                 .Include(brand => brand.BrandAccounts)
+                    return this._dbContext.Brands.Include(brand => brand.BrandAccounts)
                                                  .ThenInclude(brandAccount => brandAccount.Account)
                                                  .ThenInclude(account => account.Role)
+                                                 .AsQueryable()
                                                  .Where(delegate (Brand brand)
                     {
                         if (StringUtil.RemoveSign4VietnameseString(brand.Name.ToLower()).Contains(keySearchNameNotUniCode.ToLower()))
@@ -110,8 +111,7 @@ namespace MBKC.DAL.Repositories
                 }
                 else if (keySearchNameUniCode != null && keySearchNameNotUniCode == null && keyStatusFilter == null)
                 {
-                    return await this._dbContext.Brands
-                                                       .Include(brand => brand.BrandAccounts)
+                    return await this._dbContext.Brands.Include(brand => brand.BrandAccounts)
                                                        .ThenInclude(brandAccount => brandAccount.Account)
                                                        .ThenInclude(account => account.Role)
                                                        .Where(x => x.Name.ToLower().Contains(keySearchNameUniCode.ToLower()))
@@ -119,8 +119,7 @@ namespace MBKC.DAL.Repositories
                 }
                 else if (keySearchNameUniCode != null && keySearchNameNotUniCode == null && keyStatusFilter != null)
                 {
-                    return await this._dbContext.Brands
-                                                       .Include(brand => brand.BrandAccounts)
+                    return await this._dbContext.Brands.Include(brand => brand.BrandAccounts)
                                                        .ThenInclude(brandAccount => brandAccount.Account)
                                                        .ThenInclude(account => account.Role)
                                                        .Where(x => x.Name.ToLower().Contains(keySearchNameUniCode.ToLower()) && x.Status == keyStatusFilter)
@@ -129,19 +128,16 @@ namespace MBKC.DAL.Repositories
 
                 else if (keySearchNameUniCode == null && keySearchNameNotUniCode == null && keyStatusFilter != null)
                 {
-                    return await this._dbContext.Brands
-                                                       .Include(brand => brand.BrandAccounts)
+                    return await this._dbContext.Brands.Include(brand => brand.BrandAccounts)
                                                        .ThenInclude(brandAccount => brandAccount.Account)
                                                        .ThenInclude(account => account.Role)
                                                        .Where(x => x.Status == keyStatusFilter)
                                                        .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
                 }
 
-                return await this._dbContext.Brands
-                                                       .Include(brand => brand.BrandAccounts)
-                                                       .ThenInclude(brandAccount => brandAccount.Account)
-                                                       .ThenInclude(account => account.Role)
-                                                       .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
+                return await this._dbContext.Brands.Include(brand => brand.BrandAccounts).ThenInclude(brandAccount => brandAccount.Account).ThenInclude(account => account.Role)
+                                                   .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
+                                                       
             }
             catch (Exception ex)
             {
@@ -207,7 +203,14 @@ namespace MBKC.DAL.Repositories
 
         public async Task<List<Brand>> GetBrandsAsync()
         {
-            return await this._dbContext.Brands.ToListAsync();
+            try
+            {
+                return await this._dbContext.Brands.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }

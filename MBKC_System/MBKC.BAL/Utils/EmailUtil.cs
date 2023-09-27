@@ -49,7 +49,7 @@ namespace MBKC.BAL.Utils
             return emailBody;
         }
 
-        public static string MessageRegisterAccount(string systemName, string receiverEmail, string password, string brandName)
+        public static string MessageRegisterAccountForBrand(string systemName, string receiverEmail, string password, string brandName)
         {
             string emailBody = "";
             string htmlTableDivStart = "<table style=\"border-collapse: collapse; width: 50%; margin: 20px auto; border: 1px solid #ddd;\">";
@@ -102,6 +102,112 @@ namespace MBKC.BAL.Utils
             return emailBody;
         }
 
+        public static string MessageRegisterAccountForKitchenCenter(string systemName, string receiverEmail, string password, string kitchenCenterName)
+        {
+            string emailBody = "";
+            string htmlTableDivStart = "<table style=\"border-collapse: collapse; width: 50%; margin: 20px auto; border: 1px solid #ddd;\">";
+            string htmlTableDivEnd = "</div>";
+
+            string htmlTable = String.Format(@"
+                                        <table>
+                                      <tr>
+                                         <th>Email</th>
+                                         <td>{0}</td>
+                                      </tr>
+                                    <tr>
+                                      <th>Password</th>
+                                      <td>{1}</td>
+                                    </tr>
+                                       </table>
+                                  ", receiverEmail, password);
+
+            string htmlParentDivStart = "<div style=\"font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2\">";
+            string htmlParentDivEnd = "</div>";
+            string htmlMainDivStart = "<div style=\"margin:50px auto;width:70%;padding:20px 0\">";
+            string htmlMainDivEnd = "</div>";
+            string htmlSystemNameDivStart = "<div style=\"border-bottom:1px solid #eee\">";
+            string htmlSystemNameDivEnd = "</div";
+            string htmlSystemNameSpanStart = "<span style=\"font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600\">";
+            string htmlSystemNameSpanEnd = "</span>";
+            string htmlHeaderBodyStart = "<p style=\"font-size:1.1em\">";
+            string htmlHeaderBodyEnd = "</p>";
+            string htmlBodyStart = "<p>";
+            string htmlBodyEnd = "</p>";
+            string htmlFooterBodyStart = "<p style=\"font-size:0.9em;\">";
+            string htmlBreakLine = "<br />";
+            string htmlFooterBodyEnd = "</p>";
+
+            emailBody += htmlParentDivStart;
+            emailBody += htmlMainDivStart;
+
+            emailBody += htmlSystemNameDivStart + htmlSystemNameSpanStart
+                        + systemName + htmlSystemNameSpanEnd + htmlSystemNameDivEnd
+                        + htmlBreakLine;
+
+            emailBody += htmlHeaderBodyStart + $"Hi {receiverEmail}," + htmlHeaderBodyEnd;
+            emailBody += htmlBodyStart + $"You have been assigned as Kitchen Center Manager for the kitchen center \"{kitchenCenterName}\". " +
+                                         $"Here is email and password to access to the system" + htmlBodyEnd;
+            emailBody += htmlTableDivStart + htmlTable + htmlTableDivEnd;
+            emailBody += htmlFooterBodyStart + "Regards," + htmlBreakLine + systemName + htmlFooterBodyEnd;
+            emailBody += htmlMainDivEnd;
+            emailBody += htmlParentDivEnd;
+
+            return emailBody;
+        }
+
+        public static string MessageRegisterAccountForStore(string systemName, string receiverEmail, string password, string storeName)
+        {
+            string emailBody = "";
+            string htmlTableDivStart = "<table style=\"border-collapse: collapse; width: 50%; margin: 20px auto; border: 1px solid #ddd;\">";
+            string htmlTableDivEnd = "</div>";
+
+            string htmlTable = String.Format(@"
+                                        <table>
+                                      <tr>
+                                         <th>Email</th>
+                                         <td>{0}</td>
+                                      </tr>
+                                    <tr>
+                                      <th>Password</th>
+                                      <td>{1}</td>
+                                    </tr>
+                                       </table>
+                                  ", receiverEmail, password);
+
+            string htmlParentDivStart = "<div style=\"font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2\">";
+            string htmlParentDivEnd = "</div>";
+            string htmlMainDivStart = "<div style=\"margin:50px auto;width:70%;padding:20px 0\">";
+            string htmlMainDivEnd = "</div>";
+            string htmlSystemNameDivStart = "<div style=\"border-bottom:1px solid #eee\">";
+            string htmlSystemNameDivEnd = "</div";
+            string htmlSystemNameSpanStart = "<span style=\"font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600\">";
+            string htmlSystemNameSpanEnd = "</span>";
+            string htmlHeaderBodyStart = "<p style=\"font-size:1.1em\">";
+            string htmlHeaderBodyEnd = "</p>";
+            string htmlBodyStart = "<p>";
+            string htmlBodyEnd = "</p>";
+            string htmlFooterBodyStart = "<p style=\"font-size:0.9em;\">";
+            string htmlBreakLine = "<br />";
+            string htmlFooterBodyEnd = "</p>";
+
+            emailBody += htmlParentDivStart;
+            emailBody += htmlMainDivStart;
+
+            emailBody += htmlSystemNameDivStart + htmlSystemNameSpanStart
+                        + systemName + htmlSystemNameSpanEnd + htmlSystemNameDivEnd
+                        + htmlBreakLine;
+
+            emailBody += htmlHeaderBodyStart + $"Hi {receiverEmail}," + htmlHeaderBodyEnd;
+            emailBody += htmlBodyStart + $"You have been assigned as Store Manager for the store \"{storeName}\". " +
+                                         $"Here is email and password to access to the system" + htmlBodyEnd;
+            emailBody += htmlTableDivStart + htmlTable + htmlTableDivEnd;
+            emailBody += htmlFooterBodyStart + "Regards," + htmlBreakLine + systemName + htmlFooterBodyEnd;
+            emailBody += htmlMainDivEnd;
+            emailBody += htmlParentDivEnd;
+
+            return emailBody;
+        }
+
         public static EmailVerification SendEmailToResetPassword(Email email, EmailVerificationRequest receiverEmail)
         {
             try
@@ -136,12 +242,12 @@ namespace MBKC.BAL.Utils
             }
         }
 
-        public static async Task SendEmailAndPasswordToEmail(Email email, string reciever, string message, string roleName)
+        public static async Task SendEmailAndPasswordToEmail(Email email, string reciever, string message)
         {
             try
             {
 
-                string subject = $"Tài khoản và mật khẩu cho {roleName} ";
+                string subject = $"Email and Password in MBKC System";
                 SmtpClient smtpClient = new SmtpClient(email.Host, email.Port);
                 smtpClient.Credentials = new NetworkCredential(email.Sender, email.Password);
                 smtpClient.EnableSsl = true;

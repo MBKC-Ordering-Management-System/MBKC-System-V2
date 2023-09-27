@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace MBKC.BAL.Services.Implementations
 {
+
     public class MoneyExchangeService : IMoneyExchangeService
     {
         private UnitOfWork _unitOfWork;
@@ -20,3 +21,4 @@ namespace MBKC.BAL.Services.Implementations
         }
     }
 }
+

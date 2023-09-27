@@ -15,5 +15,11 @@ namespace MBKC.DAL.Repositories
         {
             this._dbContext = dbContext;
         }
+
+   
+        
+
+        
+           
     }
 }

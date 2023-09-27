@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using MBKC.BAL.DTOs.Products;
+using MBKC.DAL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +13,7 @@ namespace MBKC.BAL.Profiles.Products
     {
         public ProductProfile()
         {
-
+            CreateMap<Product, GetProductResponse>().ReverseMap();
         }
     }
 }

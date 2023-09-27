@@ -8,7 +8,7 @@ namespace MBKC.BAL.DTOs.KitchenCenters
 {
     public class GetKitchenCentersResponse
     {
-        public int TotalPage { get; set; }
+        public int TotalPages { get; set; }
         public int NumberItems { get; set; }
         public IEnumerable<GetKitchenCenterResponse> KitchenCenters { get; set; }
     }

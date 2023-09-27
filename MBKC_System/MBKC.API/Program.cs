@@ -7,6 +7,7 @@ using MBKC.BAL.DTOs.Brands;
 using MBKC.BAL.DTOs.FireBase;
 using MBKC.BAL.DTOs.JWTs;
 using MBKC.BAL.DTOs.KitchenCenters;
+using MBKC.BAL.DTOs.Stores;
 using MBKC.BAL.DTOs.Verifications;
 using MBKC.BAL.Errors;
 using MBKC.BAL.Services.Implementations;
@@ -15,6 +16,7 @@ using MBKC.BAL.Utils;
 using MBKC.BAL.Validators.Accounts;
 using MBKC.BAL.Validators.Authentications;
 using MBKC.BAL.Validators.KitchenCenters;
+using MBKC.BAL.Validators.Stores;
 using MBKC.BAL.Validators.Verifications;
 using MBKC.BAL.Validators;
 using MBKC.DAL.Infrastructures;
@@ -24,7 +26,8 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using System.Reflection;
 using System.Text;
-using MBKC.BAL.Repositories.Implementations;
+using MBKC.BAL.Validators.Categories;
+using MBKC.BAL.DTOs.Categories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -168,10 +171,14 @@ builder.Services.AddScoped<IValidator<AccountTokenRequest>, AccountTokenRequestV
 builder.Services.AddScoped<IValidator<EmailVerificationRequest>, EmailVerificationRequestValidator>();
 builder.Services.AddScoped<IValidator<OTPCodeVerificationRequest>, OTPCodeVerifycationRequestValidator>();
 builder.Services.AddScoped<IValidator<ResetPasswordRequest>, ResetPasswordRequestValidator>();
-builder.Services.AddScoped<IValidator<PostBrandRequest>, PostBrandValidation>();
-builder.Services.AddScoped<IValidator<UpdateBrandRequest>, UpdateBrandValidation>();
 builder.Services.AddScoped<IValidator<CreateKitchenCenterRequest>, CreateKitchenCenterValidator>();
 builder.Services.AddScoped<IValidator<UpdateKitchenCenterRequest>, UpdateKitchenCenterValidator>();
+builder.Services.AddScoped<IValidator<CreateStoreRequest>, CreateStoreRequestValidator>();
+builder.Services.AddScoped<IValidator<UpdateStoreRequest>, UpdateStoreRequestValidator>();
+builder.Services.AddScoped<IValidator<PostBrandRequest>, PostBrandValidator>();
+builder.Services.AddScoped<IValidator<UpdateBrandRequest>, UpdateBrandValidator>();
+builder.Services.AddScoped<IValidator<PostCategoryRequest>, PostCategoryValidator>();
+builder.Services.AddScoped<IValidator<UpdateCategoryRequest>, UpdateCategoryValidator>();
 
 //Middlewares
 builder.Services.AddTransient<ExceptionMiddleware>();
@@ -180,8 +187,8 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
-    app.UseSwagger();
-    app.UseSwaggerUI();
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseCors("WebPolicy");
 
