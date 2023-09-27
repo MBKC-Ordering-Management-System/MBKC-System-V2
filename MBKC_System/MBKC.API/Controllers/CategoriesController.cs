@@ -4,7 +4,7 @@ using MBKC.BAL.DTOs.Products;
 using MBKC.BAL.Errors;
 using FluentValidation;
 using FluentValidation.Results;
-
+using MBKC.BAL.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -417,7 +417,7 @@ namespace MBKC.API.Controllers
         [PermissionAuthorize("Brand Manager")]
         public async Task<IActionResult> AddExtraCategoriesToNormalCategory([FromRoute] int id, [FromBody] List<int> listExtraCategoryId)
         {
-            await this._categoryService.AddExtraCategoriesToNormalCategory(id, listExtraCategoryId);
+            await this._categoryService.AddExtraCategoriesToNormalCategory(id, extraCategoryId);
             return Ok(new { Message = "Add Extra Category To Normal Category Successfully." });
         }
         #endregion

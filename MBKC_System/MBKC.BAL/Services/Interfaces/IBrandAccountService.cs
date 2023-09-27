@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace MBKC.BAL.Services.Interfaces
 {
-
-
     public interface IBrandAccountService
-    { 
+    {
+
     }
 }

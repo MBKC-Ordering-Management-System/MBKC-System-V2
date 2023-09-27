@@ -1,7 +1,9 @@
-﻿using MBKC.BAL.Utils;
+﻿using MBKC.BAL.Errors;
+using MBKC.BAL.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -26,14 +28,27 @@ namespace MBKC.BAL.Authorization
                 var expiredDate = DateUtil.ConvertUnixTimeToDateTime(expiredClaim);
                 if (expiredDate <= DateTime.UtcNow)
                 {
-                    context.Result = new ObjectResult("Unauthorized") { StatusCode = 401, Value = "You are not allowed to access this API!" };
+                    context.Result = new ObjectResult("Unauthorized")
+                    {
+                        StatusCode = 401,
+                        Value = new
+                        {
+                            Message = JsonConvert.DeserializeObject<List<ErrorDetail>>(ErrorUtil.GetErrorString("Unauthorized", "You are not allowed to access this API."))
+                        }
+                    };
                 }
                 else
                 {
                     var roleClaim = context.HttpContext.User.Claims.FirstOrDefault(x => x.Type.ToLower() == "role");
                     if (this._roles.FirstOrDefault(x => x.ToLower().Equals(roleClaim.Value.ToLower())) == null)
                     {
-                        context.Result = new ObjectResult("Forbidden") { StatusCode = 403, Value = "You are not allowed to access this function!" };
+                        context.Result = new ObjectResult("Forbidden") 
+                        { StatusCode = 403, 
+                            Value = new 
+                            { 
+                                Message = JsonConvert.DeserializeObject<List<ErrorDetail>>(ErrorUtil.GetErrorString("Forbidden", "You are not allowed to access this function!")) 
+                            } 
+                        };
                     }
                     else
                     {
@@ -43,7 +58,14 @@ namespace MBKC.BAL.Authorization
             }
             else
             {
-                context.Result = new ObjectResult("Unauthorized") { StatusCode = 401, Value = "You are not allowed to access this API!" };
+                context.Result = new ObjectResult("Unauthorized")
+                {
+                    StatusCode = 401,
+                    Value = new
+                    {
+                        Message = JsonConvert.DeserializeObject<List<ErrorDetail>>(ErrorUtil.GetErrorString("Unauthorized", "You are not allowed to access this API."))
+                    }
+                };
             }
         }
     }

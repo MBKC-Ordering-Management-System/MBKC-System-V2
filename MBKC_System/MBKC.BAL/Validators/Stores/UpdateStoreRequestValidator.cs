@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using MBKC.BAL.DTOs.KitchenCenters;
+using MBKC.BAL.DTOs.Stores;
 using MBKC.BAL.Utils;
 using System;
 using System.Collections.Generic;
@@ -7,40 +7,40 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MBKC.BAL.Validators.KitchenCenters
+namespace MBKC.BAL.Validators.Stores
 {
-    public class CreateKitchenCenterValidator: AbstractValidator<CreateKitchenCenterRequest>
+    public class UpdateStoreRequestValidator : AbstractValidator<UpdateStoreRequest>
     {
         private const int MAX_BYTES = 5242880;
-        public CreateKitchenCenterValidator()
+        public UpdateStoreRequestValidator()
         {
-            RuleFor(ckcr => ckcr.Name)
+            RuleFor(usr => usr.Name)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotNull().WithMessage("{PropertyName} is not null.")
                 .NotEmpty().WithMessage("{PropertyName} is not empty.")
                 .MaximumLength(100).WithMessage("{PropertyName} is required less then or equal to 100 characters.");
 
-            RuleFor(ckcr => ckcr.Address)
+            RuleFor(usr => usr.Status)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotNull().WithMessage("{PropertyName} is not null.")
                 .NotEmpty().WithMessage("{PropertyName} is not empty.")
-                .MaximumLength(255).WithMessage("{PropertyName} is required less then or equal to 255 characters.");
+                .Must(StringUtil.CheckStoreStatusName).WithMessage("{PropertyName} is required 'Active' or 'InActive' Status.");
 
-            RuleFor(ckcr => ckcr.Logo)
+            RuleFor(usr => usr.Logo)
                 .Cascade(CascadeMode.StopOnFirstFailure)
-                .NotNull().WithMessage("{PropertyName} is not null.")
-                .ChildRules(ckcr =>
+                .Custom((logo, context) =>
                 {
-                    ckcr.RuleFor(ckcr => ckcr.Length)
-                        .Cascade(CascadeMode.StopOnFirstFailure)
-                        .ExclusiveBetween(0, MAX_BYTES).WithMessage($"Logo is required file length greater than 0 and less than {MAX_BYTES / 1024 / 1024} MB.");
-
-                    ckcr.RuleFor(ckcr => ckcr.FileName)
-                        .Cascade(CascadeMode.StopOnFirstFailure)
-                        .Must(FileUtil.HaveSupportedFileType).WithMessage("{PropertyName} is required extension type .png, .jpg, .jpeg, .webp.");
+                    if (logo != null && logo.Length < 0 || logo != null && logo.Length > MAX_BYTES)
+                    {
+                        context.AddFailure($"Logo is required file length greater than 0 and less than {MAX_BYTES / 1024 / 1024} MB.");
+                    }
+                    if (logo != null && FileUtil.HaveSupportedFileType(logo.FileName) == false)
+                    {
+                        context.AddFailure("Logo is required extension type .png, .jpg, .jpeg, .webp.");
+                    }
                 });
 
-            RuleFor(ckcr => ckcr.ManagerEmail)
+            RuleFor(usr => usr.StoreManagerEmail)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotNull().WithMessage("{PropertyName} is not null.")
                 .NotEmpty().WithMessage("{PropertyName} is not empty.")

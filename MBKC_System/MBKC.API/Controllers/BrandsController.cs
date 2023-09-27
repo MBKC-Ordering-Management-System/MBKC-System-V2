@@ -5,8 +5,9 @@ using MBKC.BAL.DTOs.FireBase;
 using MBKC.BAL.DTOs.Verifications;
 using MBKC.BAL.Errors;
 using MBKC.BAL.Exceptions;
-using MBKC.BAL.Services.Interfaces;
+using MBKC.BAL.Repositories.Interfaces;
 using MBKC.BAL.Utils;
+using MBKC.BAL.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -17,18 +18,18 @@ namespace MBKC.API.Controllers
     [ApiController]
     public class BrandsController : ControllerBase
     {
-        private IBrandService _brandRepository;
+        private IBrandService _brandService;
         private IOptions<FireBaseImage> _firebaseImageOptions;
         private IValidator<PostBrandRequest> _postBrandRequest;
         private IValidator<UpdateBrandRequest> _updateBrandRequest;
         private IOptions<Email> _emailOption;
-        public BrandsController(IBrandService brandRepository,
+        public BrandsController(IBrandService brandService,
             IOptions<FireBaseImage> firebaseImageOptions,
             IValidator<PostBrandRequest> postBrandRequest,
             IOptions<Email> emailOption,
             IValidator<UpdateBrandRequest> updateBrandRequest)
         {
-            this._brandRepository = brandRepository;
+            this._brandService = brandService;
             this._firebaseImageOptions = firebaseImageOptions;
             this._postBrandRequest = postBrandRequest;
             this._updateBrandRequest = updateBrandRequest;
@@ -74,7 +75,7 @@ namespace MBKC.API.Controllers
                 string error = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(error);
             }
-            var data = await this._brandRepository.CreateBrandAsync(postBrandRequest, _firebaseImageOptions.Value, _emailOption.Value);
+            var data = await this._brandService.CreateBrandAsync(postBrandRequest, _firebaseImageOptions.Value, _emailOption.Value);
             return Ok(new
             {
                 Data = data
@@ -121,7 +122,7 @@ namespace MBKC.API.Controllers
                 string error = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(error);
             }
-            var data = await this._brandRepository.UpdateBrandAsync(id, updateBrandRequest, _firebaseImageOptions.Value);
+            var data = await this._brandService.UpdateBrandAsync(id, updateBrandRequest, _firebaseImageOptions.Value);
             return Ok(new
             {
                 Data = data
@@ -158,7 +159,7 @@ namespace MBKC.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetBrandsAsync([FromQuery] SearchBrandRequest? searchBrandRequest, [FromQuery] int? PAGE_NUMBER, [FromQuery] int? PAGE_SIZE)
         {
-            var data = await this._brandRepository.GetBrandsAsync(searchBrandRequest, PAGE_NUMBER, PAGE_SIZE);
+            var data = await this._brandService.GetBrandsAsync(searchBrandRequest, PAGE_NUMBER, PAGE_SIZE);
 
             return Ok(new
             {
@@ -196,7 +197,7 @@ namespace MBKC.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBrandByIdAsync([FromRoute] int id)
         {
-            var data = await this._brandRepository.GetBrandByIdAsync(id);
+            var data = await this._brandService.GetBrandByIdAsync(id);
             return Ok(data);
         }
         #endregion
@@ -227,7 +228,7 @@ namespace MBKC.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeActiveBrandByIdAsync([FromRoute] int id)
         {
-            await this._brandRepository.DeActiveBrandByIdAsync(id);
+            await this._brandService.DeActiveBrandByIdAsync(id);
             return Ok(new
             {
                 Message = "Deactive brand successfully"

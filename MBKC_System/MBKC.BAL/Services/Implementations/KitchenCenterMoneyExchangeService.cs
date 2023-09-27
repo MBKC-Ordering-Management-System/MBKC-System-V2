@@ -10,8 +10,6 @@ using System.Threading.Tasks;
 
 namespace MBKC.BAL.Services.Implementations
 {
-
-
     public class KitchenCenterMoneyExchangeService : IKitchenCenterMoneyExchangeService
     {
         private UnitOfWork _unitOfWork;
@@ -21,5 +19,7 @@ namespace MBKC.BAL.Services.Implementations
             this._unitOfWork = (UnitOfWork)unitOfWork;
             this._mapper = mapper;
         }
+
+        
     }
 }

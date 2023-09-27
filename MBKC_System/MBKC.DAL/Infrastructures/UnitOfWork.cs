@@ -7,8 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MBKC.DAL.RedisRepositories;
-using MBKC.DAL.Repositories;
 
 namespace MBKC.DAL.Infrastructures
 {
@@ -91,7 +89,6 @@ namespace MBKC.DAL.Infrastructures
                 return this._emailVerificationRedisRepository;
             }
         }
-        
         public BankingAccountRepository BankingAccountRepository
         {
             get

@@ -15,10 +15,9 @@ namespace MBKC.DAL.Models
         public string Name { get; set; }
         public int Status { get; set; }
         public string Logo { get; set; }
-        [ForeignKey("KitchenCenterId")]
-        public int KitchenCenterId { get; set; }
         [ForeignKey("BrandId")]
         public virtual Brand Brand { get; set; }
+        [ForeignKey("KitchenCenterId")]
         public virtual KitchenCenter KitchenCenter { get; set; }
         [ForeignKey("WalletId")]
         public virtual Wallet Wallet { get; set; }

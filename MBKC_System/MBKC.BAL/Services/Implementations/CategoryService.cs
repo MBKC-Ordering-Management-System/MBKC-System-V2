@@ -4,9 +4,9 @@ using MBKC.BAL.DTOs.FireBase;
 using MBKC.BAL.DTOs.Products;
 using MBKC.BAL.DTOs.SplitIdCategories;
 using MBKC.BAL.Exceptions;
-using MBKC.BAL.Services.Interfaces;
 using MBKC.BAL.Utils;
 using MBKC.DAL.Enums;
+using MBKC.BAL.Services.Interfaces;
 using MBKC.DAL.Infrastructures;
 using MBKC.DAL.Models;
 using System;
@@ -18,7 +18,6 @@ using System.Web;
 
 namespace MBKC.BAL.Services.Implementations
 {
-
     public class CategoryService : ICategoryService
     {
         private UnitOfWork _unitOfWork;
@@ -727,7 +726,7 @@ namespace MBKC.BAL.Services.Implementations
                         ExtraCategoryId = id,
                         Status = (int)CategoryEnum.Status.ACTIVE
                     }));
-                    _unitOfWork.ExtraCategoryRepository._dbContext.AddRange(extraCategoriesToInsert);
+                   await this._unitOfWork.ExtraCategoryRepository.InsertRange(extraCategoriesToInsert);
                 }
 
                 if (splittedExtraCategoriesIds.idsToRemove.Count > 0)
@@ -746,7 +745,7 @@ namespace MBKC.BAL.Services.Implementations
                             }
                         }
                     }
-                    _unitOfWork.ExtraCategoryRepository._dbContext.RemoveRange(listExtraCategoriesToDelete);
+                    _unitOfWork.ExtraCategoryRepository.DeleteRange(listExtraCategoriesToDelete);
                 }
                 this._unitOfWork.Commit();
             }

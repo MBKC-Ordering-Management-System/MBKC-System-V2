@@ -20,8 +20,6 @@ namespace MBKC.BAL.Services.Implementations
             this._mapper = mapper;
         }
 
+        
     }
-
-
-
 }

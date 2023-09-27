@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace MBKC.DAL.Repositories
 {
-
     public class OrderRepository
     {
         private MBKCDbContext _dbContext;
