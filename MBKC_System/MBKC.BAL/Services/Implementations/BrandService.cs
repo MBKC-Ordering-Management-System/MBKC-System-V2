@@ -452,7 +452,7 @@ namespace MBKC.BAL.Services.Implementations
                     }
                 }
 
-                // Change status brand's store to NOT_RENT
+                // Change status brand's store to INACTIVE
                 if (brand.Stores.Any())
                 {
                     foreach (var store in brand.Stores)

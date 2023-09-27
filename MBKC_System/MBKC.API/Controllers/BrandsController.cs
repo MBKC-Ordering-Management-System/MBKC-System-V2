@@ -49,10 +49,13 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///     
         ///         POST
-        ///         Name = MyBrand
-        ///         Address = 123 Main St
-        ///         ManagerEmail = manager@gmail.com
-        ///         Logo =  [Image file]
+        ///         {
+        ///           "Name" = "MyBrand"
+        ///           "Address" = "123 Main St"
+        ///           "ManagerEmail" = "manager@gmail.com"
+        ///           "Logo" =  [Image file]
+        ///         }
+        ///        
         /// </remarks>
         /// <response code="200">Created new brand successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
@@ -98,13 +101,16 @@ namespace MBKC.API.Controllers
         /// </returns>
         /// <remarks>
         ///     Sample request:
-        ///     
+        ///         
         ///         PUT
         ///         id = 3
-        ///         Name = MyBrand
-        ///         Address = 123 Main St
-        ///         Status = INACTIVE | ACTIVE
-        ///         Logo = [Image File]
+        ///         {
+        ///            "Name" = "MyBrand"
+        ///            "Address" = "123 Main St"
+        ///            "Status" = "INACTIVE | ACTIVE"
+        ///            "Logo" = [Image File]
+        ///            "BrandManagerEmail": "abc@example.com"
+        ///         }
         /// </remarks>
         /// <response code="200">Updated Existed Brand Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
@@ -234,10 +240,8 @@ namespace MBKC.API.Controllers
         /// <remarks>
         ///     Sample request:
         ///     
-        ///         DELETE
-        ///         {
-        ///             "id": 3
-        ///         }
+        ///             DELETE
+        ///             id: 3
         /// </remarks>
         /// <response code="200">Deactive brand successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
