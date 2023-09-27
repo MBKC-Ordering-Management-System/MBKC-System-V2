@@ -209,5 +209,6 @@ namespace MBKC.DAL.Repositories
         {
             return await this._dbContext.Brands.ToListAsync();
         }
+        #endregion
     }
 }

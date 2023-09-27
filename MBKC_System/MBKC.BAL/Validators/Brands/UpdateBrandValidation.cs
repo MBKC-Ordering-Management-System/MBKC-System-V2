@@ -16,18 +16,30 @@ namespace MBKC.BAL.Validators
         {
             #region Name
             RuleFor(b => b.Name)
+<<<<<<<< HEAD:MBKC_System/MBKC.BAL/Validators/BrandValidation/UpdateBrandValidation.cs
                      .Cascade(CascadeMode.StopOnFirstFailure)
                      .NotNull().WithMessage("{PropertyName} is null.")
                      .NotEmpty().WithMessage("{PropertyName} is empty.")
                      .MaximumLength(120).WithMessage("{PropertyName} is required less than or equal to 120 characters.");
+========
+                     .NotEmpty().WithMessage("{PropertyName} is not empty.")
+                     .NotNull().WithMessage("{PropertyName} is not null.")
+                     .Length(3, 120).WithMessage("{PropertyName} from {MinLength} to {MaxLength} characters.");
+>>>>>>>> bachlx-feature-CRUD-category:MBKC_System/MBKC.BAL/Validators/Brands/UpdateBrandValidation.cs
             #endregion
 
             #region Address
             RuleFor(b => b.Address)
+<<<<<<<< HEAD:MBKC_System/MBKC.BAL/Validators/BrandValidation/UpdateBrandValidation.cs
                      .Cascade(CascadeMode.StopOnFirstFailure)
                      .NotNull().WithMessage("{PropertyName} is null.")
                      .NotEmpty().WithMessage("{PropertyName} is empty.")
                      .MaximumLength(255).WithMessage("{PropertyName} is required less than or equal to 255 characters.");
+========
+                     .NotEmpty().WithMessage("{PropertyName} is not empty.")
+                     .NotNull().WithMessage("{PropertyName} is not null.")
+                     .Length(3, 255).WithMessage("{PropertyName} from {MinLength} to {MaxLength} characters.");
+>>>>>>>> bachlx-feature-CRUD-category:MBKC_System/MBKC.BAL/Validators/Brands/UpdateBrandValidation.cs
             #endregion
 
             #region Logo
@@ -46,6 +58,8 @@ namespace MBKC.BAL.Validators
                      .NotEmpty().WithMessage("{PropertyName} is not empty.")
                      .Must(StringUtil.CheckBrandStatusName).WithMessage("{PropertyName} is required INACTIVE or ACTIVE");
             #endregion
+
+
         }
     }
 }

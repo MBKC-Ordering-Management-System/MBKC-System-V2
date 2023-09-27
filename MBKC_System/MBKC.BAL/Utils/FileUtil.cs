@@ -74,7 +74,7 @@ namespace MBKC.BAL.Utils
                 string link = await task;
                 return link;
             }
-            catch (FirebaseAuthException)
+            catch (FirebaseAuthException ex)
             {
                 throw new BadRequestException("Upload image to firebase failed.");
             }

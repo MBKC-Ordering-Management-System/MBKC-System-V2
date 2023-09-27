@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using MBKC.BAL.DTOs.Categories;
 using MBKC.DAL.Models;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ namespace MBKC.BAL.Profiles.Categories
     {
         public CategoryProfile()
         {
+            CreateMap<Category, GetCategoryResponse>().ReverseMap();
         }
     }
 }

@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MBKC.BAL.Services.Interfaces
+namespace MBKC.BAL.DTOs.Categories
 {
-    public interface IBrandAccountService
+    public class AddExtraCategoryToNormalCategory
     {
-
+        public int ExtraCategoryId { get; set; }
     }
 }

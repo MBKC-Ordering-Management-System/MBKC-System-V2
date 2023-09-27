@@ -17,18 +17,30 @@ namespace MBKC.BAL.Validators
         {
             #region Name
             RuleFor(b => b.Name)
+<<<<<<<< HEAD:MBKC_System/MBKC.BAL/Validators/BrandValidation/PostBrandValidation.cs
                      .Cascade(CascadeMode.StopOnFirstFailure)
                      .NotNull().WithMessage("{PropertyName} is null.")
                      .NotEmpty().WithMessage("{PropertyName} is empty.")
                      .MaximumLength(120).WithMessage("{PropertyName} is required less than or equal to 120 characters.");
+========
+                     .NotEmpty().WithMessage("{PropertyName} is not empty.")
+                     .NotNull().WithMessage("{PropertyName} is not null.")
+                     .Length(3, 120).WithMessage("{PropertyName} from {MinLength} to {MaxLength} characters.");
+>>>>>>>> bachlx-feature-CRUD-category:MBKC_System/MBKC.BAL/Validators/Brands/PostBrandValidation.cs
             #endregion
 
             #region Address
             RuleFor(b => b.Address)
+<<<<<<<< HEAD:MBKC_System/MBKC.BAL/Validators/BrandValidation/PostBrandValidation.cs
                      .Cascade(CascadeMode.StopOnFirstFailure)
                      .NotNull().WithMessage("{PropertyName} is null.")
                      .NotEmpty().WithMessage("{PropertyName} is empty.")
                      .MaximumLength(255).WithMessage("{PropertyName} is required less than or equal to 255 characters.");
+========
+                     .NotEmpty().WithMessage("{PropertyName} is not empty.")
+                     .NotNull().WithMessage("{PropertyName} is not null.")
+                     .Length(3, 255).WithMessage("{PropertyName} from {MinLength} to {MaxLength} characters.");
+>>>>>>>> bachlx-feature-CRUD-category:MBKC_System/MBKC.BAL/Validators/Brands/PostBrandValidation.cs
             #endregion
 
             #region Logo
@@ -43,12 +55,20 @@ namespace MBKC.BAL.Validators
 
             #region ManagerEmail
             RuleFor(b => b.ManagerEmail)
+<<<<<<<< HEAD:MBKC_System/MBKC.BAL/Validators/BrandValidation/PostBrandValidation.cs
                      .Cascade(CascadeMode.StopOnFirstFailure)
                      .NotEmpty().WithMessage("{PropertyName} is empty.")
                      .NotNull().WithMessage("{PropertyName} is null.")
                      .MaximumLength(100).WithMessage("{PropertyName} is required less than or equal to 100 characters.")
                      .EmailAddress().WithMessage("{PropertyName} must be email format.");
 
+========
+                     .NotEmpty().WithMessage("{PropertyName} is not empty.")
+                     .NotNull().WithMessage("{PropertyName} is not null.")
+                     .Length(5, 100).WithMessage("{PropertyName} from {MinLength} to {MaxLength} characters.")
+                     .Must(email => !string.IsNullOrEmpty(email) && Regex.IsMatch(email, @"@gmail\.com$"))
+                     .WithMessage("{PropertyName} must be format @gmail.com");
+>>>>>>>> bachlx-feature-CRUD-category:MBKC_System/MBKC.BAL/Validators/Brands/PostBrandValidation.cs
             #endregion
         }
     }

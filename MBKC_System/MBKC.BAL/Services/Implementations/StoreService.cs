@@ -119,7 +119,7 @@ namespace MBKC.BAL.Services.Implementations
                     {
                         throw new BadRequestException("Brand id is not suiltable id in the system.");
                     }
-                    exsitedBrand = await this._unitOfWork.BrandRepository.GetBrandAsync(brandId.Value);
+                    exsitedBrand = await this._unitOfWork.BrandRepository.GetBrandByIdAsync(brandId.Value);
                     if (exsitedBrand == null)
                     {
                         throw new NotFoundException("Brand does not exist in the system.");
@@ -182,7 +182,7 @@ namespace MBKC.BAL.Services.Implementations
                     throw new NotFoundException("Kitchen center id does not exist in the system.");
                 }
 
-                Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandAsync(createStoreRequest.BrandId);
+                Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandByIdAsync(createStoreRequest.BrandId);
                 if (existedBrand == null)
                 {
                     throw new NotFoundException("Brand id does not exist in the system.");
@@ -280,7 +280,7 @@ namespace MBKC.BAL.Services.Implementations
             string logoId = "";
             try
             {
-                Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandAsync(brandId);
+                Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandByIdAsync(brandId);
                 if (existedBrand == null)
                 {
                     throw new NotFoundException("Brand id does not exist in the system.");
@@ -400,7 +400,7 @@ namespace MBKC.BAL.Services.Implementations
         {
             try
             {
-                Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandAsync(brandId);
+                Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandByIdAsync(brandId);
                 if (existedBrand == null)
                 {
                     throw new NotFoundException("Brand id does not exist in the system.");

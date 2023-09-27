@@ -102,15 +102,24 @@ namespace MBKC.BAL.Utils
             return stringBuilder.ToString();
         }
 
-        public static bool CheckBrandStatusName(string statusName)
+        public static bool CheckCategoryStatusName(string statusName)
         {
-            if (statusName.ToLower().Equals(BrandEnum.Status.ACTIVE.ToString().ToLower()) ||
-                statusName.ToLower().Equals(BrandEnum.Status.INACTIVE.ToString().ToLower()))
+            if (statusName.ToLower().Equals(CategoryEnum.Status.ACTIVE.ToString().ToLower()) ||
+                statusName.ToLower().Equals(CategoryEnum.Status.INACTIVE.ToString().ToLower()))
             {
                 return true;
             }
             return false;
         }
 
+        public static bool CheckCategoryType(string type)
+        {
+            if (type.ToLower().Equals(CategoryEnum.Type.NORMAL.ToString().ToLower()) ||
+                type.ToLower().Equals(CategoryEnum.Type.EXTRA.ToString().ToLower()))
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

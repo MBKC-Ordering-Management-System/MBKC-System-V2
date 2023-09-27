@@ -8,5 +8,6 @@ namespace MBKC.BAL.Services.Interfaces
 {
     public interface ICashierMoneyExchangeService
     {
+
     }
 }
