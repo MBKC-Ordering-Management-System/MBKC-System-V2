@@ -74,8 +74,10 @@ namespace MBKC.DAL.Repositories
                 if(searchValue == null && searchValueWithoutUnicode != null && brandId == null)
                 {
                     return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                 .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                  .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                 .Where(x => x.Brand.BrandAccounts.Any(x => x.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER))
+                                                 .Where(x => x.Brand.BrandAccounts.Any(x => x.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER)
+                                                        && x.StoreAccounts.Any(x => x.Account.Role.RoleId == (int)RoleEnum.Role.STORE_MANAGER))
                                                  .Where(delegate (Store store) {
                                                         if (StringUtil.RemoveSign4VietnameseString(store.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
                                                         {
@@ -88,9 +90,11 @@ namespace MBKC.DAL.Repositories
                 } else if(searchValue != null && searchValueWithoutUnicode == null && brandId == null)
                 {
                     return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
-                                             .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                             .Where(x => x.Brand.BrandAccounts.Any(x => x.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER)
-                                                    && x.Name.ToLower().Contains(searchValue))
+                                                       .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                       .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                       .Where(x => x.Brand.BrandAccounts.Any(x => x.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER)
+                                                                && x.StoreAccounts.Any(x => x.Account.Role.RoleId == (int)RoleEnum.Role.STORE_MANAGER)
+                                                                && x.Name.ToLower().Contains(searchValue))
                                              .Take(itemsPerPage).Skip(itemsPerPage * (currentPage - 1)).ToListAsync();
                 } else if (searchValue == null && searchValueWithoutUnicode != null && brandId != null)
                 {
@@ -111,22 +115,28 @@ namespace MBKC.DAL.Repositories
                 } else if (searchValue != null && searchValueWithoutUnicode == null && brandId != null)
                 {
                     return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
-                                             .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                             .Where(x => x.Brand.BrandAccounts.Any(x => x.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER)
-                                                    && x.Name.ToLower().Contains(searchValue) && x.Brand.BrandId == brandId)
-                                             .Take(itemsPerPage).Skip(itemsPerPage * (currentPage - 1)).ToListAsync();
+                                                       .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                       .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                       .Where(x => x.Brand.BrandAccounts.Any(x => x.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER)
+                                                                && x.StoreAccounts.Any(x => x.Account.Role.RoleId == (int)RoleEnum.Role.STORE_MANAGER)
+                                                                && x.Name.ToLower().Contains(searchValue) && x.Brand.BrandId == brandId)
+                                                        .Take(itemsPerPage).Skip(itemsPerPage * (currentPage - 1)).ToListAsync();
                 } else if(searchValue == null && searchValueWithoutUnicode == null && brandId != null)
                 {
                     return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
-                                             .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                             .Where(x => x.Brand.BrandAccounts.Any(x => x.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER)
-                                                    && x.Brand.BrandId == brandId)
-                                             .Take(itemsPerPage).Skip(itemsPerPage * (currentPage - 1)).ToListAsync();
+                                                       .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                       .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                       .Where(x => x.Brand.BrandAccounts.Any(x => x.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER)
+                                                                && x.StoreAccounts.Any(x => x.Account.Role.RoleId == (int)RoleEnum.Role.STORE_MANAGER)
+                                                                && x.Brand.BrandId == brandId)
+                                                       .Take(itemsPerPage).Skip(itemsPerPage * (currentPage - 1)).ToListAsync();
                 }
                 return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
-                                             .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                             .Where(x => x.Brand.BrandAccounts.Any(x => x.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER))
-                                             .Take(itemsPerPage).Skip(itemsPerPage * (currentPage - 1)).ToListAsync();
+                                                   .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                   .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                   .Where(x => x.Brand.BrandAccounts.Any(x => x.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER)
+                                                            && x.StoreAccounts.Any(x => x.Account.Role.RoleId == (int)RoleEnum.Role.STORE_MANAGER))
+                                                   .Take(itemsPerPage).Skip(itemsPerPage * (currentPage - 1)).ToListAsync();
             } catch(Exception ex)
             {
                 throw new Exception(ex.Message);
@@ -141,13 +151,17 @@ namespace MBKC.DAL.Repositories
                 {
                     return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                  .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                 .Where(x => x.Brand.BrandAccounts.Any(x => x.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER))
+                                                 .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                 .Where(x => x.Brand.BrandAccounts.Any(x => x.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER)
+                                                          && x.StoreAccounts.Any(x => x.Account.Role.RoleId == (int)RoleEnum.Role.STORE_MANAGER))
                                                  .FirstOrDefaultAsync(x => x.StoreId == id);
                 }
                 return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                  .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                 .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                  .Where(x => x.Brand.BrandAccounts.Any(x => x.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER)
-                                                        && x.Brand.BrandId == brandId)
+                                                          && x.StoreAccounts.Any(x => x.Account.Role.RoleId == (int)RoleEnum.Role.STORE_MANAGER)
+                                                          && x.Brand.BrandId == brandId)
                                                  .FirstOrDefaultAsync(x => x.StoreId == id);
             } catch(Exception ex)
             {

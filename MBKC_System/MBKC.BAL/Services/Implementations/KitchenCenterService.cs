@@ -156,18 +156,11 @@ namespace MBKC.BAL.Services.Implementations
                     numberItems = await this._unitOfWork.KitchenCenterRepository.GetNumberKitchenCentersAsync(null, null);
                     kitchenCenters = await this._unitOfWork.KitchenCenterRepository.GetKitchenCentersAsync(null, null, itemsPerPage.Value, currentPage.Value);
                 }
-                if (kitchenCenters == null || kitchenCenters != null && kitchenCenters.Count() == 0)
-                {
-                    List<GetKitchenCenterResponse> kitchenCenterResponses = this._mapper.Map<List<GetKitchenCenterResponse>>(kitchenCenters);
-                    GetKitchenCentersResponse getKitchenCentersResponse = new GetKitchenCentersResponse()
-                    {
-                        NumberItems = 0,
-                        TotalPages = 0,
-                        KitchenCenters = kitchenCenterResponses
-                    };
-                    return getKitchenCentersResponse;
-                }
                 int totalPage = (int)((numberItems + itemsPerPage) / itemsPerPage);
+                if (numberItems == 0)
+                {
+                    totalPage = 0;
+                }
                 List<GetKitchenCenterResponse> getKitchenCenterResponses = this._mapper.Map<List<GetKitchenCenterResponse>>(kitchenCenters);
                 GetKitchenCentersResponse getKitchenCenters = new GetKitchenCentersResponse()
                 {

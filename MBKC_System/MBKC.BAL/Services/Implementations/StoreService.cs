@@ -64,18 +64,11 @@ namespace MBKC.BAL.Services.Implementations
                     numberItems = await this._unitOfWork.StoreRepository.GetNumberStoresAsync(null, null, brandId);
                     stores = await this._unitOfWork.StoreRepository.GetStoresAsync(null, null, itemsPerPage.Value, currentPage.Value, brandId);
                 }
-                if (stores == null || stores != null && stores.Count() == 0)
-                {
-                    List<GetStoreResponse> storeResponses = this._mapper.Map<List<GetStoreResponse>>(stores);
-                    GetStoresResponse getStoresResponse = new GetStoresResponse()
-                    {
-                        NumberItems = 0,
-                        TotalPages = 0,
-                        Stores = storeResponses
-                    };
-                    return getStoresResponse;
-                }
                 int totalPage = (int)((numberItems + itemsPerPage) / itemsPerPage);
+                if(numberItems == 0)
+                {
+                    totalPage = 0;
+                }
                 List<GetStoreResponse> getStoreResponses = this._mapper.Map<List<GetStoreResponse>>(stores);
                 GetStoresResponse getStores = new GetStoresResponse()
                 {
