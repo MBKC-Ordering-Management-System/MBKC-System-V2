@@ -10,7 +10,6 @@ namespace MBKC.BAL.Utils
 {
     public static class StringUtil
     {
-
         private static readonly string[] VietnameseSigns = new string[]
         {
 
@@ -117,6 +116,16 @@ namespace MBKC.BAL.Utils
         {
             if (type.ToLower().Equals(CategoryEnum.Type.NORMAL.ToString().ToLower()) ||
                 type.ToLower().Equals(CategoryEnum.Type.EXTRA.ToString().ToLower()))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public static bool CheckBrandStatusName(string statusName)
+        {
+            if (statusName.ToLower().Equals(BrandEnum.Status.ACTIVE.ToString().ToLower()) ||
+                statusName.ToLower().Equals(BrandEnum.Status.INACTIVE.ToString().ToLower()))
             {
                 return true;
             }

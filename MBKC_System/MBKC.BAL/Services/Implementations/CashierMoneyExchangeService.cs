@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MBKC.BAL.Repositories.Implementations
+namespace MBKC.BAL.Services.Implementations
 {
     public class CashierMoneyExchangeService : ICashierMoneyExchangeService
     {

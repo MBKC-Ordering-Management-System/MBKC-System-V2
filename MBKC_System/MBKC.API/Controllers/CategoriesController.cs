@@ -33,6 +33,7 @@ namespace MBKC.API.Controllers
             this._postCategoryRequest = postCategoryRequest;
             this._updateCategoryRequest = updateCategoryRequest;
         }
+
         #region Create Category
         /// <summary>
         /// Create new category with type are NORMAL or EXTRA.
@@ -230,15 +231,15 @@ namespace MBKC.API.Controllers
         }
         #endregion
 
-        #region Deactive Category By Id
+        #region Deleted Existed Category By Id
         /// <summary>
-        ///  Deactive category by id.
+        ///  Delete existed category by id.
         /// </summary>
         /// <param name="id">
         ///  Id of category.
         /// </param>
         /// <returns>
-        /// Message Deactive Category Successfully.
+        /// A sucess message about deleting existed category.
         /// </returns>
         /// <remarks>
         ///     Sample request:
@@ -246,7 +247,7 @@ namespace MBKC.API.Controllers
         ///            DELETE
         ///            id: 3
         /// </remarks>
-        /// <response code="200">Deactive Category Successfully.</response>
+        /// <response code="200">Deleted existed category successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
         /// <response code="404">Some Error about request data not found.</response>
         /// <response code="500">Some Error about the system.</response>
@@ -258,10 +259,9 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-
         [HttpDelete("{id}")]
         [PermissionAuthorize("Brand Manager")]
-        public async Task<IActionResult> DeActiveCategoryByIdAsync([FromRoute] int id)
+        public async Task<IActionResult> DeleteCategoryByIdAsync([FromRoute] int id)
         {
             await this._categoryService.DeActiveCategoryByIdAsync(id);
             return Ok(new
@@ -271,7 +271,7 @@ namespace MBKC.API.Controllers
         }
         #endregion
 
-        #region Get Products By Category Id
+        /*#region Get Products By Category Id
         /// <summary>
         /// Get products by category Id.
         /// </summary>
@@ -318,7 +318,7 @@ namespace MBKC.API.Controllers
             var data = await this._categoryService.GetProductsInCategory(id, keySearchName, pageNumber, pageSize);
             return Ok(data);
         }
-        #endregion
+        #endregion*/
 
         #region Get ExtraCategories By Category Id
         /// <summary>
@@ -409,5 +409,8 @@ namespace MBKC.API.Controllers
             return Ok(new { Message = "Add Extra Category To Normal Category Successfully." });
         }
         #endregion
+
+        // thiếu api lấy danh sách extra category
+
     }
 }

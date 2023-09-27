@@ -1,4 +1,5 @@
-﻿using MBKC.BAL.DTOs.Brands;
+﻿using MBKC.BAL.DTOs;
+using MBKC.BAL.DTOs.Brands;
 using MBKC.BAL.DTOs.FireBase;
 using MBKC.BAL.DTOs.Verifications;
 using System;
@@ -11,9 +12,9 @@ namespace MBKC.BAL.Services.Interfaces
 {
     public interface IBrandService
     {
-        public Task<GetBrandResponse> CreateBrandAsync(PostBrandRequest postBrandRequest, FireBaseImage fireBaseImage, Email emailSystem);
-        public Task<GetBrandResponse> UpdateBrandAsync( int brandId, UpdateBrandRequest updateBrandRequest, FireBaseImage fireBaseImage);
-        public Task<Tuple<List<GetBrandResponse>, int, int?, int?>> GetBrandsAsync(SearchBrandRequest? searchBrandRequest, int? PAGE_NUMBER, int? PAGE_SIZE);
+        public Task CreateBrandAsync(PostBrandRequest postBrandRequest, FireBaseImage fireBaseImage, Email emailSystem);
+        public Task UpdateBrandAsync( int brandId, UpdateBrandRequest updateBrandRequest, FireBaseImage fireBaseImage, Email emailOption);
+        public Task<GetBrandsResponse> GetBrandsAsync(string? keySearchName, string? keyStatusFilter, int? pageNumber, int? pageSize);
         public Task<GetBrandResponse> GetBrandByIdAsync(int id);
         public Task DeActiveBrandByIdAsync(int id);
     }

@@ -8,7 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MBKC.BAL.Services.Implementations
-{ 
+{
+
+
 
     public class CashierService : ICashierService
     {
@@ -19,5 +21,6 @@ namespace MBKC.BAL.Services.Implementations
             this._unitOfWork = (UnitOfWork)unitOfWork;
             this._mapper = mapper;
         }
+
     }
 }

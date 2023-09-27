@@ -4,9 +4,9 @@ using MBKC.BAL.DTOs.FireBase;
 using MBKC.BAL.DTOs.Products;
 using MBKC.BAL.DTOs.SplitIdCategories;
 using MBKC.BAL.Exceptions;
+using MBKC.BAL.Services.Interfaces;
 using MBKC.BAL.Utils;
 using MBKC.DAL.Enums;
-using MBKC.BAL.Services.Interfaces;
 using MBKC.DAL.Infrastructures;
 using MBKC.DAL.Models;
 using System;
@@ -14,10 +14,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web;
 
 namespace MBKC.BAL.Services.Implementations
-{
+    {
     public class CategoryService : ICategoryService
     {
         private UnitOfWork _unitOfWork;
@@ -116,7 +115,8 @@ namespace MBKC.BAL.Services.Implementations
         public async Task UpdateCategoryAsync(int categoryId, UpdateCategoryRequest updateCategoryRequest, FireBaseImage fireBaseImage)
         {
             string imageId = "";
-            bool uploaded = false;
+            bool isUploaded = false;
+            bool isDeleted = false;
             try
             {
                 if (categoryId <= 0)
@@ -134,13 +134,9 @@ namespace MBKC.BAL.Services.Implementations
                     throw new BadRequestException("Category code already exist in the system.");
                 }
 
-
+                string oldImageUrl = category.ImageUrl;
                 if (updateCategoryRequest.ImageUrl != null)
                 {
-                    //Delete image from database
-                    FileUtil.SetCredentials(fireBaseImage);
-                    await FileUtil.DeleteImageAsync(FileUtil.GetImageIdFromUrlImage(category.ImageUrl, "imageUrl"), "Categories");
-
                     // Upload image to firebase
                     FileStream fileStream = Utils.FileUtil.ConvertFormFileToStream(updateCategoryRequest.ImageUrl);
                     Guid guild = Guid.NewGuid();
@@ -148,9 +144,14 @@ namespace MBKC.BAL.Services.Implementations
                     var urlImage = await Utils.FileUtil.UploadImageAsync(fileStream, "Categories", imageId);
                     if (urlImage != null)
                     {
-                        uploaded = true;
+                        isUploaded = true;
                     }
                     category.ImageUrl = urlImage + $"&imageUrl={imageId}";
+
+                    //Delete image from database
+                    FileUtil.SetCredentials(fireBaseImage);
+                    await FileUtil.DeleteImageAsync(FileUtil.GetImageIdFromUrlImage(oldImageUrl, "imageUrl"), "Categories");
+                    isDeleted = true;
                 }
                 category.Name = updateCategoryRequest.Name;
                 category.Description = updateCategoryRequest.Description;
@@ -213,7 +214,7 @@ namespace MBKC.BAL.Services.Implementations
 
             catch (Exception ex)
             {
-                if (uploaded)
+                if (isUploaded && isDeleted == false)
                 {
                     await FileUtil.DeleteImageAsync(imageId, "Categories");
                 }
@@ -239,15 +240,6 @@ namespace MBKC.BAL.Services.Implementations
                     throw new NotFoundException("Category Id does not exist in the system");
                 }
                 _mapper.Map(category, categoryResponse);
-
-                if (categoryResponse.Status.Equals(((int)ExtraCategoryEnum.Status.ACTIVE).ToString()))
-                {
-                    categoryResponse.Status = ExtraCategoryEnum.Status.ACTIVE.ToString().ToUpper()[0] + ExtraCategoryEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
-                }
-                else if (category.Status.Equals(((int)ExtraCategoryEnum.Status.INACTIVE).ToString()))
-                {
-                    categoryResponse.Status = ExtraCategoryEnum.Status.INACTIVE.ToString().ToUpper()[0] + ExtraCategoryEnum.Status.INACTIVE.ToString().ToLower().Substring(1);
-                }
                 return categoryResponse;
             }
             catch (BadRequestException ex)
@@ -399,29 +391,11 @@ namespace MBKC.BAL.Services.Implementations
                 }
                 _mapper.Map(categories, categoryResponse);
 
-                foreach (var category in categoryResponse)
+                int totalPages = (int)((numberItems + pageSize) / pageSize);
+                if(numberItems == 0)
                 {
-                    if (category.Status.Equals(((int)CategoryEnum.Status.ACTIVE).ToString()))
-                    {
-                        category.Status = CategoryEnum.Status.ACTIVE.ToString().ToUpper()[0] + CategoryEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
-                    }
-                    else if (category.Status.Equals(((int)CategoryEnum.Status.INACTIVE).ToString()))
-                    {
-                        category.Status = CategoryEnum.Status.INACTIVE.ToString().ToUpper()[0] + CategoryEnum.Status.INACTIVE.ToString().ToLower().Substring(1);
-                    }
+                    totalPages = 0;
                 }
-
-                if (categoryResponse == null || categoryResponse.Count == 0)
-                {
-                    return new GetCategoriesResponse()
-                    {
-                        Categories = categoryResponse,
-                        TotalItems = 0,
-                        TotalPages = 0,
-                    };
-                }
-
-                int totalPages = (int)((numberItems + pageSize) / pageSize); ;
                 return new GetCategoriesResponse()
                 {
                     Categories = categoryResponse,
@@ -509,19 +483,11 @@ namespace MBKC.BAL.Services.Implementations
                     products = await this._unitOfWork.ProductRepository.GetProductsByCategoryIdAsync(categoryId, null, null, pageSize.Value, pageNumber.Value);
                 }
                 _mapper.Map(products, productResponse);
-
-                if (productResponse == null || productResponse.Count == 0)
-                {
-                    return new GetProductsResponse()
-                    {
-                        Products = productResponse,
-                        TotalItems = 0,
-                        TotalPages = 0,
-                    };
-                }
-
                 int totalPages = (int)((numberItems + pageSize) / pageSize);
-
+                if(numberItems == 0)
+                {
+                    totalPages = 0;
+                }
                 return new GetProductsResponse()
                 {
                     Products = productResponse,
@@ -628,29 +594,11 @@ namespace MBKC.BAL.Services.Implementations
 
                 _mapper.Map(listExtraCategoriesInNormalCategory, categoryResponse);
 
-                foreach (var extra in categoryResponse)
-                {
-                    if (extra.Status.Equals(((int)ExtraCategoryEnum.Status.ACTIVE).ToString()))
-                    {
-                        extra.Status = ExtraCategoryEnum.Status.ACTIVE.ToString().ToUpper()[0] + ExtraCategoryEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
-                    }
-                    else if (extra.Status.Equals(((int)ExtraCategoryEnum.Status.INACTIVE).ToString()))
-                    {
-                        extra.Status = ExtraCategoryEnum.Status.INACTIVE.ToString().ToUpper()[0] + ExtraCategoryEnum.Status.INACTIVE.ToString().ToLower().Substring(1);
-                    }
-                }
-
-                if (categoryResponse == null || categoryResponse.Count == 0)
-                {
-                    return new GetCategoriesResponse()
-                    {
-                        Categories = categoryResponse,
-                        TotalItems = 0,
-                        TotalPages = 0,
-                    };
-                }
-
                 int totalPages = (int)((numberItems + pageSize) / pageSize);
+                if(numberItems == 0)
+                {
+                    totalPages = 0;
+                }
 
                 return new GetCategoriesResponse()
                 {
@@ -724,6 +672,10 @@ namespace MBKC.BAL.Services.Implementations
                                                                                    .splitIdsToAddAndRemove(category.ExtraCategoryProductCategories
                                                                                    .Select(e => e.ExtraCategoryId)
                                                                                    .ToList(), listExtraCategoryId);
+
+                var extraCategory = await this._unitOfWork.ExtraCategoryRepository.GetExtraCategoriesByCategoryIdAsync(categoryId);
+                var listIdExtraCategoriesInNomalCategory = extraCategory.Select(e => e.ExtraCategoryId).ToList();
+                SplitIdCategoryResponse splittedExtraCategoriesIds = CustomListUtil.splitIdsToAddAndRemove(listIdExtraCategoriesInNomalCategory, listExtraCategoryId);
 
                 //Handle add and remove to database
                 if (splittedExtraCategoriesIds.idsToAdd.Count > 0)

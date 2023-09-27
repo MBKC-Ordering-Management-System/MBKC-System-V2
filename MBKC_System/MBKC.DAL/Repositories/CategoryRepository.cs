@@ -1,4 +1,6 @@
 ﻿using MBKC.DAL.DBContext;
+using MBKC.DAL.Models;
+using Microsoft.EntityFrameworkCore;
 using MBKC.DAL.Enums;
 using MBKC.DAL.Models;
 using MBKC.DAL.Utils;

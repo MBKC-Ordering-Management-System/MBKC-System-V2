@@ -1,12 +1,13 @@
 ﻿using AutoMapper;
+using MBKC.BAL.DTOs;
 using MBKC.BAL.DTOs.Brands;
 using MBKC.BAL.DTOs.FireBase;
 using MBKC.BAL.DTOs.Verifications;
 using MBKC.BAL.Exceptions;
+using MBKC.BAL.Services.Interfaces;
 using MBKC.BAL.Utils;
 using MBKC.DAL.DBContext;
 using MBKC.DAL.Enums;
-using MBKC.BAL.Services.Interfaces;
 using MBKC.DAL.Infrastructures;
 using MBKC.DAL.Models;
 using MBKC.DAL.RedisModels;
@@ -20,17 +21,19 @@ using System.Web;
 namespace MBKC.BAL.Services.Implementations
 {
 
+   
     public class BrandService : IBrandService
     {
         private UnitOfWork _unitOfWork;
         private IMapper _mapper;
         public BrandService(IUnitOfWork unitOfWork, IMapper mapper)
+
         {
             this._unitOfWork = (UnitOfWork)unitOfWork;
             this._mapper = mapper;
         }
         #region CreateBrand
-        public async Task<GetBrandResponse> CreateBrandAsync(PostBrandRequest postBrandRequest, FireBaseImage fireBaseImage, Email emailSystem)
+        public async Task CreateBrandAsync(PostBrandRequest postBrandRequest, FireBaseImage fireBaseImage, Email emailSystem)
         {
             string logoId = "";
             bool uploaded = false;
@@ -39,20 +42,22 @@ namespace MBKC.BAL.Services.Implementations
                 var checkDupplicatedEmail = await _unitOfWork.AccountRepository.GetAccountByEmailAsync(postBrandRequest.ManagerEmail);
                 if (checkDupplicatedEmail != null)
                 {
-                    throw new ConflictException("Email already exists in the system");
+                    throw new BadRequestException("Email already exists in the system.");
                 }
-                var brandManagerRole = await _unitOfWork.RoleRepository.GetRoleAsync((int)RoleEnum.Role.BRAND_MANAGER);
+                var brandManagerRole = await _unitOfWork.RoleRepository.GetRoleById((int)RoleEnum.Role.BRAND_MANAGER);
 
                 // Upload image to firebase
                 FileStream fileStream = Utils.FileUtil.ConvertFormFileToStream(postBrandRequest.Logo);
                 FileUtil.SetCredentials(fireBaseImage);
                 Guid guild = Guid.NewGuid();
                 logoId = guild.ToString();
-                string urlImage = await Utils.FileUtil.UploadImageAsync(fileStream, "Brand", logoId);
-                uploaded = true;
-
+                string urlImage = await Utils.FileUtil.UploadImageAsync(fileStream, "Brands", logoId);
+                if (urlImage != null)
+                {
+                    uploaded = true;
+                }
                 // Create account
-                string unEncryptedPassword = RandomNumberUtil.GenerateEightDigitNumber().ToString();
+                string unEncryptedPassword = RandomPasswordUtil.CreateRandomPassword();
                 var account = new Account
                 {
                     Email = postBrandRequest.ManagerEmail,
@@ -82,34 +87,31 @@ namespace MBKC.BAL.Services.Implementations
                 await _unitOfWork.CommitAsync();
 
                 //Send password to email of Brand Manager
-                await EmailUtil.SendEmailAndPasswordToEmail(emailSystem, account.Email, EmailUtil.MessageRegisterAccount(emailSystem.SystemName, account.Email, unEncryptedPassword), "Brand Manager");
-                /* // add to Redis
-                 var brandRedisModel = new BrandRedisModel();
-                 var accountRedisModel = new AccountRedisModel();
-                 var brandAcocuntRedisModel = new BrandAccountRedisModel();
-                 _mapper.Map(brand, brandRedisModel);
-                 _mapper.Map(account, accountRedisModel);
-                 _mapper.Map(brandAccount, brandAcocuntRedisModel);
-                 await this._unitOfWork.AccountRedisRepository.AddAccountAsync(accountRedisModel);
-                 await this._unitOfWork.BrandRedisRepository.AddBrandAsync(brandRedisModel);
-                 await this._unitOfWork.BrandAccountRedisRepository.AddBrandAccountAsync(brandAcocuntRedisModel);*/
-                return _mapper.Map<GetBrandResponse>(brand);
+                await EmailUtil.SendEmailAndPasswordToEmail(emailSystem, account.Email, EmailUtil.MessageRegisterAccountForBrand(emailSystem.SystemName, account.Email, unEncryptedPassword, brand.Name));
             }
-            catch (ConflictException ex)
+            catch (BadRequestException ex)
             {
                 string fieldName = "";
                 if (ex.Message.Equals("Email already exists in the system"))
                 {
                     fieldName = "Email";
                 }
+                if (ex.Message.Equals("Upload image to firebase failed."))
+                {
+                    fieldName = "Upload image.";
+                }
+                else if (ex.Message.Equals("Delete image failed."))
+                {
+                    fieldName = "Delete image.";
+                }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
-                throw new ConflictException(error);
+                throw new BadRequestException(error);
             }
             catch (Exception ex)
             {
                 if (uploaded)
                 {
-                    await FileUtil.DeleteImageAsync(logoId, "Brand");
+                    await FileUtil.DeleteImageAsync(logoId, "Brands");
                 }
                 string error = ErrorUtil.GetErrorString("Exception", ex.Message);
                 throw new Exception(error);
@@ -117,70 +119,111 @@ namespace MBKC.BAL.Services.Implementations
         }
         #endregion
 
-        #region UpdateBrand
-        public async Task<GetBrandResponse> UpdateBrandAsync(int brandId, UpdateBrandRequest updateBrandRequest, FireBaseImage fireBaseImage)
+        #region Update Brand
+        public async Task UpdateBrandAsync(int brandId, UpdateBrandRequest updateBrandRequest, FireBaseImage fireBaseImage, Email emailOption)
         {
             string logoId = "";
-            bool uploaded = false;
+            bool isUploaded = false;
+            bool isDeleted = false;
+            bool isNewManager = false;
             try
             {
+                if (brandId <= 0)
+                {
+                    throw new BadRequestException("Brand Id is not suitable for the system.");
+                }
                 var brand = await _unitOfWork.BrandRepository.GetBrandByIdAsync(brandId);
-                var brands = await _unitOfWork.BrandRepository.GetBrandsAsync();
-                var checkDupplicatedName = brands.SingleOrDefault(b => b.Name == updateBrandRequest.Name && b.BrandId != brandId);
                 if (brand == null)
                 {
-                    throw new NotFoundException("Brand does not exist in the system");
+                    throw new NotFoundException("Brand Id does not exist in the system");
                 }
-                if (checkDupplicatedName != null)
+
+                string password = "";
+                if(brand.BrandAccounts.FirstOrDefault(x => x.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER 
+                                                        && x.Account.Status == (int)AccountEnum.Status.ACTIVE).Account.Email.Equals(updateBrandRequest.BrandManagerEmail) == false)
                 {
-                    throw new ConflictException("Brand name already exist in the system");
+                    Account existedAccount = await this._unitOfWork.AccountRepository.GetAccountAsync(updateBrandRequest.BrandManagerEmail);
+                    if(existedAccount != null)
+                    {
+                        throw new BadRequestException("Brand Manager Email already existed in the system.");
+                    }
+                    brand.BrandAccounts.FirstOrDefault(x => x.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER
+                                                        && x.Account.Status == (int)AccountEnum.Status.ACTIVE).Account.Status = (int)AccountEnum.Status.DEACTIVE;
+
+                    Role brandManagerRole = await this._unitOfWork.RoleRepository.GetRoleById((int)RoleEnum.Role.BRAND_MANAGER);
+                    password = RandomPasswordUtil.CreateRandomPassword();
+                    Account newBrandManagerAccount = new Account()
+                    {
+                        Email = updateBrandRequest.BrandManagerEmail,
+                        Password = password,
+                        Role = brandManagerRole,
+                        Status = (int)AccountEnum.Status.ACTIVE
+                    };
+
+                    BrandAccount newBrandAccount = new BrandAccount()
+                    {
+                        Account = newBrandManagerAccount,
+                        Brand = brand
+                    };
+
+                    brand.BrandAccounts.ToList().Add(newBrandAccount);
+                    isNewManager = true;
                 }
-                if (brand.Status == (int)BrandEnum.Status.DEACTIVE)
-                {
-                    throw new BadRequestException("Can't update Brand DEACTIVED");
-                }
-                if (updateBrandRequest.Status != (int)BrandEnum.Status.ACTIVE &&
-                    updateBrandRequest.Status != (int)BrandEnum.Status.INACTIVE)
-                {
-                    throw new BadRequestException("Status of Brand are 0(INACTIVE), 1(ACTIVE)");
-                }
+
                 if (updateBrandRequest.Logo != null)
                 {
-                    //Delete image from database
-                    FileUtil.SetCredentials(fireBaseImage);
-                    Uri uri = new Uri(brand.Logo);
-                    logoId = HttpUtility.ParseQueryString(uri.Query).Get("logoId");
-                    await FileUtil.DeleteImageAsync(logoId, "Brand");
-
                     // Upload image to firebase
                     FileStream fileStream = Utils.FileUtil.ConvertFormFileToStream(updateBrandRequest.Logo);
                     Guid guild = Guid.NewGuid();
                     logoId = guild.ToString();
-                    var urlImage = await Utils.FileUtil.UploadImageAsync(fileStream, "Brand", logoId);
+                    var urlImage = await Utils.FileUtil.UploadImageAsync(fileStream, "Brands", logoId);
+                    if (urlImage != null)
+                    {
+                        isUploaded = true;
+                    }
                     brand.Logo = urlImage + $"&logoId={logoId}";
-                    uploaded = true;
+
+                    //Delete image from database
+                    FileUtil.SetCredentials(fireBaseImage);
+                    await FileUtil.DeleteImageAsync(FileUtil.GetImageIdFromUrlImage(brand.Logo, "logoId"), "Brands");
+                    isDeleted = true;
                 }
 
                 brand.Address = updateBrandRequest.Address;
                 brand.Name = updateBrandRequest.Name;
-                brand.Status = updateBrandRequest.Status;
-                _unitOfWork.BrandRepository.UpdateBrand(brand);
-                _unitOfWork.Commit();
 
-                /*//Get brand from Redis
-                var brandRedis = await _unitOfWork.BrandRedisRepository.GetBrandByIdAsync(brandId.ToString());
-                _mapper.Map(brand, brandRedis);
-                //Update brand to Redis
-                await this._unitOfWork.BrandRedisRepository.UpdateBrandAsync(brandRedis);*/
-                return _mapper.Map<GetBrandResponse>(brand);
+                if (updateBrandRequest.Status.ToLower().Equals(CategoryEnum.Status.ACTIVE.ToString().ToLower()))
+                {
+                    brand.Status = (int)CategoryEnum.Status.ACTIVE;
+                }
+                else if (updateBrandRequest.Status.ToLower().Equals(CategoryEnum.Status.INACTIVE.ToString().ToLower()))
+                {
+                    brand.Status = (int)CategoryEnum.Status.INACTIVE;
+                }
+
+                _unitOfWork.BrandRepository.UpdateBrand(brand);
+                await _unitOfWork.CommitAsync();
+
+                if (isNewManager)
+                {
+                    string message = EmailUtil.MessageRegisterAccountForBrand(emailOption.SystemName, updateBrandRequest.BrandManagerEmail, password, updateBrandRequest.Name);
+                    await EmailUtil.SendEmailAndPasswordToEmail(emailOption, updateBrandRequest.BrandManagerEmail, message);
+                }
             }
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals("Can't update Brand DEACTIVED") ||
-                    ex.Message.Equals("Status of Brand are 0(INACTIVE), 1(ACTIVE)"))
+                if (ex.Message.Equals("Brand Id is not suitable for the system."))
                 {
-                    fieldName = "Status";
+                    fieldName = "Brand Id";
+                }
+                if (ex.Message.Equals("Upload image to firebase failed."))
+                {
+                    fieldName = "Upload image.";
+                }
+                else if (ex.Message.Equals("Delete image failed."))
+                {
+                    fieldName = "Delete image.";
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
@@ -188,28 +231,18 @@ namespace MBKC.BAL.Services.Implementations
             catch (NotFoundException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals("Brand does not exist in the system"))
+                if (ex.Message.Equals("Brand Id does not exist in the system"))
                 {
-                    fieldName = "BrandId";
+                    fieldName = "Brand Id";
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new NotFoundException(error);
             }
-            catch (ConflictException ex)
-            {
-                string fieldName = "";
-                if (ex.Message.Equals("Brand name already exist in the system"))
-                {
-                    fieldName = "Name";
-                }
-                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
-                throw new ConflictException(error);
-            }
             catch (Exception ex)
             {
-                if (uploaded)
+                if (isUploaded && isDeleted == false)
                 {
-                    await FileUtil.DeleteImageAsync(logoId, "Brand");
+                    await FileUtil.DeleteImageAsync(logoId, "Brands");
                 }
                 string error = ErrorUtil.GetErrorString("Exception", ex.Message);
                 throw new Exception(error);
@@ -218,66 +251,96 @@ namespace MBKC.BAL.Services.Implementations
         #endregion
 
         #region Get Brands
-        public async Task<Tuple<List<GetBrandResponse>, int, int?, int?>> GetBrandsAsync(SearchBrandRequest? searchBrandRequest, int? PAGE_NUMBER, int? PAGE_SIZE)
+        public async Task<GetBrandsResponse> GetBrandsAsync(string? keySearchName, string? keyStatusFilter, int? pageNumber, int? pageSize)
         {
             try
             {
+                var brands = new List<Brand>();
                 var brandResponse = new List<GetBrandResponse>();
-                var brands = await this._unitOfWork.BrandRepository.GetBrandsAsync();
-
-                _mapper.Map(brands, brandResponse);
-                if (PAGE_SIZE == null)
+                if (pageNumber != null && pageNumber <= 0)
                 {
-                    PAGE_SIZE = 10;
+                    throw new BadRequestException("Page number is required greater than 0.");
+                }
+                else if (pageNumber == null)
+                {
+                    pageNumber = 1;
                 }
 
-                if (PAGE_NUMBER == null)
+                if (pageSize != null && pageSize <= 0)
                 {
-                    PAGE_NUMBER = 1;
+                    throw new BadRequestException("Page size is required greater than 0.");
                 }
-                // Search
-                if (searchBrandRequest.KeySearchName != "" && searchBrandRequest.KeySearchName != null)
+                else if (pageSize == null)
                 {
-                    brandResponse = brandResponse.Where(b => b.Name.ToLower().Contains(searchBrandRequest.KeySearchName.Trim().ToLower())).ToList();
+                    pageSize = 5;
                 }
-                if (searchBrandRequest.KeyStatusFilter != "" && searchBrandRequest.KeyStatusFilter != null)
+
+                int? keyStatus = null;
+                if (keyStatusFilter != null)
                 {
-                    if (Enum.IsDefined(typeof(BrandEnum.StatusFilter), searchBrandRequest.KeyStatusFilter))
+                    if (BrandEnum.Status.ACTIVE.ToString().ToLower().Equals(keyStatusFilter.ToLower()))
                     {
-                        switch (searchBrandRequest.KeyStatusFilter)
-                        {
-                            case nameof(BrandEnum.StatusFilter.INACTIVE):
-                                brandResponse = brandResponse.Where(b => b.Status == BrandEnum.StatusFilter.INACTIVE.ToString()).ToList();
-                                break;
-                            case nameof(BrandEnum.StatusFilter.ACTIVE):
-                                brandResponse = brandResponse.Where(b => b.Status == BrandEnum.StatusFilter.ACTIVE.ToString()).ToList();
-                                break;
-                            case nameof(BrandEnum.StatusFilter.DEACTIVE):
-                                brandResponse = brandResponse.Where(b => b.Status == BrandEnum.StatusFilter.DEACTIVE.ToString()).ToList();
-                                break;
-                        }
+                        keyStatus = (int)BrandEnum.Status.ACTIVE;
+                    }
+                    else if (BrandEnum.Status.INACTIVE.ToString().ToLower().Equals(keyStatusFilter.ToLower()))
+                    {
+                        keyStatus = (int)BrandEnum.Status.INACTIVE;
+                    }
+                    else if (BrandEnum.Status.DEACTIVE.ToString().ToLower().Equals(keyStatusFilter.ToLower()))
+                    {
+                        keyStatus = (int)BrandEnum.Status.DEACTIVE;
                     }
                     else
                     {
-                        throw new BadRequestException("Key Filter not valid");
+                        throw new BadRequestException("Key Status Filter is not suitable (ACTIVE, INACTIVE or DEACTIVE) in the system.");
                     }
                 }
 
-                // Count total page
-                int totalRecords = brandResponse.Count();
-                int totalPages = (int)Math.Ceiling((double)((double)totalRecords / PAGE_SIZE));
+                int numberItems = 0;
+                if (keySearchName != null && StringUtil.IsUnicode(keySearchName))
+                {
+                    numberItems = await this._unitOfWork.BrandRepository.GetNumberBrandsAsync(keySearchName, null, keyStatus);
+                    brands = await this._unitOfWork.BrandRepository.GetBrandsAsync(keySearchName, null, keyStatus, pageSize.Value, pageNumber.Value);
+                }
+                else if (keySearchName != null && StringUtil.IsUnicode(keySearchName) == false)
+                {
+                    numberItems = await this._unitOfWork.BrandRepository.GetNumberBrandsAsync(null, keySearchName, keyStatus);
+                    brands = await this._unitOfWork.BrandRepository.GetBrandsAsync(null, keySearchName, keyStatus, pageSize.Value, pageNumber.Value);
+                }
+                else if (keySearchName == null)
+                {
+                    numberItems = await this._unitOfWork.BrandRepository.GetNumberBrandsAsync(null, null, keyStatus);
+                    brands = await this._unitOfWork.BrandRepository.GetBrandsAsync(null, null, keyStatus, pageSize.Value, pageNumber.Value);
+                }
 
-                // Paing
-                brandResponse = brandResponse.Skip((int)((PAGE_NUMBER - 1) * PAGE_SIZE)).Take((int)PAGE_SIZE).ToList();
+                this._mapper.Map(brands, brandResponse);
 
-                return Tuple.Create(brandResponse, totalPages, PAGE_NUMBER, PAGE_SIZE);
+                int totalPages = (int)((numberItems + pageSize) / pageSize);
+                if(numberItems == 0)
+                {
+                    totalPages = 0;
+                }
+                return new GetBrandsResponse()
+                {
+                    Brands = brandResponse,
+                    TotalItems = numberItems,
+                    TotalPages = totalPages,
+                };
             }
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals("Key Filter not valid"))
+                if (ex.Message.Equals("Key Status Filter is not suitable (ACTIVE, INACTIVE or DEACTIVE) in the system."))
                 {
-                    fieldName = "KeyStatusFilter";
+                    fieldName = "Key Status Filter";
+                }
+                if (ex.Message.Equals("Page number is required greater than 0."))
+                {
+                    fieldName = "Page number";
+                }
+                if (ex.Message.Equals("Page size is required greater than 0."))
+                {
+                    fieldName = "Page size";
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
@@ -296,23 +359,38 @@ namespace MBKC.BAL.Services.Implementations
         {
             try
             {
-
+                if (id <= 0)
+                {
+                    throw new BadRequestException("Brand Id is not suitable for the system.");
+                }
                 var brand = await _unitOfWork.BrandRepository.GetBrandByIdAsync(id);
                 if (brand == null)
                 {
-                    throw new NotFoundException("Brand does not exist in the system");
+                    throw new NotFoundException("Brand Id does not exist in the system.");
                 }
 
-                return _mapper.Map<GetBrandResponse>(brand);
+                var brandResponse = this._mapper.Map<GetBrandResponse>(brand);
+
+                return brandResponse;
+            }
+            catch (BadRequestException ex)
+            {
+                string fieldName = "";
+                if (ex.Message.Equals("Brand Id is not suitable for the system."))
+                {
+                    fieldName = "Brand Id";
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new NotFoundException(error);
             }
             catch (NotFoundException ex)
             {
-                string fileName = "";
-                if (ex.Message.Equals("Brand does not exist in the system"))
+                string fieldName = "";
+                if (ex.Message.Equals("Brand Id does not exist in the system."))
                 {
-                    fileName = "BrandId";
+                    fieldName = "Brand Id";
                 }
-                string error = ErrorUtil.GetErrorString(fileName, ex.Message);
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new NotFoundException(error);
             }
             catch (Exception ex)
@@ -328,6 +406,10 @@ namespace MBKC.BAL.Services.Implementations
         {
             try
             {
+                if (id <= 0)
+                {
+                    throw new BadRequestException("Brand Id is not suitable for the system.");
+                }
                 var brand = await _unitOfWork.BrandRepository.GetBrandByIdAsync(id);
 
                 if (brand == null)
@@ -338,13 +420,13 @@ namespace MBKC.BAL.Services.Implementations
                 // Deactive status of brand
                 brand.Status = (int)BrandEnum.Status.DEACTIVE;
 
-                // Inactive Manager Account of brand
+                // Deactive Manager Account of brand
                 foreach (var brandAccount in brand.BrandAccounts)
                 {
-                    brandAccount.Account.Status = (int)AccountEnum.Status.DEACTIVE;
+                    brandAccount.Account.Status = (int)(AccountEnum.Status.DEACTIVE);
                 }
 
-                // Inactive products belong to brand
+                // Deactive products belong to brand
                 if (brand.Products.Any())
                 {
                     foreach (var product in brand.Products)
@@ -353,15 +435,14 @@ namespace MBKC.BAL.Services.Implementations
                     }
                 }
 
-
-                // Inactive categories belong to brand
+                // Deactive categories belong to brand
                 if (brand.Categories.Any())
                 {
                     foreach (var category in brand.Categories)
                     {
                         category.Status = (int)CategoryEnum.Status.DEACTIVE;
                     }
-                    // Inactive extra categories belong to brand
+                    // Deactive extra categories belong to brand
                     foreach (var category in brand.Categories)
                     {
                         foreach (var extra in category.ExtraCategoryProductCategories)
@@ -371,61 +452,33 @@ namespace MBKC.BAL.Services.Implementations
                     }
                 }
 
-                // Inactive brand's store
+                // Change status brand's store to NOT_RENT
                 if (brand.Stores.Any())
                 {
                     foreach (var store in brand.Stores)
                     {
-                        store.Status = (int)StoreEnum.Status.DEACTIVE;
+                        store.Status = (int)StoreEnum.Status.INACTIVE;
                     }
                 }
                 _unitOfWork.BrandRepository.UpdateBrand(brand);
                 _unitOfWork.Commit();
-
-                /* //Deactive brand, Brand Manager account, product, categories, extra categories from Redis
-                 var brandRedis = await _unitOfWork.BrandRedisRepository.GetBrandByIdAsync(id.ToString());
-                 if (brandRedis == null)
-                 {
-                     throw new NotFoundException("Brand does not exist in the system");
-                 }
-                 brandRedis.Status = (int)BrandEnum.Status.DEACTIVE;
-                 var categoriesRedis = await _unitOfWork.CategoryRedisRepository.GetCategoriesByBrandIdAsync(brandRedis.BrandId);
-                 var extraCategoriesRedis = await _unitOfWork.ExtraCategoryRedisRepository.GetExtraCategoryByCategoriesIdAsync(brandRedis.BrandId);
-                 var productsRedis = await this._unitOfWork.ProductRedisRepository.GetProductsByBrandIdAsync(brandRedis.BrandId);
-                 var storesRedis = await this._unitOfWork.StoreRedisRepository.GetStoresByBrandIdAsync(brandRedis.BrandId);
-                 var brandAccountRedis = await this._unitOfWork.BrandAccountRedisRepository.GetBrandAccountsByBrandIdAsync(brandRedis.BrandId);
-
-                 foreach (var category in categoriesRedis)
-                 {
-                     category.Status = (int)CategoryEnum.Status.DEACTIVE;
-                 }
-
-                 foreach (var extraCategory in extraCategoriesRedis)
-                 {
-                     extraCategory.Status = (int)ExtraCategoryEnum.Status.DEACTIVE;
-                 }
-
-                 foreach (var product in productsRedis)
-                 {
-                     product.Status = (int)ProductEnum.Status.DEACTIVE;
-                 }
-
-                 foreach (var store in storesRedis)
-                 {
-                     store.Status = (int)StoreEnum.Status.NOT_RENT;
-                 }
-                 foreach (var brandAccount in brandAccountRedis)
-                 {
-                     var accountRedis = await this._unitOfWork.AccountRedisRepository.GetAccountAsync(brandAccount.AccountId);
-                     accountRedis.Status = Convert.ToBoolean(AccountEnum.Status.INACTIVE);
-                 }*/
+            }
+            catch (BadRequestException ex)
+            {
+                string fieldName = "";
+                if (ex.Message.Equals("Brand Id is not suitable for the system."))
+                {
+                    fieldName = "Brand Id";
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new NotFoundException(error);
             }
             catch (NotFoundException ex)
             {
                 string fileName = "";
-                if (ex.Message.Equals("Brand does not exist in the system"))
+                if (ex.Message.Equals("Brand Id does not exist in the system"))
                 {
-                    fileName = "BrandId";
+                    fileName = "Brand Id";
                 }
                 string error = ErrorUtil.GetErrorString(fileName, ex.Message);
                 throw new NotFoundException(error);

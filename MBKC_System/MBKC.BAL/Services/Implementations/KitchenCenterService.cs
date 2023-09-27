@@ -40,10 +40,11 @@ namespace MBKC.BAL.Services.Implementations
                     throw new BadRequestException("Manager Email already existed in the system.");
                 }
                 Role role = await this._unitOfWork.RoleRepository.GetRoleAsync((int)RoleEnum.Role.KITCHEN_CENTER_MANAGER);
+                string password = RandomPasswordUtil.CreateRandomPassword();
                 Account managerAccount = new Account()
                 {
                     Email = newKitchenCenter.ManagerEmail,
-                    Password = "12345678",
+                    Password = password,
                     Status = (int)AccountEnum.Status.ACTIVE,
                     Role = role
                 };
@@ -72,6 +73,9 @@ namespace MBKC.BAL.Services.Implementations
                 };
                 await this._unitOfWork.KitchenCenterRepository.CreateKitchenCenterAsync(kitchenCenter);
                 await this._unitOfWork.CommitAsync();
+
+                string message = EmailUtil.MessageRegisterAccountForKitchenCenter(emailOption.SystemName, newKitchenCenter.ManagerEmail, password, newKitchenCenter.Name);
+                await EmailUtil.SendEmailAndPasswordToEmail(emailOption, newKitchenCenter.ManagerEmail, message);
             }
             catch (BadRequestException ex)
             {
@@ -197,6 +201,7 @@ namespace MBKC.BAL.Services.Implementations
             bool isUploaded = false;
             bool isDeleted = false; 
             string logoId = "";
+            bool isNewManager = false;
             try
             {
                 KitchenCenter existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(kitchenCenterId);
@@ -208,6 +213,7 @@ namespace MBKC.BAL.Services.Implementations
                     throw new BadRequestException("Kitchen center was deleted before, so this kitchen center cannot update.");
                 }
 
+                string password = "";
                 if (existedKitchenCenter.Manager.Email.Equals(updatedKitchenCenter.ManagerEmail) == false)
                 {
                     Account existedAccount = await this._unitOfWork.AccountRepository.GetAccountAsync(updatedKitchenCenter.ManagerEmail);
@@ -220,14 +226,16 @@ namespace MBKC.BAL.Services.Implementations
                     this._unitOfWork.AccountRepository.UpdateAccount(existedKitchenCenter.Manager);
                     
                     Role kitchenCenterManagerRole = await this._unitOfWork.RoleRepository.GetRoleAsync((int)RoleEnum.Role.KITCHEN_CENTER_MANAGER);
+                    password = RandomPasswordUtil.CreateRandomPassword();
                     Account newManagerAccount = new Account()
                     {
                         Email = updatedKitchenCenter.ManagerEmail,
-                        Password = "12345678",
+                        Password = password,
                         Status = (int)AccountEnum.Status.ACTIVE,
                         Role = kitchenCenterManagerRole
                     };
                     existedKitchenCenter.Manager = newManagerAccount;
+                    isNewManager = true;
                 }
 
                 string oldLogo = existedKitchenCenter.Logo;
@@ -260,6 +268,12 @@ namespace MBKC.BAL.Services.Implementations
                 }
                 this._unitOfWork.KitchenCenterRepository.UpdateKitchenCenter(existedKitchenCenter);
                 await this._unitOfWork.CommitAsync();
+
+                if (isNewManager)
+                {
+                    string message = EmailUtil.MessageRegisterAccountForKitchenCenter(emailOption.SystemName, updatedKitchenCenter.ManagerEmail, password, updatedKitchenCenter.Name);
+                    await EmailUtil.SendEmailAndPasswordToEmail(emailOption, updatedKitchenCenter.ManagerEmail, message);
+                }
             }
             catch(NotFoundException ex)
             {

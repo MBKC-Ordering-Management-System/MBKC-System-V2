@@ -26,7 +26,7 @@ namespace MBKC.DAL.Repositories
             {
                 throw new Exception(ex.Message);
             }
-        }
+    }
 
     }
 }

@@ -101,18 +101,6 @@ namespace MBKC.DAL.Infrastructures
             }
         }
 
-        public BrandRepository BrandRepository
-        {
-            get
-            {
-                if (this._brandRepository == null)
-                {
-                    this._brandRepository = new BrandRepository(this._dbContext);
-                }
-                return this._brandRepository;
-            }
-        }
-
         public CashierRepository CashierRepository
         {
             get
@@ -122,6 +110,18 @@ namespace MBKC.DAL.Infrastructures
                     this._cashierRepository = new CashierRepository(this._dbContext);
                 }
                 return this._cashierRepository;
+            }
+        }
+
+        public BrandRepository BrandRepository
+        {
+            get
+            {
+                if (this._brandRepository == null)
+                {
+                    this._brandRepository = new BrandRepository(this._dbContext);
+                }
+                return this._brandRepository;
             }
         }
 

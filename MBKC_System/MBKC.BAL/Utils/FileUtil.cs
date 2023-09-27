@@ -52,6 +52,7 @@ namespace MBKC.BAL.Utils
         {
             try
             {
+
                 var auth = new FirebaseAuthProvider(new FirebaseConfig(ApiKey));
                 var a = await auth.SignInWithEmailAndPasswordAsync(AuthEmail, AuthPassword);
 
