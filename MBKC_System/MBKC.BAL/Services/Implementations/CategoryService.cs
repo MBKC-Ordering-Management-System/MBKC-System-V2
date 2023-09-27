@@ -23,7 +23,7 @@ namespace MBKC.BAL.Services.Implementations
     {
         private UnitOfWork _unitOfWork;
         private IMapper _mapper;
-   
+
         public CategoryService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             this._unitOfWork = (UnitOfWork)unitOfWork;
@@ -358,8 +358,12 @@ namespace MBKC.BAL.Services.Implementations
             {
                 var categories = new List<Category>();
                 var categoryResponse = new List<GetCategoryResponse>();
-
-                if (!type.Equals("EXTRA") && !type.Equals("NORMAL"))
+                if (string.IsNullOrEmpty(type))
+                {
+                    throw new BadRequestException("Type is not suitable for the system.");
+                }
+                if (!type.ToLower().Equals(CategoryEnum.Type.EXTRA.ToString().ToLower())
+                    && !type.ToLower().Equals(CategoryEnum.Type.NORMAL.ToString().ToLower()))
                 {
                     throw new BadRequestException("Type are EXTRA or NORMAL.");
                 }
@@ -383,17 +387,17 @@ namespace MBKC.BAL.Services.Implementations
                 int numberItems = 0;
                 if (keySearchName != null && StringUtil.IsUnicode(keySearchName))
                 {
-                    numberItems = await this._unitOfWork.CategoryRepository.GetNumberCategoriesAsync(keySearchName, null);
+                    numberItems = await this._unitOfWork.CategoryRepository.GetNumberCategoriesAsync(keySearchName, null, type);
                     categories = await this._unitOfWork.CategoryRepository.GetCategoriesAsync(keySearchName, null, type, pageSize.Value, pageNumber.Value);
                 }
                 else if (keySearchName != null && StringUtil.IsUnicode(keySearchName) == false)
                 {
-                    numberItems = await this._unitOfWork.CategoryRepository.GetNumberCategoriesAsync(null, keySearchName);
+                    numberItems = await this._unitOfWork.CategoryRepository.GetNumberCategoriesAsync(null, keySearchName, type);
                     categories = await this._unitOfWork.CategoryRepository.GetCategoriesAsync(null, keySearchName, type, pageSize.Value, pageNumber.Value);
                 }
                 else if (keySearchName == null)
                 {
-                    numberItems = await this._unitOfWork.CategoryRepository.GetNumberCategoriesAsync(null, null);
+                    numberItems = await this._unitOfWork.CategoryRepository.GetNumberCategoriesAsync(null, null, type);
                     categories = await this._unitOfWork.CategoryRepository.GetCategoriesAsync(null, null, type, pageSize.Value, pageNumber.Value);
                 }
                 _mapper.Map(categories, categoryResponse);
@@ -431,7 +435,11 @@ namespace MBKC.BAL.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals("Type are EXTRA or NORMAL."))
+                if (ex.Message.Equals("Type is not suitable for the system."))
+                {
+                    fieldName = "Type";
+                }
+                else if (ex.Message.Equals("Type are EXTRA or NORMAL."))
                 {
                     fieldName = "Type";
                 }

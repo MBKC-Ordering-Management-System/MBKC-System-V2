@@ -95,15 +95,15 @@ namespace MBKC.DAL.Repositories
                                                      {
                                                          return false;
                                                      }
-                                                 }).Where(c => c.Type.Equals(type) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE)).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+                                                 }).Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE)).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
                 }
                 else if (keySearchNameUniCode != null && keySearchNameNotUniCode == null)
                 {
                     return await this._dbContext.Categories
-                        .Where(c => c.Name.ToLower().Contains(keySearchNameUniCode.ToLower()) && c.Type.Equals(type) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
+                        .Where(c => c.Name.ToLower().Contains(keySearchNameUniCode.ToLower()) && c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
                         .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
                 }
-                return await this._dbContext.Categories.Where(c => c.Type.Equals(type) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
+                return await this._dbContext.Categories.Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
             }
             catch (Exception ex)
@@ -142,7 +142,7 @@ namespace MBKC.DAL.Repositories
         #endregion
 
         #region Get Number Categories
-        public async Task<int> GetNumberCategoriesAsync(string? keySearchUniCode, string? keySearchNotUniCode)
+        public async Task<int> GetNumberCategoriesAsync(string? keySearchUniCode, string? keySearchNotUniCode, string type)
         {
             try
             {
@@ -158,13 +158,13 @@ namespace MBKC.DAL.Repositories
                         {
                             return false;
                         }
-                    }).Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE)).AsQueryable().Count();
+                    }).Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Type.Equals(type.ToUpper())).AsQueryable().Count();
                 }
                 else if (keySearchUniCode != null && keySearchNotUniCode == null)
                 {
-                    return await this._dbContext.Categories.Where(c => c.Name.ToLower().Contains(keySearchUniCode.ToLower()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE)).CountAsync();
+                    return await this._dbContext.Categories.Where(c => c.Name.ToLower().Contains(keySearchUniCode.ToLower()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Type.Equals(type.ToUpper())).CountAsync();
                 }
-                return await this._dbContext.Categories.CountAsync();
+                return await this._dbContext.Categories.Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Type.Equals(type.ToUpper())).CountAsync();
             }
             catch (Exception ex)
             {
@@ -232,7 +232,7 @@ namespace MBKC.DAL.Repositories
                 {
                     return categories.Where(c => c.Name.ToLower().Contains(keySearchUniCode.ToLower()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE)).Count();
                 }
-                return categories.Count();
+                return categories.Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE)).Count();
             }
             catch (Exception ex)
             {
