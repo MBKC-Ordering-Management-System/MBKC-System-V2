@@ -59,7 +59,7 @@ namespace MBKC.BAL.Services.Implementations
                 if (logoLink != null && logoLink.Length > 0)
                 {
                     isUploaded = true;
-                }
+                } 
                 logoLink += $"&logoId={logoId}";
                 KitchenCenter kitchenCenter = new KitchenCenter()
                 {

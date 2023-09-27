@@ -89,7 +89,8 @@ namespace MBKC.DAL.Infrastructures
                 return this._emailVerificationRedisRepository;
             }
         }
-        public BankingAccountRepository BankingAccountDAO
+
+        public BankingAccountRepository BankingAccountRepository
         {
             get
             {
@@ -110,19 +111,6 @@ namespace MBKC.DAL.Infrastructures
                     this._cashierRepository = new CashierRepository(this._dbContext);
                 }
                 return this._cashierRepository;
-            }
-        }
-       
-
-        public BankingAccountRepository BankingAccountRepository
-        {
-            get
-            {
-                if (this._bankingAccountRepository == null)
-                {
-                    this._bankingAccountRepository = new BankingAccountRepository(this._dbContext);
-                }
-                return this._bankingAccountRepository;
             }
         }
 
