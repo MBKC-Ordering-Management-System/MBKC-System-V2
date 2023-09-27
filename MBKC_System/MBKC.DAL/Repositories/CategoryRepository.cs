@@ -240,5 +240,12 @@ namespace MBKC.DAL.Repositories
             }
         }
         #endregion
+
+        public bool CheckListExtraCategoryId(List<int> listIdExtraCategory)
+        {
+            bool idsExistInDatabase = this._dbContext.Categories
+                .Any(extraCategory => listIdExtraCategory.Contains(extraCategory.CategoryId));
+            return idsExistInDatabase;
+        }
     }
 }

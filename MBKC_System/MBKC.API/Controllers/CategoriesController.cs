@@ -53,8 +53,8 @@ namespace MBKC.API.Controllers
         ///              "Type": "Normal"
         ///              "DisplayOrder": 1
         ///              "Description": "Bánh của hệ thống"
-        ///              "ImgUrl": [Upload a Image file] 
-        ///              "Status": 1
+        ///              "BrandId" : 2
+        ///              "ImgUrl": [Imgage File] 
         ///         }
         /// </remarks>
         /// <response code="200">Created Category Successfylly.</response>
@@ -105,11 +105,15 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///     
         ///         PUT
+        ///         id: 1
+        ///         
         ///         {
         ///              "Name": "Thịt nguội"
         ///              "DisplayOrder": 3
+        ///              "Code": "TN001"
+        ///              "Status" : "Active"
         ///              "Description": "Thịt thêm vào bánh mỳ"
-        ///              "ImgUrl": [Upload a Image file] 
+        ///              "ImgUrl": [Imgage File] 
         ///         }
         /// </remarks>
         /// <response code="200">Updated Category Successfully.</response>
@@ -163,14 +167,11 @@ namespace MBKC.API.Controllers
         /// <remarks>
         ///     Sample request:
         ///     
-        ///         GET
-        ///         {
-        ///             "type": "NORMAL"
-        ///             "keySearchName": "Bánh"
-        ///             "pageNumber": 5
-        ///             "pageSize": 1
-        ///         }
-        ///         
+        ///             GET
+        ///             type: NORMAL
+        ///             keySearchName: Bánh
+        ///             pageNumber: 5
+        ///             pageSize: 1
         /// </remarks>
         /// <response code="200">Get categories Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
@@ -205,10 +206,8 @@ namespace MBKC.API.Controllers
         /// <remarks>
         ///     Sample request:
         ///     
-        ///         GET
-        ///         {
-        ///           "id": 3
-        ///         }
+        ///           GET
+        ///           id: 3
         /// </remarks>
         /// <response code="200">Get category Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
@@ -244,11 +243,8 @@ namespace MBKC.API.Controllers
         /// <remarks>
         ///     Sample request:
         ///     
-        ///         DELETE
-        ///         {
-        ///            "id": 3
-        ///         }
-        ///         
+        ///            DELETE
+        ///            id: 3
         /// </remarks>
         /// <response code="200">Deactive Category Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
@@ -297,13 +293,11 @@ namespace MBKC.API.Controllers
         /// <remarks>
         ///     Sample request:
         ///     
-        ///         GET
-        ///         {
-        ///            "id": 1
-        ///            "KeySearchName": "Bánh Quy Bơ"
-        ///            "pageSize": 5
-        ///            "pageNumber": 1
-        ///         }
+        ///            GET
+        ///            id: 1
+        ///            KeySearchName: Bánh Quy Bơ
+        ///            pageSize: 5
+        ///            pageNumber: 1
         /// </remarks>
         /// <response code="200">Get products Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
@@ -348,14 +342,11 @@ namespace MBKC.API.Controllers
         /// <remarks>
         ///     Sample request:
         ///     
-        ///         GET
-        ///         {
-        ///            "id": 1
-        ///            "keySearchName": Ngò gai
-        ///            "pageNumber": 5
-        ///            "pageSize": 1
-        ///         }
-        ///        
+        ///            GET
+        ///            id: 1
+        ///            keySearchName: Ngò gai
+        ///            pageNumber: 5
+        ///            pageSize: 1
         /// </remarks>
         /// <response code="200">Get Extra categories Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
@@ -395,11 +386,8 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///     
         ///         POST
-        ///         {
-        ///            "id": 1
-        ///            [2,3,4,5]
-        ///         }
-        ///         
+        ///         "id": 1
+        ///         [2,3,4,5]
         /// </remarks>
         /// <response code="200">Add Extra Category To Normal Category Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
@@ -417,7 +405,7 @@ namespace MBKC.API.Controllers
         [PermissionAuthorize("Brand Manager")]
         public async Task<IActionResult> AddExtraCategoriesToNormalCategory([FromRoute] int id, [FromBody] List<int> listExtraCategoryId)
         {
-            await this._categoryService.AddExtraCategoriesToNormalCategory(id, extraCategoryId);
+            await this._categoryService.AddExtraCategoriesToNormalCategory(id, listExtraCategoryId);
             return Ok(new { Message = "Add Extra Category To Normal Category Successfully." });
         }
         #endregion

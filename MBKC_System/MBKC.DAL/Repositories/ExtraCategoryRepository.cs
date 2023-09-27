@@ -21,12 +21,13 @@ namespace MBKC.DAL.Repositories
         }
 
         #region Get ExtraCategoriesByCategoryId
-        public async Task<List<ExtraCategory>> GetExtraCategoriesByCategoryIdAsync(int categoryId)
+        public async Task<List<int>> GetExtraCategoriesByCategoryIdAsync(int categoryId)
         {
             try
             {
                 return await _dbContext.ExtraCategories
                     .Where(e => e.ProductCategoryId == categoryId && e.Status == (int)ExtraCategoryEnum.Status.ACTIVE)
+                    .Select(e => e.ExtraCategoryId)
                     .ToListAsync();
             }
             catch (Exception ex)
@@ -36,7 +37,7 @@ namespace MBKC.DAL.Repositories
         }
         #endregion
 
-        public async Task InsertRange(IEnumerable<ExtraCategory> extraCategories)
+        public async Task InsertRangeAsync(IEnumerable<ExtraCategory> extraCategories)
         {
             try
             {

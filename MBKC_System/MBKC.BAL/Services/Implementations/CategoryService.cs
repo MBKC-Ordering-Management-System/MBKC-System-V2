@@ -603,9 +603,9 @@ namespace MBKC.BAL.Services.Implementations
 
                 var extraCategories = await this._unitOfWork.ExtraCategoryRepository.GetExtraCategoriesByCategoryIdAsync(categoryId);
 
-                foreach (var extraCategory in extraCategories)
+                foreach (var extraCategoryId in extraCategories)
                 {
-                    var extraCategoryInNormalCategory = await this._unitOfWork.CategoryRepository.GetCategoryByIdAsync(extraCategory.ExtraCategoryId);
+                    var extraCategoryInNormalCategory = await this._unitOfWork.CategoryRepository.GetCategoryByIdAsync(extraCategoryId);
                     listExtraCategoriesInNormalCategory.Add(extraCategoryInNormalCategory);
                 }
 
@@ -705,15 +705,25 @@ namespace MBKC.BAL.Services.Implementations
                     throw new BadRequestException("Category Id is not suitable for the system.");
                 }
 
-                var category = await this._unitOfWork.CategoryRepository.GetCategoryByIdAsync(categoryId);
-                var extraCategory = await this._unitOfWork.ExtraCategoryRepository.GetExtraCategoriesByCategoryIdAsync(categoryId);
-                var listIdExtraCategoriesInNomalCategory = extraCategory.Select(e => e.ExtraCategoryId).ToList();
-                SplitIdCategoryResponse splittedExtraCategoriesIds = CustomListUtil.splitIdsToAddAndRemove(listIdExtraCategoriesInNomalCategory, listExtraCategoryId);
+                if (listExtraCategoryId.Any(item => item <= 0))
+                {
+                    throw new BadRequestException("Extra category id must be greater than 0");
+                }
+                var checkListExtraCategoryId = this._unitOfWork.CategoryRepository.CheckListExtraCategoryId(listExtraCategoryId);
+                if (!checkListExtraCategoryId)
+                {
+                    throw new BadRequestException("There is an Extra Category Id in the List that does not exist in the system.");
+                }
 
+                var category = await this._unitOfWork.CategoryRepository.GetCategoryByIdAsync(categoryId);
                 if (category == null)
                 {
                     throw new BadRequestException("Category Id does not exist in the system.");
                 }
+                SplitIdCategoryResponse splittedExtraCategoriesIds = CustomListUtil
+                                                                                   .splitIdsToAddAndRemove(category.ExtraCategoryProductCategories
+                                                                                   .Select(e => e.ExtraCategoryId)
+                                                                                   .ToList(), listExtraCategoryId);
 
                 //Handle add and remove to database
                 if (splittedExtraCategoriesIds.idsToAdd.Count > 0)
@@ -726,16 +736,14 @@ namespace MBKC.BAL.Services.Implementations
                         ExtraCategoryId = id,
                         Status = (int)CategoryEnum.Status.ACTIVE
                     }));
-                   await this._unitOfWork.ExtraCategoryRepository.InsertRange(extraCategoriesToInsert);
+                    await this._unitOfWork.ExtraCategoryRepository.InsertRangeAsync(extraCategoriesToInsert);
                 }
 
                 if (splittedExtraCategoriesIds.idsToRemove.Count > 0)
                 {
                     // Delete extra category from normal category
                     var listExtraCategoriesToDelete = new List<ExtraCategory>();
-                    List<ExtraCategory> extraCategoriesToDelete = new List<ExtraCategory>();
-                    extraCategoriesToDelete = await _unitOfWork.ExtraCategoryRepository.GetExtraCategoriesByCategoryIdAsync(categoryId);
-                    foreach (var extra in extraCategoriesToDelete)
+                    foreach (var extra in category.ExtraCategoryProductCategories)
                     {
                         foreach (var id in splittedExtraCategoriesIds.idsToRemove)
                         {
@@ -755,6 +763,10 @@ namespace MBKC.BAL.Services.Implementations
                 if (ex.Message.Equals("Category Id does not exist in the system."))
                 {
                     fieldName = "Category Id";
+                }
+                if (ex.Message.Equals("There is an Extra Category Id in the List that does not exist in the system."))
+                {
+                    fieldName = "List Extra Category Id";
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);

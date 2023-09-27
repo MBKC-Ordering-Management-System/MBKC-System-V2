@@ -126,7 +126,7 @@ builder.Services.AddScoped<IBankingAccountService, BankingAccountService>();
 builder.Services.AddScoped<IBrandService, BrandService>();
 builder.Services.AddScoped<IBrandAccountService, BrandAccountService>();
 builder.Services.AddScoped<ICashierService, CashierService>();
-builder.Services.AddScoped<ICashierMoneyExchangeService, CashierMoneyExchangesService>();
+builder.Services.AddScoped<ICashierMoneyExchangeService, CashierMoneyExchangeService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IExtraCategoryService, ExtraCategoryService>();
 builder.Services.AddScoped<IKitchenCenterService, KitchenCenterService>();
