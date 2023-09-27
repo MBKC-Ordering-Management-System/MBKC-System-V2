@@ -142,9 +142,7 @@ namespace MBKC.BAL.Repositories.Implementations
                 {
                     //Delete image from database
                     FileUtil.SetCredentials(fireBaseImage);
-                    Uri uri = new Uri(brand.Logo);
-                    logoId = HttpUtility.ParseQueryString(uri.Query).Get("logoId");
-                    await FileUtil.DeleteImageAsync(logoId, "Brands");
+                    await FileUtil.DeleteImageAsync(FileUtil.GetImageIdFromUrlImage(brand.Logo, "logoId"),"Brands");
 
                     // Upload image to firebase
                     FileStream fileStream = Utils.FileUtil.ConvertFormFileToStream(updateBrandRequest.Logo);

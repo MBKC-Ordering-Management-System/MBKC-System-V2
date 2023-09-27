@@ -33,7 +33,6 @@ namespace MBKC.BAL.Validators
             #region Logo
             RuleFor(b => b.Logo)
                    .Cascade(CascadeMode.StopOnFirstFailure)
-                   .NotNull().WithMessage("{PropertyName} is null.")
                    .ChildRules(pro => pro.RuleFor(img => img.Length).ExclusiveBetween(0, MAX_BYTES)
                    .WithMessage($"Logo is required file length greater than 0 and less than {MAX_BYTES / 1024 / 1024} MB"));
             RuleFor(p => p.Logo)
