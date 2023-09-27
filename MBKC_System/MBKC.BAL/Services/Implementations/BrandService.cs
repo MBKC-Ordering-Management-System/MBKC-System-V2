@@ -41,14 +41,14 @@ namespace MBKC.BAL.Services.Implementations
                 {
                     throw new ConflictException("Email already exists in the system");
                 }
-                var brandManagerRole = await _unitOfWork.RoleRepository.GetRoleById((int)RoleEnum.Role.BRAND_MANAGER);
+                var brandManagerRole = await _unitOfWork.RoleRepository.GetRoleAsync((int)RoleEnum.Role.BRAND_MANAGER);
 
                 // Upload image to firebase
                 FileStream fileStream = Utils.FileUtil.ConvertFormFileToStream(postBrandRequest.Logo);
                 FileUtil.SetCredentials(fireBaseImage);
                 Guid guild = Guid.NewGuid();
                 logoId = guild.ToString();
-                string urlImage = await Utils.FileUtil.UploadImage(fileStream, "Brand", logoId);
+                string urlImage = await Utils.FileUtil.UploadImageAsync(fileStream, "Brand", logoId);
                 uploaded = true;
 
                 // Create account
@@ -156,7 +156,7 @@ namespace MBKC.BAL.Services.Implementations
                     FileStream fileStream = Utils.FileUtil.ConvertFormFileToStream(updateBrandRequest.Logo);
                     Guid guild = Guid.NewGuid();
                     logoId = guild.ToString();
-                    var urlImage = await Utils.FileUtil.UploadImage(fileStream, "Brand", logoId);
+                    var urlImage = await Utils.FileUtil.UploadImageAsync(fileStream, "Brand", logoId);
                     brand.Logo = urlImage + $"&logoId={logoId}";
                     uploaded = true;
                 }
@@ -247,13 +247,13 @@ namespace MBKC.BAL.Services.Implementations
                         switch (searchBrandRequest.KeyStatusFilter)
                         {
                             case nameof(BrandEnum.StatusFilter.INACTIVE):
-                                brandResponse = brandResponse.Where(b => b.Status == (int)BrandEnum.StatusFilter.INACTIVE).ToList();
+                                brandResponse = brandResponse.Where(b => b.Status == BrandEnum.StatusFilter.INACTIVE.ToString()).ToList();
                                 break;
                             case nameof(BrandEnum.StatusFilter.ACTIVE):
-                                brandResponse = brandResponse.Where(b => b.Status == (int)BrandEnum.StatusFilter.ACTIVE).ToList();
+                                brandResponse = brandResponse.Where(b => b.Status == BrandEnum.StatusFilter.ACTIVE.ToString()).ToList();
                                 break;
                             case nameof(BrandEnum.StatusFilter.DEACTIVE):
-                                brandResponse = brandResponse.Where(b => b.Status == (int)BrandEnum.StatusFilter.DEACTIVE).ToList();
+                                brandResponse = brandResponse.Where(b => b.Status == BrandEnum.StatusFilter.DEACTIVE.ToString()).ToList();
                                 break;
                         }
                     }
@@ -341,7 +341,7 @@ namespace MBKC.BAL.Services.Implementations
                 // Inactive Manager Account of brand
                 foreach (var brandAccount in brand.BrandAccounts)
                 {
-                    brandAccount.Account.Status = (int)AccountEnum.Status.INACTIVE;
+                    brandAccount.Account.Status = (int)AccountEnum.Status.DEACTIVE;
                 }
 
                 // Inactive products belong to brand
@@ -376,7 +376,7 @@ namespace MBKC.BAL.Services.Implementations
                 {
                     foreach (var store in brand.Stores)
                     {
-                        store.Status = (int)StoreEnum.Status.NOT_RENT;
+                        store.Status = (int)StoreEnum.Status.DEACTIVE;
                     }
                 }
                 _unitOfWork.BrandRepository.UpdateBrand(brand);

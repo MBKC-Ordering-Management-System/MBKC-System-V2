@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using MBKC.BAL.Repositories.Interfaces;
+using MBKC.BAL.Services.Interfaces;
 using MBKC.DAL.Infrastructures;
 using System;
 using System.Collections.Generic;

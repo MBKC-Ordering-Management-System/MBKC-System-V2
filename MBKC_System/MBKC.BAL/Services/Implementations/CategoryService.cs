@@ -18,19 +18,11 @@ using System.Web;
 
 namespace MBKC.BAL.Services.Implementations
 {
-<<<<<<<< HEAD:MBKC_System/MBKC.BAL/Services/Implementations/CashierService.cs
-    public class CashierService : ICashierService
-    {
-        private UnitOfWork _unitOfWork;
-        private IMapper _mapper;
-        public CashierService(IUnitOfWork unitOfWork, IMapper mapper)
-========
     public class CategoryService : ICategoryService
     {
         private UnitOfWork _unitOfWork;
         private IMapper _mapper;
         public CategoryService(IUnitOfWork unitOfWork, IMapper mapper)
->>>>>>>> main:MBKC_System/MBKC.BAL/Services/Implementations/CategoryService.cs
         {
             this._unitOfWork = (UnitOfWork)unitOfWork;
             this._mapper = mapper;
@@ -59,7 +51,7 @@ namespace MBKC.BAL.Services.Implementations
                 FileUtil.SetCredentials(fireBaseImage);
                 Guid guild = Guid.NewGuid();
                 imageId = guild.ToString();
-                var urlImage = await Utils.FileUtil.UploadImage(fileStream, "Categories", imageId);
+                var urlImage = await Utils.FileUtil.UploadImageAsync(fileStream, "Categories", imageId);
                 if (urlImage != null)
                 {
                     uploaded = true;
@@ -149,7 +141,7 @@ namespace MBKC.BAL.Services.Implementations
                     FileStream fileStream = Utils.FileUtil.ConvertFormFileToStream(updateCategoryRequest.ImageUrl);
                     Guid guild = Guid.NewGuid();
                     imageId = guild.ToString();
-                    var urlImage = await Utils.FileUtil.UploadImage(fileStream, "Categories", imageId);
+                    var urlImage = await Utils.FileUtil.UploadImageAsync(fileStream, "Categories", imageId);
                     if (urlImage != null)
                     {
                         uploaded = true;
@@ -687,7 +679,7 @@ namespace MBKC.BAL.Services.Implementations
                         ExtraCategoryId = id,
                         Status = (int)CategoryEnum.Status.ACTIVE
                     }));
-                    _unitOfWork.ExtraCategoryRepository._dbContext.AddRange(extraCategoriesToInsert);
+                   await this._unitOfWork.ExtraCategoryRepository.InsertRange(extraCategoriesToInsert);
                 }
 
                 if (splittedExtraCategoriesIds.idsToRemove.Count > 0)
@@ -705,7 +697,7 @@ namespace MBKC.BAL.Services.Implementations
                             }
                         }
                     }
-                    _unitOfWork.ExtraCategoryRepository._dbContext.RemoveRange(listExtraCategoriesToDelete);
+                    _unitOfWork.ExtraCategoryRepository.DeleteRange(listExtraCategoriesToDelete);
                 }
                 await this._unitOfWork.CommitAsync();
             }

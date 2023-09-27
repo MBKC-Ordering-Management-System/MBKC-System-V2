@@ -100,17 +100,6 @@ namespace MBKC.DAL.Infrastructures
                 return this._bankingAccountRepository;
             }
         }
-        public BankingAccountDAO BankingAccountDAO
-        {
-            get
-            {
-                if (this._bankingAccountDAO == null)
-                {
-                    this._bankingAccountDAO = new BankingAccountDAO(this._dbContext);
-                }
-                return this._bankingAccountDAO;
-            }
-        }
 
         public BrandRepository BrandRepository
         {

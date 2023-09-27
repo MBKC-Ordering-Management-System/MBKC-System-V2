@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MBKC.BAL.Services.Implementations
+{ 
 
     public class CashierService : ICashierService
     {
