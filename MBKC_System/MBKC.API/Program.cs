@@ -28,6 +28,7 @@ using System.Reflection;
 using System.Text;
 using MBKC.BAL.Validators.Categories;
 using MBKC.BAL.DTOs.Categories;
+using MBKC.BAL.Validators.Brands;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -179,6 +180,8 @@ builder.Services.AddScoped<IValidator<PostBrandRequest>, PostBrandValidator>();
 builder.Services.AddScoped<IValidator<UpdateBrandRequest>, UpdateBrandValidator>();
 builder.Services.AddScoped<IValidator<PostCategoryRequest>, PostCategoryValidator>();
 builder.Services.AddScoped<IValidator<UpdateCategoryRequest>, UpdateCategoryValidator>();
+builder.Services.AddScoped<IValidator<UpdateBrandStatusRequest>, UpdateBrandStatusValidator>();
+builder.Services.AddScoped<IValidator<UpdateBrandProfileRequest>, UpdateBrandProfileValidator>();
 
 //Middlewares
 builder.Services.AddTransient<ExceptionMiddleware>();

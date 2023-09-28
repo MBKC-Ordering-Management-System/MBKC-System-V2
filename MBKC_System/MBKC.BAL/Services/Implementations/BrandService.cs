@@ -14,6 +14,7 @@ using MBKC.DAL.RedisModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -57,7 +58,7 @@ namespace MBKC.BAL.Services.Implementations
                     uploaded = true;
                 }
                 // Create account
-                string unEncryptedPassword = RandomPasswordUtil.CreateRandomPassword();
+                string unEncryptedPassword = StringUtil.EncryptData(RandomPasswordUtil.CreateRandomPassword()); ;
                 var account = new Account
                 {
                     Email = postBrandRequest.ManagerEmail,
@@ -131,7 +132,7 @@ namespace MBKC.BAL.Services.Implementations
             {
                 if (brandId <= 0)
                 {
-                    throw new BadRequestException("Brand Id is not suitable for the system.");
+                    throw new BadRequestException("Brand Id is not suitable id in the system.");
                 }
                 var brand = await _unitOfWork.BrandRepository.GetBrandByIdAsync(brandId);
                 if (brand == null)
@@ -152,7 +153,7 @@ namespace MBKC.BAL.Services.Implementations
                                                         && x.Account.Status == (int)AccountEnum.Status.ACTIVE).Account.Status = (int)AccountEnum.Status.DEACTIVE;
 
                     Role brandManagerRole = await this._unitOfWork.RoleRepository.GetRoleById((int)RoleEnum.Role.BRAND_MANAGER);
-                    password = RandomPasswordUtil.CreateRandomPassword();
+                    password = StringUtil.EncryptData(RandomPasswordUtil.CreateRandomPassword());
                     Account newBrandManagerAccount = new Account()
                     {
                         Email = updateBrandRequest.BrandManagerEmail,
@@ -215,7 +216,7 @@ namespace MBKC.BAL.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals("Brand Id is not suitable for the system."))
+                if (ex.Message.Equals("Brand Id is not suitable id in the system."))
                 {
                     fieldName = "Brand Id";
                 }
@@ -370,7 +371,7 @@ namespace MBKC.BAL.Services.Implementations
         #endregion
 
         #region Get Brand By Id
-        public async Task<GetBrandResponse> GetBrandByIdAsync(int id)
+        public async Task<GetBrandResponse> GetBrandByIdAsync(int id, IEnumerable<Claim> claims)
         {
             try
             {
@@ -378,20 +379,39 @@ namespace MBKC.BAL.Services.Implementations
                 {
                     throw new BadRequestException("Brand Id is not suitable for the system.");
                 }
-                var brand = await _unitOfWork.BrandRepository.GetBrandByIdAsync(id);
-                if (brand == null)
+                var existedBrand = await _unitOfWork.BrandRepository.GetBrandByIdAsync(id);
+                if (existedBrand == null)
                 {
                     throw new NotFoundException("Brand Id does not exist in the system.");
                 }
+                Claim registeredEmailClaim = claims.FirstOrDefault(x => x.Type == ClaimTypes.Email);
+                Claim registeredRoleClaim = claims.FirstOrDefault(x => x.Type.ToLower().Equals("role"));
+                string email = registeredEmailClaim.Value;
+                string role = registeredRoleClaim.Value;
+                string[] roleNameParts = RoleEnum.Role.BRAND_MANAGER.ToString().ToLower().Split("_");
+                string roleName = "";
+                foreach (var roleNamePart in roleNameParts)
+                {
+                    roleName += $"{roleNamePart} ";
+                }
+                roleName = roleName.Trim();
+                if (role.ToLower().Equals(roleName))
+                {
+                    if (existedBrand.BrandManagerEmail.Equals(email) == false)
+                    {
+                        throw new BadRequestException("Brand id does not belong to your brand.");
+                    }
+                }
 
-                var brandResponse = this._mapper.Map<GetBrandResponse>(brand);
+                var brandResponse = this._mapper.Map<GetBrandResponse>(existedBrand);
 
                 return brandResponse;
             }
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals("Brand Id is not suitable for the system."))
+                if (ex.Message.Equals("Brand Id is not suitable for the system.") ||
+                    ex.Message.Equals("Brand id does not belong to your brand."))
                 {
                     fieldName = "Brand Id";
                 }
@@ -505,5 +525,143 @@ namespace MBKC.BAL.Services.Implementations
             }
         }
         #endregion
+
+        public async Task UpdateBrandStatusAsync(int brandId, UpdateBrandStatusRequest updateBrandStatusRequest)
+        {
+            try
+            {
+                if (brandId <= 0)
+                {
+                    throw new BadRequestException("Brand Id is not suitable id in the system.");
+                }
+                var brand = await _unitOfWork.BrandRepository.GetBrandByIdAsync(brandId);
+                if (brand == null)
+                {
+                    throw new NotFoundException("Brand Id does not exist in the system");
+                }
+                if (updateBrandStatusRequest.Status.ToLower().Equals(BrandEnum.Status.ACTIVE.ToString().ToLower()))
+                {
+                    brand.Status = (int)BrandEnum.Status.ACTIVE;
+                } else if (updateBrandStatusRequest.Status.ToLower().Equals(BrandEnum.Status.INACTIVE.ToString().ToLower()))
+                {
+                    brand.Status = (int)BrandEnum.Status.INACTIVE;
+                }
+                this._unitOfWork.BrandRepository.UpdateBrand(brand);
+                await this._unitOfWork.CommitAsync();
+            } catch(BadRequestException ex)
+            {
+                string error = ErrorUtil.GetErrorString("Brand id", ex.Message);
+                throw new BadRequestException(error);
+            } catch(NotFoundException ex)
+            {
+                string error = ErrorUtil.GetErrorString("Brand id", ex.Message);
+                throw new NotFoundException(error);
+            }
+            catch(Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                throw new Exception(error);
+            }
+        }
+
+        public async Task UpdateBrandProfileAsync(int brandId, UpdateBrandProfileRequest updateBrandProfileRequest, FireBaseImage fireBaseImage, IEnumerable<Claim> claims)
+        {
+            string logoId = "";
+            bool isUploaded = false;
+            bool isDeleted = false;
+            try
+            {
+                if (brandId <= 0)
+                {
+                    throw new BadRequestException("Brand Id is not suitable id in the system.");
+                }
+                var existedBrand = await _unitOfWork.BrandRepository.GetBrandByIdAsync(brandId);
+                if (existedBrand == null)
+                {
+                    throw new NotFoundException("Brand Id does not exist in the system");
+                }
+
+                Claim registeredEmailClaim = claims.FirstOrDefault(x => x.Type == ClaimTypes.Email);
+                Claim registeredRoleClaim = claims.FirstOrDefault(x => x.Type.ToLower().Equals("role"));
+                string email = registeredEmailClaim.Value;
+                string role = registeredRoleClaim.Value;
+                string[] roleNameParts = RoleEnum.Role.BRAND_MANAGER.ToString().ToLower().Split("_");
+                string roleName = "";
+                foreach (var roleNamePart in roleNameParts)
+                {
+                    roleName += $"{roleNamePart} ";
+                }
+                roleName = roleName.Trim();
+                if (role.ToLower().Equals(roleName))
+                {
+                    if (existedBrand.BrandManagerEmail.Equals(email) == false)
+                    {
+                        throw new BadRequestException("Brand id does not belong to your brand.");
+                    }
+                }
+
+                if (updateBrandProfileRequest.Logo != null)
+                {
+                    // Upload image to firebase
+                    FileStream fileStream = Utils.FileUtil.ConvertFormFileToStream(updateBrandProfileRequest.Logo);
+                    Guid guild = Guid.NewGuid();
+                    logoId = guild.ToString();
+                    var urlImage = await Utils.FileUtil.UploadImageAsync(fileStream, "Brands", logoId);
+                    if (urlImage != null)
+                    {
+                        isUploaded = true;
+                    }
+                    existedBrand.Logo = urlImage + $"&logoId={logoId}";
+
+                    //Delete image from database
+                    FileUtil.SetCredentials(fireBaseImage);
+                    await FileUtil.DeleteImageAsync(FileUtil.GetImageIdFromUrlImage(existedBrand.Logo, "logoId"), "Brands");
+                    isDeleted = true;
+                }
+
+                existedBrand.Address = updateBrandProfileRequest.Address;
+                existedBrand.Name = updateBrandProfileRequest.Name;
+                this._unitOfWork.BrandRepository.UpdateBrand(existedBrand);
+                await this._unitOfWork.CommitAsync();
+            }
+            catch (BadRequestException ex)
+            {
+                string fieldName = "";
+                if (ex.Message.Equals("Brand Id is not suitable id in the system.") ||
+                    ex.Message.Equals("Brand id does not belong to your brand."))
+                {
+                    fieldName = "Brand Id";
+                }
+                if (ex.Message.Equals("Upload image to firebase failed."))
+                {
+                    fieldName = "Upload image.";
+                }
+                else if (ex.Message.Equals("Delete image failed."))
+                {
+                    fieldName = "Delete image.";
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new BadRequestException(error);
+            }
+            catch (NotFoundException ex)
+            {
+                string fieldName = "";
+                if (ex.Message.Equals("Brand Id does not exist in the system"))
+                {
+                    fieldName = "Brand Id";
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new NotFoundException(error);
+            }
+            catch (Exception ex)
+            {
+                if (isUploaded && isDeleted == false)
+                {
+                    await FileUtil.DeleteImageAsync(logoId, "Brands");
+                }
+                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                throw new Exception(error);
+            }
+        }
     }
 }

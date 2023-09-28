@@ -356,7 +356,7 @@ namespace MBKC.BAL.Services.Implementations
                 logoLink += $"&logoId={logoId}";
 
                 Role storeManagerRole = await this._unitOfWork.RoleRepository.GetRoleAsync((int)RoleEnum.Role.STORE_MANAGER);
-                string password = RandomPasswordUtil.CreateRandomPassword();
+                string password = StringUtil.EncryptData(RandomPasswordUtil.CreateRandomPassword());
                 Account managerAccount = new Account()
                 {
                     Email = createStoreRequest.StoreManagerEmail,
@@ -496,7 +496,7 @@ namespace MBKC.BAL.Services.Implementations
                     this._unitOfWork.AccountRepository.UpdateAccount(oldStoreManagerAccount);
 
                     Role storeManagerRole = await this._unitOfWork.RoleRepository.GetRoleAsync((int)RoleEnum.Role.STORE_MANAGER);
-                    password = RandomPasswordUtil.CreateRandomPassword();
+                    password = StringUtil.EncryptData(RandomPasswordUtil.CreateRandomPassword());
                     Account newStoreManagerAccount = new Account()
                     {
                         Email = updateStoreRequest.StoreManagerEmail,

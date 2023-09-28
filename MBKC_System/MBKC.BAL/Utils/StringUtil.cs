@@ -99,7 +99,7 @@ namespace MBKC.BAL.Utils
             {
                 stringBuilder.Append(hash[i].ToString("X2"));
             }
-            return stringBuilder.ToString();
+            return stringBuilder.ToString().ToLower();
         }
 
         public static bool CheckCategoryStatusName(string statusName)

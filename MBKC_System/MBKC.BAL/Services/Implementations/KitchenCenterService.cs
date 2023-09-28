@@ -40,7 +40,7 @@ namespace MBKC.BAL.Services.Implementations
                     throw new BadRequestException("Manager Email already existed in the system.");
                 }
                 Role role = await this._unitOfWork.RoleRepository.GetRoleAsync((int)RoleEnum.Role.KITCHEN_CENTER_MANAGER);
-                string password = RandomPasswordUtil.CreateRandomPassword();
+                string password = StringUtil.EncryptData(RandomPasswordUtil.CreateRandomPassword());
                 Account managerAccount = new Account()
                 {
                     Email = newKitchenCenter.ManagerEmail,
@@ -240,7 +240,7 @@ namespace MBKC.BAL.Services.Implementations
                     this._unitOfWork.AccountRepository.UpdateAccount(existedKitchenCenter.Manager);
                     
                     Role kitchenCenterManagerRole = await this._unitOfWork.RoleRepository.GetRoleAsync((int)RoleEnum.Role.KITCHEN_CENTER_MANAGER);
-                    password = RandomPasswordUtil.CreateRandomPassword();
+                    password = StringUtil.EncryptData(RandomPasswordUtil.CreateRandomPassword());
                     Account newManagerAccount = new Account()
                     {
                         Email = updatedKitchenCenter.ManagerEmail,
