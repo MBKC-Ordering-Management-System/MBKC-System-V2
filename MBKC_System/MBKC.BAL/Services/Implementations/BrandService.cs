@@ -324,7 +324,7 @@ namespace MBKC.BAL.Services.Implementations
                 this._mapper.Map(brands, brandResponse);
 
                 int totalPages = 0;
-                if (numberItems > 0 || isGetAll == null || isGetAll != null && isGetAll == false)
+                if (numberItems > 0 && isGetAll == null || numberItems > 0 && isGetAll != null && isGetAll == false)
                 {
                     totalPages = (int)((numberItems + pageSize.Value) / pageSize.Value);
                 }

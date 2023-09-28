@@ -170,7 +170,7 @@ namespace MBKC.BAL.Services.Implementations
                     kitchenCenters = await this._unitOfWork.KitchenCenterRepository.GetKitchenCentersAsync(null, null, itemsPerPage, currentPage);
                 }
                 int totalPages = 0;
-                if(numberItems > 0 || isGetAll == null || isGetAll != null && isGetAll == false)
+                if(numberItems > 0 && isGetAll == null || numberItems > 0 && isGetAll != null && isGetAll == false)
                 {
                     totalPages = (int)((numberItems + itemsPerPage.Value) / itemsPerPage.Value);
                 }
