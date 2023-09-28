@@ -74,6 +74,7 @@ namespace MBKC.BAL.Services.Implementations
                     Address = postBrandRequest.Address,
                     Logo = urlImage + $"&logoId={logoId}",
                     Status = (int)BrandEnum.Status.ACTIVE,
+                    BrandManagerEmail = postBrandRequest.ManagerEmail,
                 };
                 await _unitOfWork.BrandRepository.CreateBrandAsync(brand);
 
@@ -191,6 +192,7 @@ namespace MBKC.BAL.Services.Implementations
 
                 brand.Address = updateBrandRequest.Address;
                 brand.Name = updateBrandRequest.Name;
+                brand.BrandManagerEmail = updateBrandRequest.BrandManagerEmail;
 
                 if (updateBrandRequest.Status.ToLower().Equals(CategoryEnum.Status.ACTIVE.ToString().ToLower()))
                 {

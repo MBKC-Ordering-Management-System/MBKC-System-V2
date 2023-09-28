@@ -16,6 +16,7 @@ namespace MBKC.DAL.Models
         public string Address { get; set; }
         public string Logo { get; set; }
         public int Status { get; set; }
+        public string BrandManagerEmail { get; set; }
 
         public virtual IEnumerable<BrandAccount> BrandAccounts { get; set; }
         public virtual IEnumerable<Product> Products { get; set; }

@@ -278,7 +278,8 @@ namespace MBKC.BAL.Services.Implementations
                     Status = (int)StoreEnum.Status.ACTIVE,
                     Brand = existedBrand,
                     KitchenCenter = existedKitchenCenter,
-                    Wallet = storeWallet
+                    Wallet = storeWallet,
+                    StoreManagerEmail = createStoreRequest.StoreManagerEmail
                 };
 
                 StoreAccount storeAccount = new StoreAccount()
@@ -429,6 +430,7 @@ namespace MBKC.BAL.Services.Implementations
                 }
 
                 existedStore.Name = updateStoreRequest.Name;
+                existedStore.StoreManagerEmail = updateStoreRequest.StoreManagerEmail;
                 if (updateStoreRequest.Status.ToLower().Equals(StoreEnum.Status.ACTIVE.ToString().ToLower()))
                 {
                     existedStore.Status = (int)StoreEnum.Status.ACTIVE;

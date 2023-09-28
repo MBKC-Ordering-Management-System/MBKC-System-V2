@@ -15,6 +15,7 @@ namespace MBKC.DAL.Models
         public string Name { get; set; }
         public int Status { get; set; }
         public string Logo { get; set; }
+        public string StoreManagerEmail { get; set; }
         [ForeignKey("BrandId")]
         public virtual Brand Brand { get; set; }
         [ForeignKey("KitchenCenterId")]

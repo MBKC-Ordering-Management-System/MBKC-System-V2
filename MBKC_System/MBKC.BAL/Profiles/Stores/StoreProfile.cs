@@ -15,10 +15,7 @@ namespace MBKC.BAL.Profiles.Stores
     {
         public StoreProfile()
         {
-            CreateMap<Store, GetStoreResponse>().ForMember(x => x.StoreManagerEmail, opt => 
-                                                                                     opt.MapFrom(src => 
-                                                                                                 src.StoreAccounts.FirstOrDefault(x => x.Account.Role.RoleId == (int)RoleEnum.Role.STORE_MANAGER 
-                                                                                                                                    && x.Account.Status == (int)StoreEnum.Status.ACTIVE).Account.Email))
+            CreateMap<Store, GetStoreResponse>()
                                                 .ForMember(x => x.Status, opt => opt.MapFrom(src => StatusUtil.ChangeStoreStatus(src.Status)));
         }
     }

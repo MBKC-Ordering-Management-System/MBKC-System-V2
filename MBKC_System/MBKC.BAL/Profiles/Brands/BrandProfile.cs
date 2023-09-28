@@ -16,8 +16,6 @@ namespace MBKC.BAL.Profiles.Brands
         public BrandProfile()
         {
             CreateMap<Brand, GetBrandResponse>()
-                            .ForMember(dept => dept.BrandManagerEmail, opt => opt.MapFrom(src => src.BrandAccounts.FirstOrDefault(x => x.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER 
-                                                                                                                                    && x.Account.Status == (int)AccountEnum.Status.ACTIVE).Account.Email))
                             .ForMember(dept => dept.Status, opt => opt.MapFrom(src => StatusUtil.ChangeBrandStatus(src.Status)));
 
             CreateMap<Brand, UpdateBrandRequest>().ReverseMap();

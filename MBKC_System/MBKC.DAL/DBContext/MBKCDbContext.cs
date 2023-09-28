@@ -94,6 +94,7 @@ namespace MBKC.DAL.DBContext
                 brand.Property(prop => prop.Address).IsUnicode(true).HasMaxLength(255).IsRequired(true);
                 brand.Property(prop => prop.Logo).IsUnicode(false).HasMaxLength(int.MaxValue).IsRequired(true);
                 brand.Property(prop => prop.Status).IsRequired(true);
+                brand.Property(prop => prop.BrandManagerEmail).IsUnicode(false).HasMaxLength(100).IsRequired(false);
             });
             #endregion
 
@@ -290,6 +291,7 @@ namespace MBKC.DAL.DBContext
             {
                 store.Property(prop => prop.Name).IsUnicode(true).HasMaxLength(80).IsRequired(true);
                 store.Property(prop => prop.Logo).IsUnicode(false).HasMaxLength(int.MaxValue).IsRequired(true);
+                store.Property(prop => prop.StoreManagerEmail).IsUnicode(false).HasMaxLength(100).IsRequired(false);
             });
 
             modelBuilder.Entity<Store>()
