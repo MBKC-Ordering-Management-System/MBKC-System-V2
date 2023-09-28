@@ -14,6 +14,7 @@ using MBKC.BAL.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using System.Security.Claims;
 
 namespace MBKC.API.Controllers
 {
@@ -68,7 +69,7 @@ namespace MBKC.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetStoresAync([FromQuery] int? itemsPerPage, [FromQuery] int? currentPage, [FromQuery] string? searchValue)
         {
-            GetStoresResponse stores = await this._storeService.GetStoresAsync(searchValue, currentPage, itemsPerPage, null);
+            GetStoresResponse stores = await this._storeService.GetStoresAsync(searchValue, currentPage, itemsPerPage, null, null);
             return Ok(stores);
         }
         #endregion
@@ -103,7 +104,8 @@ namespace MBKC.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetStoreAsync([FromRoute]int id)
         {
-            GetStoreResponse store = await this._storeService.GetStoreAsync(id, null);
+
+            GetStoreResponse store = await this._storeService.GetStoreAsync(id, null, null);
             return Ok(store);
         }
         #endregion
@@ -137,11 +139,12 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
-        [PermissionAuthorize("Brand Manager")]
+        [PermissionAuthorize("Brand Manager", "MBKC Admin")]
         [HttpGet("/api/brand/{idBrand}/[controller]")]
         public async Task<IActionResult> GetBrandStoresAsync([FromRoute] int idBrand, [FromQuery] int? itemsPerPage, [FromQuery] int? currentPage, [FromQuery] string? searchValue)
         {
-            GetStoresResponse stores = await this._storeService.GetStoresAsync(searchValue, currentPage, itemsPerPage, idBrand);
+            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
+            GetStoresResponse stores = await this._storeService.GetStoresAsync(searchValue, currentPage, itemsPerPage, idBrand, claims);
             return Ok(stores);
         }
         #endregion
@@ -178,7 +181,8 @@ namespace MBKC.API.Controllers
         [HttpGet("/api/brand/{idBrand}/[controller]/{idStore}")]
         public async Task<IActionResult> GetBrandStoreAsync([FromRoute] int idBrand, [FromRoute] int idStore)
         {
-            GetStoreResponse store = await this._storeService.GetStoreAsync(idStore, idBrand);
+            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
+            GetStoreResponse store = await this._storeService.GetStoreAsync(idStore, idBrand, claims);
             return Ok(store);
         }
         #endregion
@@ -281,7 +285,8 @@ namespace MBKC.API.Controllers
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
-            await this._storeService.UpdateStoreAsync(idBrand, idStore, updateStoreRequest, this._firebaseImageOption.Value, this._emailOption.Value);
+            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
+            await this._storeService.UpdateStoreAsync(idBrand, idStore, updateStoreRequest, this._firebaseImageOption.Value, this._emailOption.Value, claims);
             return Ok(new
             {
                 Message = "Updated Store Information Successfully."

@@ -13,6 +13,7 @@ using MBKC.DAL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -28,10 +29,34 @@ namespace MBKC.BAL.Services.Implementations
             this._mapper = mapper;
         }
 
-        public async Task<GetStoresResponse> GetStoresAsync(string? searchValue, int? currentPage, int? itemsPerPage, int? brandId)
+        public async Task<GetStoresResponse> GetStoresAsync(string? searchValue, int? currentPage, int? itemsPerPage, int? brandId, IEnumerable<Claim>? claims)
         {
             try
             {
+                if (claims != null && brandId != null)
+                {
+                    Claim registeredEmailClaim = claims.FirstOrDefault(x => x.Type == ClaimTypes.Email);
+                    Claim registeredRoleClaim = claims.FirstOrDefault(x => x.Type.ToLower().Equals("role"));
+                    string email = registeredEmailClaim.Value;
+                    string role = registeredRoleClaim.Value;
+                    string[] roleNameParts = RoleEnum.Role.BRAND_MANAGER.ToString().ToLower().Split("_");
+                    string roleName = "";
+                    foreach (var roleNamePart in roleNameParts)
+                    {
+                        roleName += $"{roleNamePart} ";
+                    }
+                    roleName = roleName.Trim();
+                    if (role.ToLower().Equals(roleName))
+                    {
+                        Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandByIdAsync(brandId.Value);
+                        BrandAccount brandManagerAccount = existedBrand.BrandAccounts.FirstOrDefault(x => x.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER
+                                                                                                       && x.Account.Status == (int)AccountEnum.Status.ACTIVE);
+                        if (brandManagerAccount.Account.Email.Equals(email))
+                        {
+                            throw new BadRequestException("Brand id does not belong to your brand.");
+                        }
+                    }
+                }
                 if (itemsPerPage != null && itemsPerPage <= 0)
                 {
                     throw new BadRequestException("Items per page number is required more than 0.");
@@ -66,7 +91,7 @@ namespace MBKC.BAL.Services.Implementations
                     stores = await this._unitOfWork.StoreRepository.GetStoresAsync(null, null, itemsPerPage.Value, currentPage.Value, brandId);
                 }
                 int totalPage = (int)((numberItems + itemsPerPage) / itemsPerPage);
-                if(numberItems == 0)
+                if (numberItems == 0)
                 {
                     totalPage = 0;
                 }
@@ -90,6 +115,10 @@ namespace MBKC.BAL.Services.Implementations
                 {
                     fieldName = "Current Page";
                 }
+                else if (ex.Message.Equals("Brand id does not belong to your brand."))
+                {
+                    fieldName = "Brand Id";
+                }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
             }
@@ -100,37 +129,57 @@ namespace MBKC.BAL.Services.Implementations
             }
         }
 
-        public async Task<GetStoreResponse> GetStoreAsync(int id, int? brandId)
+        public async Task<GetStoreResponse> GetStoreAsync(int id, int? brandId, IEnumerable<Claim>? claims)
         {
             try
             {
-                if (id <= 0)
-                {
-                    throw new BadRequestException("Store id is not suiltable id in the system.");
-                }
-                Store existedStore = await this._unitOfWork.StoreRepository.GetStoreAsync(id, null);
-                if (existedStore == null)
-                {
-                    throw new NotFoundException("Store id does not exist in the system.");
-                }
-                Brand exsitedBrand = null;
-                if (brandId != null)
+                Brand existedBrand = null;
+                if (claims != null && brandId != null)
                 {
                     if (brandId <= 0)
                     {
                         throw new BadRequestException("Brand id is not suiltable id in the system.");
                     }
-                    exsitedBrand = await this._unitOfWork.BrandRepository.GetBrandByIdAsync(brandId.Value);
-                    if (exsitedBrand == null)
+                    Claim registeredEmailClaim = claims.FirstOrDefault(x => x.Type == ClaimTypes.Email);
+                    Claim registeredRoleClaim = claims.FirstOrDefault(x => x.Type.ToLower().Equals("role"));
+                    string email = registeredEmailClaim.Value;
+                    string role = registeredRoleClaim.Value;
+                    string[] roleNameParts = RoleEnum.Role.BRAND_MANAGER.ToString().ToLower().Split("_");
+                    string roleName = "";
+                    foreach (var roleNamePart in roleNameParts)
                     {
-                        throw new NotFoundException("Brand does not exist in the system.");
+                        roleName += $"{roleNamePart} ";
                     }
-                    if (existedStore.Brand.BrandId != brandId)
+                    roleName = roleName.Trim();
+                    if (role.ToLower().Equals(roleName))
                     {
-                        throw new NotFoundException($"[Brand-{brandId}] does not have the [Store-{id}] in the system.");
+                        existedBrand = await this._unitOfWork.BrandRepository.GetBrandByIdAsync(brandId.Value);
+                        if (existedBrand == null)
+                        {
+                            throw new NotFoundException("Brand does not exist in the system.");
+                        }
+                        BrandAccount brandManagerAccount = existedBrand.BrandAccounts.FirstOrDefault(x => x.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER
+                                                                                                       && x.Account.Status == (int)AccountEnum.Status.ACTIVE);
+                        if (brandManagerAccount.Account.Email.Equals(email))
+                        {
+                            throw new BadRequestException("Brand id does not belong to your brand.");
+                        }
                     }
                 }
+                if (id <= 0)
+                {
+                    throw new BadRequestException("Store id is not suiltable id in the system.");
+                }
 
+                Store existedStore = await this._unitOfWork.StoreRepository.GetStoreAsync(id, null);
+                if (existedStore == null)
+                {
+                    throw new NotFoundException("Store id does not exist in the system.");
+                }
+                if (brandId != null && existedStore.Brand.BrandId != brandId)
+                {
+                    throw new NotFoundException($"[Brand-{brandId}] does not have the [Store-{id}] in the system.");
+                }
                 GetStoreResponse store = this._mapper.Map<GetStoreResponse>(existedStore);
                 return store;
             }
@@ -156,7 +205,8 @@ namespace MBKC.BAL.Services.Implementations
                 {
                     fieldName = "Store id";
                 }
-                else if (ex.Message.Equals("Brand id is not suiltable id in the system."))
+                else if (ex.Message.Equals("Brand id is not suiltable id in the system.") ||
+                    ex.Message.Equals("Brand id does not belong to your brand."))
                 {
                     fieldName = "Brand id";
                 }
@@ -276,7 +326,7 @@ namespace MBKC.BAL.Services.Implementations
             }
         }
 
-        public async Task UpdateStoreAsync(int brandId, int storeId, UpdateStoreRequest updateStoreRequest, FireBaseImage fireBaseImageOption, Email emailOption)
+        public async Task UpdateStoreAsync(int brandId, int storeId, UpdateStoreRequest updateStoreRequest, FireBaseImage fireBaseImageOption, Email emailOption, IEnumerable<Claim> claims)
         {
             bool isUploaded = false;
             bool isDeleted = false;
@@ -289,6 +339,26 @@ namespace MBKC.BAL.Services.Implementations
                 if (existedBrand == null)
                 {
                     throw new NotFoundException("Brand id does not exist in the system.");
+                }
+                Claim registeredEmailClaim = claims.FirstOrDefault(x => x.Type == ClaimTypes.Email);
+                Claim registeredRoleClaim = claims.FirstOrDefault(x => x.Type.ToLower().Equals("role"));
+                string email = registeredEmailClaim.Value;
+                string role = registeredRoleClaim.Value;
+                string[] roleNameParts = RoleEnum.Role.BRAND_MANAGER.ToString().ToLower().Split("_");
+                string roleName = "";
+                foreach (var roleNamePart in roleNameParts)
+                {
+                    roleName += $"{roleNamePart} ";
+                }
+                roleName = roleName.Trim();
+                if (role.ToLower().Equals(roleName))
+                {
+                    BrandAccount brandManagerAccount = existedBrand.BrandAccounts.FirstOrDefault(x => x.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER
+                                                                                                   && x.Account.Status == (int)AccountEnum.Status.ACTIVE);
+                    if (brandManagerAccount.Account.Email.Equals(email))
+                    {
+                        throw new BadRequestException("Brand id does not belong to your brand.");
+                    }
                 }
 
                 Store existedStore = await this._unitOfWork.StoreRepository.GetStoreAsync(storeId, null);
@@ -394,7 +464,16 @@ namespace MBKC.BAL.Services.Implementations
             }
             catch (BadRequestException ex)
             {
-                string error = ErrorUtil.GetErrorString("Store manager email", ex.Message);
+                string fieldName = "";
+                if (ex.Message.Equals("Brand id does not belong to your brand."))
+                {
+                    fieldName = "Brand id";
+                }
+                else if (ex.Message.Equals("Store Manager Email already existed in the system."))
+                {
+                    fieldName = "Store manager email";
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
             }
             catch (Exception ex)
