@@ -251,28 +251,36 @@ namespace MBKC.BAL.Services.Implementations
         #endregion
 
         #region Get Brands
-        public async Task<GetBrandsResponse> GetBrandsAsync(string? keySearchName, string? keyStatusFilter, int? pageNumber, int? pageSize)
+        public async Task<GetBrandsResponse> GetBrandsAsync(string? keySearchName, string? keyStatusFilter, int? pageNumber, int? pageSize, bool? isGetAll)
         {
             try
             {
                 var brands = new List<Brand>();
                 var brandResponse = new List<GetBrandResponse>();
-                if (pageNumber != null && pageNumber <= 0)
+                if (isGetAll != null)
                 {
-                    throw new BadRequestException("Page number is required greater than 0.");
+                    pageNumber = null;
+                    pageSize = null;
                 }
-                else if (pageNumber == null)
+                else
                 {
-                    pageNumber = 1;
-                }
+                    if (pageNumber != null && pageNumber <= 0)
+                    {
+                        throw new BadRequestException("Page number is required greater than 0.");
+                    }
+                    else if (pageNumber == null)
+                    {
+                        pageNumber = 1;
+                    }
 
-                if (pageSize != null && pageSize <= 0)
-                {
-                    throw new BadRequestException("Page size is required greater than 0.");
-                }
-                else if (pageSize == null)
-                {
-                    pageSize = 5;
+                    if (pageSize != null && pageSize <= 0)
+                    {
+                        throw new BadRequestException("Page size is required greater than 0.");
+                    }
+                    else if (pageSize == null)
+                    {
+                        pageSize = 5;
+                    }
                 }
 
                 int? keyStatus = null;
@@ -323,7 +331,7 @@ namespace MBKC.BAL.Services.Implementations
                 return new GetBrandsResponse()
                 {
                     Brands = brandResponse,
-                    TotalItems = numberItems,
+                    NumberItems = numberItems,
                     TotalPages = totalPages,
                 };
             }

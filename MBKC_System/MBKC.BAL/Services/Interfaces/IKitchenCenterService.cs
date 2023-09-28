@@ -13,7 +13,7 @@ namespace MBKC.BAL.Services.Interfaces
     {
         public Task CreateKitchenCenterAsync(CreateKitchenCenterRequest newKitchenCenter, Email emailOption, FireBaseImage firebaseImageOption);
         public Task<GetKitchenCenterResponse> GetKitchenCenterAsync(int kitchenCenterId);
-        public Task<GetKitchenCentersResponse> GetKitchenCentersAsync(int? itemsPerPage, int? currentPage, string? searchValue);
+        public Task<GetKitchenCentersResponse> GetKitchenCentersAsync(int? itemsPerPage, int? currentPage, string? searchValue, bool? isGetAll);
         public Task UpdateKitchenCenterAsync(int kitchenCenterId, UpdateKitchenCenterRequest updatedKitchenCenter, Email emailOption, FireBaseImage firebaseImageOption);
         public Task DeleteKitchenCenterAsync(int kitchenCenterId);
     }

@@ -14,7 +14,7 @@ namespace MBKC.BAL.Services.Interfaces
     {
         public Task CreateBrandAsync(PostBrandRequest postBrandRequest, FireBaseImage fireBaseImage, Email emailSystem);
         public Task UpdateBrandAsync( int brandId, UpdateBrandRequest updateBrandRequest, FireBaseImage fireBaseImage, Email emailOption);
-        public Task<GetBrandsResponse> GetBrandsAsync(string? keySearchName, string? keyStatusFilter, int? pageNumber, int? pageSize);
+        public Task<GetBrandsResponse> GetBrandsAsync(string? keySearchName, string? keyStatusFilter, int? pageNumber, int? pageSize, bool? isGetAll);
         public Task<GetBrandResponse> GetBrandByIdAsync(int id);
         public Task DeActiveBrandByIdAsync(int id);
     }

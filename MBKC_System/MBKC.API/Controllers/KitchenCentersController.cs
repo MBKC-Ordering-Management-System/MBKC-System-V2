@@ -42,7 +42,8 @@ namespace MBKC.API.Controllers
         /// </summary>
         /// <param name="itemsPerPage">Number of kitchen centers on a page.</param>
         /// <param name="currentPage">The current page number.</param>
-        /// <param name="searchValue">The search value by kitchen center name.</param>
+        /// <param name="keySearchName">The search value by kitchen center name.</param>
+        /// <param name="isGetAll">Input TRUE if you want to get all kitchen centers, ignoring currentPage and itemsPerPage, otherwise Input FALSE.</param>
         /// <returns>
         /// An Object contains TotalPage, NumberItems and a list of kitchen centers with some conditions (itemsPerPage, currentPage, searchValue) (if have).
         /// </returns>
@@ -65,9 +66,9 @@ namespace MBKC.API.Controllers
         [Produces("application/json")]
         [PermissionAuthorize("MBKC Admin")]
         [HttpGet]
-        public async Task<IActionResult> GetKitchenCentersAsync([FromQuery]int? itemsPerPage, [FromQuery]int? currentPage, [FromQuery]string? searchValue)
+        public async Task<IActionResult> GetKitchenCentersAsync([FromQuery]int? itemsPerPage, [FromQuery]int? currentPage, [FromQuery]string? keySearchName, [FromQuery] bool? isGetAll)
         {
-            GetKitchenCentersResponse getKitchenCentersResponse = await this._kitchenCenterService.GetKitchenCentersAsync(itemsPerPage, currentPage, searchValue);
+            GetKitchenCentersResponse getKitchenCentersResponse = await this._kitchenCenterService.GetKitchenCentersAsync(itemsPerPage, currentPage, keySearchName, isGetAll);
             return Ok(getKitchenCentersResponse);
         }
         #endregion

@@ -127,23 +127,32 @@ namespace MBKC.BAL.Services.Implementations
             }
         }
 
-        public async Task<GetKitchenCentersResponse> GetKitchenCentersAsync(int? itemsPerPage, int? currentPage, string? searchValue)
+        public async Task<GetKitchenCentersResponse> GetKitchenCentersAsync(int? itemsPerPage, int? currentPage, string? searchValue, bool? isGetAll)
         {
             try
             {
-                if (itemsPerPage != null && itemsPerPage <= 0)
+                if (isGetAll != null && isGetAll == true)
                 {
-                    throw new BadRequestException("Items per page number is required more than 0.");
-                } else if(itemsPerPage == null)
+                    itemsPerPage = null;
+                    currentPage = null;
+                } else
                 {
-                    itemsPerPage = 5;
-                }
-                if (currentPage != null && currentPage <= 0)
-                {
-                    throw new BadRequestException("Current page number is required more than 0.");
-                } else if(currentPage == null)
-                {
-                    currentPage = 1;
+                    if (itemsPerPage != null && itemsPerPage <= 0)
+                    {
+                        throw new BadRequestException("Items per page number is required more than 0.");
+                    }
+                    else if (itemsPerPage == null)
+                    {
+                        itemsPerPage = 5;
+                    }
+                    if (currentPage != null && currentPage <= 0)
+                    {
+                        throw new BadRequestException("Current page number is required more than 0.");
+                    }
+                    else if (currentPage == null)
+                    {
+                        currentPage = 1;
+                    }
                 }
                 int numberItems = 0;
                 List<KitchenCenter> kitchenCenters = null;

@@ -147,11 +147,14 @@ namespace MBKC.API.Controllers
         /// <param name="keyStatusFilter">
         /// The status of the brand that the user wants to filter.
         /// </param>
-        /// <param name="pageNumber">
+        /// <param name="currentPage">
         /// The current page the user wants to get next items.
         /// </param>
-        /// <param name="pageSize">
+        /// <param name="itemsPerPage">
         /// number of elements on a page.
+        /// </param>
+        /// <param name="isGetAll">
+        /// Input TRUE if you want to get all brands, ignoring pageNumber and pageSize, otherwise Input FALSE
         /// </param>
         /// <returns>
         /// A list of brands contains TotalItems, TotalPages, Brands' information
@@ -176,9 +179,9 @@ namespace MBKC.API.Controllers
         [Produces("application/json")]
         [HttpGet]
         [PermissionAuthorize("MBKC Admin")]
-        public async Task<IActionResult> GetBrandsAsync([FromQuery] string? keySearchName, [FromQuery] string? keyStatusFilter, [FromQuery] int? pageNumber, [FromQuery] int? pageSize)
+        public async Task<IActionResult> GetBrandsAsync([FromQuery] string? keySearchName, [FromQuery] string? keyStatusFilter, [FromQuery] int? currentPage, [FromQuery] int? itemsPerPage, [FromQuery] bool? isGetAll)
         {
-            var data = await this._brandService.GetBrandsAsync(keySearchName, keyStatusFilter, pageNumber, pageSize);
+            var data = await this._brandService.GetBrandsAsync(keySearchName, keyStatusFilter, currentPage, itemsPerPage, isGetAll);
 
             return Ok(data);
         }

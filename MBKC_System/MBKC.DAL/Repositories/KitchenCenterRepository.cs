@@ -49,7 +49,8 @@ namespace MBKC.DAL.Repositories
                 return await this._dbContext.KitchenCenters.Include(x => x.Manager)
                                                            .Include(x => x.Stores)
                                                            .FirstOrDefaultAsync(x => x.KitchenCenterId == id);
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
@@ -72,7 +73,8 @@ namespace MBKC.DAL.Repositories
                             return false;
                         }
                     }).AsQueryable().Count();
-                } else if(searchValue != null && searchValueWithoutUnicode == null)
+                }
+                else if (searchValue != null && searchValueWithoutUnicode == null)
                 {
                     return await this._dbContext.KitchenCenters.Where(x => x.Name.ToLower().Contains(searchValue.ToLower())).CountAsync();
                 }
@@ -83,11 +85,36 @@ namespace MBKC.DAL.Repositories
                 throw new Exception(ex.Message);
             }
         }
-        
-        public async Task<List<KitchenCenter>> GetKitchenCentersAsync(string? searchValue, string? searchValueWithoutUnicode, int itemsPerPage, int currentPage)
+
+        public async Task<List<KitchenCenter>> GetKitchenCentersAsync(string? searchValue, string? searchValueWithoutUnicode, int? itemsPerPage, int? currentPage)
         {
             try
             {
+                if (itemsPerPage != null && currentPage != null)
+                {
+                    if (searchValue == null && searchValueWithoutUnicode != null)
+                    {
+                        return this._dbContext.KitchenCenters.Include(x => x.Manager).AsQueryable().Where(delegate (KitchenCenter kitchenCenter)
+                        {
+                            if (StringUtil.RemoveSign4VietnameseString(kitchenCenter.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
+                            {
+                                return true;
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                        }).Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToList();
+                    }
+                    else if (searchValue != null && searchValueWithoutUnicode == null)
+                    {
+                        return await this._dbContext.KitchenCenters.Include(x => x.Manager)
+                            .Where(x => x.Name.ToLower().Contains(searchValue.ToLower()))
+                            .Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
+                    }
+                    return await this._dbContext.KitchenCenters.Include(x => x.Manager)
+                        .Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
+                }
                 if (searchValue == null && searchValueWithoutUnicode != null)
                 {
                     return this._dbContext.KitchenCenters.Include(x => x.Manager).AsQueryable().Where(delegate (KitchenCenter kitchenCenter)
@@ -100,17 +127,16 @@ namespace MBKC.DAL.Repositories
                         {
                             return false;
                         }
-                    }).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+                    }).ToList();
                 }
                 else if (searchValue != null && searchValueWithoutUnicode == null)
                 {
                     return await this._dbContext.KitchenCenters.Include(x => x.Manager)
-                        .Where(x => x.Name.ToLower().Contains(searchValue.ToLower()))
-                        .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
+                        .Where(x => x.Name.ToLower().Contains(searchValue.ToLower())).ToListAsync();
                 }
-                return await this._dbContext.KitchenCenters.Include(x => x.Manager)
-                    .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
-            } catch(Exception ex)
+                return await this._dbContext.KitchenCenters.Include(x => x.Manager).ToListAsync();
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }

@@ -69,10 +69,77 @@ namespace MBKC.DAL.Repositories
         #endregion
 
         #region Get Brands
-        public async Task<List<Brand>> GetBrandsAsync(string? keySearchNameUniCode, string? keySearchNameNotUniCode, int? keyStatusFilter, int itemsPerPage, int currentPage)
+        public async Task<List<Brand>> GetBrandsAsync(string? keySearchNameUniCode, string? keySearchNameNotUniCode, int? keyStatusFilter, int? itemsPerPage, int? currentPage)
         {
             try
             {
+                if (itemsPerPage != null && currentPage != null)
+                {
+                    if (keySearchNameUniCode == null && keySearchNameNotUniCode != null && keyStatusFilter == null)
+                    {
+                        return this._dbContext.Brands.Include(brand => brand.BrandAccounts)
+                                                     .ThenInclude(brandAccount => brandAccount.Account)
+                                                     .ThenInclude(account => account.Role)
+                                                     .AsQueryable()
+                                                     .Where(delegate (Brand brand)
+                                                     {
+                                                         if (StringUtil.RemoveSign4VietnameseString(brand.Name.ToLower()).Contains(keySearchNameNotUniCode.ToLower()))
+                                                         {
+                                                             return true;
+                                                         }
+                                                         else
+                                                         {
+                                                             return false;
+                                                         }
+                                                     }).Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToList();
+                    }
+                    else if (keySearchNameUniCode == null && keySearchNameNotUniCode != null && keyStatusFilter != null)
+                    {
+                        return this._dbContext.Brands.Include(brand => brand.BrandAccounts)
+                                                     .ThenInclude(brandAccount => brandAccount.Account)
+                                                     .ThenInclude(account => account.Role)
+                                                     .AsQueryable()
+                                                     .Where(delegate (Brand brand)
+                                                     {
+                                                         if (StringUtil.RemoveSign4VietnameseString(brand.Name.ToLower()).Contains(keySearchNameNotUniCode.ToLower()))
+                                                         {
+                                                             return true;
+                                                         }
+                                                         else
+                                                         {
+                                                             return false;
+                                                         }
+                                                     }).Where(x => x.Status == keyStatusFilter).Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToList();
+                    }
+                    else if (keySearchNameUniCode != null && keySearchNameNotUniCode == null && keyStatusFilter == null)
+                    {
+                        return await this._dbContext.Brands.Include(brand => brand.BrandAccounts)
+                                                           .ThenInclude(brandAccount => brandAccount.Account)
+                                                           .ThenInclude(account => account.Role)
+                                                           .Where(x => x.Name.ToLower().Contains(keySearchNameUniCode.ToLower()))
+                                                           .Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
+                    }
+                    else if (keySearchNameUniCode != null && keySearchNameNotUniCode == null && keyStatusFilter != null)
+                    {
+                        return await this._dbContext.Brands.Include(brand => brand.BrandAccounts)
+                                                           .ThenInclude(brandAccount => brandAccount.Account)
+                                                           .ThenInclude(account => account.Role)
+                                                           .Where(x => x.Name.ToLower().Contains(keySearchNameUniCode.ToLower()) && x.Status == keyStatusFilter)
+                                                           .Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
+                    }
+
+                    else if (keySearchNameUniCode == null && keySearchNameNotUniCode == null && keyStatusFilter != null)
+                    {
+                        return await this._dbContext.Brands.Include(brand => brand.BrandAccounts)
+                                                           .ThenInclude(brandAccount => brandAccount.Account)
+                                                           .ThenInclude(account => account.Role)
+                                                           .Where(x => x.Status == keyStatusFilter)
+                                                           .Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
+                    }
+
+                    return await this._dbContext.Brands.Include(brand => brand.BrandAccounts).ThenInclude(brandAccount => brandAccount.Account).ThenInclude(account => account.Role)
+                                                       .Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
+                }
                 if (keySearchNameUniCode == null && keySearchNameNotUniCode != null && keyStatusFilter == null)
                 {
                     return this._dbContext.Brands.Include(brand => brand.BrandAccounts)
@@ -80,16 +147,16 @@ namespace MBKC.DAL.Repositories
                                                  .ThenInclude(account => account.Role)
                                                  .AsQueryable()
                                                  .Where(delegate (Brand brand)
-                    {
-                        if (StringUtil.RemoveSign4VietnameseString(brand.Name.ToLower()).Contains(keySearchNameNotUniCode.ToLower()))
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                    }).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+                                                 {
+                                                     if (StringUtil.RemoveSign4VietnameseString(brand.Name.ToLower()).Contains(keySearchNameNotUniCode.ToLower()))
+                                                     {
+                                                         return true;
+                                                     }
+                                                     else
+                                                     {
+                                                         return false;
+                                                     }
+                                                 }).ToList();
                 }
                 else if (keySearchNameUniCode == null && keySearchNameNotUniCode != null && keyStatusFilter != null)
                 {
@@ -98,16 +165,16 @@ namespace MBKC.DAL.Repositories
                                                  .ThenInclude(account => account.Role)
                                                  .AsQueryable()
                                                  .Where(delegate (Brand brand)
-                    {
-                        if (StringUtil.RemoveSign4VietnameseString(brand.Name.ToLower()).Contains(keySearchNameNotUniCode.ToLower()))
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                    }).Where(x => x.Status == keyStatusFilter).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+                                                 {
+                                                     if (StringUtil.RemoveSign4VietnameseString(brand.Name.ToLower()).Contains(keySearchNameNotUniCode.ToLower()))
+                                                     {
+                                                         return true;
+                                                     }
+                                                     else
+                                                     {
+                                                         return false;
+                                                     }
+                                                 }).Where(x => x.Status == keyStatusFilter).ToList();
                 }
                 else if (keySearchNameUniCode != null && keySearchNameNotUniCode == null && keyStatusFilter == null)
                 {
@@ -115,7 +182,7 @@ namespace MBKC.DAL.Repositories
                                                        .ThenInclude(brandAccount => brandAccount.Account)
                                                        .ThenInclude(account => account.Role)
                                                        .Where(x => x.Name.ToLower().Contains(keySearchNameUniCode.ToLower()))
-                                                       .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
+                                                       .ToListAsync();
                 }
                 else if (keySearchNameUniCode != null && keySearchNameNotUniCode == null && keyStatusFilter != null)
                 {
@@ -123,7 +190,7 @@ namespace MBKC.DAL.Repositories
                                                        .ThenInclude(brandAccount => brandAccount.Account)
                                                        .ThenInclude(account => account.Role)
                                                        .Where(x => x.Name.ToLower().Contains(keySearchNameUniCode.ToLower()) && x.Status == keyStatusFilter)
-                                                       .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
+                                                       .ToListAsync();
                 }
 
                 else if (keySearchNameUniCode == null && keySearchNameNotUniCode == null && keyStatusFilter != null)
@@ -132,12 +199,12 @@ namespace MBKC.DAL.Repositories
                                                        .ThenInclude(brandAccount => brandAccount.Account)
                                                        .ThenInclude(account => account.Role)
                                                        .Where(x => x.Status == keyStatusFilter)
-                                                       .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
+                                                       .ToListAsync();
                 }
 
                 return await this._dbContext.Brands.Include(brand => brand.BrandAccounts).ThenInclude(brandAccount => brandAccount.Account).ThenInclude(account => account.Role)
-                                                   .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
-                                                       
+                                                   .ToListAsync();
+
             }
             catch (Exception ex)
             {

@@ -10,7 +10,7 @@ namespace MBKC.BAL.DTOs
     public class GetBrandsResponse
     {
         public int TotalPages { get; set; }
-        public int TotalItems { get; set; }
+        public int NumberItems { get; set; }
         public List<GetBrandResponse> Brands { get; set; }
     }
 }
