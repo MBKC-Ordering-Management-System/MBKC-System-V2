@@ -672,11 +672,6 @@ namespace MBKC.BAL.Services.Implementations
                                                                                    .splitIdsToAddAndRemove(category.ExtraCategoryProductCategories
                                                                                    .Select(e => e.ExtraCategoryId)
                                                                                    .ToList(), listExtraCategoryId);
-
-                var extraCategory = await this._unitOfWork.ExtraCategoryRepository.GetExtraCategoriesByCategoryIdAsync(categoryId);
-                var listIdExtraCategoriesInNomalCategory = extraCategory.Select(e => e.ExtraCategoryId).ToList();
-                SplitIdCategoryResponse splittedExtraCategoriesIds = CustomListUtil.splitIdsToAddAndRemove(listIdExtraCategoriesInNomalCategory, listExtraCategoryId);
-
                 //Handle add and remove to database
                 if (splittedExtraCategoriesIds.idsToAdd.Count > 0)
                 {
