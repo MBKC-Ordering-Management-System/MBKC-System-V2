@@ -81,7 +81,7 @@ namespace MBKC.DAL.Repositories
         #endregion
 
         #region Get Categories
-        public async Task<List<Category>> GetCategoriesAsync(string? keySearchNameUniCode, string? keySearchNameNotUniCode, string type, int itemsPerPage, int currentPage)
+        public async Task<List<Category>> GetCategoriesAsync(string? keySearchNameUniCode, string? keySearchNameNotUniCode, string type, int itemsPerPage, int currentPage, int brandId)
         {
             try
             {
@@ -97,7 +97,7 @@ namespace MBKC.DAL.Repositories
                                                      {
                                                          return false;
                                                      }
-                                                 }).Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE)).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+                                                 }).Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
                 }
                 else if (keySearchNameUniCode != null && keySearchNameNotUniCode == null)
                 {
@@ -105,7 +105,7 @@ namespace MBKC.DAL.Repositories
                         .Where(c => c.Name.ToLower().Contains(keySearchNameUniCode.ToLower()) && c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
                         .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
                 }
-                return await this._dbContext.Categories.Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
+                return await this._dbContext.Categories.Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
             }
             catch (Exception ex)
@@ -144,7 +144,7 @@ namespace MBKC.DAL.Repositories
         #endregion
 
         #region Get Number Categories
-        public async Task<int> GetNumberCategoriesAsync(string? keySearchUniCode, string? keySearchNotUniCode, string type)
+        public async Task<int> GetNumberCategoriesAsync(string? keySearchUniCode, string? keySearchNotUniCode, string type, int brandId)
         {
             try
             {
@@ -160,13 +160,13 @@ namespace MBKC.DAL.Repositories
                         {
                             return false;
                         }
-                    }).Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Type.Equals(type.ToUpper())).AsQueryable().Count();
+                    }).Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Type.Equals(type.ToUpper()) && c.Brand.BrandId == brandId).AsQueryable().Count();
                 }
                 else if (keySearchUniCode != null && keySearchNotUniCode == null)
                 {
-                    return await this._dbContext.Categories.Where(c => c.Name.ToLower().Contains(keySearchUniCode.ToLower()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Type.Equals(type.ToUpper())).CountAsync();
+                    return await this._dbContext.Categories.Where(c => c.Name.ToLower().Contains(keySearchUniCode.ToLower()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Type.Equals(type.ToUpper()) && c.Brand.BrandId == brandId).CountAsync();
                 }
-                return await this._dbContext.Categories.Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Type.Equals(type.ToUpper())).CountAsync();
+                return await this._dbContext.Categories.Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Type.Equals(type.ToUpper()) && c.Brand.BrandId == brandId).CountAsync();
             }
             catch (Exception ex)
             {
@@ -176,7 +176,7 @@ namespace MBKC.DAL.Repositories
         #endregion
 
         #region Search and Paging extra category
-        public List<Category> SearchAndPagingExtraCategory(List<Category> categories, string? keySearchNameUniCode, string? keySearchNameNotUniCode, int itemsPerPage, int currentPage)
+        public List<Category> SearchAndPagingExtraCategory(List<Category> categories, string? keySearchNameUniCode, string? keySearchNameNotUniCode, int itemsPerPage, int currentPage, int brandId)
         {
             try
             {
@@ -192,16 +192,16 @@ namespace MBKC.DAL.Repositories
                         {
                             return false;
                         }
-                    }).Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE)).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+                    }).Where(c => c.Status == (int)CategoryEnum.Status.ACTIVE && c.Brand.BrandId == brandId).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
                 }
                 else if (keySearchNameUniCode != null && keySearchNameNotUniCode == null)
                 {
                     return categories
-                        .Where(c => c.Name.ToLower().Contains(keySearchNameUniCode.ToLower()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
+                        .Where(c => c.Name.ToLower().Contains(keySearchNameUniCode.ToLower()) && c.Status == (int)CategoryEnum.Status.ACTIVE && c.Brand.BrandId == brandId)
                         .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
                 }
                 return categories
-                    .Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
+                    .Where(c => c.Status == (int)CategoryEnum.Status.ACTIVE && c.Brand.BrandId == brandId)
                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
             }
             catch (Exception ex)
@@ -212,7 +212,7 @@ namespace MBKC.DAL.Repositories
         #endregion
 
         #region Get Number ExtraCategories
-        public int GetNumberExtraCategories(List<Category> categories, string? keySearchUniCode, string? keySearchNotUniCode)
+        public int GetNumberExtraCategories(List<Category> categories, string? keySearchUniCode, string? keySearchNotUniCode, int brandId)
         {
             try
             {
@@ -228,13 +228,13 @@ namespace MBKC.DAL.Repositories
                         {
                             return false;
                         }
-                    }).Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE)).AsQueryable().Count();
+                    }).Where(c => c.Status == (int)CategoryEnum.Status.ACTIVE && c.Brand.BrandId == brandId).AsQueryable().Count();
                 }
                 else if (keySearchUniCode != null && keySearchNotUniCode == null)
                 {
-                    return categories.Where(c => c.Name.ToLower().Contains(keySearchUniCode.ToLower()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE)).Count();
+                    return categories.Where(c => c.Name.ToLower().Contains(keySearchUniCode.ToLower()) && c.Status == (int)CategoryEnum.Status.ACTIVE && c.Brand.BrandId == brandId).Count();
                 }
-                return categories.Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE)).Count();
+                return categories.Where(c => c.Status == (int)CategoryEnum.Status.ACTIVE && c.Brand.BrandId == brandId).Count();
             }
             catch (Exception ex)
             {
@@ -243,11 +243,31 @@ namespace MBKC.DAL.Repositories
         }
         #endregion
 
-        public bool CheckListExtraCategoryId(List<int> listIdExtraCategory)
+        #region Check ListExtraCategory Id
+        public bool CheckListExtraCategoryId(List<int> listIdExtraCategory, int brandId)
         {
             bool idsExistInDatabase = this._dbContext.Categories
+                .Where(c => c.Brand.BrandId == brandId)
                 .Any(extraCategory => listIdExtraCategory.Contains(extraCategory.CategoryId));
             return idsExistInDatabase;
         }
+        #endregion
+
+        #region Get Normal Category By Id
+        public async Task<Category> GetNormalCategoryByIdAsync(int id)
+        {
+            try
+            {
+                return await _dbContext.Categories
+                    .Include(c => c.ExtraCategoryProductCategories)
+                    .Include(c => c.Products)
+                    .SingleOrDefaultAsync(c => c.CategoryId == id && (c.Status == (int)CategoryEnum.Status.ACTIVE) && c.Type.Equals(CategoryEnum.Type.NORMAL.ToString()));
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
     }
 }

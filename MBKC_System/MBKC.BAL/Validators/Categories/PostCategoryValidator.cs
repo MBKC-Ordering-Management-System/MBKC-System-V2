@@ -55,14 +55,7 @@ namespace MBKC.BAL.Validators.Categories
             RuleFor(c => c.ImageUrl)
                    .ChildRules(pro => pro.RuleFor(img => img.FileName).Must(FileUtil.HaveSupportedFileType).WithMessage("Image is required extension type .png, .jpg, .jpeg, .webp"));
             #endregion
-
-            #region BrandId
-            RuleFor(c => c.BrandId)
-                   .Cascade(CascadeMode.StopOnFirstFailure)
-                   .GreaterThan(0)
-                   .WithMessage("{PropertyName} must be greater than 0");
-            #endregion
-
+            
             #region DisplayOrder
             RuleFor(c => c.DisplayOrder)
                    .Cascade(CascadeMode.StopOnFirstFailure)

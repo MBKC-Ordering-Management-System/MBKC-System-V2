@@ -81,7 +81,7 @@ namespace MBKC.API.Controllers
                 string error = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(error);
             }
-            await this._categoryService.CreateCategoryAsync(postCategoryRequest, _firebaseImageOptions.Value);
+            await this._categoryService.CreateCategoryAsync(postCategoryRequest, _firebaseImageOptions.Value, HttpContext);
             return Ok(new
             {
                 Message = "Created Category Successfylly."
@@ -138,7 +138,7 @@ namespace MBKC.API.Controllers
                 string error = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(error);
             }
-            await this._categoryService.UpdateCategoryAsync(id, updateCategoryRequest, _firebaseImageOptions.Value);
+            await this._categoryService.UpdateCategoryAsync(id, updateCategoryRequest, _firebaseImageOptions.Value, HttpContext);
             return Ok(new
             {
                 Message = "Updated Category Successfully."
@@ -188,7 +188,7 @@ namespace MBKC.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCategoriesAsync([FromQuery]  string type, [FromQuery] string? keySearchName, [FromQuery] int? pageNumber, [FromQuery] int? pageSize)
         {
-            var data = await this._categoryService.GetCategoriesAsync(type, keySearchName, pageNumber, pageSize);
+            var data = await this._categoryService.GetCategoriesAsync(type, keySearchName, pageNumber, pageSize, HttpContext);
 
              return Ok(data);
         }
@@ -226,7 +226,7 @@ namespace MBKC.API.Controllers
         [PermissionAuthorize("Brand Manager")]
         public async Task<IActionResult> GetCategoryByIdAsync([FromRoute] int id)
         {
-            var data = await this._categoryService.GetCategoryByIdAsync(id);
+            var data = await this._categoryService.GetCategoryByIdAsync(id, HttpContext);
             return Ok(data);
         }
         #endregion
@@ -263,7 +263,7 @@ namespace MBKC.API.Controllers
         [PermissionAuthorize("Brand Manager")]
         public async Task<IActionResult> DeleteCategoryByIdAsync([FromRoute] int id)
         {
-            await this._categoryService.DeActiveCategoryByIdAsync(id);
+            await this._categoryService.DeActiveCategoryByIdAsync(id, HttpContext);
             return Ok(new
             {
                 Message = "Deactive Category Successfully."
@@ -364,7 +364,7 @@ namespace MBKC.API.Controllers
         [PermissionAuthorize("Brand Manager")]
         public async Task<IActionResult> GetExtraCategoriesByCategoryId([FromRoute] int id, [FromQuery] string? keySearchName, [FromQuery] int? pageNumber, [FromQuery] int? pageSize)
         {
-            var data = await this._categoryService.GetExtraCategoriesByCategoryId(id, keySearchName, pageNumber, pageSize);
+            var data = await this._categoryService.GetExtraCategoriesByCategoryId(id, keySearchName, pageNumber, pageSize, HttpContext);
             return Ok(data);
         }
         #endregion
@@ -405,7 +405,7 @@ namespace MBKC.API.Controllers
         [PermissionAuthorize("Brand Manager")]
         public async Task<IActionResult> AddExtraCategoriesToNormalCategory([FromRoute] int id, [FromBody] List<int> listExtraCategoryId)
         {
-            await this._categoryService.AddExtraCategoriesToNormalCategory(id, listExtraCategoryId);
+            await this._categoryService.AddExtraCategoriesToNormalCategory(id, listExtraCategoryId, HttpContext);
             return Ok(new { Message = "Add Extra Category To Normal Category Successfully." });
         }
         #endregion

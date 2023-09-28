@@ -1,5 +1,7 @@
 ﻿using MBKC.DAL.DBContext;
+using MBKC.DAL.Enums;
 using MBKC.DAL.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +28,25 @@ namespace MBKC.DAL.Repositories
             {
                 throw new Exception(ex.Message);
             }
-    }
+        }
+
+        public async Task<BrandAccount> GetBrandAccountByAccountIdAsync(int accountId)
+        {
+            try
+            {
+                return await this._dbContext.BrandAccounts
+                      .Include(brandAccocunt => brandAccocunt.Brand)
+                      .ThenInclude(brand => brand.Products)
+                       .Include(brandAccocunt => brandAccocunt.Brand)
+                      .ThenInclude(brand => brand.Categories.Where(c => c.Status == (int)CategoryEnum.Status.ACTIVE))
+                      .ThenInclude(category => category.ExtraCategoryProductCategories)
+                      .SingleOrDefaultAsync(b => b.AccountId == accountId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
 
     }
 }
