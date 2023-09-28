@@ -257,7 +257,7 @@ namespace MBKC.BAL.Services.Implementations
             {
                 var brands = new List<Brand>();
                 var brandResponse = new List<GetBrandResponse>();
-                if (isGetAll != null)
+                if (isGetAll != null && isGetAll == true)
                 {
                     pageNumber = null;
                     pageSize = null;
@@ -308,17 +308,17 @@ namespace MBKC.BAL.Services.Implementations
                 if (keySearchName != null && StringUtil.IsUnicode(keySearchName))
                 {
                     numberItems = await this._unitOfWork.BrandRepository.GetNumberBrandsAsync(keySearchName, null, keyStatus);
-                    brands = await this._unitOfWork.BrandRepository.GetBrandsAsync(keySearchName, null, keyStatus, pageSize.Value, pageNumber.Value);
+                    brands = await this._unitOfWork.BrandRepository.GetBrandsAsync(keySearchName, null, keyStatus, pageSize, pageNumber);
                 }
                 else if (keySearchName != null && StringUtil.IsUnicode(keySearchName) == false)
                 {
                     numberItems = await this._unitOfWork.BrandRepository.GetNumberBrandsAsync(null, keySearchName, keyStatus);
-                    brands = await this._unitOfWork.BrandRepository.GetBrandsAsync(null, keySearchName, keyStatus, pageSize.Value, pageNumber.Value);
+                    brands = await this._unitOfWork.BrandRepository.GetBrandsAsync(null, keySearchName, keyStatus, pageSize, pageNumber);
                 }
                 else if (keySearchName == null)
                 {
                     numberItems = await this._unitOfWork.BrandRepository.GetNumberBrandsAsync(null, null, keyStatus);
-                    brands = await this._unitOfWork.BrandRepository.GetBrandsAsync(null, null, keyStatus, pageSize.Value, pageNumber.Value);
+                    brands = await this._unitOfWork.BrandRepository.GetBrandsAsync(null, null, keyStatus, pageSize, pageNumber);
                 }
 
                 this._mapper.Map(brands, brandResponse);
@@ -326,7 +326,7 @@ namespace MBKC.BAL.Services.Implementations
                 int totalPages = 0;
                 if (numberItems > 0 || isGetAll == null || isGetAll != null && isGetAll == false)
                 {
-                    totalPages = (int)((numberItems + pageSize) / pageSize);
+                    totalPages = (int)((numberItems + pageSize.Value) / pageSize.Value);
                 }
                 return new GetBrandsResponse()
                 {

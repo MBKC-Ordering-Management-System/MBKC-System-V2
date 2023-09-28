@@ -159,20 +159,20 @@ namespace MBKC.BAL.Services.Implementations
                 if (searchValue != null && StringUtil.IsUnicode(searchValue))
                 {
                     numberItems = await this._unitOfWork.KitchenCenterRepository.GetNumberKitchenCentersAsync(searchValue, null);
-                    kitchenCenters = await this._unitOfWork.KitchenCenterRepository.GetKitchenCentersAsync(searchValue, null, itemsPerPage.Value, currentPage.Value);
+                    kitchenCenters = await this._unitOfWork.KitchenCenterRepository.GetKitchenCentersAsync(searchValue, null, itemsPerPage, currentPage);
                 } else if (searchValue != null && StringUtil.IsUnicode(searchValue) == false)
                 {
                     numberItems = await this._unitOfWork.KitchenCenterRepository.GetNumberKitchenCentersAsync(null, searchValue);
-                    kitchenCenters = await this._unitOfWork.KitchenCenterRepository.GetKitchenCentersAsync(null, searchValue, itemsPerPage.Value, currentPage.Value);
+                    kitchenCenters = await this._unitOfWork.KitchenCenterRepository.GetKitchenCentersAsync(null, searchValue, itemsPerPage, currentPage);
                 } else if(searchValue == null)
                 {
                     numberItems = await this._unitOfWork.KitchenCenterRepository.GetNumberKitchenCentersAsync(null, null);
-                    kitchenCenters = await this._unitOfWork.KitchenCenterRepository.GetKitchenCentersAsync(null, null, itemsPerPage.Value, currentPage.Value);
+                    kitchenCenters = await this._unitOfWork.KitchenCenterRepository.GetKitchenCentersAsync(null, null, itemsPerPage, currentPage);
                 }
                 int totalPages = 0;
                 if(numberItems > 0 || isGetAll == null || isGetAll != null && isGetAll == false)
                 {
-                    totalPages = (int)((numberItems + itemsPerPage) / itemsPerPage);
+                    totalPages = (int)((numberItems + itemsPerPage.Value) / itemsPerPage.Value);
                 }
                 List<GetKitchenCenterResponse> getKitchenCenterResponses = this._mapper.Map<List<GetKitchenCenterResponse>>(kitchenCenters);
                 GetKitchenCentersResponse getKitchenCenters = new GetKitchenCentersResponse()
