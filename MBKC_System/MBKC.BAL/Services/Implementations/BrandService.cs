@@ -257,7 +257,7 @@ namespace MBKC.BAL.Services.Implementations
             {
                 var brands = new List<Brand>();
                 var brandResponse = new List<GetBrandResponse>();
-                if (isGetAll != null && isGetAll == true)
+                if (isGetAll != null && isGetAll.Value == true)
                 {
                     pageNumber = null;
                     pageSize = null;
@@ -327,6 +327,11 @@ namespace MBKC.BAL.Services.Implementations
                 if (numberItems > 0 || isGetAll == null || isGetAll != null && isGetAll == false)
                 {
                     totalPages = (int)((numberItems + pageSize.Value) / pageSize.Value);
+                }
+
+                if(numberItems == 0)
+                {
+                    totalPages = 0;
                 }
                 return new GetBrandsResponse()
                 {

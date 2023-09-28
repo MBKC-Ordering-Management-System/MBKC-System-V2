@@ -131,7 +131,7 @@ namespace MBKC.BAL.Services.Implementations
         {
             try
             {
-                if (isGetAll != null && isGetAll == true)
+                if (isGetAll != null && isGetAll.Value == true)
                 {
                     itemsPerPage = null;
                     currentPage = null;
@@ -173,6 +173,11 @@ namespace MBKC.BAL.Services.Implementations
                 if(numberItems > 0 || isGetAll == null || isGetAll != null && isGetAll == false)
                 {
                     totalPages = (int)((numberItems + itemsPerPage.Value) / itemsPerPage.Value);
+                }
+
+                if(numberItems == 0)
+                {
+                    totalPages = 0;
                 }
                 List<GetKitchenCenterResponse> getKitchenCenterResponses = this._mapper.Map<List<GetKitchenCenterResponse>>(kitchenCenters);
                 GetKitchenCentersResponse getKitchenCenters = new GetKitchenCentersResponse()
