@@ -29,10 +29,18 @@ namespace MBKC.BAL.Services.Implementations
             this._mapper = mapper;
         }
 
-        public async Task<GetStoresResponse> GetStoresAsync(string? searchValue, int? currentPage, int? itemsPerPage, int? brandId, IEnumerable<Claim>? claims)
+        public async Task<GetStoresResponse> GetStoresAsync(string? searchValue, int? currentPage, int? itemsPerPage, int? brandId, int? kitchenCenterId, IEnumerable<Claim>? claims)
         {
             try
             {
+                if (brandId != null && brandId <= 0)
+                {
+                    throw new BadRequestException("Brand id is not suitable id in the system.");
+                }
+                if (kitchenCenterId != null && kitchenCenterId <= 0)
+                {
+                    throw new BadRequestException("Kitchen center id is not suitable id in the system.");
+                }
                 if (claims != null && brandId != null)
                 {
                     Claim registeredEmailClaim = claims.FirstOrDefault(x => x.Type == ClaimTypes.Email);
@@ -49,14 +57,44 @@ namespace MBKC.BAL.Services.Implementations
                     if (role.ToLower().Equals(roleName))
                     {
                         Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandByIdAsync(brandId.Value);
-                        BrandAccount brandManagerAccount = existedBrand.BrandAccounts.FirstOrDefault(x => x.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER
-                                                                                                       && x.Account.Status == (int)AccountEnum.Status.ACTIVE);
-                        if (brandManagerAccount.Account.Email.Equals(email))
+                        if(existedBrand == null)
+                        {
+                            throw new NotFoundException("Brand id does not exist in the system.");
+                        }
+                        if (existedBrand.BrandManagerEmail.Equals(email) == false)
                         {
                             throw new BadRequestException("Brand id does not belong to your brand.");
                         }
                     }
                 }
+
+                if (claims != null && kitchenCenterId != null)
+                {
+                    Claim registeredEmailClaim = claims.FirstOrDefault(x => x.Type == ClaimTypes.Email);
+                    Claim registeredRoleClaim = claims.FirstOrDefault(x => x.Type.ToLower().Equals("role"));
+                    string email = registeredEmailClaim.Value;
+                    string role = registeredRoleClaim.Value;
+                    string[] roleNameParts = RoleEnum.Role.KITCHEN_CENTER_MANAGER.ToString().ToLower().Split("_");
+                    string roleName = "";
+                    foreach (var roleNamePart in roleNameParts)
+                    {
+                        roleName += $"{roleNamePart} ";
+                    }
+                    roleName = roleName.Trim();
+                    if (role.ToLower().Equals(roleName))
+                    {
+                        KitchenCenter existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(kitchenCenterId.Value);
+                        if(existedKitchenCenter == null)
+                        {
+                            throw new NotFoundException("Kitchen center id does not exist in the system.");
+                        }
+                        if (existedKitchenCenter.Manager.Email.Equals(email) == false)
+                        {
+                            throw new BadRequestException("Kitchen center id does not belong to your kitchen center.");
+                        }
+                    }
+                }
+
                 if (itemsPerPage != null && itemsPerPage <= 0)
                 {
                     throw new BadRequestException("Items per page number is required more than 0.");
@@ -77,19 +115,20 @@ namespace MBKC.BAL.Services.Implementations
                 List<Store> stores = null;
                 if (searchValue != null && StringUtil.IsUnicode(searchValue))
                 {
-                    numberItems = await this._unitOfWork.StoreRepository.GetNumberStoresAsync(searchValue, null, brandId);
-                    stores = await this._unitOfWork.StoreRepository.GetStoresAsync(searchValue, null, itemsPerPage.Value, currentPage.Value, brandId);
+                    numberItems = await this._unitOfWork.StoreRepository.GetNumberStoresAsync(searchValue, null, brandId, kitchenCenterId);
+                    stores = await this._unitOfWork.StoreRepository.GetStoresAsync(searchValue, null, itemsPerPage.Value, currentPage.Value, brandId, kitchenCenterId);
                 }
                 else if (searchValue != null && StringUtil.IsUnicode(searchValue) == false)
                 {
-                    numberItems = await this._unitOfWork.StoreRepository.GetNumberStoresAsync(null, searchValue, brandId);
-                    stores = await this._unitOfWork.StoreRepository.GetStoresAsync(null, searchValue, itemsPerPage.Value, currentPage.Value, brandId);
+                    numberItems = await this._unitOfWork.StoreRepository.GetNumberStoresAsync(null, searchValue, brandId, kitchenCenterId);
+                    stores = await this._unitOfWork.StoreRepository.GetStoresAsync(null, searchValue, itemsPerPage.Value, currentPage.Value, brandId, kitchenCenterId);
                 }
                 else if (searchValue == null)
                 {
-                    numberItems = await this._unitOfWork.StoreRepository.GetNumberStoresAsync(null, null, brandId);
-                    stores = await this._unitOfWork.StoreRepository.GetStoresAsync(null, null, itemsPerPage.Value, currentPage.Value, brandId);
+                    numberItems = await this._unitOfWork.StoreRepository.GetNumberStoresAsync(null, null, brandId, kitchenCenterId);
+                    stores = await this._unitOfWork.StoreRepository.GetStoresAsync(null, null, itemsPerPage.Value, currentPage.Value, brandId, kitchenCenterId);
                 }
+
                 int totalPage = (int)((numberItems + itemsPerPage) / itemsPerPage);
                 if (numberItems == 0)
                 {
@@ -104,6 +143,20 @@ namespace MBKC.BAL.Services.Implementations
                 };
                 return getStores;
             }
+            catch(NotFoundException ex)
+            {
+                string fieldName = "";
+                if (ex.Message.Equals("Brand id does not exist in the system."))
+                {
+                    fieldName = "Brand id";
+                }
+                else if (ex.Message.Equals("Kitchen center id does not exist in the system."))
+                {
+                    fieldName = "Kitchen center id";
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new NotFoundException(error);
+            }
             catch (BadRequestException ex)
             {
                 string fieldName = "";
@@ -115,9 +168,15 @@ namespace MBKC.BAL.Services.Implementations
                 {
                     fieldName = "Current Page";
                 }
-                else if (ex.Message.Equals("Brand id does not belong to your brand."))
+                else if (ex.Message.Equals("Brand id does not belong to your brand.") ||
+                    ex.Message.Equals("Brand id is not suitable id in the system."))
                 {
                     fieldName = "Brand Id";
+                }
+                else if (ex.Message.Equals("Kitchen center id does not belong to your kitchen center.") ||
+                    ex.Message.Equals("Kitchen center id is not suitable id in the system."))
+                {
+                    fieldName = "Kitchen center id";
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
@@ -129,17 +188,25 @@ namespace MBKC.BAL.Services.Implementations
             }
         }
 
-        public async Task<GetStoreResponse> GetStoreAsync(int id, int? brandId, IEnumerable<Claim>? claims)
+        public async Task<GetStoreResponse> GetStoreAsync(int id, int? brandId, int? kitchenCenterId, IEnumerable<Claim>? claims)
         {
             try
             {
                 Brand existedBrand = null;
+                if(brandId != null && brandId <= 0)
+                {
+                    throw new BadRequestException("Brand id is not suiltable id in the system.");
+                }
+                if(kitchenCenterId != null && kitchenCenterId <= 0)
+                {
+                    throw new BadRequestException("Kitchen center id is not suiltable id in the system.");
+                }
+                if (id <= 0)
+                {
+                    throw new BadRequestException("Store id is not suiltable id in the system.");
+                }
                 if (claims != null && brandId != null)
                 {
-                    if (brandId <= 0)
-                    {
-                        throw new BadRequestException("Brand id is not suiltable id in the system.");
-                    }
                     Claim registeredEmailClaim = claims.FirstOrDefault(x => x.Type == ClaimTypes.Email);
                     Claim registeredRoleClaim = claims.FirstOrDefault(x => x.Type.ToLower().Equals("role"));
                     string email = registeredEmailClaim.Value;
@@ -156,22 +223,43 @@ namespace MBKC.BAL.Services.Implementations
                         existedBrand = await this._unitOfWork.BrandRepository.GetBrandByIdAsync(brandId.Value);
                         if (existedBrand == null)
                         {
-                            throw new NotFoundException("Brand does not exist in the system.");
+                            throw new NotFoundException("Brand id does not exist in the system.");
                         }
-                        BrandAccount brandManagerAccount = existedBrand.BrandAccounts.FirstOrDefault(x => x.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER
-                                                                                                       && x.Account.Status == (int)AccountEnum.Status.ACTIVE);
-                        if (brandManagerAccount.Account.Email.Equals(email))
+                        if (existedBrand.BrandManagerEmail.Equals(email) == false)
                         {
                             throw new BadRequestException("Brand id does not belong to your brand.");
                         }
                     }
                 }
-                if (id <= 0)
+                KitchenCenter existedKitchenCenter = null;
+                if(claims != null && kitchenCenterId != null)
                 {
-                    throw new BadRequestException("Store id is not suiltable id in the system.");
+                    Claim registeredEmailClaim = claims.FirstOrDefault(x => x.Type == ClaimTypes.Email);
+                    Claim registeredRoleClaim = claims.FirstOrDefault(x => x.Type.ToLower().Equals("role"));
+                    string email = registeredEmailClaim.Value;
+                    string role = registeredRoleClaim.Value;
+                    string[] roleNameParts = RoleEnum.Role.KITCHEN_CENTER_MANAGER.ToString().ToLower().Split("_");
+                    string roleName = "";
+                    foreach (var roleNamePart in roleNameParts)
+                    {
+                        roleName += $"{roleNamePart} ";
+                    }
+                    roleName = roleName.Trim();
+                    if (role.ToLower().Equals(roleName))
+                    {
+                        existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(kitchenCenterId.Value);
+                        if (existedKitchenCenter == null)
+                        {
+                            throw new NotFoundException("Kitchen center id does not exist in the system.");
+                        }
+                        if (existedKitchenCenter.Manager.Email.Equals(email) == false)
+                        {
+                            throw new BadRequestException("Kitchen center id does not belong to your brand.");
+                        }
+                    }
                 }
 
-                Store existedStore = await this._unitOfWork.StoreRepository.GetStoreAsync(id, null);
+                Store existedStore = await this._unitOfWork.StoreRepository.GetStoreAsync(id);
                 if (existedStore == null)
                 {
                     throw new NotFoundException("Store id does not exist in the system.");
@@ -180,20 +268,27 @@ namespace MBKC.BAL.Services.Implementations
                 {
                     throw new NotFoundException($"[Brand-{brandId}] does not have the [Store-{id}] in the system.");
                 }
+                if(kitchenCenterId != null && existedStore.KitchenCenter.KitchenCenterId != kitchenCenterId)
+                {
+                    throw new NotFoundException($"[Kitchen center-{kitchenCenterId}] does not have the [Store-{id}] in the system.");
+                }
                 GetStoreResponse store = this._mapper.Map<GetStoreResponse>(existedStore);
                 return store;
             }
             catch (NotFoundException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals("Store does not exist in the system.") ||
+                if (ex.Message.Equals("Store id does not exist in the system.") ||
                     ex.Message.Contains(" does not have"))
                 {
                     fieldName = "Store id";
                 }
-                else if (ex.Message.Equals("Brand does not exist in the system."))
+                else if (ex.Message.Equals("Brand id does not exist in the system."))
                 {
                     fieldName = "Brand id";
+                } else if(ex.Message.Equals("Kitchen center id does not exist in the system."))
+                {
+                    fieldName = "Kitchen center id";
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new NotFoundException(error);
@@ -209,6 +304,10 @@ namespace MBKC.BAL.Services.Implementations
                     ex.Message.Equals("Brand id does not belong to your brand."))
                 {
                     fieldName = "Brand id";
+                } else if(ex.Message.Equals("Kitchen center id does not belong to your brand.") ||
+                    ex.Message.Equals("Kitchen center id is not suiltable id in the system."))
+                {
+                    fieldName = "Kitchen center id";
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
@@ -336,10 +435,18 @@ namespace MBKC.BAL.Services.Implementations
             bool isNewManager = false;
             try
             {
+                if(brandId <= 0)
+                {
+                    throw new BadRequestException("Brand id is not suitable id in the system.");
+                }
                 Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandByIdAsync(brandId);
                 if (existedBrand == null)
                 {
                     throw new NotFoundException("Brand id does not exist in the system.");
+                }
+                if (storeId <= 0)
+                {
+                    throw new BadRequestException("Store id is nor suitable id in the system.");
                 }
                 Claim registeredEmailClaim = claims.FirstOrDefault(x => x.Type == ClaimTypes.Email);
                 Claim registeredRoleClaim = claims.FirstOrDefault(x => x.Type.ToLower().Equals("role"));
@@ -354,15 +461,13 @@ namespace MBKC.BAL.Services.Implementations
                 roleName = roleName.Trim();
                 if (role.ToLower().Equals(roleName))
                 {
-                    BrandAccount brandManagerAccount = existedBrand.BrandAccounts.FirstOrDefault(x => x.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER
-                                                                                                   && x.Account.Status == (int)AccountEnum.Status.ACTIVE);
-                    if (brandManagerAccount.Account.Email.Equals(email))
+                    if (existedBrand.BrandManagerEmail.Equals(email) == false)
                     {
                         throw new BadRequestException("Brand id does not belong to your brand.");
                     }
                 }
 
-                Store existedStore = await this._unitOfWork.StoreRepository.GetStoreAsync(storeId, null);
+                Store existedStore = await this._unitOfWork.StoreRepository.GetStoreAsync(storeId);
                 if (existedStore == null)
                 {
                     throw new NotFoundException("Store id does not exist in the system.");
@@ -408,6 +513,7 @@ namespace MBKC.BAL.Services.Implementations
 
                     existedStore.StoreAccounts.ToList().Add(newStoreAccount);
                     isNewManager = true;
+                    existedStore.StoreManagerEmail = updateStoreRequest.StoreManagerEmail;
                 }
 
                 string oldLogo = existedStore.Logo;
@@ -430,7 +536,6 @@ namespace MBKC.BAL.Services.Implementations
                 }
 
                 existedStore.Name = updateStoreRequest.Name;
-                existedStore.StoreManagerEmail = updateStoreRequest.StoreManagerEmail;
                 if (updateStoreRequest.Status.ToLower().Equals(StoreEnum.Status.ACTIVE.ToString().ToLower()))
                 {
                     existedStore.Status = (int)StoreEnum.Status.ACTIVE;
@@ -467,13 +572,17 @@ namespace MBKC.BAL.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals("Brand id does not belong to your brand."))
+                if (ex.Message.Equals("Brand id does not belong to your brand.") || 
+                    ex.Message.Equals("Brand id is not suitable id in the system."))
                 {
                     fieldName = "Brand id";
                 }
                 else if (ex.Message.Equals("Store Manager Email already existed in the system."))
                 {
                     fieldName = "Store manager email";
+                } else if(ex.Message.Equals("Store id is nor suitable id in the system."))
+                {
+                    fieldName = "Store id";
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
@@ -494,13 +603,21 @@ namespace MBKC.BAL.Services.Implementations
         {
             try
             {
+                if(brandId <= 0)
+                {
+                    throw new BadRequestException("Brand id is not suitable id in the system.");
+                }
+                if(storeId <= 0)
+                {
+                    throw new BadRequestException("Store id is not suitable id in the system.");
+                }
                 Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandByIdAsync(brandId);
                 if (existedBrand == null)
                 {
                     throw new NotFoundException("Brand id does not exist in the system.");
                 }
 
-                Store existedStore = await this._unitOfWork.StoreRepository.GetStoreAsync(storeId, null);
+                Store existedStore = await this._unitOfWork.StoreRepository.GetStoreAsync(storeId);
                 if (existedStore == null)
                 {
                     throw new NotFoundException("Store id does not exist in the system.");
@@ -537,6 +654,19 @@ namespace MBKC.BAL.Services.Implementations
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new NotFoundException(error);
+            }
+            catch(BadRequestException ex)
+            {
+                string fieldName = "";
+                if(ex.Message.Equals("Brand id is not suitable id in the system."))
+                {
+                    fieldName = "Brand id";
+                } else if(ex.Message.Equals("Store id is not suitable id in the system."))
+                {
+                    fieldName = "Store id";
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new BadRequestException(error);
             }
             catch (Exception ex)
             {

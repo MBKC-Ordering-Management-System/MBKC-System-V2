@@ -11,6 +11,7 @@ using MBKC.BAL.Errors;
 using MBKC.BAL.Exceptions;
 using MBKC.BAL.Services.Interfaces;
 using MBKC.BAL.Utils;
+using MBKC.DAL.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -69,7 +70,7 @@ namespace MBKC.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetStoresAync([FromQuery] int? itemsPerPage, [FromQuery] int? currentPage, [FromQuery] string? searchValue)
         {
-            GetStoresResponse stores = await this._storeService.GetStoresAsync(searchValue, currentPage, itemsPerPage, null, null);
+            GetStoresResponse stores = await this._storeService.GetStoresAsync(searchValue, currentPage, itemsPerPage, null, null, null);
             return Ok(stores);
         }
         #endregion
@@ -105,7 +106,7 @@ namespace MBKC.API.Controllers
         public async Task<IActionResult> GetStoreAsync([FromRoute]int id)
         {
 
-            GetStoreResponse store = await this._storeService.GetStoreAsync(id, null, null);
+            GetStoreResponse store = await this._storeService.GetStoreAsync(id, null, null, null);
             return Ok(store);
         }
         #endregion
@@ -132,11 +133,14 @@ namespace MBKC.API.Controllers
         /// </remarks>
         /// <response code="200">Get a list of stores Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
+        /// <response code="404">Some Error about request data not found.</response>
         /// <response code="500">Some Error about the system.</response>
         /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
+        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
         /// <exception cref="Exception">Throw Error about the system.</exception>
         [ProducesResponseType(typeof(GetStoresResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces("application/json")]
         [PermissionAuthorize("Brand Manager", "MBKC Admin")]
@@ -144,7 +148,7 @@ namespace MBKC.API.Controllers
         public async Task<IActionResult> GetBrandStoresAsync([FromRoute] int idBrand, [FromQuery] int? itemsPerPage, [FromQuery] int? currentPage, [FromQuery] string? searchValue)
         {
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            GetStoresResponse stores = await this._storeService.GetStoresAsync(searchValue, currentPage, itemsPerPage, idBrand, claims);
+            GetStoresResponse stores = await this._storeService.GetStoresAsync(searchValue, currentPage, itemsPerPage, idBrand, null, claims);
             return Ok(stores);
         }
         #endregion
@@ -182,7 +186,87 @@ namespace MBKC.API.Controllers
         public async Task<IActionResult> GetBrandStoreAsync([FromRoute] int idBrand, [FromRoute] int idStore)
         {
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            GetStoreResponse store = await this._storeService.GetStoreAsync(idStore, idBrand, claims);
+            GetStoreResponse store = await this._storeService.GetStoreAsync(idStore, idBrand, null, claims);
+            return Ok(store);
+        }
+        #endregion
+
+        #region Get Kitchen center's Stores
+        /// <summary>
+        /// Get Kitchen center's stores in the system.
+        /// </summary>
+        /// <param name="idKitchenCenter">The kitchen center's id.</param>
+        /// <param name="itemsPerPage">The number of items that will display on a page.</param>
+        /// <param name="currentPage">The position of the page.</param>
+        /// <param name="searchValue">The search value about store's name.</param>
+        /// <returns>
+        /// An object contains NumberItems, TotalPage, a list of stores.
+        /// </returns>
+        /// <remarks>
+        ///     Sample request:
+        ///
+        ///         GET 
+        ///         idKitchenCenter = 1
+        ///         itemsPerPage = 5
+        ///         currentPage = 1
+        ///         searchValue = Kitchen center Bình Thạnh
+        /// </remarks>
+        /// <response code="200">Get a list of stores Successfully.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
+        /// <response code="404">Some Error about request data not found.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
+        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(GetStoresResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Produces("application/json")]
+        [PermissionAuthorize("Kitchen Center Manager", "MBKC Admin")]
+        [HttpGet("/api/kitchencenter/{idKitchenCenter}/[controller]")]
+        public async Task<IActionResult> GetKitchenCenterStores([FromRoute]int idKitchenCenter, [FromQuery] int? itemsPerPage, [FromQuery] int? currentPage, [FromQuery] string? searchValue)
+        {
+            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
+            GetStoresResponse stores = await this._storeService.GetStoresAsync(searchValue, currentPage, itemsPerPage, null, idKitchenCenter, claims);
+            return Ok(stores);
+        }
+        #endregion
+
+        #region Get Kitchen center's Store
+        /// <summary>
+        /// Get a specific store of a kitchen center by store id and kitchen center id.
+        /// </summary>
+        /// <param name="idKitchenCenter">The brand's id.</param>
+        /// <param name="idStore">The store's id.</param>
+        /// <returns>
+        /// An object contains the store's information.
+        /// </returns>
+        /// <remarks>
+        ///     Sample request:
+        ///
+        ///         GET 
+        ///         idBrand = 1
+        ///         idStore = 1
+        /// </remarks>
+        /// <response code="200">Get a specific store of a kitchen center by id Successfully.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
+        /// <response code="404">Some Error about request data not found.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
+        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(GetStoreResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Produces("application/json")]
+        [PermissionAuthorize("Kitchen Center Manager")]
+        [HttpGet("/api/kitchencenter/{idKitchenCenter}/[controller]/{idStore}")]
+        public async Task<IActionResult> GetKitchenCenterStore([FromRoute] int idKitchenCenter, [FromRoute] int idStore)
+        {
+            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
+            GetStoreResponse store = await this._storeService.GetStoreAsync(idStore, null, idKitchenCenter, claims);
             return Ok(store);
         }
         #endregion

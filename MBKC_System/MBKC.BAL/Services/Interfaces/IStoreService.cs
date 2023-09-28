@@ -12,8 +12,8 @@ namespace MBKC.BAL.Services.Interfaces
 {
     public interface IStoreService
     {
-        public Task<GetStoresResponse> GetStoresAsync(string? searchValue, int? currentPage, int? itemsPerPage, int? brandId, IEnumerable<Claim>? claims);
-        public Task<GetStoreResponse> GetStoreAsync(int id, int? brandId, IEnumerable<Claim>? claims);
+        public Task<GetStoresResponse> GetStoresAsync(string? searchValue, int? currentPage, int? itemsPerPage, int? brandId, int? kitchenCenterId, IEnumerable<Claim>? claims);
+        public Task<GetStoreResponse> GetStoreAsync(int id, int? brandId, int? kitchenCenterId, IEnumerable<Claim>? claims);
         public Task CreateStoreAsync(CreateStoreRequest createStoreRequest, FireBaseImage fireBaseImageOption, Email emailOption);
         public Task UpdateStoreAsync(int brandId, int storeId, UpdateStoreRequest updateStoreRequest, FireBaseImage fireBaseImageOption, Email emailOption, IEnumerable<Claim> claims);
         public Task DeleteStoreAsync(int brandId, int storeId);

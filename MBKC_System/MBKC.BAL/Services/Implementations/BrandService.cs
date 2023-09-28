@@ -169,6 +169,7 @@ namespace MBKC.BAL.Services.Implementations
 
                     brand.BrandAccounts.ToList().Add(newBrandAccount);
                     isNewManager = true;
+                    brand.BrandManagerEmail = updateBrandRequest.BrandManagerEmail;
                 }
 
                 if (updateBrandRequest.Logo != null)
@@ -192,7 +193,6 @@ namespace MBKC.BAL.Services.Implementations
 
                 brand.Address = updateBrandRequest.Address;
                 brand.Name = updateBrandRequest.Name;
-                brand.BrandManagerEmail = updateBrandRequest.BrandManagerEmail;
 
                 if (updateBrandRequest.Status.ToLower().Equals(CategoryEnum.Status.ACTIVE.ToString().ToLower()))
                 {

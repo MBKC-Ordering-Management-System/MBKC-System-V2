@@ -12,6 +12,7 @@ namespace MBKC.DAL.Infrastructures
 {
     public class UnitOfWork : IUnitOfWork
     {
+        private IDbFactory _dbFactory;
         private MBKCDbContext _dbContext;
         private AccountRepository _accountRepository;
         private BankingAccountRepository _bankingAccountRepository;
@@ -44,13 +45,10 @@ namespace MBKC.DAL.Infrastructures
 
         public UnitOfWork(IDbFactory dbFactory)
         {
+            this._dbFactory = dbFactory;
             if (this._dbContext == null)
             {
                 this._dbContext = dbFactory.InitDbContext();
-            }
-            if (this._redisConnectionProvider == null)
-            {
-                this._redisConnectionProvider = dbFactory.InitRedisConnectionProvider().Result;
             }
         }
 
@@ -70,7 +68,11 @@ namespace MBKC.DAL.Infrastructures
         {
             get
             {
-                if(this._accountTokenRedisRepository == null)
+                if (this._redisConnectionProvider == null)
+                {
+                    this._redisConnectionProvider = this._dbFactory.InitRedisConnectionProvider().Result;
+                }
+                if (this._accountTokenRedisRepository == null)
                 {
                     this._accountTokenRedisRepository = new AccountTokenRedisRepository(this._redisConnectionProvider);
                 }
@@ -82,7 +84,11 @@ namespace MBKC.DAL.Infrastructures
         {
             get
             {
-                if(this._emailVerificationRedisRepository == null)
+                if (this._redisConnectionProvider == null)
+                {
+                    this._redisConnectionProvider = this._dbFactory.InitRedisConnectionProvider().Result;
+                }
+                if (this._emailVerificationRedisRepository == null)
                 {
                     this._emailVerificationRedisRepository = new EmailVerificationRedisRepository(this._redisConnectionProvider);
                 }

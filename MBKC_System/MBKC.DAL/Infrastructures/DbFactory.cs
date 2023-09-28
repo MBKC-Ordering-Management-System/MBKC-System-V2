@@ -50,6 +50,5 @@ namespace MBKC.DAL.Infrastructures
                 this._dbContext.Dispose();
             }
         }
-
     }
 }
