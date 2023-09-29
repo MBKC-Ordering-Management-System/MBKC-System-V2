@@ -91,16 +91,6 @@ namespace MBKC.BAL.Services.Implementations
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
             }
-            catch (NotFoundException ex)
-            {
-                string fieldName = "";
-                if (ex.Message.Equals("Brand Id does not exist in the system."))
-                {
-                    fieldName = "Brand Id";
-                }
-                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
-                throw new NotFoundException(error);
-            }
             catch (Exception ex)
             {
                 if (uploaded)
@@ -130,6 +120,7 @@ namespace MBKC.BAL.Services.Implementations
                 JwtSecurityToken jwtSecurityToken = TokenHelper.ReadToken(httpContext);
                 string accountId = jwtSecurityToken.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Sid).Value;
                 var brandAccount = await _unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId));
+                var brandId = brandAccount.BrandId;
                 // Check category belong to brand or not.
                 var checkCategoryIdExisted = brandAccount.Brand.Categories.SingleOrDefault(c => c.CategoryId == categoryId);
 
@@ -137,7 +128,7 @@ namespace MBKC.BAL.Services.Implementations
                 {
                     throw new BadRequestException("This Category Id is not part of the brand's Category Id.");
                 }
-                // get category with status ACTIVE or INACTIVE foe edit
+                // get category 
                 var category = await this._unitOfWork.CategoryRepository.GetCategoryByIdAsync(categoryId);
                 var categoryCode = await this._unitOfWork.CategoryRepository.GetCategoryByCodeAsync(updateCategoryRequest.Code);
                 if (categoryCode != null && !category.Code.ToLower().Equals(updateCategoryRequest.Code.ToLower()))
@@ -170,8 +161,8 @@ namespace MBKC.BAL.Services.Implementations
                 category.DisplayOrder = updateCategoryRequest.DisplayOrder;
                 category.Code = updateCategoryRequest.Code;
 
-                if (!updateCategoryRequest.Status.Equals(CategoryEnum.Status.ACTIVE.ToString().ToLower()) &&
-                    !updateCategoryRequest.Status.Equals(CategoryEnum.Status.INACTIVE.ToString().ToLower()))
+                if (!updateCategoryRequest.Status.ToUpper().Equals(CategoryEnum.Status.ACTIVE.ToString()) &&
+                    !updateCategoryRequest.Status.ToUpper().Equals(CategoryEnum.Status.INACTIVE.ToString()))
                 {
                     throw new BadRequestException("Status is ACTIVE or INACTIVE.");
                 }
@@ -238,12 +229,11 @@ namespace MBKC.BAL.Services.Implementations
                 {
                     throw new BadRequestException("Category Id is not suitable for the system.");
                 }
-                // Get brandId from JWT
+                // Get brand from JWT
                 JwtSecurityToken jwtSecurityToken = TokenHelper.ReadToken(httpContext);
                 string accountId = jwtSecurityToken.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Sid).Value;
                 var brandAccount = await _unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId));
-
-
+                var brandId = brandAccount.BrandId;
                 var checkCategoryIdExisted = brandAccount.Brand.Categories.SingleOrDefault(c => c.CategoryId == id);
                 if (checkCategoryIdExisted == null)
                 {
@@ -251,10 +241,6 @@ namespace MBKC.BAL.Services.Implementations
                 }
                 var category = await _unitOfWork.CategoryRepository.GetCategoryByIdAsync(id);
                 var categoryResponse = new GetCategoryResponse();
-                if (category == null)
-                {
-                    throw new NotFoundException("Category Id does not exist in the system");
-                }
                 _mapper.Map(category, categoryResponse);
                 return categoryResponse;
             }
@@ -271,16 +257,6 @@ namespace MBKC.BAL.Services.Implementations
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
-            }
-            catch (NotFoundException ex)
-            {
-                string fieldName = "";
-                if (ex.Message.Equals("Category Id does not exist in the system"))
-                {
-                    fieldName = "Category Id";
-                }
-                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
-                throw new NotFoundException(error);
             }
             catch (Exception ex)
             {
@@ -301,11 +277,10 @@ namespace MBKC.BAL.Services.Implementations
                 {
                     throw new BadRequestException("Category Id is not suitable for the system.");
                 }
-                // Get brandId from JWT
+                // Get brand from JWT
                 JwtSecurityToken jwtSecurityToken = TokenHelper.ReadToken(httpContext);
                 string accountId = jwtSecurityToken.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Sid).Value;
                 var brandAccount = await _unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId));
-                var brandId = brandAccount.BrandId;
                 var category = brandAccount.Brand.Categories.SingleOrDefault(c => c.CategoryId == id);
                 if (category == null)
                 {
@@ -324,7 +299,7 @@ namespace MBKC.BAL.Services.Implementations
                 }
 
                 //Deactive category's product
-                if (category.ExtraCategoryProductCategories.Any())
+                if (category.Products != null)
                 {
                     foreach (var product in category.Products)
                     {
@@ -341,18 +316,12 @@ namespace MBKC.BAL.Services.Implementations
                 {
                     fieldName = "Category Id";
                 }
+                else if (ex.Message.Equals("This Category Id is not part of the brand's Category Id."))
+                {
+                    fieldName = "Category Id";
+                }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
-            }
-            catch (NotFoundException ex)
-            {
-                string fileName = "";
-                if (ex.Message.Equals("Category Id does not exist in the system."))
-                {
-                    fileName = "Category Id";
-                }
-                string error = ErrorUtil.GetErrorString(fileName, ex.Message);
-                throw new NotFoundException(error);
             }
             catch (Exception ex)
             {
@@ -476,7 +445,7 @@ namespace MBKC.BAL.Services.Implementations
                 var brandAccount = await _unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId));
                 var brandId = brandAccount.BrandId;
                 var category = brandAccount.Brand.Categories.SingleOrDefault(c => c.CategoryId == categoryId);
-                if (category == null)
+                if (category == null || category.Status == (int)CategoryEnum.Status.INACTIVE)
                 {
                     throw new BadRequestException("This Category Id is not part of the brand's Category Id.");
                 }
@@ -559,7 +528,7 @@ namespace MBKC.BAL.Services.Implementations
         }
         #endregion
 
-        #region Get Extra Categories To Normal Category
+        #region Get Extra Categories From Normal Category
         public async Task<GetCategoriesResponse> GetExtraCategoriesByCategoryId(int categoryId, string? keySearchName, int? pageNumber, int? pageSize, HttpContext httpContext)
         {
             try
@@ -575,9 +544,13 @@ namespace MBKC.BAL.Services.Implementations
                 var brandAccount = await _unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId));
                 var brandId = brandAccount.BrandId;
                 var category = brandAccount.Brand.Categories.SingleOrDefault(c => c.CategoryId == categoryId);
-                if (category == null)
+                if (category == null || category.Status == (int)CategoryEnum.Status.INACTIVE)
                 {
                     throw new BadRequestException("This Category Id is not part of the brand's Category Id.");
+                }
+                if (category.Type.Equals(CategoryEnum.Type.EXTRA.ToString()))
+                {
+                    throw new BadRequestException("Category type must be NORMAL.");
                 }
                 var categoryResponse = new List<GetCategoryResponse>();
                 var listExtraCategoriesInNormalCategory = new List<Category>();
@@ -599,15 +572,23 @@ namespace MBKC.BAL.Services.Implementations
                     pageSize = 5;
                 }
 
-                // List extra CategoryId
-                var extraCategories = brandAccount.Brand.Categories.SelectMany(c => c.ExtraCategoryExtraCategoryNavigations.Select(ex => ex.ProductCategoryId));
-
-                foreach (var extraCategoryId in extraCategories)
+                // Get list extra category id
+                var listExtraCategoryId = await this._unitOfWork.ExtraCategoryRepository.GetExtraCategoriesByCategoryIdAsync(categoryId);
+                if (!listExtraCategoryId.Any())
                 {
-                    var extraCategoryInNormalCategory = await this._unitOfWork.CategoryRepository.GetCategoryByIdAsync(extraCategoryId);
+                    return new GetCategoriesResponse()
+                    {
+                        Categories = categoryResponse,
+                        TotalItems = 0,
+                        TotalPages = 0
+                    };
+                }
+                foreach (var extraId in listExtraCategoryId)
+                {
+                    var extraCategoryInNormalCategory = await this._unitOfWork.CategoryRepository.GetCategoryByIdAsync(extraId);
                     listExtraCategoriesInNormalCategory.Add(extraCategoryInNormalCategory);
                 }
-
+               
                 int numberItems = 0;
                 if (keySearchName != null && StringUtil.IsUnicode(keySearchName))
                 {
@@ -647,7 +628,11 @@ namespace MBKC.BAL.Services.Implementations
                 {
                     fieldName = "Category Id";
                 }
-                if (ex.Message.Equals("This Category Id is not part of the brand's Category Id."))
+                else if (ex.Message.Equals("This Category Id is not part of the brand's Category Id."))
+                {
+                    fieldName = "Category Id";
+                }
+                else if (ex.Message.Equals("Category type must be NORMAL."))
                 {
                     fieldName = "Category Id";
                 }
@@ -661,16 +646,6 @@ namespace MBKC.BAL.Services.Implementations
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
-            }
-            catch (NotFoundException ex)
-            {
-                string fileName = "";
-                if (ex.Message.Equals("Category Id does not exist in the system."))
-                {
-                    fileName = "Category Id";
-                }
-                string error = ErrorUtil.GetErrorString(fileName, ex.Message);
-                throw new NotFoundException(error);
             }
             catch (Exception ex)
             {
@@ -694,24 +669,41 @@ namespace MBKC.BAL.Services.Implementations
                 string accountId = jwtSecurityToken.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Sid).Value;
                 var brandAccount = await _unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId));
                 var brandId = brandAccount.BrandId;
-                var checkExistedCategory = brandAccount.Brand.Categories.SingleOrDefault(c => c.CategoryId == categoryId);
-                if (checkExistedCategory == null)
+                var category = brandAccount.Brand.Categories.SingleOrDefault(c => c.CategoryId == categoryId);
+                if (category == null)
                 {
                     throw new BadRequestException("This Category Id is not part of the brand's Category Id.");
                 }
-                var category = await _unitOfWork.CategoryRepository.GetNormalCategoryByIdAsync(categoryId);
-                if (category == null)
+                else if (category.Type.Equals(CategoryEnum.Type.EXTRA.ToString()))
                 {
-                    throw new BadRequestException("Category Id should be a NORMAL type");
+                    throw new BadRequestException("CategoryId must be a NORMAL type.");
                 }
                 if (listExtraCategoryId.Any(item => item <= 0))
                 {
-                    throw new BadRequestException("Extra category id must be greater than 0.");
+                    throw new BadRequestException("Extra category Id must be greater than 0.");
                 }
-                var checkListExtraCategoryId = this._unitOfWork.CategoryRepository.CheckListExtraCategoryId(listExtraCategoryId, brandId);
-                if (!checkListExtraCategoryId)
+                foreach (var id in listExtraCategoryId)
                 {
-                    throw new BadRequestException("There is an Extra Category Id in the List that does not belong to brand.");
+                    var extraCategory = await this._unitOfWork.CategoryRepository.GetCategoryByIdAsync(id);
+                    if (extraCategory != null)
+                    {
+                        if (extraCategory.Type.Equals(CategoryEnum.Type.NORMAL.ToString()))
+                        {
+                            throw new BadRequestException("List extra category Id need to be a EXTRA type.");
+                        }
+                        else if (extraCategory.Status == (int)CategoryEnum.Status.INACTIVE)
+                        {
+                            throw new BadRequestException("List extra category Id need status is ACTIVE.");
+                        }
+                        else if (extraCategory.Brand.BrandId != brandId)
+                        {
+                            throw new BadRequestException("Extra category Id does not belong to brand.");
+                        }
+                    }
+                    else
+                    {
+                        throw new BadRequestException("Extra category Id does not belong to brand.");
+                    }
                 }
                 SplitIdCategoryResponse splittedExtraCategoriesIds = CustomListUtil
                                                                                    .splitIdsToAddAndRemove(category.ExtraCategoryProductCategories
@@ -749,25 +741,6 @@ namespace MBKC.BAL.Services.Implementations
                 }
                 this._unitOfWork.Commit();
             }
-            catch (NotFoundException ex)
-            {
-                string fieldName = "";
-                if (ex.Message.Equals("Category Id does not exist in the system."))
-                {
-                    fieldName = "Category Id";
-                }
-                if (ex.Message.Equals("There is an Extra Category Id in the List that does not belong to brand."))
-                {
-                    fieldName = "List Extra Category Id";
-                }
-                if (ex.Message.Equals("Extra category id must be greater than 0."))
-                {
-                    fieldName = "List Extra Category Id";
-                }
-                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
-                throw new BadRequestException(error);
-            }
-
             catch (BadRequestException ex)
             {
                 string fieldName = "";
@@ -775,6 +748,31 @@ namespace MBKC.BAL.Services.Implementations
                 {
                     fieldName = "Category Id";
                 }
+                else if (ex.Message.Equals("This Category Id is not part of the brand's Category Id."))
+                {
+                    fieldName = "Category Id";
+                }
+                else if (ex.Message.Equals("CategoryId must be a NORMAL type."))
+                {
+                    fieldName = "Category Id";
+                }
+                else if (ex.Message.Equals("Extra category id must be greater than 0."))
+                {
+                    fieldName = "List Extra Category Id";
+                }
+                else if (ex.Message.Equals("List extra category Id need to be a EXTRA type."))
+                {
+                    fieldName = "List Extra Category Id";
+                }
+                else if (ex.Message.Equals("List extra category Id need status is ACTIVE."))
+                {
+                    fieldName = "List Extra Category Id";
+                }
+                else if (ex.Message.Equals("Extra category Id does not belong to brand."))
+                {
+                    fieldName = "List Extra Category Id";
+                }
+
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
             }

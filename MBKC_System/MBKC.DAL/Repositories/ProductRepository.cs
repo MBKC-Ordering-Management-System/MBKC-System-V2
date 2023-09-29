@@ -78,7 +78,7 @@ namespace MBKC.DAL.Repositories
                 {
                     return await this._dbContext.Products.Where(p => p.Name.ToLower().Contains(keySearchUniCode.ToLower()) && p.Brand.BrandId == brandId && p.Category.CategoryId == categoryId && p.Status == (int)ProductEnum.Status.ACTIVE).CountAsync();
                 }
-                return await this._dbContext.Products.CountAsync();
+                return await this._dbContext.Products.Where(p => p.Brand.BrandId == brandId && p.Category.CategoryId == categoryId && p.Status == (int)ProductEnum.Status.ACTIVE).CountAsync();
             }
             catch (Exception ex)
             {

@@ -37,8 +37,8 @@ namespace MBKC.DAL.Repositories
                 return await this._dbContext.BrandAccounts
                       .Include(brandAccocunt => brandAccocunt.Brand)
                       .ThenInclude(brand => brand.Products)
-                       .Include(brandAccocunt => brandAccocunt.Brand)
-                      .ThenInclude(brand => brand.Categories.Where(c => c.Status == (int)CategoryEnum.Status.ACTIVE))
+                      .Include(brandAccocunt => brandAccocunt.Brand)
+                      .ThenInclude(brand => brand.Categories.Where(c => c.Status != (int)CategoryEnum.Status.DEACTIVE))
                       .ThenInclude(category => category.ExtraCategoryProductCategories)
                       .SingleOrDefaultAsync(b => b.AccountId == accountId);
             }

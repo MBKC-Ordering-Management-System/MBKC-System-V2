@@ -69,7 +69,9 @@ namespace MBKC.DAL.Repositories
             try
             {
                 return await _dbContext.Categories
+                    .Include(c => c.Brand)
                     .Include(c => c.ExtraCategoryProductCategories)
+
                     .Include(c => c.Products)
                     .SingleOrDefaultAsync(c => c.CategoryId.Equals(id) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE));
             }
@@ -235,33 +237,6 @@ namespace MBKC.DAL.Repositories
                     return categories.Where(c => c.Name.ToLower().Contains(keySearchUniCode.ToLower()) && c.Status == (int)CategoryEnum.Status.ACTIVE && c.Brand.BrandId == brandId).Count();
                 }
                 return categories.Where(c => c.Status == (int)CategoryEnum.Status.ACTIVE && c.Brand.BrandId == brandId).Count();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-        #endregion
-
-        #region Check ListExtraCategory Id
-        public bool CheckListExtraCategoryId(List<int> listIdExtraCategory, int brandId)
-        {
-            bool idsExistInDatabase = this._dbContext.Categories
-                .Where(c => c.Brand.BrandId == brandId)
-                .Any(extraCategory => listIdExtraCategory.Contains(extraCategory.CategoryId));
-            return idsExistInDatabase;
-        }
-        #endregion
-
-        #region Get Normal Category By Id
-        public async Task<Category> GetNormalCategoryByIdAsync(int id)
-        {
-            try
-            {
-                return await _dbContext.Categories
-                    .Include(c => c.ExtraCategoryProductCategories)
-                    .Include(c => c.Products)
-                    .SingleOrDefaultAsync(c => c.CategoryId == id && (c.Status == (int)CategoryEnum.Status.ACTIVE) && c.Type.Equals(CategoryEnum.Type.NORMAL.ToString()));
             }
             catch (Exception ex)
             {
