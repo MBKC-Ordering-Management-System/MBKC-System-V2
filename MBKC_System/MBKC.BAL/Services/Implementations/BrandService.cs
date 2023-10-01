@@ -21,7 +21,7 @@ using System.Web;
 namespace MBKC.BAL.Services.Implementations
 {
 
-   
+
     public class BrandService : IBrandService
     {
         private UnitOfWork _unitOfWork;
@@ -140,23 +140,36 @@ namespace MBKC.BAL.Services.Implementations
                 }
 
                 string password = "";
-                if(brand.BrandAccounts.FirstOrDefault(x => x.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER 
-                                                        && x.Account.Status == (int)AccountEnum.Status.ACTIVE).Account.Email.Equals(updateBrandRequest.BrandManagerEmail) == false)
+                var checkAccountBrandManagerExisted = brand.BrandAccounts
+                    .SingleOrDefault(b => b.Account.Email.Equals(updateBrandRequest.BrandManagerEmail)
+                    && b.Account.Status == (int)AccountEnum.Status.ACTIVE && b.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER);
+
+                if (checkAccountBrandManagerExisted != null)
                 {
-                    Account existedAccount = await this._unitOfWork.AccountRepository.GetAccountAsync(updateBrandRequest.BrandManagerEmail);
-                    if(existedAccount != null)
+                    if (checkAccountBrandManagerExisted.Brand.BrandId != brandId)
                     {
                         throw new BadRequestException("Brand Manager Email already existed in the system.");
                     }
-                    brand.BrandAccounts.FirstOrDefault(x => x.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER
-                                                        && x.Account.Status == (int)AccountEnum.Status.ACTIVE).Account.Status = (int)AccountEnum.Status.DEACTIVE;
-
+                    else
+                    {
+                        return;
+                    }
+                }
+                if (checkAccountBrandManagerExisted == null)
+                {
+                    // Inactive old Brand Manager Email
+                    var getBrandAccountById = await this._unitOfWork.BrandAccountRepository.GetBrandAccountByIdAsync(brandId);
+                    if (getBrandAccountById != null)
+                    {
+                        getBrandAccountById.Account.Status = (int)AccountEnum.Status.INACTIVE;
+                        _unitOfWork.BrandAccountRepository.UpdateBrandAccount(getBrandAccountById);
+                    }
                     Role brandManagerRole = await this._unitOfWork.RoleRepository.GetRoleById((int)RoleEnum.Role.BRAND_MANAGER);
                     password = RandomPasswordUtil.CreateRandomPassword();
                     Account newBrandManagerAccount = new Account()
                     {
                         Email = updateBrandRequest.BrandManagerEmail,
-                        Password = password,
+                        Password = StringUtil.EncryptData(password),
                         Role = brandManagerRole,
                         Status = (int)AccountEnum.Status.ACTIVE
                     };
@@ -167,7 +180,7 @@ namespace MBKC.BAL.Services.Implementations
                         Brand = brand
                     };
 
-                    brand.BrandAccounts.ToList().Add(newBrandAccount);
+                    await this._unitOfWork.BrandAccountRepository.CreateBrandAccount(newBrandAccount);
                     isNewManager = true;
                     brand.BrandManagerEmail = updateBrandRequest.BrandManagerEmail;
                 }
@@ -226,6 +239,10 @@ namespace MBKC.BAL.Services.Implementations
                 else if (ex.Message.Equals("Delete image failed."))
                 {
                     fieldName = "Delete image.";
+                }
+                else if (ex.Message.Equals("Brand Manager Email already existed in the system."))
+                {
+                    fieldName = "Brand Manager Email.";
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
@@ -331,7 +348,7 @@ namespace MBKC.BAL.Services.Implementations
                     totalPages = (int)((numberItems + pageSize.Value) / pageSize.Value);
                 }
 
-                if(numberItems == 0)
+                if (numberItems == 0)
                 {
                     totalPages = 0;
                 }
