@@ -306,16 +306,15 @@ namespace MBKC.Service.Services.Implementations
                 }
 
                 string password = "";
-                if (brand.BrandAccounts.FirstOrDefault(x => x.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER
-                                                        && x.Account.Status == (int)AccountEnum.Status.ACTIVE).Account.Email.Equals(updateBrandRequest.BrandManagerEmail) == false)
+                if (brand.BrandManagerEmail.Equals(updateBrandRequest.BrandManagerEmail) == false)
                 {
                     Account existedAccount = await this._unitOfWork.AccountRepository.GetAccountAsync(updateBrandRequest.BrandManagerEmail);
                     if (existedAccount != null)
                     {
                         throw new BadRequestException(MessageConstant.BrandMessage.ManagerEmailExisted);
                     }
-                    brand.BrandAccounts.FirstOrDefault(x => x.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER
-                                                        && x.Account.Status == (int)AccountEnum.Status.ACTIVE).Account.Status = (int)AccountEnum.Status.DEACTIVE;
+
+                    brand.BrandAccounts.FirstOrDefault(x => x.Account.Email.Equals(brand.BrandManagerEmail)).Account.Status = (int)AccountEnum.Status.DEACTIVE;
 
                     Role brandManagerRole = await this._unitOfWork.RoleRepository.GetRoleById((int)RoleEnum.Role.BRAND_MANAGER);
                     password = RandomPasswordUtil.CreateRandomPassword();
@@ -327,13 +326,15 @@ namespace MBKC.Service.Services.Implementations
                         Status = (int)AccountEnum.Status.ACTIVE
                     };
 
+                    await this._unitOfWork.AccountRepository.CreateAccountAsync(newBrandManagerAccount);
+
                     BrandAccount newBrandAccount = new BrandAccount()
                     {
                         Account = newBrandManagerAccount,
                         Brand = brand
                     };
 
-                    brand.BrandAccounts.ToList().Add(newBrandAccount);
+                    await this._unitOfWork.BrandAccountRepository.CreateBrandAccount(newBrandAccount);
                     isNewManager = true;
                     brand.BrandManagerEmail = updateBrandRequest.BrandManagerEmail;
                 }
