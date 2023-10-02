@@ -64,8 +64,8 @@ namespace MBKC.API.Controllers
         ///         GET
         ///         keySearchName = HighLand Coffee
         ///         keyStatusFilter = ACTIVE | INACTIVE | DEACTIVE
-        ///         pageSize = 5
-        ///         pageNumber = 1
+        ///         itemsPerPage = 5
+        ///         currentPage = 1
         /// </remarks>
         /// <response code="200">Get brands Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
