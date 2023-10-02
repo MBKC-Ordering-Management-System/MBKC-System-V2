@@ -322,7 +322,7 @@ namespace MBKC.Service.Services.Implementations
                             throw new BadRequestException(MessageConstant.BrandMessage.ManagerEmailExisted);
                         }
                     }
-                    else if (checkAccountExisted != null && checkAccountExisted.Status == (int)AccountEnum.Status.INACTIVE && checkAccountExisted.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER)
+                    else if (checkAccountExisted != null && checkAccountExisted.Status == (int)AccountEnum.Status.DEACTIVE && checkAccountExisted.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER)
                     {
                         throw new BadRequestException(MessageConstant.BrandMessage.ManagerEmailExisted);
                     }
@@ -333,7 +333,7 @@ namespace MBKC.Service.Services.Implementations
                     var getBrandAccountById = await this._unitOfWork.BrandAccountRepository.GetBrandAccountByBrandIdAsync(brandId);
                     if (getBrandAccountById != null)
                     {
-                        getBrandAccountById.Account.Status = (int)AccountEnum.Status.INACTIVE;
+                        getBrandAccountById.Account.Status = (int)AccountEnum.Status.DEACTIVE;
                         _unitOfWork.BrandAccountRepository.UpdateBrandAccount(getBrandAccountById);
                     }
                     Role brandManagerRole = await this._unitOfWork.RoleRepository.GetRoleById((int)RoleEnum.Role.BRAND_MANAGER);
@@ -497,7 +497,7 @@ namespace MBKC.Service.Services.Implementations
                     }
                 }
 
-                // Change status brand's store to NOT_RENT
+                // Change status brand's store to INACTIVE
                 if (brand.Stores.Any())
                 {
                     foreach (var store in brand.Stores)

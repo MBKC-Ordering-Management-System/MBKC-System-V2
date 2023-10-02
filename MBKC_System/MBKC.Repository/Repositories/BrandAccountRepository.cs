@@ -55,7 +55,7 @@ namespace MBKC.Repository.Repositories
                 return await _dbContext.BrandAccounts
                     .Include(b => b.Account)
                     .Include(b => b.Brand)
-                    .Where(b => b.Account.Status != (int)AccountEnum.Status.DEACTIVE && b.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER)
+                    .Where(b => b.Account.Status != (int)AccountEnum.Status.INACTIVE && b.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER)
                     .SingleOrDefaultAsync(b => b.AccountId == id);
             }
             catch (Exception ex)
