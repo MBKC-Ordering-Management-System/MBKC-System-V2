@@ -67,5 +67,19 @@ namespace MBKC.Service.Utils
             return char.ToUpper(CategoryEnum.Status.DEACTIVE.ToString()[0]) + CategoryEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
 
         }
+
+        public static string ChangeBankingAccountStatus(int status)
+        {
+            if (status == (int)BankingAccountEnum.Status.INACTIVE)
+            {
+                return char.ToUpper(BankingAccountEnum.Status.INACTIVE.ToString()[0]) + BankingAccountEnum.Status.INACTIVE.ToString().ToLower().Substring(1);
+            }
+            else if (status == (int)BankingAccountEnum.Status.ACTIVE)
+            {
+                return char.ToUpper(BankingAccountEnum.Status.ACTIVE.ToString()[0]) + BankingAccountEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
+            }
+            return char.ToUpper(BankingAccountEnum.Status.DEACTIVE.ToString()[0]) + BankingAccountEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
+
+        }
     }
 }

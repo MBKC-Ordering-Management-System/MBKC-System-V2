@@ -45,5 +45,13 @@
             public const string DeletedCategorySuccessfully = "Deleted Category Successfully.";
             public const string CreatedExtraCategoriesToNormalCategorySuccessfully = "Create Extra-Categories To Normal Category Successfully.";
         }
+
+        public static class BankingAccountMessage
+        {
+            public const string CreatedNewBankingAccountSuccessfully = "Created New Banking Account Successfully.";
+            public const string DeletedBankingAccountSuccessfully = "Deleted Banking Account Successfully.";
+            public const string UpdatedStatusBankingAccountSuccessfully = "Updated Banking Account Status Successfully.";
+            public const string UpdatedBankingAccountSuccessfully = "Updated Banking Account Information Successfully.";
+        }
     }
 }

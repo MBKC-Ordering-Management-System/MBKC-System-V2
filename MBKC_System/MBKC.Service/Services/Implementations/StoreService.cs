@@ -359,7 +359,8 @@ namespace MBKC.Service.Services.Implementations
                 if (ex.Message.Equals(MessageConstant.BrandMessage.NotBelongToBrand))
                 {
                     fieldName = "Brand id";
-                } else if (ex.Message.Equals(MessageConstant.StoreMessage.ManageremailExisted))
+                }
+                else if (ex.Message.Equals(MessageConstant.StoreMessage.ManageremailExisted))
                 {
                     fieldName = "Store manager email";
                 }
@@ -684,16 +685,16 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
-                if(storeId <= 0)
+                if (storeId <= 0)
                 {
                     throw new BadRequestException(MessageConstant.CommonMessage.InvalidStoreId);
                 }
                 Store existedStore = await this._unitOfWork.StoreRepository.GetStoreAsync(storeId);
-                if(existedStore == null)
+                if (existedStore == null)
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistStoreId);
                 }
-                if(existedStore.Status != (int)StoreEnum.Status.BE_CONFIRMING)
+                if (existedStore.Status != (int)StoreEnum.Status.BE_CONFIRMING)
                 {
                     throw new BadRequestException(MessageConstant.StoreMessage.NotConfirmingStore);
                 }
@@ -702,15 +703,15 @@ namespace MBKC.Service.Services.Implementations
                 if (confirmStoreRegistrationRequest.Status.Trim().ToLower().Equals(StoreEnum.Status.ACTIVE.ToString().ToLower()))
                 {
                     confirmStoreRegistrationRequest.RejectedReason = null;
-                    existedStore.Status = (int) StoreEnum.Status.ACTIVE;
+                    existedStore.Status = (int)StoreEnum.Status.ACTIVE;
                     isActiveStore = true;
                 }
-
-                if (confirmStoreRegistrationRequest.Status.Trim().ToLower().Equals(StoreEnum.Status.REJECTED.ToString().ToLower()) && 
+                else if (confirmStoreRegistrationRequest.Status.Trim().ToLower().Equals(StoreEnum.Status.REJECTED.ToString().ToLower()) &&
                     confirmStoreRegistrationRequest.RejectedReason == null)
                 {
                     throw new BadRequestException(MessageConstant.StoreMessage.NotRejectedResonForNewStore);
-                } else
+                }
+                else
                 {
                     existedStore.Status = (int)StoreEnum.Status.REJECTED;
                     existedStore.RejectedReason = confirmStoreRegistrationRequest.RejectedReason;
@@ -732,16 +733,18 @@ namespace MBKC.Service.Services.Implementations
                 string message = this._unitOfWork.EmailRepository.GetMessageToRegisterAccount(existedStore.StoreManagerEmail, password, messageBody);
                 await this._unitOfWork.EmailRepository.SendEmailAndPasswordToEmail(existedStore.StoreManagerEmail, message);
             }
-            catch(BadRequestException ex)
+            catch (BadRequestException ex)
             {
                 string fieldName = "";
                 if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidStoreId))
                 {
                     fieldName = "Store id";
-                } else if (ex.Message.Equals(MessageConstant.StoreMessage.NotConfirmingStore))
+                }
+                else if (ex.Message.Equals(MessageConstant.StoreMessage.NotConfirmingStore))
                 {
                     fieldName = "Status";
-                } else if (ex.Message.Equals(MessageConstant.StoreMessage.NotRejectedResonForNewStore))
+                }
+                else if (ex.Message.Equals(MessageConstant.StoreMessage.NotRejectedResonForNewStore))
                 {
                     fieldName = "Rejected reason";
                 }
@@ -754,7 +757,7 @@ namespace MBKC.Service.Services.Implementations
                 string error = ErrorUtil.GetErrorString("Store id", ex.Message);
                 throw new NotFoundException(error);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 string error = ErrorUtil.GetErrorString("Eception", ex.Message);
                 throw new Exception(error);

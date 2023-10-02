@@ -338,6 +338,7 @@ namespace MBKC.Service.Services.Implementations
                     brand.BrandManagerEmail = updateBrandRequest.BrandManagerEmail;
                 }
 
+                string oldLogo = brand.Logo;
                 if (updateBrandRequest.Logo != null)
                 {
                     // Upload image to firebase
@@ -352,7 +353,7 @@ namespace MBKC.Service.Services.Implementations
                     brand.Logo = urlImage + $"&logoId={logoId}";
 
                     //Delete image from database
-                    await this._unitOfWork.FirebaseStorageRepository.DeleteImageAsync(FileUtil.GetImageIdFromUrlImage(brand.Logo, "logoId"), "Brands");
+                    await this._unitOfWork.FirebaseStorageRepository.DeleteImageAsync(FileUtil.GetImageIdFromUrlImage(oldLogo, "logoId"), folderName);
                     isDeleted = true;
                 }
 

@@ -22,7 +22,7 @@ namespace MBKC.Repository.Models
         public int Status { get; set; }
         public string Image { get; set; }
         public int DisplayOrder { get; set; }
-        public int ParentProductId { get; set; }
+        public int? ParentProductId { get; set; }
         public decimal HistoricalPrice { get; set; }
 
         

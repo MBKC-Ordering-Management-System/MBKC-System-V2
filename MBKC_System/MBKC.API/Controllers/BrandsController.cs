@@ -56,7 +56,7 @@ namespace MBKC.API.Controllers
         /// Input TRUE if you want to get all brands, ignoring pageNumber and pageSize, otherwise Input FALSE
         /// </param>
         /// <returns>
-        /// A list of brands contains TotalItems, TotalPages, Brands' information
+        /// A list of brands contains NumberItems, TotalPages, Brands' information
         /// </returns>
         /// <remarks>
         ///     Sample request:

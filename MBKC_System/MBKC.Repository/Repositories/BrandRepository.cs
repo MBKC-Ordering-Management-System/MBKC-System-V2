@@ -77,7 +77,7 @@ namespace MBKC.Repository.Repositories
                 {
                     if (keySearchNameUniCode == null && keySearchNameNotUniCode != null && keyStatusFilter == null)
                     {
-                        return await this._dbContext.Brands.Include(brand => brand.BrandAccounts)
+                        return this._dbContext.Brands.Include(brand => brand.BrandAccounts)
                                                      .ThenInclude(brandAccount => brandAccount.Account)
                                                      .ThenInclude(account => account.Role)
                                                      .Where(delegate (Brand brand)
@@ -91,11 +91,11 @@ namespace MBKC.Repository.Repositories
                                                              return false;
                                                          }
                                                      }).Where(x => x.Status != (int)BrandEnum.Status.DEACTIVE)
-                                                     .Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).AsQueryable().ToListAsync();
+                                                     .Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).AsQueryable().ToList();
                     }
                     else if (keySearchNameUniCode == null && keySearchNameNotUniCode != null && keyStatusFilter != null)
                     {
-                        return await this._dbContext.Brands.Include(brand => brand.BrandAccounts)
+                        return this._dbContext.Brands.Include(brand => brand.BrandAccounts)
                                                      .ThenInclude(brandAccount => brandAccount.Account)
                                                      .ThenInclude(account => account.Role)
                                                      .Where(delegate (Brand brand)
@@ -109,7 +109,7 @@ namespace MBKC.Repository.Repositories
                                                              return false;
                                                          }
                                                      }).Where(x => x.Status == keyStatusFilter && x.Status != (int)BrandEnum.Status.DEACTIVE)
-                                                       .Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).AsQueryable().ToListAsync();
+                                                       .Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).AsQueryable().ToList();
                     }
                     else if (keySearchNameUniCode != null && keySearchNameNotUniCode == null && keyStatusFilter == null)
                     {
@@ -143,7 +143,7 @@ namespace MBKC.Repository.Repositories
                 }
                 if (keySearchNameUniCode == null && keySearchNameNotUniCode != null && keyStatusFilter == null)
                 {
-                    return await this._dbContext.Brands.Include(brand => brand.BrandAccounts)
+                    return this._dbContext.Brands.Include(brand => brand.BrandAccounts)
                                                  .ThenInclude(brandAccount => brandAccount.Account)
                                                  .ThenInclude(account => account.Role)
                                                  .Where(delegate (Brand brand)
@@ -156,11 +156,11 @@ namespace MBKC.Repository.Repositories
                                                      {
                                                          return false;
                                                      }
-                                                 }).Where(x => x.Status != (int)BrandEnum.Status.DEACTIVE).AsQueryable().ToListAsync();
+                                                 }).Where(x => x.Status != (int)BrandEnum.Status.DEACTIVE).AsQueryable().ToList();
                 }
                 else if (keySearchNameUniCode == null && keySearchNameNotUniCode != null && keyStatusFilter != null)
                 {
-                    return await this._dbContext.Brands.Include(brand => brand.BrandAccounts)
+                    return this._dbContext.Brands.Include(brand => brand.BrandAccounts)
                                                  .ThenInclude(brandAccount => brandAccount.Account)
                                                  .ThenInclude(account => account.Role)
                                                  .Where(delegate (Brand brand)
@@ -173,7 +173,7 @@ namespace MBKC.Repository.Repositories
                                                      {
                                                          return false;
                                                      }
-                                                 }).Where(x => x.Status == keyStatusFilter).AsQueryable().ToListAsync();
+                                                 }).Where(x => x.Status == keyStatusFilter).AsQueryable().ToList();
                 }
                 else if (keySearchNameUniCode != null && keySearchNameNotUniCode == null && keyStatusFilter == null)
                 {

@@ -197,7 +197,7 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Consumes(MediaTypeConstant.Multipart_Form_Data)]
         [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin, PermissionAuthorizeConstant.MBKC_Admin)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin, PermissionAuthorizeConstant.Brand_Manager)]
         [HttpPut(APIEndPointConstant.Store.StoreEndpoint)]
         public async Task<IActionResult> PutUpdateStoreAsync([FromRoute]int id, [FromForm]UpdateStoreRequest updateStoreRequest)
         {
