@@ -64,6 +64,7 @@
             public const string DeactiveBrand_Delete = "Brand cannot delete because that was deleted before.";
             public const string DeactiveBrand_Update = "Brand was deleted before, so this brand cannot update.";
             public const string ManagerEmailExisted = "Brand manager email already existed in the system.";
+            public const string RoleNotSuitable = "Role is not suitable";
         }
 
         public static class StoreMessage
