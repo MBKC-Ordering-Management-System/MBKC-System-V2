@@ -379,9 +379,10 @@ namespace MBKC.API.Controllers
         ///         id = 1
         /// 
         ///         {
-        ///            [2,3,4,5]
+        ///           "extraCategoryIds": [
+        ///                        4,5,6
+        ///                     ]
         ///         }
-        ///         
         /// </remarks>
         /// <response code="200">Add Extra Category To Normal Category Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
@@ -397,9 +398,9 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.Application_Json)]
         [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager)]
         [HttpPost(APIEndPointConstant.Category.ExtraCategoriesEndpoint)]
-        public async Task<IActionResult> AddExtraCategoriesToNormalCategory([FromRoute] int id, [FromBody] List<int> listExtraCategoryId)
+        public async Task<IActionResult> AddExtraCategoriesToNormalCategory([FromRoute] int id, [FromBody] ExtraCategoryRequest extraCategoryRequest)
         {
-            await this._categoryService.AddExtraCategoriesToNormalCategory(id, listExtraCategoryId, HttpContext);
+            await this._categoryService.AddExtraCategoriesToNormalCategory(id, extraCategoryRequest, HttpContext);
             return Ok(new { Message = MessageConstant.CategoryMessage.CreatedExtraCategoriesToNormalCategorySuccessfully });
         }
         #endregion

@@ -95,6 +95,7 @@
             public const string ListExtraCategoryIdIsExtraType = "List extra category Id need to be a EXTRA type.";
             public const string ListExtraCategoryIdIsActive = "List extra category Id need status is ACTIVE.";
             public const string ExtraCategoryIdNotBelongToBrand = "Extra category Id does not belong to brand.";
+            public const string ExtraCategoryIdDoesNotExist = "Extra category Id does not exist in the system.";
         }
     }
 }

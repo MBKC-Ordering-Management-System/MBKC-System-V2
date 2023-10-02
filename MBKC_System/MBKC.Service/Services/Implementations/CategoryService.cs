@@ -24,7 +24,6 @@ namespace MBKC.Service.Services.Implementations
             this._unitOfWork = (UnitOfWork)unitOfWork;
             this._mapper = mapper;
         }
-
         #region Create Category
         public async Task CreateCategoryAsync(PostCategoryRequest postCategoryRequest, HttpContext httpContext)
         {
@@ -517,7 +516,7 @@ namespace MBKC.Service.Services.Implementations
                 }
                 if (category.Type.Equals(CategoryEnum.Type.EXTRA.ToString()))
                 {
-                    throw new BadRequestException("Category type must be NORMAL.");
+                    throw new BadRequestException(MessageConstant.CategoryMessage.CategoryMustBeNormal);
                 }
                 var categoryResponse = new List<GetCategoryResponse>();
                 var listExtraCategoriesInNormalCategory = new List<Category>();
@@ -552,7 +551,7 @@ namespace MBKC.Service.Services.Implementations
                 }
                 foreach (var extraId in listExtraCategoryId)
                 {
-                    var extraCategoryInNormalCategory = await this._unitOfWork.CategoryRepository.GetCategoryByIdAsync(extraId.CategoryId);
+                    var extraCategoryInNormalCategory = await this._unitOfWork.CategoryRepository.GetCategoryByIdAsync(extraId.ExtraCategoryId);
                     listExtraCategoriesInNormalCategory.Add(extraCategoryInNormalCategory);
                 }
 
@@ -593,11 +592,15 @@ namespace MBKC.Service.Services.Implementations
                 string fieldName = "";
                 if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidCategoryId))
                 {
-                    fieldName = "Category Id";
+                    fieldName = "Category id";
                 }
                 else if (ex.Message.Equals(MessageConstant.CommonMessage.CategoryIdNotBelongToBrand))
                 {
-                    fieldName = "Category Id";
+                    fieldName = "Category id";
+                }
+                else if (ex.Message.Equals(MessageConstant.CategoryMessage.CategoryMustBeNormal))
+                {
+                    fieldName = "Category id";
                 }
                 else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidCurrentPage))
                 {
@@ -619,7 +622,7 @@ namespace MBKC.Service.Services.Implementations
         #endregion
 
         #region Add Extra Categories To Normal Category
-        public async Task AddExtraCategoriesToNormalCategory(int categoryId, List<int> listExtraCategoryId, HttpContext httpContext)
+        public async Task AddExtraCategoriesToNormalCategory(int categoryId, ExtraCategoryRequest extraCategoryRequest, HttpContext httpContext)
         {
             try
             {
@@ -639,39 +642,39 @@ namespace MBKC.Service.Services.Implementations
                 }
                 else if (category.Type.Equals(CategoryEnum.Type.EXTRA.ToString()))
                 {
-                    throw new BadRequestException("CategoryId must be a NORMAL type.");
+                    throw new BadRequestException(MessageConstant.CategoryMessage.CategoryMustBeNormal);
                 }
-                if (listExtraCategoryId.Any(item => item <= 0))
+                if (extraCategoryRequest.ExtraCategoryIds.Any(item => item <= 0))
                 {
-                    throw new BadRequestException("Extra category Id must be greater than 0.");
+                    throw new BadRequestException(MessageConstant.CategoryMessage.ExtraCategoryGreaterThan0);
                 }
-                foreach (var id in listExtraCategoryId)
+                foreach (var id in extraCategoryRequest.ExtraCategoryIds)
                 {
                     var extraCategory = await this._unitOfWork.CategoryRepository.GetCategoryByIdAsync(id);
                     if (extraCategory != null)
                     {
                         if (extraCategory.Type.Equals(CategoryEnum.Type.NORMAL.ToString()))
                         {
-                            throw new BadRequestException("List extra category Id need to be a EXTRA type.");
+                            throw new BadRequestException(MessageConstant.CategoryMessage.ListExtraCategoryIdIsExtraType);
                         }
                         else if (extraCategory.Status == (int)CategoryEnum.Status.INACTIVE)
                         {
-                            throw new BadRequestException("List extra category Id need status is ACTIVE.");
+                            throw new BadRequestException(MessageConstant.CategoryMessage.ListExtraCategoryIdIsActive);
                         }
                         else if (extraCategory.Brand.BrandId != brandId)
                         {
-                            throw new BadRequestException("Extra category Id does not belong to brand.");
+                            throw new BadRequestException(MessageConstant.CategoryMessage.ExtraCategoryIdNotBelongToBrand);
                         }
                     }
                     else
                     {
-                        throw new BadRequestException("Extra category Id does not belong to brand.");
+                        throw new NotFoundException(MessageConstant.CategoryMessage.ExtraCategoryIdDoesNotExist);
                     }
                 }
                 SplitIdCategoryResponse splittedExtraCategoriesIds = CustomListUtil
                                                                                    .splitIdsToAddAndRemove(category.ExtraCategoryProductCategories
                                                                                    .Select(e => e.ExtraCategoryId)
-                                                                                   .ToList(), listExtraCategoryId);
+                                                                                   .ToList(), extraCategoryRequest.ExtraCategoryIds);
                 //Handle add and remove to database
                 if (splittedExtraCategoriesIds.idsToAdd.Count > 0)
                 {
@@ -739,6 +742,14 @@ namespace MBKC.Service.Services.Implementations
 
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
+            }
+            catch (NotFoundException ex)
+            {
+                string fieldName = "";
+                if (ex.Message.Equals(MessageConstant.CategoryMessage.ExtraCategoryIdDoesNotExist))
+                {
+                    fieldName = "List Extra Category id";
+                }
             }
             catch (Exception ex)
             {

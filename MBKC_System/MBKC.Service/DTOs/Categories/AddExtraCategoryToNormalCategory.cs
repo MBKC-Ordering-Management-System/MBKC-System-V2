@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace MBKC.Service.DTOs.Categories
 {
-    public class AddExtraCategoryToNormalCategory
+    public class ExtraCategoryRequest
     {
-        public int ExtraCategoryId { get; set; }
+        public List<int> ExtraCategoryIds { get; set; }
     }
 }
