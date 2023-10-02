@@ -1,39 +1,31 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
-using MBKC.BAL.Authorization;
-using MBKC.BAL.DTOs.Accounts;
-using MBKC.BAL.DTOs.FireBase;
-using MBKC.BAL.DTOs.KitchenCenters;
-using MBKC.BAL.DTOs.Verifications;
-using MBKC.BAL.Errors;
-using MBKC.BAL.Exceptions;
-using MBKC.BAL.Services.Interfaces;
-using MBKC.BAL.Utils;
-using Microsoft.AspNetCore.Http;
+using MBKC.API.Constants;
+using MBKC.Service.Authorization;
+using MBKC.Service.DTOs.Accounts;
+using MBKC.Service.DTOs.KitchenCenters;
+using MBKC.Service.Errors;
+using MBKC.Service.Exceptions;
+using MBKC.Service.Services.Interfaces;
+using MBKC.Service.Utils;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using System.Web;
 
 namespace MBKC.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
     public class KitchenCentersController : ControllerBase
     {
         private IKitchenCenterService _kitchenCenterService;
-        private IOptions<FireBaseImage> _firebaseImageOption;
-        private IOptions<Email> _emailOption;
         private IValidator<CreateKitchenCenterRequest> _createKitchenCenterValidator;
         private IValidator<UpdateKitchenCenterRequest> _updateKitchenCenterValidator;
-        public KitchenCentersController(IKitchenCenterService kitchenCenterService, IOptions<FireBaseImage> firebaseImageOption,
-            IOptions<Email> emailOption, IValidator<CreateKitchenCenterRequest> createKitchenCenterValidator, 
-            IValidator<UpdateKitchenCenterRequest> updateKitchenCenterValidator)
+        private IValidator<UpdateKitchenCenterStatusRequest> _updateKitchenCenterStatusValidator;
+        public KitchenCentersController(IKitchenCenterService kitchenCenterService, IValidator<CreateKitchenCenterRequest> createKitchenCenterValidator, 
+            IValidator<UpdateKitchenCenterRequest> updateKitchenCenterValidator, IValidator<UpdateKitchenCenterStatusRequest> updateKitchenCenterStatusValidator)
         {
             this._kitchenCenterService = kitchenCenterService;
-            this._firebaseImageOption = firebaseImageOption;
-            this._emailOption = emailOption;
             this._createKitchenCenterValidator = createKitchenCenterValidator;
             this._updateKitchenCenterValidator = updateKitchenCenterValidator;
+            this._updateKitchenCenterStatusValidator = updateKitchenCenterStatusValidator;
         }
 
         #region Get KitchenCenters
@@ -63,9 +55,9 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(GetKitchenCentersResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces("application/json")]
-        [PermissionAuthorize("MBKC Admin")]
-        [HttpGet]
+        [Produces(MediaTypeConstant.Application_Json)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin)]
+        [HttpGet(APIEndPointConstant.KitchenCenter.KitchenCentersEndpoint)]
         public async Task<IActionResult> GetKitchenCentersAsync([FromQuery]int? itemsPerPage, [FromQuery]int? currentPage, [FromQuery]string? keySearchName, [FromQuery] bool? isGetAll)
         {
             GetKitchenCentersResponse getKitchenCentersResponse = await this._kitchenCenterService.GetKitchenCentersAsync(itemsPerPage, currentPage, keySearchName, isGetAll);
@@ -98,9 +90,9 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces("application/json")]
-        [PermissionAuthorize("MBKC Admin")]
-        [HttpGet("{id}")]
+        [Produces(MediaTypeConstant.Application_Json)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin)]
+        [HttpGet(APIEndPointConstant.KitchenCenter.KitchenCenterEndpoint)]
         public async Task<IActionResult> GetKitchenCenterAsync([FromRoute]int id)
         {
             GetKitchenCenterResponse getKitchenCenterResponse = await this._kitchenCenterService.GetKitchenCenterAsync(id);
@@ -138,10 +130,10 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Consumes("multipart/form-data")]
-        [Produces("application/json")]
-        [PermissionAuthorize("MBKC Admin")]
-        [HttpPost]
+        [Consumes(MediaTypeConstant.Multipart_Form_Data)]
+        [Produces(MediaTypeConstant.Application_Json)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin)]
+        [HttpPost(APIEndPointConstant.KitchenCenter.KitchenCentersEndpoint)]
         public async Task<IActionResult> PostCreateKitchenCenterAsync([FromForm]CreateKitchenCenterRequest kitchenCenter)
         {
             ValidationResult validationResult = await this._createKitchenCenterValidator.ValidateAsync(kitchenCenter);
@@ -150,10 +142,10 @@ namespace MBKC.API.Controllers
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
-            await this._kitchenCenterService.CreateKitchenCenterAsync(kitchenCenter, this._emailOption.Value, this._firebaseImageOption.Value);
+            await this._kitchenCenterService.CreateKitchenCenterAsync(kitchenCenter);
             return Ok(new
             {
-                Message = "Created Kitchen Center Successfully."
+                Message = MessageConstant.KitchenCenterMessage.CreatedNewKitchenCenterSuccessfully
             });
         }
         #endregion
@@ -193,10 +185,10 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Consumes("multipart/form-data")]
-        [Produces("application/json")]
-        [PermissionAuthorize("MBKC Admin")]
-        [HttpPut("{id}")]
+        [Consumes(MediaTypeConstant.Multipart_Form_Data)]
+        [Produces(MediaTypeConstant.Application_Json)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin)]
+        [HttpPut(APIEndPointConstant.KitchenCenter.KitchenCenterEndpoint)]
         public async Task<IActionResult> PutUpdateKitchenCenterAsync([FromRoute]int id, [FromForm]UpdateKitchenCenterRequest kitchenCenter)
         {
             ValidationResult validationResult = await this._updateKitchenCenterValidator.ValidateAsync(kitchenCenter);
@@ -205,10 +197,60 @@ namespace MBKC.API.Controllers
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
-            await this._kitchenCenterService.UpdateKitchenCenterAsync(id, kitchenCenter, this._emailOption.Value, this._firebaseImageOption.Value);
+            await this._kitchenCenterService.UpdateKitchenCenterAsync(id, kitchenCenter);
             return Ok(new
             {
-                Message = "Updated Kitchen Center Information Successfully."
+                Message = MessageConstant.KitchenCenterMessage.UpdatedKitchenCenterSuccessfully
+            });
+        }
+        #endregion
+
+        #region Update Kitchen Center Status
+        /// <summary>
+        /// Update status of an existed kitchen center.
+        /// </summary>
+        /// <param name="id">The kitchen center's id.</param>
+        /// <param name="updateKitchenCenterStatusRequest">An kitchen center object contains updated status.</param>
+        /// <returns>
+        /// A success message about updating kitchen center's status.  
+        /// </returns>
+        /// <remarks>
+        ///     Sample request:
+        ///
+        ///         PUT 
+        ///         id = 1
+        ///         
+        ///         {
+        ///             "Status": "Active | Inactive"
+        ///         }
+        /// </remarks>
+        /// <response code="200">Updated kitchen center status successfully.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
+        /// <response code="404">Some Error about request data not found.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
+        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Consumes(MediaTypeConstant.Application_Json)]
+        [Produces(MediaTypeConstant.Application_Json)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin)]
+        [HttpPut(APIEndPointConstant.KitchenCenter.UpdatingStatusKitchenCenter)]
+        public async Task<IActionResult> PutUpdateKitchenCenterStatus([FromRoute] int id, [FromBody] UpdateKitchenCenterStatusRequest updateKitchenCenterStatusRequest)
+        {
+            ValidationResult validationResult = await this._updateKitchenCenterStatusValidator.ValidateAsync(updateKitchenCenterStatusRequest);
+            if(validationResult.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
+            }
+            await this._kitchenCenterService.UpdateKitchenCenterStatusAsync(id, updateKitchenCenterStatusRequest);
+            return Ok(new
+            {
+                Message = MessageConstant.KitchenCenterMessage.UpdatedKitchenCenterStatusSuccessfully
             });
         }
         #endregion
@@ -238,15 +280,15 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces("application/json")]
-        [PermissionAuthorize("MBKC Admin")]
-        [HttpDelete("{id}")]
+        [Produces(MediaTypeConstant.Application_Json)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin)]
+        [HttpDelete(APIEndPointConstant.KitchenCenter.KitchenCenterEndpoint)]
         public async Task<IActionResult> DeleteKitchenCenterAsync([FromRoute]int id)
         {
             await this._kitchenCenterService.DeleteKitchenCenterAsync(id);
             return Ok(new
             {
-                Message = "Deleted Kitchen Center Successfully"
+                Message = MessageConstant.KitchenCenterMessage.DeletedKitchenCenterSuccessfully
             });
         }
         #endregion

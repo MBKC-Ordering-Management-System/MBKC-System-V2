@@ -1,5 +1,5 @@
-﻿using MBKC.BAL.Errors;
-using MBKC.BAL.Exceptions;
+﻿using MBKC.Service.Errors;
+using MBKC.Service.Exceptions;
 using Newtonsoft.Json;
 
 namespace MBKC.API.Middlewares

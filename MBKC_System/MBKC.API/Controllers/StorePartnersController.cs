@@ -1,4 +1,4 @@
-﻿using MBKC.BAL.Services.Interfaces;
+﻿using MBKC.Service.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

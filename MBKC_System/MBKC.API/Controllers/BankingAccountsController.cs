@@ -1,5 +1,5 @@
-﻿using MBKC.BAL.DTOs.BankingAccounts;
-using MBKC.BAL.Services.Interfaces;
+﻿using MBKC.Service.DTOs.BankingAccounts;
+using MBKC.Service.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

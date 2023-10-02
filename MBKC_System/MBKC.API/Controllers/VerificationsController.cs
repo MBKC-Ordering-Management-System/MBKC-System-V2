@@ -1,31 +1,25 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
-using MBKC.BAL.DTOs.Accounts;
-using MBKC.BAL.DTOs.Verifications;
-using MBKC.BAL.Errors;
-using MBKC.BAL.Exceptions;
-using MBKC.BAL.Services.Interfaces;
-using MBKC.BAL.Utils;
-using Microsoft.AspNetCore.Http;
+using MBKC.API.Constants;
+using MBKC.Service.DTOs.Verifications;
+using MBKC.Service.Errors;
+using MBKC.Service.Exceptions;
+using MBKC.Service.Services.Interfaces;
+using MBKC.Service.Utils;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 
 namespace MBKC.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    [Consumes("application/json")]
     public class VerificationsController : ControllerBase
     {
         private IVerificationService _verificationService;
-        private IOptions<Email> _emailOption;
         private IValidator<EmailVerificationRequest> _emailVerificationValidator;
         private IValidator<OTPCodeVerificationRequest> _otpCodeVerificationValidator;
-        public VerificationsController(IVerificationService verificationService, IOptions<Email> emailOption,
+        public VerificationsController(IVerificationService verificationService,
             IValidator<EmailVerificationRequest> emailVerificationValidator, IValidator<OTPCodeVerificationRequest> otpCodeVerificationValidator)
         {
             this._verificationService = verificationService;
-            this._emailOption = emailOption;
             this._emailVerificationValidator = emailVerificationValidator;
             this._otpCodeVerificationValidator = otpCodeVerificationValidator;
         }
@@ -56,9 +50,9 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Consumes("application/json")]
-        [Produces("application/json")]
-        [HttpPost("email-verification")]
+        [Consumes(MediaTypeConstant.Application_Json)]
+        [Produces(MediaTypeConstant.Application_Json)]
+        [HttpPost(APIEndPointConstant.Verification.EmailVerificationEndpoint)]
         public async Task<IActionResult> PostVerifyEmail([FromBody]EmailVerificationRequest emailVerificationRequest)
         {
             ValidationResult validationResult = await this._emailVerificationValidator.ValidateAsync(emailVerificationRequest);
@@ -67,10 +61,10 @@ namespace MBKC.API.Controllers
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
-            await this._verificationService.VerifyEmailToResetPasswordAsync(this._emailOption.Value, emailVerificationRequest);
+            await this._verificationService.VerifyEmailToResetPasswordAsync(emailVerificationRequest);
             return Ok(new
             {
-                Message = "Sent Email Confirmation Successfully."
+                Message = MessageConstant.VerificationMessage.SentEmailConfirmationSuccessfully
             });
         }
         #endregion
@@ -105,9 +99,9 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Consumes("application/json")]
-        [Produces("application/json")]
-        [HttpPost("otp-verification")]
+        [Consumes(MediaTypeConstant.Application_Json)]
+        [Produces(MediaTypeConstant.Application_Json)]
+        [HttpPost(APIEndPointConstant.Verification.OTPVerificationEndpoint)]
         public async Task<IActionResult> PostConfirmOTPCode([FromBody]OTPCodeVerificationRequest otpCodeVerificationRequest)
         {
             ValidationResult validationResult = await this._otpCodeVerificationValidator.ValidateAsync(otpCodeVerificationRequest);
@@ -119,7 +113,7 @@ namespace MBKC.API.Controllers
             await this._verificationService.ConfirmOTPCodeToResetPasswordAsync(otpCodeVerificationRequest);
             return Ok(new
             {
-                Message = "Confirmed OTP Code Successfully."
+                Message = MessageConstant.VerificationMessage.ConfirmedOTPCodeSuccessfully
             });
         }
         #endregion 

@@ -1,253 +1,39 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
-using MBKC.BAL.Authorization;
-using MBKC.BAL.DTOs;
-using MBKC.BAL.DTOs.Brands;
-using MBKC.BAL.DTOs.FireBase;
-using MBKC.BAL.DTOs.Verifications;
-using MBKC.BAL.Errors;
-using MBKC.BAL.Exceptions;
-using MBKC.BAL.Services.Interfaces;
-using MBKC.BAL.Utils;
+using MBKC.API.Constants;
+using MBKC.Service.Authorization;
+using MBKC.Service.DTOs;
+using MBKC.Service.DTOs.Brands;
+using MBKC.Service.Errors;
+using MBKC.Service.Exceptions;
+using MBKC.Service.Services.Interfaces;
+using MBKC.Service.Utils;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
 
 namespace MBKC.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
     public class BrandsController : ControllerBase
     {
         private IBrandService _brandService;
-        private IOptions<FireBaseImage> _firebaseImageOptions;
         private IValidator<PostBrandRequest> _postBrandRequest;
         private IValidator<UpdateBrandRequest> _updateBrandRequest;
         private IValidator<UpdateBrandStatusRequest> _updateBrandStatusRequest;
         private IValidator<UpdateBrandProfileRequest> _updateBrandProfileRequest;
-        private IOptions<Email> _emailOption;
         public BrandsController(IBrandService brandService,
-            IOptions<FireBaseImage> firebaseImageOptions,
             IValidator<PostBrandRequest> postBrandRequest,
-            IOptions<Email> emailOption,
             IValidator<UpdateBrandRequest> updateBrandRequest, 
             IValidator<UpdateBrandStatusRequest> updateBrandStatusRequest,
             IValidator<UpdateBrandProfileRequest> updateBrandProfileRequest)
         {
             this._brandService = brandService;
-            this._firebaseImageOptions = firebaseImageOptions;
             this._postBrandRequest = postBrandRequest;
             this._updateBrandRequest = updateBrandRequest;
-            this._emailOption = emailOption;
             this._updateBrandStatusRequest = updateBrandStatusRequest;
             this._updateBrandProfileRequest = updateBrandProfileRequest;
-        }
-        #region Create Brand
-        /// <summary>
-        ///  Create new brand.
-        /// </summary>
-        /// <param name="postBrandRequest">
-        /// An object includes information about brand. 
-        /// </param>
-        /// <returns>
-        /// A success message about creating new brand.
-        /// </returns>
-        /// <remarks>
-        ///     Sample request:
-        ///     
-        ///         POST
-        ///         Name = MyBrand
-        ///         Address = 123 Main St
-        ///         ManagerEmail = manager@gmail.com
-        ///         Logo =  [Image file]
-        /// </remarks>
-        /// <response code="200">Created new brand successfully.</response>
-        /// <response code="400">Some Error about request data and logic data.</response>
-        /// <response code="500">Some Error about the system.</response>
-        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
-        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
-        /// <exception cref="Exception">Throw Error about the system.</exception>
-        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Consumes("multipart/form-data")]
-        [Produces("application/json")]
-        [HttpPost]
-        [PermissionAuthorize("MBKC Admin")]
-        public async Task<IActionResult> PostCreateBrandAsync([FromForm] PostBrandRequest postBrandRequest)
-        {
-            ValidationResult validationResult = await _postBrandRequest.ValidateAsync(postBrandRequest);
-            if (!validationResult.IsValid)
-            {
-                string errors = ErrorUtil.GetErrorsString(validationResult);
-                throw new BadRequestException(errors);
-            }
-            await this._brandService.CreateBrandAsync(postBrandRequest, _firebaseImageOptions.Value, _emailOption.Value);
-            return Ok(new
-            {
-                Message = "Created New Brand Successfully."
-            });
-        }
-        #endregion
-
-        #region Update Existed Brand
-        /// <summary>
-        ///  Update an existed brand information.
-        /// </summary>
-        /// <param name="id">
-        /// Brand's id for update brand.
-        /// </param>
-        ///  <param name="updateBrandRequest">
-        /// A success message about updating brand information.
-        ///  </param>
-        /// <returns>
-        /// An Object will return BrandId, Name, Address, Logo and Status.
-        /// </returns>
-        /// <remarks>
-        ///     Sample request:
-        ///     
-        ///         PUT
-        ///         id = 3
-        ///         Name = MyBrand
-        ///         Address = 123 Main St
-        ///         Status = INACTIVE | ACTIVE
-        ///         Logo = [Image File]
-        /// </remarks>
-        /// <response code="200">Updated Existed Brand Successfully.</response>
-        /// <response code="400">Some Error about request data and logic data.</response>
-        /// <response code="404">Some Error about request data not found.</response>
-        /// <response code="500">Some Error about the system.</response>
-        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
-        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
-        /// <exception cref="Exception">Throw Error about the system.</exception>
-        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Consumes("multipart/form-data")]
-        [Produces("application/json")]
-        [HttpPut("{id}")]
-        [PermissionAuthorize("MBKC Admin")]
-        public async Task<IActionResult> UpdateBrandAsync([FromRoute] int id, [FromForm] UpdateBrandRequest updateBrandRequest)
-        {
-            ValidationResult validationResult = await _updateBrandRequest.ValidateAsync(updateBrandRequest);
-            if (!validationResult.IsValid)
-            {
-                string error = ErrorUtil.GetErrorsString(validationResult);
-                throw new BadRequestException(error);
-            }
-            await this._brandService.UpdateBrandAsync(id, updateBrandRequest, _firebaseImageOptions.Value, this._emailOption.Value);
-            return Ok(new
-            {
-                Message = "Update Brand Successfully."
-            });
-        }
-        #endregion
-
-        #region Update Existed Brand's Status
-        /// <summary>
-        ///  Update an existed brand status.
-        /// </summary>
-        /// <param name="id">
-        /// Brand's id for update brand.
-        /// </param>
-        ///  <param name="updateBrandStatusRequest">
-        /// An Object includes status for updating brand.
-        ///  </param>
-        /// <returns>
-        /// A success message about updating brand status.
-        /// </returns>
-        /// <remarks>
-        ///     Sample request:
-        ///     
-        ///         PUT
-        ///         id = 3
-        ///         
-        ///         { 
-        ///             "status": "ACTIVE | INACTIVE"
-        ///         }
-        /// </remarks>
-        /// <response code="200">Updated Existed Brand Successfully.</response>
-        /// <response code="400">Some Error about request data and logic data.</response>
-        /// <response code="404">Some Error about request data not found.</response>
-        /// <response code="500">Some Error about the system.</response>
-        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
-        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
-        /// <exception cref="Exception">Throw Error about the system.</exception>
-        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Consumes("application/json")]
-        [Produces("application/json")]
-        [PermissionAuthorize("MBKC Admin")]
-        [HttpPut("{id}/updating-status")]
-        public async Task<IActionResult> UpdateBrandStatusAsync([FromRoute] int id, [FromBody] UpdateBrandStatusRequest updateBrandStatusRequest)
-        {
-            ValidationResult validationResult = await this._updateBrandStatusRequest.ValidateAsync(updateBrandStatusRequest);
-            if(validationResult.IsValid == false)
-            {
-                string errors = ErrorUtil.GetErrorsString(validationResult);
-                throw new BadRequestException(errors);
-            }
-            await this._brandService.UpdateBrandStatusAsync(id, updateBrandStatusRequest);
-            return Ok(new
-            {
-                Message = "Updated Brand's Status Successfully."
-            });
-        }
-        #endregion
-
-        /// <summary>
-        ///  Update an existed brand profile.
-        /// </summary>
-        /// <param name="id">
-        /// Brand's id for update brand.
-        /// </param>
-        ///  <param name="updateBrandProfileRequest">
-        /// A success message about updating brand profile.
-        ///  </param>
-        /// <returns>
-        /// An success message about updating brand's profile
-        /// </returns>
-        /// <remarks>
-        ///     Sample request:
-        ///     
-        ///         PUT
-        ///         id = 3
-        ///         Name = MyBrand
-        ///         Address = 123 Main St
-        ///         Logo = [Image File]
-        /// </remarks>
-        /// <response code="200">Updated Existed Brand Profile Successfully.</response>
-        /// <response code="400">Some Error about request data and logic data.</response>
-        /// <response code="404">Some Error about request data not found.</response>
-        /// <response code="500">Some Error about the system.</response>
-        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
-        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
-        /// <exception cref="Exception">Throw Error about the system.</exception>
-        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Consumes("multipart/form-data")]
-        [Produces("application/json")]
-        [PermissionAuthorize("Brand Manager")]
-        [HttpPut("{id}/updating-profile")]
-        public async Task<IActionResult> UpdateBrandProfileAsync([FromRoute] int id, [FromForm] UpdateBrandProfileRequest updateBrandProfileRequest)
-        {
-            ValidationResult validationResult = await this._updateBrandProfileRequest.ValidateAsync(updateBrandProfileRequest);
-            if(validationResult.IsValid == false)
-            {
-                var errors = ErrorUtil.GetErrorsString(validationResult);
-                throw new BadRequestException(errors);
-            }
-            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            await this._brandService.UpdateBrandProfileAsync(id, updateBrandProfileRequest, this._firebaseImageOptions.Value, claims);
-            return Ok(new
-            {
-                Message = "Updated Brand's Profile Successfully."
-            });
         }
 
         #region Get Brands
@@ -289,9 +75,9 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(GetBrandsResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces("application/json")]
-        [HttpGet]
-        [PermissionAuthorize("MBKC Admin")]
+        [Produces(MediaTypeConstant.Application_Json)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin)]
+        [HttpGet(APIEndPointConstant.Brand.BrandsEndpoint)]
         public async Task<IActionResult> GetBrandsAsync([FromQuery] string? keySearchName, [FromQuery] string? keyStatusFilter, [FromQuery] int? currentPage, [FromQuery] int? itemsPerPage, [FromQuery] bool? isGetAll)
         {
             var data = await this._brandService.GetBrandsAsync(keySearchName, keyStatusFilter, currentPage, itemsPerPage, isGetAll);
@@ -321,20 +107,231 @@ namespace MBKC.API.Controllers
         /// <response code="400">Some Error about request data and logic data.</response>
         /// <response code="404">Some Error about request data not found.</response>
         /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
         /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
         /// <exception cref="Exception">Throw Error about the system.</exception>
         [ProducesResponseType(typeof(GetBrandResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces("application/json")]
-        [HttpGet("{id}")]
-        [PermissionAuthorize("MBKC Admin", "Brand Manager")]
+        [Produces(MediaTypeConstant.Application_Json)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin, PermissionAuthorizeConstant.Brand_Manager)]
+        [HttpGet(APIEndPointConstant.Brand.BrandEndpoint)]
         public async Task<IActionResult> GetBrandByIdAsync([FromRoute] int id)
         {
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
             var data = await this._brandService.GetBrandByIdAsync(id, claims);
             return Ok(data);
+        }
+        #endregion
+
+        #region Create Brand
+        /// <summary>
+        ///  Create new brand.
+        /// </summary>
+        /// <param name="postBrandRequest">
+        /// An object includes information about brand. 
+        /// </param>
+        /// <returns>
+        /// A success message about creating new brand.
+        /// </returns>
+        /// <remarks>
+        ///     Sample request:
+        ///     
+        ///         POST
+        ///         Name = MyBrand
+        ///         Address = 123 Main St
+        ///         ManagerEmail = manager@gmail.com
+        ///         Logo =  [Image file]
+        /// </remarks>
+        /// <response code="200">Created new brand successfully.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
+        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Consumes(MediaTypeConstant.Multipart_Form_Data)]
+        [Produces(MediaTypeConstant.Application_Json)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin)]
+        [HttpPost(APIEndPointConstant.Brand.BrandsEndpoint)]
+        public async Task<IActionResult> PostCreateBrandAsync([FromForm] PostBrandRequest postBrandRequest)
+        {
+            ValidationResult validationResult = await _postBrandRequest.ValidateAsync(postBrandRequest);
+            if (validationResult.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
+            }
+            await this._brandService.CreateBrandAsync(postBrandRequest);
+            return Ok(new
+            {
+                Message = MessageConstant.BrandMessage.CreatedNewBrandSuccessfully
+            });
+        }
+        #endregion
+
+        #region Update Existed Brand
+        /// <summary>
+        ///  Update an existed brand information.
+        /// </summary>
+        /// <param name="id">
+        /// Brand's id for update brand.
+        /// </param>
+        ///  <param name="updateBrandRequest">
+        /// A success message about updating brand information.
+        ///  </param>
+        /// <returns>
+        /// An Object will return BrandId, Name, Address, Logo and Status.
+        /// </returns>
+        /// <remarks>
+        ///     Sample request:
+        ///     
+        ///         PUT
+        ///         id = 3
+        ///         Name = MyBrand
+        ///         Address = 123 Main St
+        ///         Status = INACTIVE | ACTIVE
+        ///         Logo = [Image File]
+        /// </remarks>
+        /// <response code="200">Updated Existed Brand Successfully.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
+        /// <response code="404">Some Error about request data not found.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
+        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Consumes(MediaTypeConstant.Multipart_Form_Data)]
+        [Produces(MediaTypeConstant.Application_Json)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin)]
+        [HttpPut(APIEndPointConstant.Brand.BrandEndpoint)]
+        public async Task<IActionResult> UpdateBrandAsync([FromRoute] int id, [FromForm] UpdateBrandRequest updateBrandRequest)
+        {
+            ValidationResult validationResult = await _updateBrandRequest.ValidateAsync(updateBrandRequest);
+            if (validationResult.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
+            }
+            await this._brandService.UpdateBrandAsync(id, updateBrandRequest);
+            return Ok(new
+            {
+                Message = MessageConstant.BrandMessage.UpdatedBrandSuccessfully
+            });
+        }
+        #endregion
+
+        #region Update Existed Brand's Status
+        /// <summary>
+        ///  Update an existed brand status.
+        /// </summary>
+        /// <param name="id">
+        /// Brand's id for update brand.
+        /// </param>
+        ///  <param name="updateBrandStatusRequest">
+        /// An Object includes status for updating brand.
+        ///  </param>
+        /// <returns>
+        /// A success message about updating brand status.
+        /// </returns>
+        /// <remarks>
+        ///     Sample request:
+        ///     
+        ///         PUT
+        ///         id = 3
+        ///         
+        ///         { 
+        ///             "status": "ACTIVE | INACTIVE"
+        ///         }
+        /// </remarks>
+        /// <response code="200">Updated Existed Brand Successfully.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
+        /// <response code="404">Some Error about request data not found.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
+        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Consumes(MediaTypeConstant.Application_Json)]
+        [Produces(MediaTypeConstant.Application_Json)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin)]
+        [HttpPut(APIEndPointConstant.Brand.UpdatingStatusBrand)]
+        public async Task<IActionResult> UpdateBrandStatusAsync([FromRoute] int id, [FromBody] UpdateBrandStatusRequest updateBrandStatusRequest)
+        {
+            ValidationResult validationResult = await this._updateBrandStatusRequest.ValidateAsync(updateBrandStatusRequest);
+            if(validationResult.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
+            }
+            await this._brandService.UpdateBrandStatusAsync(id, updateBrandStatusRequest);
+            return Ok(new
+            {
+                Message = MessageConstant.BrandMessage.UpdatedBrandStatusSuccessfully
+            });
+        }
+        #endregion
+
+        #region Update Brand Profile
+        /// <summary>
+        ///  Update an existed brand profile.
+        /// </summary>
+        /// <param name="id">
+        /// Brand's id for update brand.
+        /// </param>
+        ///  <param name="updateBrandProfileRequest">
+        /// A success message about updating brand profile.
+        ///  </param>
+        /// <returns>
+        /// An success message about updating brand's profile
+        /// </returns>
+        /// <remarks>
+        ///     Sample request:
+        ///     
+        ///         PUT
+        ///         id = 3
+        ///         Name = MyBrand
+        ///         Address = 123 Main St
+        ///         Logo = [Image File]
+        /// </remarks>
+        /// <response code="200">Updated Existed Brand Profile Successfully.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
+        /// <response code="404">Some Error about request data not found.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
+        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Consumes(MediaTypeConstant.Multipart_Form_Data)]
+        [Produces(MediaTypeConstant.Application_Json)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager)]
+        [HttpPut(APIEndPointConstant.Brand.UpdatingProfileBrand)]
+        public async Task<IActionResult> UpdateBrandProfileAsync([FromRoute] int id, [FromForm] UpdateBrandProfileRequest updateBrandProfileRequest)
+        {
+            ValidationResult validationResult = await this._updateBrandProfileRequest.ValidateAsync(updateBrandProfileRequest);
+            if(validationResult.IsValid == false)
+            {
+                var errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
+            }
+            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
+            await this._brandService.UpdateBrandProfileAsync(id, updateBrandProfileRequest, claims);
+            return Ok(new
+            {
+                Message = MessageConstant.BrandMessage.UpdatedBrandProfileSuccessfully
+            });
         }
         #endregion
 
@@ -367,15 +364,15 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces("application/json")]
-        [HttpDelete("{id}")]
-        [PermissionAuthorize("MBKC Admin")]
+        [Produces(MediaTypeConstant.Application_Json)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin)]
+        [HttpDelete(APIEndPointConstant.Brand.BrandEndpoint)]
         public async Task<IActionResult> DeActiveBrandByIdAsync([FromRoute] int id)
         {
             await this._brandService.DeActiveBrandByIdAsync(id);
             return Ok(new
             {
-                Message = "Deleted brand successfully."
+                Message = MessageConstant.BrandMessage.DeletedBrandSuccessfully
             });
         }
         #endregion

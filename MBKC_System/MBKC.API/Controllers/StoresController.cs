@@ -1,42 +1,35 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
-using MBKC.BAL.Authorization;
-using MBKC.BAL.DTOs.Accounts;
-using MBKC.BAL.DTOs.FireBase;
-using MBKC.BAL.DTOs.JWTs;
-using MBKC.BAL.DTOs.KitchenCenters;
-using MBKC.BAL.DTOs.Stores;
-using MBKC.BAL.DTOs.Verifications;
-using MBKC.BAL.Errors;
-using MBKC.BAL.Exceptions;
-using MBKC.BAL.Services.Interfaces;
-using MBKC.BAL.Utils;
-using MBKC.DAL.Models;
-using Microsoft.AspNetCore.Http;
+using MBKC.API.Constants;
+using MBKC.Service.Authorization;
+using MBKC.Service.DTOs.Stores;
+using MBKC.Service.Errors;
+using MBKC.Service.Exceptions;
+using MBKC.Service.Services.Interfaces;
+using MBKC.Service.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
 
 namespace MBKC.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
     public class StoresController : ControllerBase
     {
         private IStoreService _storeService;
-        private IOptions<FireBaseImage> _firebaseImageOption;
-        private IOptions<Email> _emailOption;
-        private IValidator<CreateStoreRequest> _createStoreValidator;
+        private IValidator<RegisterStoreRequest> _registerStoreValidator;
         private IValidator<UpdateStoreRequest> _updateStoreValidator;
-        public StoresController(IStoreService storeService, IOptions<FireBaseImage> firebaseImageOption,
-            IOptions<Email> emailOption, IValidator<CreateStoreRequest> createStoreValidator, 
-            IValidator<UpdateStoreRequest> updateStoreValidator)
+        private IValidator<UpdateStoreStatusRequest> _updateStoreStatusValidator;
+        private IValidator<ConfirmStoreRegistrationRequest> _confirmStoreRegistrationValidator;
+        public StoresController(IStoreService storeService, IValidator<RegisterStoreRequest> registerStoreValidator, 
+            IValidator<UpdateStoreRequest> updateStoreValidator, IValidator<UpdateStoreStatusRequest> updateStoreStatusValidator,
+            IValidator<ConfirmStoreRegistrationRequest> confirmStoreRegistrationValidator)
         {
             this._storeService = storeService;
-            this._firebaseImageOption = firebaseImageOption;
-            this._emailOption = emailOption;
-            this._createStoreValidator = createStoreValidator;
+            this._registerStoreValidator = registerStoreValidator;
             this._updateStoreValidator = updateStoreValidator;
+            this._updateStoreStatusValidator = updateStoreStatusValidator;
+            this._confirmStoreRegistrationValidator = confirmStoreRegistrationValidator;
         }
 
         #region Get Stores
@@ -46,6 +39,8 @@ namespace MBKC.API.Controllers
         /// <param name="itemsPerPage">The number of items that will display on a page.</param>
         /// <param name="currentPage">The position of the page.</param>
         /// <param name="searchValue">The search value about store's name.</param>
+        /// <param name="idBrand">The brand's id</param>
+        /// <param name="idKitchenCenter">The kitchen center's id</param>
         /// <returns>
         /// An object contains NumberItems, TotalPage, a list of stores.
         /// </returns>
@@ -56,6 +51,8 @@ namespace MBKC.API.Controllers
         ///         itemsPerPage = 5
         ///         currentPage = 1
         ///         searchValue = KFC Bình Thạnh
+        ///         idBrand = 1
+        ///         idKitchenCenter = 1
         /// </remarks>
         /// <response code="200">Get a list of stores Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
@@ -65,12 +62,14 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(GetStoresResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces("application/json")]
-        [PermissionAuthorize("MBKC Admin")]
-        [HttpGet]
-        public async Task<IActionResult> GetStoresAync([FromQuery] int? itemsPerPage, [FromQuery] int? currentPage, [FromQuery] string? searchValue)
+        [Produces(MediaTypeConstant.Application_Json)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin, PermissionAuthorizeConstant.Brand_Manager, PermissionAuthorizeConstant.Kitchen_Center_Manager)]
+        [HttpGet(APIEndPointConstant.Store.StoresEndpoint)]
+        public async Task<IActionResult> GetStoresAync([FromQuery] int? itemsPerPage, [FromQuery] int? currentPage, [FromQuery] string? searchValue,
+            [FromQuery] int? idBrand, [FromQuery] int? idKitchenCenter)
         {
-            GetStoresResponse stores = await this._storeService.GetStoresAsync(searchValue, currentPage, itemsPerPage, null, null, null);
+            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
+            GetStoresResponse stores = await this._storeService.GetStoresAsync(searchValue, currentPage, itemsPerPage, idBrand, idKitchenCenter, claims);
             return Ok(stores);
         }
         #endregion
@@ -100,184 +99,24 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces("application/json")]
-        [PermissionAuthorize("MBKC Admin")]
-        [HttpGet("{id}")]
+        [Produces(MediaTypeConstant.Application_Json)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin, PermissionAuthorizeConstant.Kitchen_Center_Manager, PermissionAuthorizeConstant.Brand_Manager)]
+        [HttpGet(APIEndPointConstant.Store.StoreEndpoint)]
         public async Task<IActionResult> GetStoreAsync([FromRoute]int id)
         {
-
-            GetStoreResponse store = await this._storeService.GetStoreAsync(id, null, null, null);
+            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
+            GetStoreResponse store = await this._storeService.GetStoreAsync(id, claims);
             return Ok(store);
         }
         #endregion
 
-        #region Get Brand's Stores
+        #region Register New Store
         /// <summary>
-        /// Get Brand's stores in the system.
+        /// Register new store.
         /// </summary>
-        /// <param name="idBrand">The brand's id.</param>
-        /// <param name="itemsPerPage">The number of items that will display on a page.</param>
-        /// <param name="currentPage">The position of the page.</param>
-        /// <param name="searchValue">The search value about store's name.</param>
+        /// <param name="storeRequest">A store object contains registered information.</param>
         /// <returns>
-        /// An object contains NumberItems, TotalPage, a list of stores.
-        /// </returns>
-        /// <remarks>
-        ///     Sample request:
-        ///
-        ///         GET 
-        ///         brandId = 1
-        ///         itemsPerPage = 5
-        ///         currentPage = 1
-        ///         searchValue = KFC Bình Thạnh
-        /// </remarks>
-        /// <response code="200">Get a list of stores Successfully.</response>
-        /// <response code="400">Some Error about request data and logic data.</response>
-        /// <response code="404">Some Error about request data not found.</response>
-        /// <response code="500">Some Error about the system.</response>
-        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
-        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
-        /// <exception cref="Exception">Throw Error about the system.</exception>
-        [ProducesResponseType(typeof(GetStoresResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces("application/json")]
-        [PermissionAuthorize("Brand Manager", "MBKC Admin")]
-        [HttpGet("/api/brand/{idBrand}/[controller]")]
-        public async Task<IActionResult> GetBrandStoresAsync([FromRoute] int idBrand, [FromQuery] int? itemsPerPage, [FromQuery] int? currentPage, [FromQuery] string? searchValue)
-        {
-            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            GetStoresResponse stores = await this._storeService.GetStoresAsync(searchValue, currentPage, itemsPerPage, idBrand, null, claims);
-            return Ok(stores);
-        }
-        #endregion
-
-        #region Get Brand's Store
-        /// <summary>
-        /// Get a specific store of a brand by store id and brand id.
-        /// </summary>
-        /// <param name="idBrand">The brand's id.</param>
-        /// <param name="idStore">The store's id.</param>
-        /// <returns>
-        /// An object contains the store's information.
-        /// </returns>
-        /// <remarks>
-        ///     Sample request:
-        ///
-        ///         GET 
-        ///         idBrand = 1
-        ///         idStore = 1
-        /// </remarks>
-        /// <response code="200">Get a specific store of a brand by id Successfully.</response>
-        /// <response code="400">Some Error about request data and logic data.</response>
-        /// <response code="404">Some Error about request data not found.</response>
-        /// <response code="500">Some Error about the system.</response>
-        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
-        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
-        /// <exception cref="Exception">Throw Error about the system.</exception>
-        [ProducesResponseType(typeof(GetStoreResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces("application/json")]
-        [PermissionAuthorize("Brand Manager")]
-        [HttpGet("/api/brand/{idBrand}/[controller]/{idStore}")]
-        public async Task<IActionResult> GetBrandStoreAsync([FromRoute] int idBrand, [FromRoute] int idStore)
-        {
-            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            GetStoreResponse store = await this._storeService.GetStoreAsync(idStore, idBrand, null, claims);
-            return Ok(store);
-        }
-        #endregion
-
-        #region Get Kitchen center's Stores
-        /// <summary>
-        /// Get Kitchen center's stores in the system.
-        /// </summary>
-        /// <param name="idKitchenCenter">The kitchen center's id.</param>
-        /// <param name="itemsPerPage">The number of items that will display on a page.</param>
-        /// <param name="currentPage">The position of the page.</param>
-        /// <param name="searchValue">The search value about store's name.</param>
-        /// <returns>
-        /// An object contains NumberItems, TotalPage, a list of stores.
-        /// </returns>
-        /// <remarks>
-        ///     Sample request:
-        ///
-        ///         GET 
-        ///         idKitchenCenter = 1
-        ///         itemsPerPage = 5
-        ///         currentPage = 1
-        ///         searchValue = Kitchen center Bình Thạnh
-        /// </remarks>
-        /// <response code="200">Get a list of stores Successfully.</response>
-        /// <response code="400">Some Error about request data and logic data.</response>
-        /// <response code="404">Some Error about request data not found.</response>
-        /// <response code="500">Some Error about the system.</response>
-        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
-        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
-        /// <exception cref="Exception">Throw Error about the system.</exception>
-        [ProducesResponseType(typeof(GetStoresResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces("application/json")]
-        [PermissionAuthorize("Kitchen Center Manager", "MBKC Admin")]
-        [HttpGet("/api/kitchencenter/{idKitchenCenter}/[controller]")]
-        public async Task<IActionResult> GetKitchenCenterStores([FromRoute]int idKitchenCenter, [FromQuery] int? itemsPerPage, [FromQuery] int? currentPage, [FromQuery] string? searchValue)
-        {
-            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            GetStoresResponse stores = await this._storeService.GetStoresAsync(searchValue, currentPage, itemsPerPage, null, idKitchenCenter, claims);
-            return Ok(stores);
-        }
-        #endregion
-
-        #region Get Kitchen center's Store
-        /// <summary>
-        /// Get a specific store of a kitchen center by store id and kitchen center id.
-        /// </summary>
-        /// <param name="idKitchenCenter">The brand's id.</param>
-        /// <param name="idStore">The store's id.</param>
-        /// <returns>
-        /// An object contains the store's information.
-        /// </returns>
-        /// <remarks>
-        ///     Sample request:
-        ///
-        ///         GET 
-        ///         idBrand = 1
-        ///         idStore = 1
-        /// </remarks>
-        /// <response code="200">Get a specific store of a kitchen center by id Successfully.</response>
-        /// <response code="400">Some Error about request data and logic data.</response>
-        /// <response code="404">Some Error about request data not found.</response>
-        /// <response code="500">Some Error about the system.</response>
-        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
-        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
-        /// <exception cref="Exception">Throw Error about the system.</exception>
-        [ProducesResponseType(typeof(GetStoreResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces("application/json")]
-        [PermissionAuthorize("Kitchen Center Manager")]
-        [HttpGet("/api/kitchencenter/{idKitchenCenter}/[controller]/{idStore}")]
-        public async Task<IActionResult> GetKitchenCenterStore([FromRoute] int idKitchenCenter, [FromRoute] int idStore)
-        {
-            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            GetStoreResponse store = await this._storeService.GetStoreAsync(idStore, null, idKitchenCenter, claims);
-            return Ok(store);
-        }
-        #endregion
-
-        #region Create New Store
-        /// <summary>
-        /// Create new store.
-        /// </summary>
-        /// <param name="storeRequest">A store object contains created information.</param>
-        /// <returns>
-        /// A success message about creating store information.
+        /// A success message about registering store information.
         /// </returns>
         /// <remarks>
         ///     Sample request:
@@ -291,7 +130,7 @@ namespace MBKC.API.Controllers
         ///             "StoreManagerEmail": "abc@example.com"
         ///         }
         /// </remarks>
-        /// <response code="200">Created new store successfully.</response>
+        /// <response code="200">Registered new store successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
         /// <response code="404">Some Error about request data not found.</response>
         /// <response code="500">Some Error about the system.</response>
@@ -302,22 +141,23 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Consumes("multipart/form-data")]
-        [Produces("application/json")]
-        [PermissionAuthorize("MBKC Admin")]
-        [HttpPost]
-        public async Task<IActionResult> PostCreateStoreAsync([FromForm] CreateStoreRequest storeRequest)
+        [Consumes(MediaTypeConstant.Multipart_Form_Data)]
+        [Produces(MediaTypeConstant.Application_Json)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager)]
+        [HttpPost(APIEndPointConstant.Store.StoresEndpoint)]
+        public async Task<IActionResult> PostRegisterStoreAsync([FromForm] RegisterStoreRequest storeRequest)
         {
-            ValidationResult validationResult = await this._createStoreValidator.ValidateAsync(storeRequest);
+            ValidationResult validationResult = await this._registerStoreValidator.ValidateAsync(storeRequest);
             if(validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
-            await this._storeService.CreateStoreAsync(storeRequest, this._firebaseImageOption.Value, this._emailOption.Value);
+            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
+            await this._storeService.CreateStoreAsync(storeRequest, claims);
             return Ok(new
             {
-                Message = "Created New Store Successfully."
+                Message = MessageConstant.StoreMessage.RegisteredNewStoreSuccessfully
             });
         }
         #endregion
@@ -326,8 +166,7 @@ namespace MBKC.API.Controllers
         /// <summary>
         /// Update information of an existed store of a brand.
         /// </summary>
-        /// <param name="idBrand">The brand's id.</param>
-        /// <param name="idStore">The store's id.</param>
+        /// <param name="id">The store's id.</param>
         /// <param name="updateStoreRequest">An store object contains updated information.</param>
         /// <returns>
         /// A success message about updating store information.  
@@ -336,7 +175,6 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///
         ///         PUT 
-        ///         idBrand = 1
         ///         idStore = 1
         ///         
         ///         {
@@ -346,7 +184,7 @@ namespace MBKC.API.Controllers
         ///             "StoreManagerEmail": "abc@example.com"
         ///         }
         /// </remarks>
-        /// <response code="200">Updated a store of a brand successfully.</response>
+        /// <response code="200">Updated store information successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
         /// <response code="404">Some Error about request data not found.</response>
         /// <response code="500">Some Error about the system.</response>
@@ -357,11 +195,11 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Consumes("multipart/form-data")]
-        [Produces("application/json")]
-        [PermissionAuthorize("MBKC Admin", "Brand Manager")]
-        [HttpPut("/api/brand/{idBrand}/[controller]/{idStore}")]
-        public async Task<IActionResult> PutUpdateStoreAsync([FromRoute]int idBrand, [FromRoute]int idStore, [FromForm]UpdateStoreRequest updateStoreRequest)
+        [Consumes(MediaTypeConstant.Multipart_Form_Data)]
+        [Produces(MediaTypeConstant.Application_Json)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin, PermissionAuthorizeConstant.MBKC_Admin)]
+        [HttpPut(APIEndPointConstant.Store.StoreEndpoint)]
+        public async Task<IActionResult> PutUpdateStoreAsync([FromRoute]int id, [FromForm]UpdateStoreRequest updateStoreRequest)
         {
             ValidationResult validationResult = await this._updateStoreValidator.ValidateAsync(updateStoreRequest);
             if(validationResult.IsValid == false)
@@ -370,31 +208,34 @@ namespace MBKC.API.Controllers
                 throw new BadRequestException(errors);
             }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            await this._storeService.UpdateStoreAsync(idBrand, idStore, updateStoreRequest, this._firebaseImageOption.Value, this._emailOption.Value, claims);
+            await this._storeService.UpdateStoreAsync(id, updateStoreRequest, claims);
             return Ok(new
             {
-                Message = "Updated Store Information Successfully."
+                Message = MessageConstant.StoreMessage.UpdatedStoreInformationSuccessfully
             });
         }
         #endregion
 
-        #region Delete Existed Store of A Brand
+        #region Update status of existed store
         /// <summary>
-        /// Delete an existed store of a brand.
+        /// Update status of an existed store of a brand.
         /// </summary>
-        /// <param name="idBrand">The brand's id</param>
-        /// <param name="idStore">The store's id</param>
+        /// <param name="id">The store's id.</param>
+        /// <param name="updateStoreStatusRequest">An store object contains updated status.</param>
         /// <returns>
-        /// A success message about deleting exsited store of a brand.
+        /// A success message about updating store status.  
         /// </returns>
         /// <remarks>
         ///     Sample request:
         ///
-        ///         DELETE 
-        ///         idBrand = 1
-        ///         idStore = 1
+        ///         PUT 
+        ///         id = 1
+        ///         
+        ///         {
+        ///             "Status": "Active | Inactive"
+        ///         }
         /// </remarks>
-        /// <response code="200">Deleted a store of a brand successfully.</response>
+        /// <response code="200">Updated store status successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
         /// <response code="404">Some Error about request data not found.</response>
         /// <response code="500">Some Error about the system.</response>
@@ -405,15 +246,113 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces("application/json")]
-        [PermissionAuthorize("MBKC Admin")]
-        [HttpDelete("/api/brand/{idBrand}/[controller]/{idStore}")]
-        public async Task<IActionResult> DeleteStoreAsync([FromRoute] int idBrand, [FromRoute] int idStore)
+        [Consumes(MediaTypeConstant.Application_Json)]
+        [Produces(MediaTypeConstant.Application_Json)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin, PermissionAuthorizeConstant.Brand_Manager)]
+        [HttpPut(APIEndPointConstant.Store.UpdateingStatusStore)]
+        public async Task<IActionResult> PutUpdateStoreStatusAsync([FromRoute]int id, [FromBody] UpdateStoreStatusRequest updateStoreStatusRequest)
         {
-            await this._storeService.DeleteStoreAsync(idBrand, idStore);
+            ValidationResult validationResult = await this._updateStoreStatusValidator.ValidateAsync(updateStoreStatusRequest);
+            if(validationResult.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
+            }
+            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
+            await this._storeService.UpdateStoreStatusAsync(id, updateStoreStatusRequest, claims);
             return Ok(new
             {
-                Message = "Deleted Store Successfully."
+                Message = MessageConstant.StoreMessage.UpdatedStoreStatusSuccessfully
+            });
+        }
+        #endregion
+
+        #region Delete Existed Store
+        /// <summary>
+        /// Delete an existed store.
+        /// </summary>
+        /// <param name="id">The store's id</param>
+        /// <returns>
+        /// A success message about deleting exsited store.
+        /// </returns>
+        /// <remarks>
+        ///     Sample request:
+        ///
+        ///         DELETE 
+        ///         idStore = 1
+        /// </remarks>
+        /// <response code="200">Deleted a store successfully.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
+        /// <response code="404">Some Error about request data not found.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
+        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Produces(MediaTypeConstant.Application_Json)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin, PermissionAuthorizeConstant.Brand_Manager)]
+        [HttpDelete(APIEndPointConstant.Store.StoreEndpoint)]
+        public async Task<IActionResult> DeleteStoreAsync([FromRoute] int id)
+        {
+            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
+            await this._storeService.DeleteStoreAsync(id, claims);
+            return Ok(new
+            {
+                Message = MessageConstant.StoreMessage.DeletedStoreSuccessfully
+            });
+        }
+        #endregion
+
+        #region Confirm store registration
+        /// <summary>
+        /// Confirm a store registration.
+        /// </summary>
+        /// <param name="id">The store's id</param>
+        /// <param name="confirmStoreRegistrationRequest">An object contains status property and rejected reason (if have)</param>
+        /// <returns>
+        /// A success message about confirming a store registration.
+        /// </returns>
+        /// <remarks>
+        ///     Sample request:
+        ///
+        ///         PUT 
+        ///         id = 1
+        ///         
+        ///         {
+        ///             "status": "ACTIVE | REJECTED",
+        ///             "rejectedReason": "Kitchen center does not have enough space."
+        ///         }
+        /// </remarks>
+        /// <response code="200">Confirmed a store registration successfully.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
+        /// <response code="404">Some Error about request data not found.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
+        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Consumes(MediaTypeConstant.Application_Json)]
+        [Produces(MediaTypeConstant.Application_Json)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin)]
+        [HttpPut(APIEndPointConstant.Store.ConfirmRegistrationStore)]
+        public async Task<IActionResult> PutConfirmRegistrationStore([FromRoute]int id, [FromBody]ConfirmStoreRegistrationRequest confirmStoreRegistrationRequest)
+        {
+            ValidationResult validationResult = await this._confirmStoreRegistrationValidator.ValidateAsync(confirmStoreRegistrationRequest);
+            if(validationResult.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
+            }
+            await this._storeService.ConfirmStoreRegistrationAsync(id, confirmStoreRegistrationRequest);
+            return Ok(new
+            {
+                Message = MessageConstant.StoreMessage.ConfirmedStoreRegistrationSuccessfully
             });
         }
         #endregion
