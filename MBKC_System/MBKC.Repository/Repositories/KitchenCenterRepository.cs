@@ -58,7 +58,7 @@ namespace MBKC.Repository.Repositories
             {
                 if (searchValue == null && searchValueWithoutUnicode != null)
                 {
-                    return await this._dbContext.KitchenCenters.Where(delegate (KitchenCenter kitchenCenter)
+                    return this._dbContext.KitchenCenters.Where(delegate (KitchenCenter kitchenCenter)
                     {
                         if (StringUtil.RemoveSign4VietnameseString(kitchenCenter.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
                         {
@@ -68,7 +68,7 @@ namespace MBKC.Repository.Repositories
                         {
                             return false;
                         }
-                    }).Where(x => x.Status != (int)KitchenCenterEnum.Status.DEACTIVE).AsQueryable().CountAsync();
+                    }).Where(x => x.Status != (int)KitchenCenterEnum.Status.DEACTIVE).AsQueryable().Count();
                 }
                 else if (searchValue != null && searchValueWithoutUnicode == null)
                 {
@@ -91,7 +91,7 @@ namespace MBKC.Repository.Repositories
                 {
                     if (searchValue == null && searchValueWithoutUnicode != null)
                     {
-                        return await this._dbContext.KitchenCenters.Include(x => x.Manager).Where(delegate (KitchenCenter kitchenCenter)
+                        return this._dbContext.KitchenCenters.Include(x => x.Manager).Where(delegate (KitchenCenter kitchenCenter)
                         {
                             if (StringUtil.RemoveSign4VietnameseString(kitchenCenter.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
                             {
@@ -101,7 +101,7 @@ namespace MBKC.Repository.Repositories
                             {
                                 return false;
                             }
-                        }).Where(x => x.Status != (int)KitchenCenterEnum.Status.DEACTIVE).Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).AsQueryable().ToListAsync();
+                        }).Where(x => x.Status != (int)KitchenCenterEnum.Status.DEACTIVE).Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).AsQueryable().ToList();
                     }
                     else if (searchValue != null && searchValueWithoutUnicode == null)
                     {
@@ -115,7 +115,7 @@ namespace MBKC.Repository.Repositories
                 }
                 if (searchValue == null && searchValueWithoutUnicode != null)
                 {
-                    return await this._dbContext.KitchenCenters.Include(x => x.Manager).Where(delegate (KitchenCenter kitchenCenter)
+                    return this._dbContext.KitchenCenters.Include(x => x.Manager).Where(delegate (KitchenCenter kitchenCenter)
                     {
                         if (StringUtil.RemoveSign4VietnameseString(kitchenCenter.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
                         {
@@ -125,7 +125,7 @@ namespace MBKC.Repository.Repositories
                         {
                             return false;
                         }
-                    }).Where(x => x.Status != (int)KitchenCenterEnum.Status.DEACTIVE).AsQueryable().ToListAsync();
+                    }).Where(x => x.Status != (int)KitchenCenterEnum.Status.DEACTIVE).AsQueryable().ToList();
                 }
                 else if (searchValue != null && searchValueWithoutUnicode == null)
                 {

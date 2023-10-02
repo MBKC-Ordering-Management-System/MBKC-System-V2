@@ -1,4 +1,5 @@
 ﻿using MBKC.Service.Errors;
+using MBKC.Service.Services.Interfaces;
 using MBKC.Service.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -24,6 +26,20 @@ namespace MBKC.Service.Authorization
         {
             if (context.HttpContext.User.Identity.IsAuthenticated)
             {
+                IAccountService accountService = context.HttpContext.RequestServices.GetService<IAccountService>();
+                string email = context.HttpContext.User.Claims.First(x => x.Type.ToLower() == ClaimTypes.Email).Value;
+                bool isActiveAccount = accountService.IsActiveAccountAsync(email).Result;
+                if(isActiveAccount == false)
+                {
+                    context.Result = new ObjectResult("Unauthorized")
+                    {
+                        StatusCode = 401,
+                        Value = new
+                        {
+                            Message = JsonConvert.DeserializeObject<List<ErrorDetail>>(ErrorUtil.GetErrorString("Unauthorized", "You are not allowed to access this API."))
+                        }
+                    };
+                }
                 var expiredClaim = long.Parse(context.HttpContext.User.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Exp).Value);
                 var expiredDate = DateUtil.ConvertUnixTimeToDateTime(expiredClaim);
                 if (expiredDate <= DateTime.UtcNow)

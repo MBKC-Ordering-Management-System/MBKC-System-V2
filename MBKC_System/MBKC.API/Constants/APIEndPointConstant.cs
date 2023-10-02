@@ -51,5 +51,12 @@
             public const string CategoryEndpoint = CategoriesEndpoint + "/{id}";
             public const string ExtraCategoriesEndpoint = CategoryEndpoint + "/extra-categories";
         }
+
+        public static class BankingAccount
+        {
+            public const string BankingAccountsEndpoint = ApiEndpoint + "/banking-accounts";
+            public const string BankingAccountEndpoint = BankingAccountsEndpoint + "/{id}";
+            public const string UpdatingStatusBankingAccountEndpoint = BankingAccountEndpoint + "/updating-status";
+        }
     }
 }

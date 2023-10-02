@@ -164,15 +164,11 @@ namespace MBKC.API.Controllers
         ///
         ///         PUT 
         ///         id = 1
-        ///         
-        ///         {
-        ///             "Name": "Kitchen Center Example"
-        ///             "Address": "Đường expamle, Tỉnh example"
-        ///             "Status": "Active | Inactive"
-        ///             "NewLogo": Imgage File
-        ///             "DeletedLogo": "Image URL"
-        ///             "ManagerEmail": "abc@example.com"
-        ///         }
+        ///         Name = Kitchen Center Example
+        ///         Address = Đường expamle, Tỉnh example
+        ///         Status = Active | Inactive
+        ///         Logo = [Imgage File]
+        ///         ManagerEmail = abc@example.com
         /// </remarks>
         /// <response code="200">Updated kitchen center successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>

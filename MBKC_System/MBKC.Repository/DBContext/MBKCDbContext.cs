@@ -254,6 +254,7 @@ namespace MBKC.Repository.DBContext
                 product.Property(prop => prop.HistoricalPrice).HasColumnType("decimal(9,2)").IsRequired(true);
                 product.Property(prop => prop.Status).IsRequired(true);
                 product.Property(prop => prop.DisplayOrder).IsRequired(true);
+                product.Property(prop => prop.ParentProductId).IsRequired(false);
             });
 
             modelBuilder.Entity<Product>()

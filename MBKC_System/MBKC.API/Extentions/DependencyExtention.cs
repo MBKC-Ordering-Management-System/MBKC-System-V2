@@ -26,6 +26,8 @@ using Newtonsoft.Json;
 using System.Reflection;
 using System.Text;
 using MBKC.API.Middlewares;
+using MBKC.Service.DTOs.BankingAccounts;
+using MBKC.API.Validators.BankingAccounts;
 
 namespace MBKC.API.Extentions
 {
@@ -175,6 +177,9 @@ namespace MBKC.API.Extentions
             services.AddScoped<IValidator<UpdateKitchenCenterStatusRequest>, UpdateKitchenCenterStatusValidator>();
             services.AddScoped<IValidator<UpdateStoreStatusRequest>, UpdateStoreStatusValidator>();
             services.AddScoped<IValidator<ConfirmStoreRegistrationRequest>, ConfirmStoreRegistrationValidator>();
+            services.AddScoped<IValidator<CreateBankingAccountRequest>, CreateBankingAccountValidator>();
+            services.AddScoped<IValidator<UpdateBankingAccountStatusRequest>, UpdateBankingAccountStatusValidator>();
+            services.AddScoped<IValidator<UpdateBankingAccountRequest>, UpdateBankingAccountValidator>();
             return services;
         }
 
