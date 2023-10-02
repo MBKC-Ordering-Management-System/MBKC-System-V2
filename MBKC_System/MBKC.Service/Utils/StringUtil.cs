@@ -141,5 +141,20 @@ namespace MBKC.Service.Utils
             }
             return false;
         }
+
+        public static bool CheckBankingAccountStatusName(string statusName)
+        {
+            if (statusName.ToLower().Trim().Equals(BankingAccountEnum.Status.ACTIVE.ToString().ToLower()) ||
+                statusName.ToLower().Trim().Equals(BankingAccountEnum.Status.INACTIVE.ToString().ToLower()))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public static bool IsDigitString(string value)
+        {
+            return value.All(char.IsDigit);
+        }
     }
 }

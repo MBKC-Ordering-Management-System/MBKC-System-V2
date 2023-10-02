@@ -24,7 +24,7 @@ namespace MBKC.Repository.Repositories
             {
                 if (searchValue == null && searchValueWithoutUnicode != null && brandId == null && kitchenCenterId == null)
                 {
-                    return await this._dbContext.Stores.Where(delegate (Store store)
+                    return this._dbContext.Stores.Where(delegate (Store store)
                     {
                         if (StringUtil.RemoveSign4VietnameseString(store.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
                         {
@@ -34,7 +34,7 @@ namespace MBKC.Repository.Repositories
                         {
                             return false;
                         }
-                    }).Where(x => x.Status != (int)StoreEnum.Status.DEACTIVE).AsQueryable().CountAsync();
+                    }).Where(x => x.Status != (int)StoreEnum.Status.DEACTIVE).AsQueryable().Count();
                 }
                 else if (searchValue != null && searchValueWithoutUnicode == null && brandId == null && kitchenCenterId == null)
                 {
@@ -42,7 +42,7 @@ namespace MBKC.Repository.Repositories
                 }
                 else if (searchValue == null && searchValueWithoutUnicode != null && brandId != null && kitchenCenterId == null)
                 {
-                    return await this._dbContext.Stores.Include(x => x.Brand).Where(delegate (Store store)
+                    return this._dbContext.Stores.Include(x => x.Brand).Where(delegate (Store store)
                     {
                         if (StringUtil.RemoveSign4VietnameseString(store.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
                         {
@@ -52,7 +52,7 @@ namespace MBKC.Repository.Repositories
                         {
                             return false;
                         }
-                    }).Where(x => x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE).AsQueryable().CountAsync();
+                    }).Where(x => x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE).AsQueryable().Count();
                 }
                 else if (searchValue != null && searchValueWithoutUnicode == null && brandId != null && kitchenCenterId == null)
                 {
@@ -100,7 +100,7 @@ namespace MBKC.Repository.Repositories
                 }
                 else if (searchValue == null && searchValueWithoutUnicode != null && brandId != null && kitchenCenterId != null)
                 {
-                    return await this._dbContext.Stores.Include(x => x.Brand).Include(x => x.KitchenCenter)
+                    return this._dbContext.Stores.Include(x => x.Brand).Include(x => x.KitchenCenter)
                         .Where(x => x.Brand.BrandId == brandId && x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE)
                         .Where(delegate (Store store)
                     {
@@ -112,7 +112,7 @@ namespace MBKC.Repository.Repositories
                         {
                             return false;
                         }
-                    }).AsQueryable().CountAsync();
+                    }).AsQueryable().Count();
                 }
                 else if (searchValue != null && searchValueWithoutUnicode == null && brandId != null && kitchenCenterId != null)
                 {
@@ -136,7 +136,7 @@ namespace MBKC.Repository.Repositories
             {
                 if (searchValue == null && searchValueWithoutUnicode != null && brandId == null && kitchenCenterId == null)
                 {
-                    return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                    return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                  .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                  .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                  .Where(x => x.Status != (int)KitchenCenterEnum.Status.DEACTIVE)
@@ -150,7 +150,7 @@ namespace MBKC.Repository.Repositories
                                                      {
                                                          return false;
                                                      }
-                                                 }).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToListAsync();
+                                                 }).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
                 }
                 else if (searchValue != null && searchValueWithoutUnicode == null && brandId == null && kitchenCenterId == null)
                 {
@@ -162,7 +162,7 @@ namespace MBKC.Repository.Repositories
                 }
                 else if (searchValue == null && searchValueWithoutUnicode != null && brandId != null && kitchenCenterId == null)
                 {
-                    return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                    return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                  .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                  .Where(x => x.Brand.BrandId == brandId && x.Status != (int)BrandEnum.Status.DEACTIVE)
                                                  .Where(delegate (Store store)
@@ -175,7 +175,7 @@ namespace MBKC.Repository.Repositories
                                                      {
                                                          return false;
                                                      }
-                                                 }).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToListAsync();
+                                                 }).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
                 }
                 else if (searchValue != null && searchValueWithoutUnicode == null && brandId != null && kitchenCenterId == null)
                 {
@@ -195,7 +195,7 @@ namespace MBKC.Repository.Repositories
                 }
                 else if (searchValue == null && searchValueWithoutUnicode != null && brandId == null && kitchenCenterId != null)
                 {
-                    return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                    return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                  .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                  .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Status != (int)BrandEnum.Status.DEACTIVE)
                                                  .Where(delegate (Store store)
@@ -208,7 +208,7 @@ namespace MBKC.Repository.Repositories
                                                      {
                                                          return false;
                                                      }
-                                                 }).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToListAsync();
+                                                 }).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
                 }
                 else if (searchValue != null && searchValueWithoutUnicode == null && brandId == null && kitchenCenterId != null)
                 {
@@ -236,7 +236,7 @@ namespace MBKC.Repository.Repositories
                 }
                 else if (searchValue == null && searchValueWithoutUnicode != null && brandId != null && kitchenCenterId != null)
                 {
-                    return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                    return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                  .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                  .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Brand.BrandId == brandId && x.Status != (int)BrandEnum.Status.DEACTIVE)
                                                  .Where(delegate (Store store)
@@ -249,7 +249,7 @@ namespace MBKC.Repository.Repositories
                                                      {
                                                          return false;
                                                      }
-                                                 }).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToListAsync();
+                                                 }).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
                 }
                 else if (searchValue != null && searchValueWithoutUnicode == null && brandId != null && kitchenCenterId != null)
                 {

@@ -8,5 +8,6 @@ namespace MBKC.Service.Services.Interfaces
 {
     public interface IAccountService
     {
+        public Task<bool> IsActiveAccountAsync(string email);
     }
 }

@@ -11,10 +11,13 @@
             public const string InvalidBrandId = "Brand id is not suitable id in the system.";
             public const string InvalidStoreId = "Store id is not suitable id in the system.";
             public const string InvalidCategoryId = "Category id is not suitable id in the system.";
+            public const string InvalidBankingAccountId = "Banking account id is not suitable id in the system.";
             public const string NotExistKitchenCenterId = "Kitchen center id does not exist in the system.";
+            public const string NotExistKitchenCenter = "Kitchen center does not exist in the system.";
             public const string NotExistBrandId = "Brand id does not exist in the system.";
             public const string NotExistStoreId = "Store id does not exist in the system.";
             public const string NotExistCategoryId = "Category id does not exist in the system.";
+            public const string NotExistBankingAccountId = "Banking account id does not exist in the system.";
             public const string InvalidItemsPerPage = "Items per page number is required more than 0.";
             public const string InvalidCurrentPage = "Current page number is required more than 0.";
         }
@@ -86,6 +89,12 @@
             public const string DeactiveCategory_Update = "Category was deleted before, so this category cannot update.";
             public const string InvalidCategoryType = "Type is required.";
             public const string NotExistCategoryType = "Type is required NORMAL or EXTRA.";
+        }
+
+        public static class BankingAccountMessage
+        {
+            public const string BankingAccountNotBelongToKitchenCenter = "Your kitchen center does not have this banking account id.";
+            public const string NumberAccountExisted = "Number account already existed in the system.";
         }
     }
 }

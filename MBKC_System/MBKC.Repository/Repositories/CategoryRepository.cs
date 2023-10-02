@@ -80,7 +80,7 @@ namespace MBKC.Repository.Repositories
             {
                 if (keySearchNameUniCode == null && keySearchNameNotUniCode != null)
                 {
-                    return await this._dbContext.Categories.Where(delegate (Category category)
+                    return this._dbContext.Categories.Where(delegate (Category category)
                                                  {
                                                      if (StringUtil.RemoveSign4VietnameseString(category.Name.ToLower()).Contains(keySearchNameNotUniCode.ToLower()))
                                                      {
@@ -91,7 +91,7 @@ namespace MBKC.Repository.Repositories
                                                          return false;
                                                      }
                                                  }).Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
-                                                 .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToListAsync();
+                                                 .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
                 }
                 else if (keySearchNameUniCode != null && keySearchNameNotUniCode == null)
                 {
@@ -144,7 +144,7 @@ namespace MBKC.Repository.Repositories
             {
                 if (keySearchUniCode == null && keySearchNotUniCode != null)
                 {
-                    return await this._dbContext.Categories.Where(delegate (Category category)
+                    return this._dbContext.Categories.Where(delegate (Category category)
                     {
                         if (StringUtil.RemoveSign4VietnameseString(category.Name.ToLower()).Contains(keySearchNotUniCode.ToLower()))
                         {
@@ -154,7 +154,7 @@ namespace MBKC.Repository.Repositories
                         {
                             return false;
                         }
-                    }).Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Type.Equals(type.ToUpper())).AsQueryable().CountAsync();
+                    }).Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Type.Equals(type.ToUpper())).AsQueryable().Count();
                 }
                 else if (keySearchUniCode != null && keySearchNotUniCode == null)
                 {
