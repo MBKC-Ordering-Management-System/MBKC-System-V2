@@ -416,7 +416,8 @@ namespace MBKC.Service.Services.Implementations
                 }
 
                 string password = "";
-                if (existedStore.StoreAccounts.FirstOrDefault(x => x.Account.Role.RoleId == (int)RoleEnum.Role.STORE_MANAGER)
+                if (existedStore.StoreAccounts.FirstOrDefault(x => x.Account.Role.RoleId == (int)RoleEnum.Role.STORE_MANAGER
+                                                                   && x.Account.Status == (int)AccountEnum.Status.ACTIVE)
                                                         .Account.Email.Equals(updateStoreRequest.StoreManagerEmail) == false)
                 {
                     Account existedStoreManagerAccount = await this._unitOfWork.AccountRepository.GetAccountAsync(updateStoreRequest.StoreManagerEmail);
