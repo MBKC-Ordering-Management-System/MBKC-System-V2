@@ -49,6 +49,9 @@ namespace MBKC.Service.Utils
             } else if (status == (int)StoreEnum.Status.BE_CONFIRMING)
             {
                 return char.ToUpper(StoreEnum.Status.BE_CONFIRMING.ToString()[0]) + StoreEnum.Status.BE_CONFIRMING.ToString().ToLower().Substring(1);
+            }else if (status == (int)StoreEnum.Status.REJECTED)
+            {
+                return char.ToUpper(StoreEnum.Status.REJECTED.ToString()[0]) + StoreEnum.Status.REJECTED.ToString().ToLower().Substring(1);
             }
             return char.ToUpper(StoreEnum.Status.DEACTIVE.ToString()[0]) + StoreEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
 

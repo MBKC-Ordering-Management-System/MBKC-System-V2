@@ -346,6 +346,8 @@ namespace MBKC.Service.Services.Implementations
                         Status = (int)AccountEnum.Status.ACTIVE
                     };
 
+                    await this._unitOfWork.AccountRepository.CreateAccountAsync(newBrandManagerAccount);
+
                     BrandAccount newBrandAccount = new BrandAccount()
                     {
                         Account = newBrandManagerAccount,
