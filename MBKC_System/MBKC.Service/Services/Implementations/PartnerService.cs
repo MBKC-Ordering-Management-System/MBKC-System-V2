@@ -87,5 +87,21 @@ namespace MBKC.Service.Services.Implementations
                 throw new Exception(error);
             }
         }
+
+        public Task UpdatePartnerAsync(int partnerId, UpdatePartnerRequest updatePartnerRequest)
+        {
+            string folderName = "Brands";
+            string logoId = "";
+            bool isUploaded = false;
+            bool isDeleted = false;
+            try
+            {
+
+            }
+            catch
+            {
+
+            }
+        }
     }
 }
