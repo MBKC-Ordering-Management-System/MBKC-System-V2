@@ -117,10 +117,9 @@ namespace MBKC.Service.Services.Implementations
                 }
                 // get category 
                 var category = await this._unitOfWork.CategoryRepository.GetCategoryByIdAsync(categoryId);
-                foreach(var extraCategory in category.ExtraCategoryProductCategories)
-                {
-                    extraCategory.Status = (int)CategoryEnum.Status.INACTIVE;
-                }
+
+
+
                 var categoryCode = await this._unitOfWork.CategoryRepository.GetCategoryByCodeAsync(updateCategoryRequest.Code);
                 if (categoryCode != null && !category.Code.ToLower().Equals(updateCategoryRequest.Code.ToLower()))
                 {
@@ -162,6 +161,10 @@ namespace MBKC.Service.Services.Implementations
                 else if (updateCategoryRequest.Status.ToUpper().Equals(CategoryEnum.Status.INACTIVE.ToString()))
                 {
                     category.Status = (int)CategoryEnum.Status.INACTIVE;
+                    foreach (var extraCategory in category.ExtraCategoryProductCategories)
+                    {
+                        extraCategory.Status = (int)CategoryEnum.Status.INACTIVE;
+                    }
                 }
                 _unitOfWork.CategoryRepository.UpdateCategory(category);
                 _unitOfWork.Commit();
@@ -575,7 +578,7 @@ namespace MBKC.Service.Services.Implementations
                     numberItems = this._unitOfWork.CategoryRepository.GetNumberExtraCategories(listExtraCategoriesInNormalCategory, null, null, brandId);
                     listExtraCategoriesInNormalCategory = this._unitOfWork.CategoryRepository.SearchAndPagingExtraCategory(listExtraCategoriesInNormalCategory, null, null, pageSize.Value, pageNumber.Value, brandId);
                 }
-                
+
 
                 _mapper.Map(listExtraCategoriesInNormalCategory, categoryResponse);
 
