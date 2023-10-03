@@ -416,8 +416,7 @@ namespace MBKC.Service.Services.Implementations
                 }
 
                 string password = "";
-                if (existedStore.StoreAccounts.FirstOrDefault(x => x.Account.Role.RoleId == (int)RoleEnum.Role.STORE_MANAGER)
-                                                        .Account.Email.Equals(updateStoreRequest.StoreManagerEmail) == false)
+                if (existedStore.StoreManagerEmail.Equals(updateStoreRequest.StoreManagerEmail) == false)
                 {
                     Account existedStoreManagerAccount = await this._unitOfWork.AccountRepository.GetAccountAsync(updateStoreRequest.StoreManagerEmail);
                     if (existedStoreManagerAccount != null)
@@ -425,9 +424,9 @@ namespace MBKC.Service.Services.Implementations
                         throw new BadRequestException(MessageConstant.StoreMessage.ManageremailExisted);
                     }
 
-                    Account oldStoreManagerAccount = existedStore.StoreAccounts.FirstOrDefault(x => x.Account.Role.RoleId == (int)RoleEnum.Role.STORE_MANAGER
-                                                                                               && x.Account.Status == (int)AccountEnum.Status.ACTIVE)
-                                                                                            .Account;
+                    //Account oldStoreManagerAccount = await this._unitOfWork.AccountRepository.GetAccountAsync(existedStore.StoreManagerEmail);
+
+                    Account oldStoreManagerAccount = existedStore.StoreAccounts.Where(x => x.Account.Email.Equals(existedStore.StoreManagerEmail)).Single().Account;
 
                     oldStoreManagerAccount.Status = (int)AccountEnum.Status.DEACTIVE;
                     this._unitOfWork.AccountRepository.UpdateAccount(oldStoreManagerAccount);
@@ -442,13 +441,16 @@ namespace MBKC.Service.Services.Implementations
                         Status = (int)AccountEnum.Status.ACTIVE
                     };
 
+                    await this._unitOfWork.AccountRepository.CreateAccountAsync(newStoreManagerAccount);
+
                     StoreAccount newStoreAccount = new StoreAccount()
                     {
                         Account = newStoreManagerAccount,
                         Store = existedStore
                     };
 
-                    existedStore.StoreAccounts.ToList().Add(newStoreAccount);
+                    await this._unitOfWork.StoreAccountRepository.AddStoreAccountAsync(newStoreAccount);
+                    
                     isNewManager = true;
                     existedStore.StoreManagerEmail = updateStoreRequest.StoreManagerEmail;
                 }

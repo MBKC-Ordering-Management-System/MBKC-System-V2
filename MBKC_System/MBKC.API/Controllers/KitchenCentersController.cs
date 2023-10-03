@@ -56,7 +56,7 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin, PermissionAuthorizeConstant.Brand_Manager)]
         [HttpGet(APIEndPointConstant.KitchenCenter.KitchenCentersEndpoint)]
         public async Task<IActionResult> GetKitchenCentersAsync([FromQuery]int? itemsPerPage, [FromQuery]int? currentPage, [FromQuery]string? keySearchName, [FromQuery] bool? isGetAll)
         {
