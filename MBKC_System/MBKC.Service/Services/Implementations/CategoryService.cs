@@ -117,6 +117,10 @@ namespace MBKC.Service.Services.Implementations
                 }
                 // get category 
                 var category = await this._unitOfWork.CategoryRepository.GetCategoryByIdAsync(categoryId);
+                foreach(var extraCategory in category.ExtraCategoryProductCategories)
+                {
+                    extraCategory.Status = (int)CategoryEnum.Status.INACTIVE;
+                }
                 var categoryCode = await this._unitOfWork.CategoryRepository.GetCategoryByCodeAsync(updateCategoryRequest.Code);
                 if (categoryCode != null && !category.Code.ToLower().Equals(updateCategoryRequest.Code.ToLower()))
                 {
@@ -510,7 +514,7 @@ namespace MBKC.Service.Services.Implementations
                 var brandAccount = await _unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId));
                 var brandId = brandAccount.BrandId;
                 var category = brandAccount.Brand.Categories.SingleOrDefault(c => c.CategoryId == categoryId);
-                if (category == null || category.Status == (int)CategoryEnum.Status.INACTIVE)
+                if (category == null)
                 {
                     throw new BadRequestException(MessageConstant.CommonMessage.CategoryIdNotBelongToBrand);
                 }
@@ -571,6 +575,7 @@ namespace MBKC.Service.Services.Implementations
                     numberItems = this._unitOfWork.CategoryRepository.GetNumberExtraCategories(listExtraCategoriesInNormalCategory, null, null, brandId);
                     listExtraCategoriesInNormalCategory = this._unitOfWork.CategoryRepository.SearchAndPagingExtraCategory(listExtraCategoriesInNormalCategory, null, null, pageSize.Value, pageNumber.Value, brandId);
                 }
+                
 
                 _mapper.Map(listExtraCategoriesInNormalCategory, categoryResponse);
 

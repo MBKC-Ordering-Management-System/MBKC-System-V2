@@ -187,16 +187,16 @@ namespace MBKC.Repository.Repositories
                         {
                             return false;
                         }
-                    }).Where(c => c.Status == (int)CategoryEnum.Status.ACTIVE && c.Brand.BrandId == brandId).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+                    }).Where(c => c.Status != (int)CategoryEnum.Status.DEACTIVE && c.Brand.BrandId == brandId).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
                 }
                 else if (keySearchNameUniCode != null && keySearchNameNotUniCode == null)
                 {
                     return categories
-                        .Where(c => c.Name.ToLower().Contains(keySearchNameUniCode.ToLower()) && c.Status == (int)CategoryEnum.Status.ACTIVE && c.Brand.BrandId == brandId)
+                        .Where(c => c.Name.ToLower().Contains(keySearchNameUniCode.ToLower()) && c.Status != (int)CategoryEnum.Status.DEACTIVE && c.Brand.BrandId == brandId)
                         .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
                 }
                 return categories
-                    .Where(c => c.Status == (int)CategoryEnum.Status.ACTIVE && c.Brand.BrandId == brandId)
+                    .Where(c => c.Status != (int)CategoryEnum.Status.DEACTIVE && c.Brand.BrandId == brandId)
                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
             }
             catch (Exception ex)
@@ -223,13 +223,13 @@ namespace MBKC.Repository.Repositories
                         {
                             return false;
                         }
-                    }).Where(c => c.Status == (int)CategoryEnum.Status.ACTIVE && c.Brand.BrandId == brandId).AsQueryable().Count();
+                    }).Where(c => c.Status != (int)CategoryEnum.Status.DEACTIVE && c.Brand.BrandId == brandId).AsQueryable().Count();
                 }
                 else if (keySearchUniCode != null && keySearchNotUniCode == null)
                 {
-                    return categories.Where(c => c.Name.ToLower().Contains(keySearchUniCode.ToLower()) && c.Status == (int)CategoryEnum.Status.ACTIVE && c.Brand.BrandId == brandId).Count();
+                    return categories.Where(c => c.Name.ToLower().Contains(keySearchUniCode.ToLower()) && c.Status != (int)CategoryEnum.Status.DEACTIVE && c.Brand.BrandId == brandId).Count();
                 }
-                return categories.Where(c => c.Status == (int)CategoryEnum.Status.ACTIVE && c.Brand.BrandId == brandId).Count();
+                return categories.Where(c => c.Status != (int)CategoryEnum.Status.DEACTIVE && c.Brand.BrandId == brandId).Count();
             }
             catch (Exception ex)
             {

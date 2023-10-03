@@ -21,7 +21,7 @@
             public const string NotExistBankingAccountId = "Banking account id does not exist in the system.";
             public const string InvalidItemsPerPage = "Items per page number is required more than 0.";
             public const string InvalidCurrentPage = "Current page number is required more than 0.";
-            public const string CategoryIdNotBelongToBrand = "This Category Id is not part of the brand's Category Id.";
+            public const string CategoryIdNotBelongToBrand = "This Category Id does not belong to brand.";
         }
 
         public static class LoginMessage
