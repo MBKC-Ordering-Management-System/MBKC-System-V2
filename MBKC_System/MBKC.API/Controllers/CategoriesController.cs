@@ -366,7 +366,7 @@ namespace MBKC.API.Controllers
         /// <param name="id">
         ///  Id of normal category.
         /// </param>
-        /// <param name="listExtraCategoryId">
+        /// <param name="extraCategoryRequest">
         ///  List extra categories user want to add to normal category.
         /// </param>
         /// <returns>
