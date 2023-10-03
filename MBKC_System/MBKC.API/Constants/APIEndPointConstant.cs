@@ -26,6 +26,7 @@
         {
             public const string KitchenCentersEndpoint = ApiEndpoint + "/kitchen-centers";
             public const string KitchenCenterEndpoint = KitchenCentersEndpoint + "/{id}";
+            public const string KitchenCenterProfileEndpoint = KitchenCentersEndpoint + "/Profile";
             public const string UpdatingStatusKitchenCenter = KitchenCenterEndpoint + "/updating-status";
         }
 
@@ -33,6 +34,7 @@
         {
             public const string BrandsEndpoint = ApiEndpoint + "/brands";
             public const string BrandEndpoint = BrandsEndpoint + "/{id}";
+            public const string BrandProfileEndpoint = BrandsEndpoint + "/profile";
             public const string UpdatingStatusBrand = BrandEndpoint + "/updating-status";
             public const string UpdatingProfileBrand = BrandEndpoint + "/profile";
         }
@@ -41,6 +43,7 @@
         {
             public const string StoresEndpoint = ApiEndpoint + "/stores";
             public const string StoreEndpoint = StoresEndpoint + "/{id}";
+            public const string StoreProfileEndpoint = StoresEndpoint + "/profile";
             public const string UpdateingStatusStore = StoreEndpoint + "/updating-status";
             public const string ConfirmRegistrationStore = StoreEndpoint + "/confirming-registration";
         }
@@ -57,6 +60,13 @@
             public const string BankingAccountsEndpoint = ApiEndpoint + "/banking-accounts";
             public const string BankingAccountEndpoint = BankingAccountsEndpoint + "/{id}";
             public const string UpdatingStatusBankingAccountEndpoint = BankingAccountEndpoint + "/updating-status";
+        }
+
+        public static class Product
+        {
+            public const string ProductsEndpoint = ApiEndpoint + "/products";
+            public const string ProductEndpoint = ProductsEndpoint + "/{id}";
+            public const string UpdatingStatusProductEndpoint = ProductEndpoint + "/updating-status";
         }
     }
 }

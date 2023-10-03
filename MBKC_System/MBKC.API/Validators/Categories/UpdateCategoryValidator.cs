@@ -22,14 +22,6 @@ namespace MBKC.API.Validators.Categories
                      .MaximumLength(100).WithMessage("{PropertyName} is required less than or equal to 100 characters.");
             #endregion
 
-            #region Code
-            RuleFor(c => c.Code)
-                     .Cascade(CascadeMode.StopOnFirstFailure)
-                     .NotNull().WithMessage("{PropertyName} is not null.")
-                     .NotEmpty().WithMessage("{PropertyName} is not empty.")
-                     .MaximumLength(20).WithMessage("{PropertyName} is required less than or equal to 20 characters.");
-            #endregion
-
             #region Status
             RuleFor(c => c.Status)
                      .Cascade(CascadeMode.StopOnFirstFailure)

@@ -638,7 +638,6 @@ namespace MBKC.Repository.Migrations
                         .HasColumnType("decimal(9,2)");
 
                     b.Property<string>("Size")
-                        .IsRequired()
                         .HasMaxLength(10)
                         .IsUnicode(true)
                         .HasColumnType("nvarchar(10)");

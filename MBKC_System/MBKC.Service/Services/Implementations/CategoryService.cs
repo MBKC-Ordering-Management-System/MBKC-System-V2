@@ -121,11 +121,6 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new BadRequestException(MessageConstant.CategoryMessage.DeactiveCategory_Update);
                 }
-                var categoryCode = await this._unitOfWork.CategoryRepository.GetCategoryByCodeAsync(updateCategoryRequest.Code);
-                if (categoryCode != null && !category.Code.ToLower().Equals(updateCategoryRequest.Code.ToLower()))
-                {
-                    throw new BadRequestException(MessageConstant.CategoryMessage.CategoryCodeExisted);
-                }
 
                 string oldImageUrl = category.ImageUrl;
                 if (updateCategoryRequest.ImageUrl != null)
@@ -148,7 +143,6 @@ namespace MBKC.Service.Services.Implementations
                 category.Name = updateCategoryRequest.Name;
                 category.Description = updateCategoryRequest.Description;
                 category.DisplayOrder = updateCategoryRequest.DisplayOrder;
-                category.Code = updateCategoryRequest.Code;
 
                 if (updateCategoryRequest.Status.Trim().ToLower().Equals(CategoryEnum.Status.ACTIVE.ToString().ToLower()))
                 {

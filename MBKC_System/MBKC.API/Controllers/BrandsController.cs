@@ -125,6 +125,29 @@ namespace MBKC.API.Controllers
         }
         #endregion
 
+        #region Ger Brand Profile
+        /// <summary>
+        /// Get Brand profile.
+        /// </summary>
+        /// <returns>
+        /// An Object contains brand's information.
+        /// </returns>
+        /// <response code="200">Get brand profile Successfully.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(GetBrandResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Produces(MediaTypeConstant.Application_Json)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager)]
+        [HttpGet(APIEndPointConstant.Brand.BrandProfileEndpoint)]
+        public async Task<IActionResult> GetBrandProfileAsync()
+        {
+            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
+            GetBrandResponse getBrandResponse = await this._brandService.GetBrandProfileAsync(claims);
+            return Ok(getBrandResponse);
+        }
+        #endregion
+
         #region Create Brand
         /// <summary>
         ///  Create new brand.
