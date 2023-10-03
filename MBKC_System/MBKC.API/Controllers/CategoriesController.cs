@@ -72,7 +72,7 @@ namespace MBKC.API.Controllers
                 string error = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(error);
             }
-            await this._categoryService.CreateCategoryAsync(postCategoryRequest);
+            await this._categoryService.CreateCategoryAsync(postCategoryRequest, HttpContext);
             return Ok(new
             {
                 Message = MessageConstant.CategoryMessage.CreatedNewCategorySuccessfully
@@ -125,7 +125,7 @@ namespace MBKC.API.Controllers
                 string error = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(error);
             }
-            await this._categoryService.UpdateCategoryAsync(id, updateCategoryRequest);
+            await this._categoryService.UpdateCategoryAsync(id, updateCategoryRequest, HttpContext);
             return Ok(new
             {
                 Message = MessageConstant.CategoryMessage.UpdatedCategorySuccessfully
@@ -176,7 +176,7 @@ namespace MBKC.API.Controllers
         [HttpGet(APIEndPointConstant.Category.CategoriesEndpoint)]
         public async Task<IActionResult> GetCategoriesAsync([FromQuery] string type, [FromQuery] string? keySearchName, [FromQuery] int? currentPage, [FromQuery] int? itemsPerPage)
         {
-            var data = await this._categoryService.GetCategoriesAsync(type, keySearchName, currentPage, itemsPerPage);
+            var data = await this._categoryService.GetCategoriesAsync(type, keySearchName, currentPage, itemsPerPage, HttpContext);
 
             return Ok(data);
         }
@@ -214,7 +214,7 @@ namespace MBKC.API.Controllers
         [HttpGet(APIEndPointConstant.Category.CategoryEndpoint)]
         public async Task<IActionResult> GetCategoryByIdAsync([FromRoute] int id)
         {
-            var data = await this._categoryService.GetCategoryByIdAsync(id);
+            var data = await this._categoryService.GetCategoryByIdAsync(id, HttpContext);
             return Ok(data);
         }
         #endregion
@@ -252,7 +252,7 @@ namespace MBKC.API.Controllers
         [HttpDelete(APIEndPointConstant.Category.CategoryEndpoint)]
         public async Task<IActionResult> DeleteCategoryByIdAsync([FromRoute] int id)
         {
-            await this._categoryService.DeActiveCategoryByIdAsync(id);
+            await this._categoryService.DeActiveCategoryByIdAsync(id, HttpContext);
             return Ok(new
             {
                 Message = MessageConstant.CategoryMessage.DeletedCategorySuccessfully
@@ -354,7 +354,7 @@ namespace MBKC.API.Controllers
         [HttpGet(APIEndPointConstant.Category.ExtraCategoriesEndpoint)]
         public async Task<IActionResult> GetExtraCategoriesByCategoryId([FromRoute] int id, [FromQuery] string? keySearchName, [FromQuery] int? currentPage, [FromQuery] int? itemsPerPage)
         {
-            var data = await this._categoryService.GetExtraCategoriesByCategoryId(id, keySearchName, currentPage, itemsPerPage);
+            var data = await this._categoryService.GetExtraCategoriesByCategoryId(id, keySearchName, currentPage, itemsPerPage, HttpContext);
             return Ok(data);
         }
         #endregion
@@ -366,7 +366,7 @@ namespace MBKC.API.Controllers
         /// <param name="id">
         ///  Id of normal category.
         /// </param>
-        /// <param name="listExtraCategoryId">
+        /// <param name="extraCategoryRequest">
         ///  List extra categories user want to add to normal category.
         /// </param>
         /// <returns>
@@ -379,9 +379,10 @@ namespace MBKC.API.Controllers
         ///         id = 1
         /// 
         ///         {
-        ///            [2,3,4,5]
+        ///           "extraCategoryIds": [
+        ///                        4,5,6
+        ///                     ]
         ///         }
-        ///         
         /// </remarks>
         /// <response code="200">Add Extra Category To Normal Category Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
@@ -397,9 +398,9 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.Application_Json)]
         [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager)]
         [HttpPost(APIEndPointConstant.Category.ExtraCategoriesEndpoint)]
-        public async Task<IActionResult> AddExtraCategoriesToNormalCategory([FromRoute] int id, [FromBody] List<int> listExtraCategoryId)
+        public async Task<IActionResult> AddExtraCategoriesToNormalCategory([FromRoute] int id, [FromBody] ExtraCategoryRequest extraCategoryRequest)
         {
-            await this._categoryService.AddExtraCategoriesToNormalCategory(id, listExtraCategoryId);
+            await this._categoryService.AddExtraCategoriesToNormalCategory(id, extraCategoryRequest, HttpContext);
             return Ok(new { Message = MessageConstant.CategoryMessage.CreatedExtraCategoriesToNormalCategorySuccessfully });
         }
         #endregion
