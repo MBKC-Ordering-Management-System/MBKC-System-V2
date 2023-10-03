@@ -53,5 +53,8 @@
             public const string UpdatedStatusBankingAccountSuccessfully = "Updated Banking Account Status Successfully.";
             public const string UpdatedBankingAccountSuccessfully = "Updated Banking Account Information Successfully.";
         }
-    }
+
+        public static class PartnerMessage
+        {
+        }
 }

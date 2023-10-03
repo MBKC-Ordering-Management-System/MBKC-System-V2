@@ -156,5 +156,15 @@ namespace MBKC.Service.Utils
         {
             return value.All(char.IsDigit);
         }
+
+        public static bool CheckPartnerStatusName(string statusName)
+        {
+            if (statusName.ToLower().Trim().Equals(PartnerEnum.Status.ACTIVE.ToString().ToLower()) ||
+                statusName.ToLower().Trim().Equals(PartnerEnum.Status.INACTIVE.ToString().ToLower()))
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

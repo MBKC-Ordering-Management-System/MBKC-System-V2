@@ -20,6 +20,7 @@
             public const string NotExistBankingAccountId = "Banking account id does not exist in the system.";
             public const string InvalidItemsPerPage = "Items per page number is required more than 0.";
             public const string InvalidCurrentPage = "Current page number is required more than 0.";
+
         }
 
         public static class LoginMessage
@@ -95,6 +96,12 @@
         {
             public const string BankingAccountNotBelongToKitchenCenter = "Your kitchen center does not have this banking account id.";
             public const string NumberAccountExisted = "Number account already existed in the system.";
+        }
+
+        public static class PartnerMessage
+        {
+            public const string DupplicatedPartnerName = "Name already exist in the system.";
+            public const string DupplicatedWebUrl = "Web Url already exist in the system.";
         }
     }
 }
