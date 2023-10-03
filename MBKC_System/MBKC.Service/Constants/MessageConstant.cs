@@ -5,6 +5,7 @@
 
         public static class CommonMessage
         {
+
             public const string NotExistEmail = "Email does not exist in the system.";
             public const string AlreadyExistEmail = "Email already exists in the system.";
             public const string InvalidKitchenCenterId = "Kitchen center id is not suitable id in the system.";
@@ -20,6 +21,7 @@
             public const string NotExistBankingAccountId = "Banking account id does not exist in the system.";
             public const string InvalidItemsPerPage = "Items per page number is required more than 0.";
             public const string InvalidCurrentPage = "Current page number is required more than 0.";
+            public const string CategoryIdNotBelongToBrand = "This Category Id is not part of the brand's Category Id.";
         }
 
         public static class LoginMessage
@@ -85,11 +87,19 @@
 
         public static class CategoryMessage
         {
+            
             public const string CategoryCodeExisted = "Category code already exist in the system.";
             public const string DeactiveCategory_Delete = "Category cannot delete because that was deleted before.";
             public const string DeactiveCategory_Update = "Category was deleted before, so this category cannot update.";
             public const string InvalidCategoryType = "Type is required.";
             public const string NotExistCategoryType = "Type is required NORMAL or EXTRA.";
+            public const string StatusInvalid = "Status is ACTIVE or INACTIVE.";
+            public const string CategoryMustBeNormal = "CategoryId must be a NORMAL type.";
+            public const string ExtraCategoryGreaterThan0 = "Extra category Id must be greater than 0.";
+            public const string ListExtraCategoryIdIsExtraType = "List extra category Id need to be a EXTRA type.";
+            public const string ListExtraCategoryIdIsActive = "List extra category Id need status is ACTIVE.";
+            public const string ExtraCategoryIdNotBelongToBrand = "Extra category Id does not belong to brand.";
+            public const string ExtraCategoryIdDoesNotExist = "Extra category Id does not exist in the system.";
         }
 
         public static class BankingAccountMessage
