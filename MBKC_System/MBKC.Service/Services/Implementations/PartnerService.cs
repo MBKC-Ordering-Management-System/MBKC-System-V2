@@ -33,13 +33,13 @@ namespace MBKC.Service.Services.Implementations
             try
             {
                 var checkDupplicatedName = await _unitOfWork.PartnerRepository.GetPartnerByNameAsync(postPartnerRequest.Name);
-                var checkDupplicatedUrl = await _unitOfWork.PartnerRepository.GetPartnerByWebUrlAsync(postPartnerRequest.WebUrl);
+                var checkDupplicatedWebUrl = await _unitOfWork.PartnerRepository.GetPartnerByWebUrlAsync(postPartnerRequest.WebUrl);
                 if (checkDupplicatedName != null)
                 {
                     throw new BadRequestException(MessageConstant.PartnerMessage.DupplicatedPartnerName);
                 }
 
-                if (checkDupplicatedUrl != null)
+                if (checkDupplicatedWebUrl != null)
                 {
                     throw new BadRequestException(MessageConstant.PartnerMessage.DupplicatedWebUrl);
                 }
@@ -111,13 +111,13 @@ namespace MBKC.Service.Services.Implementations
                 }
 
                 var checkDupplicatedName = await _unitOfWork.PartnerRepository.GetPartnerByNameAsync(updatePartnerRequest.Name);
-                var checkDupplicatedUrl = await _unitOfWork.PartnerRepository.GetPartnerByWebUrlAsync(updatePartnerRequest.WebUrl);
+                var checkDupplicatedWebUrl = await _unitOfWork.PartnerRepository.GetPartnerByWebUrlAsync(updatePartnerRequest.WebUrl);
 
                 if (checkDupplicatedName != null && checkDupplicatedName.PartnerId != partnerId)
                 {
                     throw new BadRequestException(MessageConstant.PartnerMessage.DupplicatedPartnerName);
                 }
-                if (checkDupplicatedUrl != null && checkDupplicatedUrl.PartnerId != partnerId)
+                if (checkDupplicatedWebUrl != null && checkDupplicatedWebUrl.PartnerId != partnerId)
                 {
                     throw new BadRequestException(MessageConstant.PartnerMessage.DupplicatedWebUrl);
                 }
@@ -332,6 +332,7 @@ namespace MBKC.Service.Services.Implementations
 
                 if (partner.StorePartners.Any())
                 {
+                    //Deactive store partner.
                     foreach (var p in partner.StorePartners)
                     {
                         p.Status = (int)StorePartnerEnum.Status.DEACTIVE;
