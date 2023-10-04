@@ -1,4 +1,5 @@
 ﻿using MBKC.Repository.DBContext;
+using MBKC.Repository.Enums;
 using MBKC.Repository.Models;
 using MBKC.Repository.Utils;
 using Microsoft.EntityFrameworkCore;
@@ -52,7 +53,9 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await _dbContext.Partners.SingleOrDefaultAsync(p => p.PartnerId == id);
+                return await _dbContext.Partners
+                    .Include(p => p.StorePartners)
+                    .SingleOrDefaultAsync(p => p.PartnerId == id);
             }
             catch (Exception ex)
             {
@@ -89,52 +92,16 @@ namespace MBKC.Repository.Repositories
         }
         #endregion
 
-        /* #region Get Partners
-         public async Task<List<Partner>> GetPartnersAsync(string? keySearchNameUniCode, string? keySearchNameNotUniCode, string type, int itemsPerPage, int currentPage)
-         {
-             try
-             {
-                 if (keySearchNameUniCode == null && keySearchNameNotUniCode != null)
-                 {
-                     return this._dbContext.Categories.Where(delegate (Category category)
-                     {
-                         if (StringUtil.RemoveSign4VietnameseString(category.Name.ToLower()).Contains(keySearchNameNotUniCode.ToLower()))
-                         {
-                             return true;
-                         }
-                         else
-                         {
-                             return false;
-                         }
-                     }).Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
-                                                  .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
-                 }
-                 else if (keySearchNameUniCode != null && keySearchNameNotUniCode == null)
-                 {
-                     return await this._dbContext.Categories
-                         .Where(c => c.Name.ToLower().Contains(keySearchNameUniCode.ToLower()) && c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
-                         .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
-                 }
-                 return await this._dbContext.Categories.Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
-                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
-             }
-             catch (Exception ex)
-             {
-                 throw new Exception(ex.Message);
-             }
-         }
-         #endregion*/
-
-        /*#region Get Number Partners
-        public async Task<int> GetNumberPartnersAsync(string? keySearchUniCode, string? keySearchNotUniCode, int? keyStatusFilter)
+        #region Get Partners
+        public async Task<List<Partner>> GetPartnersAsync(string? keySearchNameUniCode, string? keySearchNameNotUniCode, int itemsPerPage, int currentPage)
         {
             try
             {
-                if (keySearchUniCode == null && keySearchNotUniCode != null && keyStatusFilter == null)
+                if (keySearchNameUniCode == null && keySearchNameNotUniCode != null)
                 {
-                    return this._dbContext.Brands.Where(delegate (Brand brand)
+                    return this._dbContext.Partners.Where(delegate (Partner partner)
                     {
-                        if (StringUtil.RemoveSign4VietnameseString(brand.Name.ToLower()).Contains(keySearchNotUniCode.ToLower()))
+                        if (StringUtil.RemoveSign4VietnameseString(partner.Name.ToLower()).Contains(keySearchNameNotUniCode.ToLower()))
                         {
                             return true;
                         }
@@ -142,42 +109,55 @@ namespace MBKC.Repository.Repositories
                         {
                             return false;
                         }
-                    }).Where(x => x.Status != (int)BrandEnum.Status.DEACTIVE).AsQueryable().Count();
+                    }).Where(c => !(c.Status == (int)PartnerEnum.Status.DEACTIVE))
+                                                 .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
                 }
-                else if (keySearchUniCode == null && keySearchNotUniCode != null && keyStatusFilter != null)
+                else if (keySearchNameUniCode != null && keySearchNameNotUniCode == null)
                 {
-                    return this._dbContext.Brands.Where(delegate (Brand brand)
-                    {
-                        if (StringUtil.RemoveSign4VietnameseString(brand.Name.ToLower()).Contains(keySearchNotUniCode.ToLower()))
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                    }).Where(b => b.Status == keyStatusFilter).AsQueryable().Count();
+                    return await this._dbContext.Partners
+                        .Where(c => c.Name.ToLower().Contains(keySearchNameUniCode.ToLower()) && !(c.Status == (int)PartnerEnum.Status.DEACTIVE))
+                        .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
                 }
-                else if (keySearchUniCode != null && keySearchNotUniCode == null && keyStatusFilter == null)
-                {
-                    return await this._dbContext.Brands.Where(x => x.Name.ToLower().Contains(keySearchUniCode.ToLower()) && x.Status != (int)BrandEnum.Status.DEACTIVE).CountAsync();
-                }
-                else if (keySearchUniCode != null && keySearchNotUniCode == null && keyStatusFilter != null)
-                {
-                    return await this._dbContext.Brands.Where(x => x.Name.ToLower().Contains(keySearchUniCode.ToLower()) && x.Status == keyStatusFilter).CountAsync();
-                }
-                else if (keySearchUniCode == null && keySearchNotUniCode == null && keyStatusFilter != null)
-                {
-                    return await this._dbContext.Brands.Where(x => x.Status == keyStatusFilter).CountAsync();
-                }
-                return await this._dbContext.Brands.Where(x => x.Status != (int)BrandEnum.Status.DEACTIVE).CountAsync();
-
+                return await this._dbContext.Partners.Where(c => !(c.Status == (int)PartnerEnum.Status.DEACTIVE))
+                    .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
         }
-        #endregion*/
+        #endregion
+
+        #region Get Number Parners
+        public async Task<int> GetNumberPartnersAsync(string? keySearchUniCode, string? keySearchNotUniCode)
+        {
+            try
+            {
+                if (keySearchUniCode == null && keySearchNotUniCode != null)
+                {
+                    return this._dbContext.Partners.Where(delegate (Partner partner)
+                    {
+                        if (StringUtil.RemoveSign4VietnameseString(partner.Name.ToLower()).Contains(keySearchNotUniCode.ToLower()))
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }).Where(c => !(c.Status == (int)PartnerEnum.Status.DEACTIVE)).AsQueryable().Count();
+                }
+                else if (keySearchUniCode != null && keySearchNotUniCode == null)
+                {
+                    return await this._dbContext.Partners.Where(c => c.Name.ToLower().Contains(keySearchUniCode.ToLower()) && !(c.Status == (int)PartnerEnum.Status.DEACTIVE)).CountAsync();
+                }
+                return await this._dbContext.Partners.Where(c => !(c.Status == (int)PartnerEnum.Status.DEACTIVE)).CountAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
     }
 }

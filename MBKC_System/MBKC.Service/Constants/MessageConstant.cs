@@ -20,7 +20,8 @@
             public const string NotExistBankingAccountId = "Banking account id does not exist in the system.";
             public const string InvalidItemsPerPage = "Items per page number is required more than 0.";
             public const string InvalidCurrentPage = "Current page number is required more than 0.";
-
+            public const string NotExistPartnerId = "Partner id does not exist in the system.";
+            public const string InvalidPartnerId = "Partner id is not suitable id in the system.";
         }
 
         public static class LoginMessage
@@ -102,6 +103,10 @@
         {
             public const string DupplicatedPartnerName = "Name already exist in the system.";
             public const string DupplicatedWebUrl = "Web Url already exist in the system.";
+            public const string DeactivePartner_Update = "Partner was deleted before, so this partner cannot update.";
+            public const string DeactivePartner_Delete = "Partner cannot delete because that was deleted before.";
+            public const string DeactivePartner_Get = "Partner cannot get because that was deleted before.";
+
         }
     }
 }

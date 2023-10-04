@@ -56,5 +56,10 @@
 
         public static class PartnerMessage
         {
+            public const string CreatedPartnerSuccessfully = "Created New Partner Successfully.";
+            public const string UpdatedPartnerSuccessfully = "Updated Partner Information Successfully.";
+            public const string DeletedPartnerSuccessfully = "Deleted Partner Successfully.";
+
         }
+    }
 }
