@@ -310,7 +310,7 @@ namespace MBKC.Service.Services.Implementations
                     throw new BadRequestException(MessageConstant.ProductMessage.ProductNotSpendToStore);
                 }
 
-                GetProductResponse getProductResponse = this._mapper.Map<GetProductResponse>(existedStore);
+                GetProductResponse getProductResponse = this._mapper.Map<GetProductResponse>(existedProduct);
                 return getProductResponse;
             }
             catch(BadRequestException ex)
