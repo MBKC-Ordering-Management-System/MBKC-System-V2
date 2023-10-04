@@ -118,14 +118,6 @@ namespace MBKC.Service.Services.Implementations
                 // get category 
                 var category = await this._unitOfWork.CategoryRepository.GetCategoryByIdAsync(categoryId);
 
-
-
-                var categoryCode = await this._unitOfWork.CategoryRepository.GetCategoryByCodeAsync(updateCategoryRequest.Code);
-                if (categoryCode != null && !category.Code.ToLower().Equals(updateCategoryRequest.Code.ToLower()))
-                {
-                    throw new BadRequestException(MessageConstant.CategoryMessage.DeactiveCategory_Update);
-                }
-
                 string oldImageUrl = checkCategoryIdExisted.ImageUrl;
                 if (updateCategoryRequest.ImageUrl != null)
                 {
