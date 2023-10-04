@@ -75,5 +75,11 @@
             public const string PartnerEndpoint = PartnersEndpoint + "/{id}";
         }
 
+        public static class Cashier
+        {
+            public const string CashiersEndpoint = ApiEndpoint + "/cashiers";
+            public const string CashierEndpoint = CashiersEndpoint + "/{id}";
+            public const string UpdatingCashierStatusEndpoint = CashierEndpoint + "/updating-status";
+        }
     }
 }
