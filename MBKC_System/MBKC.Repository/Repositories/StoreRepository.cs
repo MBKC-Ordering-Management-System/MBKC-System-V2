@@ -314,7 +314,7 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await this._dbContext.Stores.SingleOrDefaultAsync(x => x.StoreManagerEmail.Equals(managerEmail));
+                return await this._dbContext.Stores.Include(x => x.Brand).SingleOrDefaultAsync(x => x.StoreManagerEmail.Equals(managerEmail));
             } catch(Exception ex)
             {
                 throw new Exception(ex.Message);

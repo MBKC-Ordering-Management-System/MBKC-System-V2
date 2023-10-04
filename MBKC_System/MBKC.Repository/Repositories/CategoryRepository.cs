@@ -62,9 +62,8 @@ namespace MBKC.Repository.Repositories
             try
             {
                 return await _dbContext.Categories
-                    .Include(c => c.Brand)
+                    .Include(c => c.Brand).ThenInclude(x => x.Stores).ThenInclude(x => x.KitchenCenter)
                     .Include(c => c.ExtraCategoryProductCategories)
-
                     .Include(c => c.Products)
                     .SingleOrDefaultAsync(c => c.CategoryId.Equals(id) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE));
             }

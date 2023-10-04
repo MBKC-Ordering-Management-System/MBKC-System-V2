@@ -273,7 +273,9 @@ namespace MBKC.Repository.Repositories
             try
             {
                 return await this._dbContext.Brands.Include(x => x.Stores)
-                                                    .FirstOrDefaultAsync(x => x.BrandManagerEmail.Equals(managerEmail) && 
+                                                   .Include(x => x.Products)
+                                                   .Include(x => x.Categories)
+                                                   .FirstOrDefaultAsync(x => x.BrandManagerEmail.Equals(managerEmail) && 
                                                                               x.Status != (int)BrandEnum.Status.DEACTIVE);
             } catch(Exception ex)
             {

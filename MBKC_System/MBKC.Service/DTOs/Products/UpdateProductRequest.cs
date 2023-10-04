@@ -18,5 +18,6 @@ namespace MBKC.Service.DTOs.Products
         public int? ParentProductId { get; set; }
         public int? CategoryId { get; set; }
         public IFormFile? Image { get; set; }
+        public string Status { get; set; }
     }
 }
