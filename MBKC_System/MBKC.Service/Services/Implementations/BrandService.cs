@@ -695,5 +695,22 @@ namespace MBKC.Service.Services.Implementations
             }
         }
         #endregion
+
+        public async Task<GetBrandResponse> GetBrandProfileAsync(IEnumerable<Claim> claims)
+        {
+            try
+            {
+                Claim registeredEmailClaim = claims.First(x => x.Type == ClaimTypes.Email);
+                string email = registeredEmailClaim.Value;
+
+                Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandAsync(email);
+                GetBrandResponse getBrandResponse = this._mapper.Map<GetBrandResponse>(existedBrand);
+                return getBrandResponse;
+            } catch(Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                throw new Exception(error);
+            }
+        }
     }
 }

@@ -110,6 +110,29 @@ namespace MBKC.API.Controllers
         }
         #endregion
 
+        #region Get profile
+        /// <summary>
+        /// Get a store profile
+        /// </summary>
+        /// <returns>
+        /// An object contains the store's information.
+        /// </returns>
+        /// <response code="200">Get store profile Successfully.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(GetStoreResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Produces(MediaTypeConstant.Application_Json)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.Store_Manager)]
+        [HttpGet(APIEndPointConstant.Store.StoreProfileEndpoint)]
+        public async Task<IActionResult> GetStoreProfileAsync()
+        {
+            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
+            GetStoreResponse getStoreResponse = await this._storeService.GetStoreAsync(claims);
+            return Ok(getStoreResponse);
+        }
+        #endregion
+
         #region Register New Store
         /// <summary>
         /// Register new store.

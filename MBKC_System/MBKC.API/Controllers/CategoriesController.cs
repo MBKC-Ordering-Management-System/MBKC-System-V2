@@ -260,55 +260,6 @@ namespace MBKC.API.Controllers
         }
         #endregion
 
-        /*#region Get Products By Category Id
-        /// <summary>
-        /// Get products by category Id.
-        /// </summary>
-        /// <param name="id">
-        ///  Id of category.
-        /// </param>
-        /// <param name="keySearchName">
-        ///  The product name that the user wants to search.
-        /// </param>
-        /// <param name="pageNumber">
-        ///  The current page the user wants to get next items.
-        /// </param>
-        /// <param name="pageSize">
-        ///  Number of elements on a page.
-        /// </param>
-        /// <returns>
-        /// A list of products contains TotalItems, TotalPages, products' information
-        /// </returns>
-        /// <remarks>
-        ///     Sample request:
-        ///     
-        ///         GET
-        ///         id = 1
-        ///         keySearchName = Bánh Quy Bơ
-        ///         pageSize = 5
-        ///         pageNumber = 1
-        /// </remarks>
-        /// <response code="200">Get products Successfully.</response>
-        /// <response code="400">Some Error about request data and logic data.</response>
-        /// <response code="404">Some Error about request data not found.</response>
-        /// <response code="500">Some Error about the system.</response>
-        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
-        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
-        /// <exception cref="Exception">Throw Error about the system.</exception>
-        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces("application/json")]
-        [HttpGet("{id}/products")]
-        [PermissionAuthorize("Brand Manager")]
-        public async Task<IActionResult> GetProductsByCategoryIdAsync([FromRoute] int id, [FromQuery] string? keySearchName, [FromQuery] int? pageNumber, [FromQuery] int? pageSize)
-        {
-            var data = await this._categoryService.GetProductsInCategory(id, keySearchName, pageNumber, pageSize);
-            return Ok(data);
-        }
-        #endregion*/
-
         #region Get ExtraCategories By Category Id
         /// <summary>
         /// Get extraCategories by category Id.

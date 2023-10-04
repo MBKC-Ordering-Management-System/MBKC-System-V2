@@ -7,6 +7,7 @@ using MBKC.Repository.Infrastructures;
 using MBKC.Repository.Models;
 using MBKC.Service.Constants;
 using MBKC.Service.Utils;
+using System.Security.Claims;
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -421,6 +422,23 @@ namespace MBKC.Service.Services.Implementations
                 throw new BadRequestException(error);
             }
             catch(Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                throw new Exception(error);
+            }
+        }
+
+        public async Task<GetKitchenCenterResponse> GetKitchenCenterProfileAsync(IEnumerable<Claim> claims)
+        {
+            try
+            {
+                Claim registeredEmailClaim = claims.First(x => x.Type == ClaimTypes.Email);
+                string email = registeredEmailClaim.Value;
+
+                KitchenCenter kitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(email);
+                GetKitchenCenterResponse getKitchenCenterResponse = this._mapper.Map<GetKitchenCenterResponse>(kitchenCenter);
+                return getKitchenCenterResponse;
+            } catch(Exception ex)
             {
                 string error = ErrorUtil.GetErrorString("Exception", ex.Message);
                 throw new Exception(error);

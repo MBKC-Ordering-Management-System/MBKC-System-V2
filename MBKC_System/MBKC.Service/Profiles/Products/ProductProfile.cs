@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MBKC.Service.Utils;
 
 namespace MBKC.Service.Profiles.Products
 {
@@ -13,7 +14,8 @@ namespace MBKC.Service.Profiles.Products
     {
         public ProductProfile()
         {
-            CreateMap<Product, GetProductResponse>().ReverseMap();
+            CreateMap<Product, GetProductResponse>().ForMember(dept => dept.Status, opt => opt.MapFrom(src => StatusUtil.ChangeProductStatusStatus(src.Status)))
+                                                    .ReverseMap();
         }
     }
 }

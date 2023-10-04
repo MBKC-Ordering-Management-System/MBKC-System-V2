@@ -13,5 +13,6 @@ namespace MBKC.Service.Services.Interfaces
         public Task DeActiveBrandByIdAsync(int id);
         public Task UpdateBrandStatusAsync(int brandId, UpdateBrandStatusRequest updateBrandStatusRequest);
         public Task UpdateBrandProfileAsync(int brandId, UpdateBrandProfileRequest updateBrandProfileRequest, IEnumerable<Claim> claims);
+        public Task<GetBrandResponse> GetBrandProfileAsync(IEnumerable<Claim> claims);
     }
 }

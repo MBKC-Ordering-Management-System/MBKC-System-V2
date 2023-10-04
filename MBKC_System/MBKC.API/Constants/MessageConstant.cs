@@ -53,5 +53,13 @@
             public const string UpdatedStatusBankingAccountSuccessfully = "Updated Banking Account Status Successfully.";
             public const string UpdatedBankingAccountSuccessfully = "Updated Banking Account Information Successfully.";
         }
+
+        public static class ProductMessage
+        {
+            public const string CreatedNewProductSuccessfully = "Created New Product Successfully.";
+            public const string UpdatedProductSuccessfully = "Updated Product Successfully.";
+            public const string UpdatedProductStatusSuccessfully = "Updated Product Status Successfully.";
+            public const string DeletedProductSuccessfully = "Deleted Product Successfully.";
+        }
     }
 }
