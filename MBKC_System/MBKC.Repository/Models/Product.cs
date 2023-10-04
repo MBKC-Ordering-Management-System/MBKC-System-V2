@@ -33,8 +33,8 @@ namespace MBKC.Repository.Models
         public virtual IEnumerable<OrderDetail> OrderDetails { get; set; }
         public virtual IEnumerable<MappingProduct> MappingProducts { get; set; }
         [ForeignKey("ParentProductId")]
-        public virtual Product ParentProduct { get; set; }
-        public virtual IEnumerable<Product> ChildrenProducts { get; set; }
+        public virtual Product? ParentProduct { get; set; }
+        public virtual IEnumerable<Product>? ChildrenProducts { get; set; }
 
     }
 }

@@ -37,7 +37,7 @@ namespace MBKC.API.Controllers
         /// <param name="searchName">The name of product that user wants to find out.</param>
         /// <param name="currentPage">The number of page</param>
         /// <param name="itemsPerPage">The number of records that user wants to get.</param>
-        /// <param name="isGetAll">If user chooses TRUE option, currentPage and itemsPerPage are ignored. Default FAULT option.</param>
+        /// <param name="isGetAll">If user chooses TRUE option, currentPage and itemsPerPage are ignored. Default FALSE option.</param>
         /// <param name="idCategory">The category's id.</param>
         /// <param name="idStore">The store's id.</param>
         /// <param name="productType">The type of product such as: SINGLE, PARENT, CHILD, EXTRA.</param>
