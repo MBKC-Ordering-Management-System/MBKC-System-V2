@@ -157,6 +157,18 @@ namespace MBKC.Service.Utils
             return value.All(char.IsDigit);
         }
 
+        public static bool CheckProductType(string productType)
+        {
+            if(productType.Trim().ToLower().Equals(ProductEnum.Type.SINGLE.ToString().ToLower()) ||
+                productType.Trim().ToLower().Equals(ProductEnum.Type.PARENT.ToString().ToLower()) ||
+                productType.Trim().ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()) ||
+                productType.Trim().ToLower().Equals(ProductEnum.Type.EXTRA.ToString().ToLower()))
+            {
+                return true;
+            }
+            return false;
+        }
+
         public static bool CheckPartnerStatusName(string statusName)
         {
             if (statusName.ToLower().Trim().Equals(PartnerEnum.Status.ACTIVE.ToString().ToLower()) ||

@@ -9,7 +9,7 @@ namespace MBKC.Service.DTOs.Products
     public class GetProductsResponse
     {
         public int TotalPages { get; set; }
-        public int TotalItems { get; set; }
+        public int NumberItems { get; set; }
         public List<GetProductResponse> Products { get; set; }
     }
 }

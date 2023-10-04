@@ -14,5 +14,20 @@ namespace MBKC.Repository.Enums
             ACTIVE = 1,
             DEACTIVE = 2
         }
+
+        public enum Type
+        {
+            SINGLE,
+            PARENT,
+            CHILD,
+            EXTRA
+        }
+
+        public enum Size
+        {
+            S,
+            M,
+            L
+        }
     }
 }

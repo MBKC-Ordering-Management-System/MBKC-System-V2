@@ -20,7 +20,6 @@ namespace MBKC.Service.Utils
                 return char.ToUpper(BrandEnum.Status.ACTIVE.ToString()[0]) + BrandEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
             }
             return char.ToUpper(BrandEnum.Status.DEACTIVE.ToString()[0]) + BrandEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
-
         }
         
         public static string ChangeKitchenCenterStatus(int status)
@@ -34,7 +33,6 @@ namespace MBKC.Service.Utils
                 return char.ToUpper(KitchenCenterEnum.Status.ACTIVE.ToString()[0]) + KitchenCenterEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
             }
             return char.ToUpper(KitchenCenterEnum.Status.DEACTIVE.ToString()[0]) + KitchenCenterEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
-
         }
         
         public static string ChangeStoreStatus(int status)
@@ -54,7 +52,6 @@ namespace MBKC.Service.Utils
                 return char.ToUpper(StoreEnum.Status.REJECTED.ToString()[0]) + StoreEnum.Status.REJECTED.ToString().ToLower().Substring(1);
             }
             return char.ToUpper(StoreEnum.Status.DEACTIVE.ToString()[0]) + StoreEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
-
         }
         
         public static string ChangeCategoryStatus(int status)
@@ -68,7 +65,6 @@ namespace MBKC.Service.Utils
                 return char.ToUpper(StoreEnum.Status.ACTIVE.ToString()[0]) + CategoryEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
             }
             return char.ToUpper(CategoryEnum.Status.DEACTIVE.ToString()[0]) + CategoryEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
-
         }
 
         public static string ChangeBankingAccountStatus(int status)
@@ -82,7 +78,19 @@ namespace MBKC.Service.Utils
                 return char.ToUpper(BankingAccountEnum.Status.ACTIVE.ToString()[0]) + BankingAccountEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
             }
             return char.ToUpper(BankingAccountEnum.Status.DEACTIVE.ToString()[0]) + BankingAccountEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
+        }
 
+        public static string ChangeProductStatusStatus(int status)
+        {
+            if (status == (int)ProductEnum.Status.INACTIVE)
+            {
+                return char.ToUpper(ProductEnum.Status.INACTIVE.ToString()[0]) + ProductEnum.Status.INACTIVE.ToString().ToLower().Substring(1);
+            }
+            else if (status == (int)ProductEnum.Status.ACTIVE)
+            {
+                return char.ToUpper(ProductEnum.Status.ACTIVE.ToString()[0]) + ProductEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
+            }
+            return char.ToUpper(ProductEnum.Status.DEACTIVE.ToString()[0]) + ProductEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
         }
 
         public static string ChangePartnerStatus(int status)

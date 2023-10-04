@@ -9,6 +9,7 @@ using MBKC.Service.Exceptions;
 using MBKC.Service.Services.Interfaces;
 using MBKC.Service.Utils;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace MBKC.API.Controllers
 {
@@ -96,6 +97,29 @@ namespace MBKC.API.Controllers
         public async Task<IActionResult> GetKitchenCenterAsync([FromRoute]int id)
         {
             GetKitchenCenterResponse getKitchenCenterResponse = await this._kitchenCenterService.GetKitchenCenterAsync(id);
+            return Ok(getKitchenCenterResponse);
+        }
+        #endregion
+
+        #region Get Kitchen Center Profile
+        /// <summary>
+        /// Get kitchen center profile.
+        /// </summary>
+        /// <returns>
+        /// An object about a specific kitchen center
+        /// </returns>
+        /// <response code="200">Get a specific kitchen center by id Successfully.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(AccountResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Produces(MediaTypeConstant.Application_Json)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.Kitchen_Center_Manager)]
+        [HttpGet(APIEndPointConstant.KitchenCenter.KitchenCenterProfileEndpoint)]
+        public async Task<IActionResult> GetKitchenCenterProfileAsync()
+        {
+            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
+            GetKitchenCenterResponse getKitchenCenterResponse = await this._kitchenCenterService.GetKitchenCenterProfileAsync(claims);
             return Ok(getKitchenCenterResponse);
         }
         #endregion

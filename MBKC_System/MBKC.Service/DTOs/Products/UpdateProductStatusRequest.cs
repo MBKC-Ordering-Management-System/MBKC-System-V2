@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace MBKC.Service.DTOs.Products
 {
-    public class SearchProductsInCategory
+    public class UpdateProductStatusRequest
     {
-        public string? KeySearchName { get; set; }
+        public string Status { get; set; }
     }
 }

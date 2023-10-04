@@ -13,16 +13,19 @@
             public const string InvalidStoreId = "Store id is not suitable id in the system.";
             public const string InvalidCategoryId = "Category id is not suitable id in the system.";
             public const string InvalidBankingAccountId = "Banking account id is not suitable id in the system.";
+            public const string InvalidProductId = "Product id is not suitable id in the system.";
             public const string NotExistKitchenCenterId = "Kitchen center id does not exist in the system.";
             public const string NotExistKitchenCenter = "Kitchen center does not exist in the system.";
             public const string NotExistBrandId = "Brand id does not exist in the system.";
             public const string NotExistStoreId = "Store id does not exist in the system.";
             public const string NotExistCategoryId = "Category id does not exist in the system.";
             public const string NotExistBankingAccountId = "Banking account id does not exist in the system.";
+            public const string NotExistProductId = "Product id does not exist in the system.";
             public const string InvalidItemsPerPage = "Items per page number is required more than 0.";
             public const string InvalidCurrentPage = "Current page number is required more than 0.";
             public const string NotExistPartnerId = "Partner id does not exist in the system.";
             public const string InvalidPartnerId = "Partner id is not suitable id in the system.";
+            public const string CategoryIdNotBelongToBrand = "Category id does not belong to your brand.";
         }
 
         public static class LoginMessage
@@ -77,13 +80,14 @@
         {
             public const string BrandNotJoinKitchenCenter = "Brand does not join into the kitchen center.";
             public const string KitchenCenterNotHaveBrand = "Kitchen center does not have this brand.";
-            public const string BrandNotHaveStore = "Brand does not have this store int he system.";
-            public const string KitchenCenterNotHaveStore = "Kitchen center does not have this store int he system.";
+            public const string BrandNotHaveStore = "Brand does not have this store in the system.";
+            public const string KitchenCenterNotHaveStore = "Kitchen center does not have this store in the system.";
             public const string DeactiveStore_Update = "Store was deleted before, so this store cannot update.";
             public const string DeactiveStore_Delete = "Store cannot delete because that was deleted before.";
             public const string ManageremailExisted = "Store manager email already existed in the system.";
             public const string NotConfirmingStore = "Store is not a new store to confirm to become an ACTIVE store.";
             public const string NotRejectedResonForNewStore = "Rejected store registration is required a reason.";
+            public const string StoreIdNotBelongToStore = "Store id does not belong to your store.";
         }
 
         public static class CategoryMessage
@@ -107,6 +111,24 @@
         {
             public const string BankingAccountNotBelongToKitchenCenter = "Your kitchen center does not have this banking account id.";
             public const string NumberAccountExisted = "Number account already existed in the system.";
+        }
+
+        public static class ProductMessage
+        {
+            public const string ProductCodeExisted = "Code already exist in the system.";
+            public const string ParentProductIdNotExist = "Parent product id does not exist in the system.";
+            public const string ParentProductIdNotBelongToBrand = "Parent product id does not belong to your brand.";
+            public const string CategoryNotSuitableForSingleOrParentProductType = "Category id is not suitable type for SINGLE or PARENT product type.";
+            public const string CategoryNotSuitableForEXTRAProductType = "Category id is not suitable type for EXTRA product type.";
+            public const string CategoryIdNotBelongToStore = "Category id does not belong to your store.";
+            public const string CategoryIdNotBelongToKitchenCenter = "Your kitchen center cannot get products with this category id.";
+            public const string InvalidProductType = "Product type is required some types such as: SINGLE, PARENT, CHILD, EXTRA.";
+            public const string ProductNotBelongToBrand = "Product id does not belong to your brand.";
+            public const string ProductNotBelongToStore = "Product id does not belong to your store.";
+            public const string ProductNotSpendToStore = "Product id does not spend to your kitchen center.";
+            public const string EndswithProductNameNotContainSize = "Name must end with string: 'Size x' With x is a your chosen size options.";
+            public const string ProductNameTypeChildNotAllowUpdate = "Name of product which is type CHILD does not allow update.";
+            public const string ProductIdNotParentType = "Product id is not a PARENT type.";
         }
 
         public static class PartnerMessage

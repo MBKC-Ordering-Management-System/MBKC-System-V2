@@ -30,6 +30,8 @@ using MBKC.Service.DTOs.BankingAccounts;
 using MBKC.API.Validators.BankingAccounts;
 using MBKC.Service.DTOs.Partners;
 using MBKC.API.Validators.Partners;
+using MBKC.Service.DTOs.Products;
+using MBKC.API.Validators.Products;
 
 namespace MBKC.API.Extentions
 {
@@ -182,6 +184,9 @@ namespace MBKC.API.Extentions
             services.AddScoped<IValidator<CreateBankingAccountRequest>, CreateBankingAccountValidator>();
             services.AddScoped<IValidator<UpdateBankingAccountStatusRequest>, UpdateBankingAccountStatusValidator>();
             services.AddScoped<IValidator<UpdateBankingAccountRequest>, UpdateBankingAccountValidator>();
+            services.AddScoped<IValidator<CreateProductRequest>, CreateProductValidator>();
+            services.AddScoped<IValidator<UpdateProductRequest>, UpdateProductValidator>();
+            services.AddScoped<IValidator<UpdateProductStatusRequest>, UpdateProductStatusValidator>();
             services.AddScoped<IValidator<PostPartnerRequest>, CreatePartnerValidator>();
             services.AddScoped<IValidator<UpdatePartnerRequest>, UpdatePartnerValidator>();
             return services;
