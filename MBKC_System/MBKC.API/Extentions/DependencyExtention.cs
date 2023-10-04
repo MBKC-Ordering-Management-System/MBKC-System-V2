@@ -28,6 +28,8 @@ using System.Text;
 using MBKC.API.Middlewares;
 using MBKC.Service.DTOs.BankingAccounts;
 using MBKC.API.Validators.BankingAccounts;
+using MBKC.Service.DTOs.StorePartners;
+using MBKC.API.Validators.StorePartners;
 
 namespace MBKC.API.Extentions
 {
@@ -180,6 +182,10 @@ namespace MBKC.API.Extentions
             services.AddScoped<IValidator<CreateBankingAccountRequest>, CreateBankingAccountValidator>();
             services.AddScoped<IValidator<UpdateBankingAccountStatusRequest>, UpdateBankingAccountStatusValidator>();
             services.AddScoped<IValidator<UpdateBankingAccountRequest>, UpdateBankingAccountValidator>();
+
+            services.AddScoped<IValidator<PostStorePartnerRequest>, CreateStorePartnerValidator>();
+            services.AddScoped<IValidator<UpdateStorePartnerRequest>, UpdateStorePartnerValidator>();
+
             return services;
         }
 

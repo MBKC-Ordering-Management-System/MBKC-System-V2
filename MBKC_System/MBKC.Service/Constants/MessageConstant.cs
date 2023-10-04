@@ -22,6 +22,7 @@
             public const string InvalidItemsPerPage = "Items per page number is required more than 0.";
             public const string InvalidCurrentPage = "Current page number is required more than 0.";
             public const string CategoryIdNotBelongToBrand = "This Category Id is not part of the brand's Category Id.";
+            public const string NotExistPartnerId = "Partner id does not exist in the system.";
         }
 
         public static class LoginMessage
@@ -76,7 +77,7 @@
         {
             public const string BrandNotJoinKitchenCenter = "Brand does not join into the kitchen center.";
             public const string KitchenCenterNotHaveBrand = "Kitchen center does not have this brand.";
-            public const string BrandNotHaveStore = "Brand does not have this store int he system.";
+            public const string BrandNotHaveStore = "Brand does not have this store in the system.";
             public const string KitchenCenterNotHaveStore = "Kitchen center does not have this store int he system.";
             public const string DeactiveStore_Update = "Store was deleted before, so this store cannot update.";
             public const string DeactiveStore_Delete = "Store cannot delete because that was deleted before.";
@@ -87,7 +88,7 @@
 
         public static class CategoryMessage
         {
-            
+
             public const string CategoryCodeExisted = "Category code already exist in the system.";
             public const string DeactiveCategory_Delete = "Category cannot delete because that was deleted before.";
             public const string DeactiveCategory_Update = "Category was deleted before, so this category cannot update.";
@@ -106,6 +107,15 @@
         {
             public const string BankingAccountNotBelongToKitchenCenter = "Your kitchen center does not have this banking account id.";
             public const string NumberAccountExisted = "Number account already existed in the system.";
+        }
+
+        public static class StorePartnerMessage
+        {
+            public const string InactiveStore_Create = "This store has been inactive.";
+            public const string StoreNotBelongToBrand = "Store does not belong to brand.";
+            public const string PartnerExceed3 = "A store can only have a maximum of 3 partners.";
+            public const string LinkedWithParner = "This store is already linked to this partner.";
+            public const string UsernameExisted = "User name already exist in the system.";
         }
     }
 }

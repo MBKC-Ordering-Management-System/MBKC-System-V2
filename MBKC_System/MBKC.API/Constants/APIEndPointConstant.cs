@@ -58,5 +58,11 @@
             public const string BankingAccountEndpoint = BankingAccountsEndpoint + "/{id}";
             public const string UpdatingStatusBankingAccountEndpoint = BankingAccountEndpoint + "/updating-status";
         }
+
+        public static class StorePartner
+        {
+            public const string StorePartnersEndpoint = ApiEndpoint + "/store-partners";
+            public const string StorePartnerEndpoint = StorePartnersEndpoint + "/{id}";
+        }
     }
 }
