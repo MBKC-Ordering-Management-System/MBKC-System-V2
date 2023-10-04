@@ -34,7 +34,9 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await _dbContext.Accounts.SingleOrDefaultAsync(r => r.Email.Equals(email));
+                return await _dbContext.Accounts
+                    .Include(a => a.Role)
+                    .SingleOrDefaultAsync(r => r.Email.Equals(email));
             }
             catch (Exception ex)
             {

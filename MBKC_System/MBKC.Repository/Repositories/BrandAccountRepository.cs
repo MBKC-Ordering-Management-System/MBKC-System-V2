@@ -1,5 +1,7 @@
 ﻿using MBKC.Repository.DBContext;
+using MBKC.Repository.Enums;
 using MBKC.Repository.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,5 +30,52 @@ namespace MBKC.Repository.Repositories
             }
     }
 
+        public async Task<BrandAccount> GetBrandAccountByAccountIdAsync(int accountId)
+        {
+            try
+            {
+                return await this._dbContext.BrandAccounts
+                      .Include(brandAccocunt => brandAccocunt.Brand)
+                      .ThenInclude(brand => brand.Products)
+                      .Include(brandAccocunt => brandAccocunt.Brand)
+                      .ThenInclude(brand => brand.Categories.Where(c => c.Status != (int)CategoryEnum.Status.DEACTIVE))
+                      .ThenInclude(category => category.ExtraCategoryProductCategories)
+                      .SingleOrDefaultAsync(b => b.AccountId == accountId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        #region Update BrandAccount
+        public void UpdateBrandAccount(BrandAccount brandAccount)
+        {
+            try
+            {
+                this._dbContext.Entry<BrandAccount>(brandAccount).State = EntityState.Modified;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+        #region Get Brand Account By Id
+        public async Task<BrandAccount> GetBrandAccountByBrandIdAsync(int id)
+        {
+            try
+            {
+                return await _dbContext.BrandAccounts
+                    .Include(b => b.Account)
+                    .Where(b => b.Account.Status == (int)AccountEnum.Status.ACTIVE && b.Account.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER)
+                    .SingleOrDefaultAsync(b => b.BrandId == id);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
     }
 }

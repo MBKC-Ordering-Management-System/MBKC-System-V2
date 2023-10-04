@@ -36,7 +36,7 @@ namespace MBKC.Repository.Repositories
         }
         #endregion
 
-        public async Task InsertRange(IEnumerable<ExtraCategory> extraCategories)
+        public async Task InsertRangeAsync(IEnumerable<ExtraCategory> extraCategories)
         {
             try
             {

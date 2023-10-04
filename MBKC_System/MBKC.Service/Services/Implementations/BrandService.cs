@@ -306,16 +306,36 @@ namespace MBKC.Service.Services.Implementations
                 }
 
                 string password = "";
-                if (brand.BrandManagerEmail.Equals(updateBrandRequest.BrandManagerEmail) == false)
+                var checkAccountExisted = await this._unitOfWork.AccountRepository.GetAccountByEmailAsync(updateBrandRequest.BrandManagerEmail);
+
+                if (checkAccountExisted != null && checkAccountExisted.Role.RoleId != (int)RoleEnum.Role.BRAND_MANAGER)
                 {
-                    Account existedAccount = await this._unitOfWork.AccountRepository.GetAccountAsync(updateBrandRequest.BrandManagerEmail);
-                    if (existedAccount != null)
+                    throw new BadRequestException(MessageConstant.BrandMessage.RoleNotSuitable);
+                }
+                if (checkAccountExisted != null)
+                {
+                    var checkAccountBrandExisted = await this._unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(checkAccountExisted.AccountId);
+                    if (checkAccountExisted != null && checkAccountExisted.Status == (int)AccountEnum.Status.ACTIVE && checkAccountExisted.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER)
+                    {
+                        if (checkAccountBrandExisted.Brand.BrandId != brandId)
+                        {
+                            throw new BadRequestException(MessageConstant.BrandMessage.ManagerEmailExisted);
+                        }
+                    }
+                    else if (checkAccountExisted != null && checkAccountExisted.Status == (int)AccountEnum.Status.DEACTIVE && checkAccountExisted.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER)
                     {
                         throw new BadRequestException(MessageConstant.BrandMessage.ManagerEmailExisted);
                     }
-
-                    brand.BrandAccounts.FirstOrDefault(x => x.Account.Email.Equals(brand.BrandManagerEmail)).Account.Status = (int)AccountEnum.Status.DEACTIVE;
-
+                }
+                if (checkAccountExisted == null)
+                {
+                    // Inactive old Brand Manager Email
+                    var getBrandAccountById = await this._unitOfWork.BrandAccountRepository.GetBrandAccountByBrandIdAsync(brandId);
+                    if (getBrandAccountById != null)
+                    {
+                        getBrandAccountById.Account.Status = (int)AccountEnum.Status.DEACTIVE;
+                        _unitOfWork.BrandAccountRepository.UpdateBrandAccount(getBrandAccountById);
+                    }
                     Role brandManagerRole = await this._unitOfWork.RoleRepository.GetRoleById((int)RoleEnum.Role.BRAND_MANAGER);
                     password = RandomPasswordUtil.CreateRandomPassword();
                     Account newBrandManagerAccount = new Account()
@@ -390,6 +410,14 @@ namespace MBKC.Service.Services.Implementations
                 else if (ex.Message.Equals(MessageConstant.BrandMessage.DeactiveBrand_Update))
                 {
                     fieldName = "Updated brand failed";
+                }
+                else if (ex.Message.Equals(MessageConstant.BrandMessage.RoleNotSuitable))
+                {
+                    fieldName = "Role from account";
+                }
+                else if (ex.Message.Equals(MessageConstant.BrandMessage.ManagerEmailExisted))
+                {
+                    fieldName = "Manager Email";
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
@@ -472,7 +500,7 @@ namespace MBKC.Service.Services.Implementations
                     }
                 }
 
-                // Change status brand's store to NOT_RENT
+                // Change status brand's store to INACTIVE
                 if (brand.Stores.Any())
                 {
                     foreach (var store in brand.Stores)
