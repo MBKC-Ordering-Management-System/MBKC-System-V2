@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using MBKC.Repository.Enums;
-using MBKC.Service.DTOs.Cashiers;
+using MBKC.Service.DTOs.Cashiers.Requests;
 using MBKC.Service.Utils;
 
 namespace MBKC.API.Validators.Cashiers
@@ -58,7 +58,8 @@ namespace MBKC.API.Validators.Cashiers
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .ChildRules(x => x.RuleFor(x => x).Cascade(CascadeMode.StopOnFirstFailure)
                                                   .NotEmpty().WithMessage("New password is not empty.")
-                                                  .MaximumLength(50).WithMessage("New password is required less than or equal to 50 characters."));
+                                                  .MaximumLength(50).WithMessage("New password is required less than or equal to 50 characters.")
+                                                  .Must(StringUtil.IsMD5).WithMessage("New password must convert with MD5 althorigm before saving in the system."));
 
             RuleFor(cpr => cpr.Status)
                 .Cascade(CascadeMode.StopOnFirstFailure)

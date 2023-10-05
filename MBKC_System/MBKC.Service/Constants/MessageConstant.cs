@@ -14,6 +14,7 @@
             public const string InvalidStoreId = "Store id is not suitable id in the system.";
             public const string InvalidCategoryId = "Category id is not suitable id in the system.";
             public const string InvalidBankingAccountId = "Banking account id is not suitable id in the system.";
+            public const string InvalidCashierId = "Cashier id is not suitable id in the system.";
             public const string InvalidProductId = "Product id is not suitable id in the system.";
             public const string NotExistKitchenCenterId = "Kitchen center id does not exist in the system.";
             public const string NotExistKitchenCenter = "Kitchen center does not exist in the system.";
@@ -22,6 +23,7 @@
             public const string NotExistCategoryId = "Category id does not exist in the system.";
             public const string NotExistBankingAccountId = "Banking account id does not exist in the system.";
             public const string NotExistProductId = "Product id does not exist in the system.";
+            public const string NotExistCashierId = "Cashier id does not exist in the system.";
             public const string InvalidItemsPerPage = "Items per page number is required more than 0.";
             public const string InvalidCurrentPage = "Current page number is required more than 0.";
             public const string NotExistPartnerId = "Partner id does not exist in the system.";
@@ -140,6 +142,11 @@
             public const string DeactivePartner_Delete = "Partner cannot delete because that was deleted before.";
             public const string DeactivePartner_Get = "Partner cannot get because that was deleted before.";
 
+        }
+
+        public static class CashierMessage
+        {
+            public const string CashierIdNotBelongToKitchenCenter = "Cashier id does not belong to your kitchen center.";
         }
     }
 }

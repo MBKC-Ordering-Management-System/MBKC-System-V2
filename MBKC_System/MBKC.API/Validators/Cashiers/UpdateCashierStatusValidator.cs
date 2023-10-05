@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using MBKC.Repository.Enums;
-using MBKC.Service.DTOs.Cashiers;
+using MBKC.Service.DTOs.Cashiers.Requests;
 using StackExchange.Redis;
 
 namespace MBKC.API.Validators.Cashiers

@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
-using MBKC.Service.DTOs.Cashiers;
+using MBKC.Service.DTOs.Cashiers.Requests;
+using MBKC.Service.DTOs.Cashiers.Responses;
 using StackExchange.Redis;
 using System.Reflection;
 using System.Text.RegularExpressions;

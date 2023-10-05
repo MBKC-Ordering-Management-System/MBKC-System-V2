@@ -17,7 +17,7 @@ namespace MBKC.Repository.Enums
         public enum Status
         {
             INACTIVE = 0,
-            ACRIVE  = 1,
+            ACTIVE  = 1,
             DEACTIVE = 2
         }
     }

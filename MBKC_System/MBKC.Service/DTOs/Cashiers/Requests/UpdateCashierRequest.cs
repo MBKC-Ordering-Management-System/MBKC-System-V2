@@ -5,15 +5,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MBKC.Service.DTOs.Cashiers
+namespace MBKC.Service.DTOs.Cashiers.Requests
 {
-    public class CreateCashierRequest
+    public class UpdateCashierRequest
     {
         public string FullName { get; set; }
         public string Gender { get; set; }
         public DateTime DateOfBirth { get; set; }
-        public IFormFile Avatar { get; set; }
+        public IFormFile? Avatar { get; set; }
         public string CitizenNumber { get; set; }
-        public string Email { get; set; }
+        public string Status { get; set; }
+        public string? NewPassword { get; set; }
     }
 }
