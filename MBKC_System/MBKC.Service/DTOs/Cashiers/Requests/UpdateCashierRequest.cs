@@ -14,7 +14,7 @@ namespace MBKC.Service.DTOs.Cashiers.Requests
         public DateTime DateOfBirth { get; set; }
         public IFormFile? Avatar { get; set; }
         public string CitizenNumber { get; set; }
-        public string Status { get; set; }
+        public string? Status { get; set; }
         public string? NewPassword { get; set; }
     }
 }

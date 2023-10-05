@@ -22,10 +22,10 @@ namespace MBKC.API.Controllers
         private IValidator<UpdateCashierRequest> _updateCashierValidator;
         private IValidator<UpdateCashierStatusRequest> _updateCashierStatusValidator;
         private IValidator<GetCashiersRequest> _getCashiersValidator;
-        private IValidator<GetCashierRequest> _getCashierValidator;
+        private IValidator<CashierRequest> _getCashierValidator;
         public CashiersController(ICashierService cashierService, IValidator<CreateCashierRequest> createCashierValidator,
             IValidator<UpdateCashierRequest> updateCashierValidator, IValidator<UpdateCashierStatusRequest> updateCashierStatusValidator,
-            IValidator<GetCashiersRequest> getCashiersValidator, IValidator<GetCashierRequest> getCashierValidator)
+            IValidator<GetCashiersRequest> getCashiersValidator, IValidator<CashierRequest> getCashierValidator)
         {
             this._cashierService = cashierService;
             this._createCashierValidator = createCashierValidator;
@@ -106,9 +106,9 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Kitchen_Center_Manager)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.Kitchen_Center_Manager, PermissionAuthorizeConstant.Cashier)]
         [HttpGet(APIEndPointConstant.Cashier.CashierEndpoint)]
-        public async Task<IActionResult> GetCashierAsync([FromRoute]GetCashierRequest getCashierRequest)
+        public async Task<IActionResult> GetCashierAsync([FromRoute]CashierRequest getCashierRequest)
         {
             ValidationResult validationResult = await this._getCashierValidator.ValidateAsync(getCashierRequest);
             if (validationResult.IsValid == false)
@@ -173,7 +173,7 @@ namespace MBKC.API.Controllers
         }
         #endregion
 
-        #region Create Cashier
+        #region Update Cashier Information
         /// <summary>
         /// Update a specific cashier information.
         /// </summary>
@@ -207,9 +207,9 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Consumes(MediaTypeConstant.Multipart_Form_Data)]
         [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Kitchen_Center_Manager)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.Kitchen_Center_Manager, PermissionAuthorizeConstant.Cashier)]
         [HttpPut(APIEndPointConstant.Cashier.CashierEndpoint)]
-        public async Task<IActionResult> UpdateCashierAsync([FromRoute]GetCashierRequest getCashierRequest, [FromForm]UpdateCashierRequest updateCashierRequest)
+        public async Task<IActionResult> UpdateCashierAsync([FromRoute]CashierRequest getCashierRequest, [FromForm]UpdateCashierRequest updateCashierRequest)
         {
             ValidationResult validationResultCashierId = await this._getCashierValidator.ValidateAsync(getCashierRequest);
             ValidationResult validationResult = await this._updateCashierValidator.ValidateAsync(updateCashierRequest);
@@ -264,7 +264,7 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.Application_Json)]
         [PermissionAuthorize(PermissionAuthorizeConstant.Kitchen_Center_Manager)]
         [HttpPut(APIEndPointConstant.Cashier.UpdatingCashierStatusEndpoint)]
-        public async Task<IActionResult> UpdateCashierStatusAsync([FromRoute] GetCashierRequest getCashierRequest, [FromBody]UpdateCashierStatusRequest updateCashierStatusRequest)
+        public async Task<IActionResult> UpdateCashierStatusAsync([FromRoute] CashierRequest getCashierRequest, [FromBody]UpdateCashierStatusRequest updateCashierStatusRequest)
         {
             ValidationResult validationResultCashierId = await this._getCashierValidator.ValidateAsync(getCashierRequest);
             ValidationResult validationResult = await this._updateCashierStatusValidator.ValidateAsync(updateCashierStatusRequest);
@@ -315,7 +315,7 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.Application_Json)]
         [PermissionAuthorize(PermissionAuthorizeConstant.Kitchen_Center_Manager)]
         [HttpDelete(APIEndPointConstant.Cashier.CashierEndpoint)]
-        public async Task<IActionResult> DeleteCashierAsync([FromRoute] GetCashierRequest getCashierRequest)
+        public async Task<IActionResult> DeleteCashierAsync([FromRoute] CashierRequest getCashierRequest)
         {
             ValidationResult validationResult = await this._getCashierValidator.ValidateAsync(getCashierRequest);
             if (validationResult.IsValid == false)

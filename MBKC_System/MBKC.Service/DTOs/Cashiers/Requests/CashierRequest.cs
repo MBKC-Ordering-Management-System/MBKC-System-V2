@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MBKC.Service.DTOs.Cashiers.Requests
 {
-    public class GetCashierRequest
+    public class CashierRequest
     {
         [FromRoute(Name = "id")]
         public int Id { get; set; }

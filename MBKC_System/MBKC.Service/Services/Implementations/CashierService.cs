@@ -189,9 +189,9 @@ namespace MBKC.Service.Services.Implementations
             try
             {
                 Claim registeredEmailClaim = claims.First(x => x.Type == ClaimTypes.Email);
+                Claim registeredRoleClaim = claims.First(x => x.Type.ToLower().Equals("role"));
                 string email = registeredEmailClaim.Value;
-
-                KitchenCenter existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(email);
+                string role = registeredRoleClaim.Value;
 
                 Cashier existedCashier = await this._unitOfWork.CashierRepository.GetCashierAsync(idCashier);
                 if (existedCashier is null)
@@ -199,9 +199,23 @@ namespace MBKC.Service.Services.Implementations
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistCashierId);
                 }
 
-                if(existedKitchenCenter.Cashiers.Any(x => x.AccountId == idCashier) == false)
+                if (role.ToLower().Equals(RoleConstant.Kitchen_Center_Manager.ToLower()))
                 {
-                    throw new BadRequestException(MessageConstant.CashierMessage.CashierIdNotBelongToKitchenCenter);
+                    KitchenCenter existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(email);
+
+                    if (existedKitchenCenter.Cashiers.Any(x => x.AccountId == idCashier) == false)
+                    {
+                        throw new BadRequestException(MessageConstant.CashierMessage.CashierIdNotBelongToKitchenCenter);
+                    }
+                }
+
+                if (role.ToLower().Equals(RoleConstant.Cashier.ToLower()))
+                {
+                    if (existedCashier.Account.Email.Equals(email))
+                    {
+                        throw new BadRequestException(MessageConstant.CashierMessage.CashierIdNotBelogToCashier);
+                    }
+
                 }
 
                 GetCashierResponse getCashierResponse = this._mapper.Map<GetCashierResponse>(existedCashier);
@@ -220,7 +234,9 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistCashierId))
+                if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistCashierId) || 
+                    ex.Message.Equals(MessageConstant.CashierMessage.CashierIdNotBelongToKitchenCenter) ||
+                    ex.Message.Equals(MessageConstant.CashierMessage.CashierIdNotBelogToCashier))
                 {
                     fieldName = "Cashier id";
                 }
@@ -243,9 +259,19 @@ namespace MBKC.Service.Services.Implementations
             try
             {
                 Claim registeredEmailClaim = claims.First(x => x.Type == ClaimTypes.Email);
+                Claim registeredRoleClaim = claims.First(x => x.Type.ToLower().Equals("role"));
                 string email = registeredEmailClaim.Value;
+                string role = registeredRoleClaim.Value;
 
-                KitchenCenter existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(email);
+                if(updateCashierRequest.Status == null && role.ToLower().Equals(RoleConstant.Kitchen_Center_Manager.ToLower()))
+                {
+                    throw new BadRequestException(MessageConstant.CashierMessage.StatusIsRequiredWithKitchenCenterManager);
+                }
+
+                if (updateCashierRequest.Status != null && role.ToLower().Equals(RoleConstant.Cashier.ToLower()))
+                {
+                    throw new BadRequestException(MessageConstant.CashierMessage.StatusIsNotRequiredWithCashier);
+                }
 
                 Cashier existedCashier = await this._unitOfWork.CashierRepository.GetCashierAsync(idCashier);
                 if (existedCashier is null)
@@ -253,9 +279,31 @@ namespace MBKC.Service.Services.Implementations
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistCashierId);
                 }
 
-                if (existedKitchenCenter.Cashiers.Any(x => x.AccountId == idCashier) == false)
+                if (role.ToLower().Equals(RoleConstant.Kitchen_Center_Manager.ToLower()))
                 {
-                    throw new BadRequestException(MessageConstant.CashierMessage.CashierIdNotBelongToKitchenCenter);
+                    KitchenCenter existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(email);
+
+                    if (existedKitchenCenter.Cashiers.Any(x => x.AccountId == idCashier) == false)
+                    {
+                        throw new BadRequestException(MessageConstant.CashierMessage.CashierIdNotBelongToKitchenCenter);
+                    }
+
+                    if (AccountEnum.Status.ACTIVE.ToString().ToLower().Equals(updateCashierRequest.Status.Trim().ToLower()))
+                    {
+                        existedCashier.Account.Status = (int)AccountEnum.Status.ACTIVE;
+                    }
+                    else if (AccountEnum.Status.INACTIVE.ToString().ToLower().Equals(updateCashierRequest.Status.Trim().ToLower()))
+                    {
+                        existedCashier.Account.Status = (int)AccountEnum.Status.INACTIVE;
+                    }
+                }
+
+                if (role.ToLower().Equals(RoleConstant.Cashier.ToLower()))
+                {
+                    if (existedCashier.Account.Email.Equals(email))
+                    {
+                        throw new BadRequestException(MessageConstant.CashierMessage.CashierIdNotBelogToCashier);
+                    }
                 }
 
                 if (updateCashierRequest.NewPassword is not null)
@@ -267,15 +315,6 @@ namespace MBKC.Service.Services.Implementations
                 existedCashier.DateOfBirth = updateCashierRequest.DateOfBirth;
                 existedCashier.CitizenNumber = updateCashierRequest.CitizenNumber;
                 existedCashier.Gender = CashierEnum.Gender.FEMALE.ToString().ToLower().Equals(updateCashierRequest.Gender.Trim().ToLower()) ? false : true;
-
-                if (AccountEnum.Status.ACTIVE.ToString().ToLower().Equals(updateCashierRequest.Status.Trim().ToLower()))
-                {
-                    existedCashier.Account.Status = (int)AccountEnum.Status.ACTIVE;
-                }
-                else if (AccountEnum.Status.INACTIVE.ToString().ToLower().Equals(updateCashierRequest.Status.Trim().ToLower()))
-                {
-                    existedCashier.Account.Status = (int)AccountEnum.Status.INACTIVE;
-                }
 
                 string oldAvatar = existedCashier.Avatar;
                 if (updateCashierRequest.Avatar is not null)
@@ -310,9 +349,15 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistCashierId))
+                if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistCashierId) || 
+                    ex.Message.Equals(MessageConstant.CashierMessage.CashierIdNotBelongToKitchenCenter) ||
+                    ex.Message.Equals(MessageConstant.CashierMessage.CashierIdNotBelogToCashier))
                 {
                     fieldName = "Cashier id";
+                } else if (ex.Message.Equals(MessageConstant.CashierMessage.StatusIsRequiredWithKitchenCenterManager) ||
+                    ex.Message.Equals(MessageConstant.CashierMessage.StatusIsNotRequiredWithCashier))
+                {
+                    fieldName = "Status";
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
@@ -373,7 +418,8 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistCashierId))
+                if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistCashierId) ||
+                    ex.Message.Equals(MessageConstant.CashierMessage.CashierIdNotBelongToKitchenCenter))
                 {
                     fieldName = "Cashier id";
                 }
@@ -425,7 +471,8 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistCashierId))
+                if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistCashierId) ||
+                    ex.Message.Equals(MessageConstant.CashierMessage.CashierIdNotBelongToKitchenCenter))
                 {
                     fieldName = "Cashier id";
                 }
@@ -438,5 +485,6 @@ namespace MBKC.Service.Services.Implementations
                 throw new Exception(error);
             }
         }
+
     }
 }

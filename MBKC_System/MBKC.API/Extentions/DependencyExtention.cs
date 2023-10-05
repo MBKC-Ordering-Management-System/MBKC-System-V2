@@ -195,7 +195,9 @@ namespace MBKC.API.Extentions
             services.AddScoped<IValidator<UpdateCashierRequest>, UpdateCashierValidator>();
             services.AddScoped<IValidator<UpdateCashierStatusRequest>, UpdateCashierStatusValidator>();
             services.AddScoped<IValidator<GetCashiersRequest>, GetCashiersValidator>();
-            services.AddScoped<IValidator<GetCashierRequest>, GetCashierValidator>();
+            services.AddScoped<IValidator<CashierRequest>, GetCashierValidator>();
+            services.AddScoped<IValidator<AccountIdRequest>, AccountIdValidator>();
+            services.AddScoped<IValidator<UpdateAccountRequest>, UpdateAccountValidator>();
             return services;
         }
 

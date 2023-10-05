@@ -1,11 +1,11 @@
 ﻿using FluentValidation;
-using MBKC.Service.DTOs.Cashiers.Requests;
+using MBKC.Service.DTOs.Accounts;
 
-namespace MBKC.API.Validators.Cashiers
+namespace MBKC.API.Validators.Accounts
 {
-    public class GetCashierValidator:AbstractValidator<CashierRequest>
+    public class AccountIdValidator: AbstractValidator<AccountIdRequest>
     {
-        public GetCashierValidator()
+        public AccountIdValidator()
         {
             RuleFor(x => x.Id)
                 .Cascade(CascadeMode.StopOnFirstFailure)

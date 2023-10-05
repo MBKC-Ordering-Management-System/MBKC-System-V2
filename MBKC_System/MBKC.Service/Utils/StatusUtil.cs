@@ -121,5 +121,20 @@ namespace MBKC.Service.Utils
             return char.ToUpper(CashierEnum.Status.DEACTIVE.ToString()[0]) + CashierEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
 
         }
+        
+        
+        public static string ChangeAccountStatus(int status)
+        {
+            if (status == (int)AccountEnum.Status.INACTIVE)
+            {
+                return char.ToUpper(AccountEnum.Status.INACTIVE.ToString()[0]) + AccountEnum.Status.INACTIVE.ToString().ToLower().Substring(1);
+            }
+            else if (status == (int)AccountEnum.Status.ACTIVE)
+            {
+                return char.ToUpper(AccountEnum.Status.ACTIVE.ToString()[0]) + AccountEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
+            }
+            return char.ToUpper(AccountEnum.Status.DEACTIVE.ToString()[0]) + AccountEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
+
+        }
     }
 }

@@ -27,6 +27,7 @@
             public const string InvalidItemsPerPage = "Items per page number is required more than 0.";
             public const string InvalidCurrentPage = "Current page number is required more than 0.";
             public const string NotExistPartnerId = "Partner id does not exist in the system.";
+            public const string NotExistAccountId = "Account id does not exist in the system.";
             public const string InvalidPartnerId = "Partner id is not suitable id in the system.";
             public const string CategoryIdNotBelongToBrand = "Category id does not belong to your brand.";
         }
@@ -35,6 +36,11 @@
         {
             public const string DisabledAccount = "Account has been disabled.";
             public const string InvalidEmailOrPassword = "Email or Password is invalid.";
+        }
+
+        public static class AccountMessage
+        {
+            public const string AccountIdNotBelongYourAccount = "Account id does not belong to your account.";
         }
 
         public static class VerificationMessage
@@ -147,6 +153,9 @@
         public static class CashierMessage
         {
             public const string CashierIdNotBelongToKitchenCenter = "Cashier id does not belong to your kitchen center.";
+            public const string CashierIdNotBelogToCashier = "Cashier id is not suitable with your account.";
+            public const string StatusIsRequiredWithKitchenCenterManager = "Status is not null";
+            public const string StatusIsNotRequiredWithCashier = "Cashier does not allow to update Status property.";
         }
     }
 }

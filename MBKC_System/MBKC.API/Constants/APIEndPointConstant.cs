@@ -79,7 +79,13 @@
         {
             public const string CashiersEndpoint = ApiEndpoint + "/cashiers";
             public const string CashierEndpoint = CashiersEndpoint + "/{id}";
+            public const string CashierProfileEndpoint = CashierEndpoint + "/profile";
             public const string UpdatingCashierStatusEndpoint = CashierEndpoint + "/updating-status";
+        }
+
+        public static class Account
+        {
+            public const string AccountEndpoint = ApiEndpoint + "/accounts" + "/{id}";
         }
     }
 }
