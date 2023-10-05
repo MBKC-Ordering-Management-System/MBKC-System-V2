@@ -1,6 +1,7 @@
 ﻿using MBKC.Repository.DBContext;
 using MBKC.Repository.Enums;
 using MBKC.Repository.Models;
+using MBKC.Repository.Utils;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -42,11 +43,44 @@ namespace MBKC.Repository.Repositories
             }
         }
 
-        public async Task<List<StorePartner>> GetStorePartnersByStoreIdAndBrandIdAsync(string? searchValue, int? currentPage, int? itemsPerPage, int storeId, int brandId)
+        public async Task<int> GetNumberStorePartnersAsync(string? searchName, string? searchValueWithoutUnicode, int? brandId)
         {
             try
             {
-                return await this._dbContext.StorePartners.Where(s => s.StoreId == storeId && s.Status != (int)StorePartnerEnum.Status.DEACTIVE).ToListAsync();
+                if (searchName == null && searchValueWithoutUnicode != null)
+                {
+                    return this._dbContext.StorePartners.Include(x => x.Partner)
+                                                         .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
+
+                                                                     (brandId != null
+                                                                     ? x.Store.Brand.BrandId == brandId
+                                                                     : true)
+                                                                   )
+                                                         .Where(delegate (StorePartner storePartner)
+                                                         {
+                                                             if (searchValueWithoutUnicode.ToLower().Contains(StringUtil.RemoveSign4VietnameseString(storePartner.Partner.Name).ToLower()))
+                                                             {
+                                                                 return true;
+                                                             }
+                                                             return false;
+                                                         }).AsQueryable().Count();
+                }
+                else if (searchName != null && searchValueWithoutUnicode == null)
+                {
+                    return await this._dbContext.StorePartners.Include(x => x.Partner)
+                                                         .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
+                                                                     x.Partner.Name.ToLower().Contains(searchName.ToLower()) &&
+
+                                                                     (brandId != null
+                                                                     ? x.Store.Brand.BrandId == brandId
+                                                                     : true)).CountAsync();
+
+                }
+                return await this._dbContext.StorePartners.Include(x => x.Partner)
+                                                         .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
+                                                                     (brandId != null
+                                                                     ? x.Store.Brand.BrandId == brandId
+                                                                     : true)).CountAsync();
             }
             catch (Exception ex)
             {
@@ -71,6 +105,52 @@ namespace MBKC.Repository.Repositories
             try
             {
                 this._dbContext.StorePartners.Update(storePartner);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<List<StorePartner>> GetStorePartnersAsync(string? searchName, string? searchValueWithoutUnicode, int? brandId, int? currentPage, int? itemsPerPage)
+        {
+            try
+            {
+
+                if (searchName == null && searchValueWithoutUnicode != null)
+                {
+                    return this._dbContext.StorePartners.Include(x => x.Partner)
+                                                         .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
+                                                                     (brandId != null
+                                                                     ? x.Store.Brand.BrandId == brandId
+                                                                     : true))
+
+                                                         .Where(delegate (StorePartner storePartner)
+                                                         {
+                                                             if (searchValueWithoutUnicode.ToLower().Contains(StringUtil.RemoveSign4VietnameseString(storePartner.Partner.Name).ToLower()))
+                                                             {
+                                                                 return true;
+                                                             }
+                                                             return false;
+                                                         }).Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).AsQueryable().ToList();
+                }
+                else if (searchName != null && searchValueWithoutUnicode == null)
+                {
+                    return await this._dbContext.StorePartners.Include(x => x.Partner)
+                                                         .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
+                                                                      x.Partner.Name.ToLower().Contains(searchName.ToLower()) &&
+
+                                                                     (brandId != null
+                                                                     ? x.Store.Brand.BrandId == brandId
+                                                                     : true)).Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
+                }
+                return await this._dbContext.StorePartners.Include(x => x.Partner)
+                                                         .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
+
+                                                                     (brandId != null
+                                                                     ? x.Store.Brand.BrandId == brandId
+                                                                     : true)).Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
+
             }
             catch (Exception ex)
             {

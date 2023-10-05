@@ -314,11 +314,11 @@ namespace MBKC.Repository.DBContext
             #region StorePartner
             modelBuilder.Entity<StorePartner>(storePartner =>
             {
-                modelBuilder.Entity<StorePartner>().HasKey(key => new { key.StoreId, key.PartnerId });
+                modelBuilder.Entity<StorePartner>().HasKey(key => new { key.StoreId, key.PartnerId , key.CreatedDate});
+                storePartner.Property(prop => prop.CreatedDate).HasColumnType("datetime2").IsRequired(true);
                 storePartner.Property(prop => prop.UserName).IsUnicode(false).HasMaxLength(100).IsRequired(true);
                 storePartner.Property(prop => prop.Password).IsUnicode(false).HasMaxLength(50).IsRequired(true);
                 storePartner.Property(prop => prop.Status).IsRequired(true);
-
             });
             #endregion
 
