@@ -248,7 +248,7 @@ namespace MBKC.Repository.DBContext
                 product.Property(prop => prop.Description).IsUnicode(true).HasMaxLength(1000).IsRequired(true);
                 product.Property(prop => prop.SellingPrice).HasColumnType("decimal(9,2)").IsRequired(true);
                 product.Property(prop => prop.DiscountPrice).HasColumnType("decimal(9,2)").IsRequired(true);
-                product.Property(prop => prop.Size).IsUnicode(true).HasMaxLength(10).IsRequired(true);
+                product.Property(prop => prop.Size).IsUnicode(true).HasMaxLength(10).IsRequired(false);
                 product.Property(prop => prop.Type).IsUnicode(true).HasMaxLength(20).IsRequired(true);
                 product.Property(prop => prop.Image).IsUnicode(true).HasMaxLength(int.MaxValue).IsRequired(true);
                 product.Property(prop => prop.HistoricalPrice).HasColumnType("decimal(9,2)").IsRequired(true);

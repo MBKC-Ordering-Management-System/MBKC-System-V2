@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MBKC.Repository.Migrations
 {
     [DbContext(typeof(MBKCDbContext))]
-    [Migration("20231002034647_init db")]
-    partial class initdb
+    [Migration("20231003081246_Updatesizecolumn")]
+    partial class Updatesizecolumn
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -633,14 +633,13 @@ namespace MBKC.Repository.Migrations
                         .IsUnicode(true)
                         .HasColumnType("nvarchar(120)");
 
-                    b.Property<int>("ParentProductId")
+                    b.Property<int?>("ParentProductId")
                         .HasColumnType("int");
 
                     b.Property<decimal>("SellingPrice")
                         .HasColumnType("decimal(9,2)");
 
                     b.Property<string>("Size")
-                        .IsRequired()
                         .HasMaxLength(10)
                         .IsUnicode(true)
                         .HasColumnType("nvarchar(10)");

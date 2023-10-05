@@ -310,6 +310,17 @@ namespace MBKC.Repository.Repositories
                 throw new Exception(ex.Message);
             }
         }
+
+        public async Task<Store> GetStoreAsync(string managerEmail)
+        {
+            try
+            {
+                return await this._dbContext.Stores.Include(x => x.Brand).SingleOrDefaultAsync(x => x.StoreManagerEmail.Equals(managerEmail));
+            } catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }
 

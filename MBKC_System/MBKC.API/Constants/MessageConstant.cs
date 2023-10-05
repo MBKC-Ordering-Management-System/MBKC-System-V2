@@ -53,6 +53,22 @@
             public const string UpdatedStatusBankingAccountSuccessfully = "Updated Banking Account Status Successfully.";
             public const string UpdatedBankingAccountSuccessfully = "Updated Banking Account Information Successfully.";
         }
+
+        public static class ProductMessage
+        {
+            public const string CreatedNewProductSuccessfully = "Created New Product Successfully.";
+            public const string UpdatedProductSuccessfully = "Updated Product Successfully.";
+            public const string UpdatedProductStatusSuccessfully = "Updated Product Status Successfully.";
+            public const string DeletedProductSuccessfully = "Deleted Product Successfully.";
+        }
+
+        public static class PartnerMessage
+        {
+            public const string CreatedPartnerSuccessfully = "Created New Partner Successfully.";
+            public const string UpdatedPartnerSuccessfully = "Updated Partner Information Successfully.";
+            public const string DeletedPartnerSuccessfully = "Deleted Partner Successfully.";
+
+        }
         public static class StorePartnerMessage
         {
             public const string CreatedNewStorePartnerSuccessfully = "Created New Store Partner Successfully.";

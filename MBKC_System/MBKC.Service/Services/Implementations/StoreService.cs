@@ -260,6 +260,24 @@ namespace MBKC.Service.Services.Implementations
             }
         }
 
+        public async Task<GetStoreResponse> GetStoreAsync(IEnumerable<Claim> claims)
+        {
+            try
+            {
+                Claim registeredEmailClaim = claims.First(x => x.Type == ClaimTypes.Email);
+                string email = registeredEmailClaim.Value;
+
+                Store existedStore = await this._unitOfWork.StoreRepository.GetStoreAsync(email);
+
+                GetStoreResponse getStoreResponse = this._mapper.Map<GetStoreResponse>(existedStore);
+                return getStoreResponse;
+            } catch(Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                throw new Exception(error);
+            }
+        }
+
         public async Task CreateStoreAsync(RegisterStoreRequest registerStoreRequest, IEnumerable<Claim> claims)
         {
             bool isUploaded = false;

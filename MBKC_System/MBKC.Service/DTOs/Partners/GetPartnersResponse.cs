@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MBKC.Service.DTOs.Products
+namespace MBKC.Service.DTOs.Partners
 {
-    public class GetProductsResponse
+    public class GetPartnersResponse
     {
         public int TotalPages { get; set; }
         public int NumberItems { get; set; }
-        public List<GetProductResponse> Products { get; set; }
+        public IEnumerable<GetPartnerResponse> Partners { get; set; }
     }
 }

@@ -5,14 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MBKC.Service.DTOs.Categories
+namespace MBKC.Service.DTOs.Partners
 {
-    public class UpdateCategoryRequest
+    public class UpdatePartnerRequest
     {
         public string Name { get; set; }
-        public int DisplayOrder { get; set; }
+        public IFormFile? Logo { get; set; }
+        public string WebUrl { get; set; }
         public string Status { get; set; }
-        public string Description { get; set; }
-        public IFormFile? ImageUrl { get; set; }
     }
 }

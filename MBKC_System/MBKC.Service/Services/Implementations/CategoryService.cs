@@ -117,13 +117,8 @@ namespace MBKC.Service.Services.Implementations
                 }
                 // get category 
                 var category = await this._unitOfWork.CategoryRepository.GetCategoryByIdAsync(categoryId);
-                var categoryCode = await this._unitOfWork.CategoryRepository.GetCategoryByCodeAsync(updateCategoryRequest.Code);
-                if (categoryCode != null && !category.Code.ToLower().Equals(updateCategoryRequest.Code.ToLower()))
-                {
-                    throw new BadRequestException(MessageConstant.CategoryMessage.CategoryCodeExisted);
-                }
 
-                string oldImageUrl = category.ImageUrl;
+                string oldImageUrl = checkCategoryIdExisted.ImageUrl;
                 if (updateCategoryRequest.ImageUrl != null)
                 {
                     // Upload image to firebase
@@ -135,16 +130,15 @@ namespace MBKC.Service.Services.Implementations
                     {
                         isUploaded = true;
                     }
-                    category.ImageUrl = urlImage + $"&imageUrl={imageId}";
+                    checkCategoryIdExisted.ImageUrl = urlImage + $"&imageUrl={imageId}";
 
                     //Delete image from database
                     await this._unitOfWork.FirebaseStorageRepository.DeleteImageAsync(FileUtil.GetImageIdFromUrlImage(oldImageUrl, "imageUrl"), folderName);
                     isDeleted = true;
                 }
-                category.Name = updateCategoryRequest.Name;
-                category.Description = updateCategoryRequest.Description;
-                category.DisplayOrder = updateCategoryRequest.DisplayOrder;
-                category.Code = updateCategoryRequest.Code;
+                checkCategoryIdExisted.Name = updateCategoryRequest.Name;
+                checkCategoryIdExisted.Description = updateCategoryRequest.Description;
+                checkCategoryIdExisted.DisplayOrder = updateCategoryRequest.DisplayOrder;
 
                 if (!updateCategoryRequest.Status.ToUpper().Equals(CategoryEnum.Status.ACTIVE.ToString()) &&
                     !updateCategoryRequest.Status.ToUpper().Equals(CategoryEnum.Status.INACTIVE.ToString()))
@@ -153,13 +147,17 @@ namespace MBKC.Service.Services.Implementations
                 }
                 if (updateCategoryRequest.Status.ToUpper().Equals(CategoryEnum.Status.ACTIVE.ToString()))
                 {
-                    category.Status = (int)CategoryEnum.Status.ACTIVE;
+                    checkCategoryIdExisted.Status = (int)CategoryEnum.Status.ACTIVE;
                 }
                 else if (updateCategoryRequest.Status.ToUpper().Equals(CategoryEnum.Status.INACTIVE.ToString()))
                 {
                     category.Status = (int)CategoryEnum.Status.INACTIVE;
+                    foreach (var extraCategory in category.ExtraCategoryProductCategories)
+                    {
+                        extraCategory.Status = (int)CategoryEnum.Status.INACTIVE;
+                    }
                 }
-                _unitOfWork.CategoryRepository.UpdateCategory(category);
+                _unitOfWork.CategoryRepository.UpdateCategory(checkCategoryIdExisted);
                 _unitOfWork.Commit();
             }
             catch (BadRequestException ex)
@@ -401,99 +399,6 @@ namespace MBKC.Service.Services.Implementations
         }
         #endregion
 
-        #region Get Products In Category
-        public async Task<GetProductsResponse> GetProductsInCategory(int categoryId, string? keySearchName, int? pageNumber, int? pageSize, HttpContext httpContext)
-        {
-            try
-            {
-                if (categoryId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidCategoryId);
-                }
-                JwtSecurityToken jwtSecurityToken = TokenUtil.ReadToken(httpContext);
-                string accountId = jwtSecurityToken.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Sid).Value;
-                var brandAccount = await _unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId));
-                var brandId = brandAccount.BrandId;
-                var category = brandAccount.Brand.Categories.SingleOrDefault(c => c.CategoryId == categoryId);
-                if (category == null || category.Status == (int)CategoryEnum.Status.INACTIVE)
-                {
-                    throw new BadRequestException("This Category Id is not part of the brand's Category Id.");
-                }
-                var products = new List<Product>();
-                var productResponse = new List<GetProductResponse>();
-                if (pageNumber != null && pageNumber <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidCurrentPage);
-                }
-                else if (pageNumber == null)
-                {
-                    pageNumber = 1;
-                }
-                if (pageSize != null && pageSize <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidItemsPerPage);
-                }
-                else if (pageSize == null)
-                {
-                    pageSize = 5;
-                }
-
-                int numberItems = 0;
-                if (keySearchName != null && StringUtil.IsUnicode(keySearchName))
-                {
-                    numberItems = await this._unitOfWork.ProductRepository.GetNumberProductsAsync(keySearchName, null, brandId, categoryId);
-                    products = await this._unitOfWork.ProductRepository.GetProductsByCategoryIdAsync(categoryId, brandId, keySearchName, null, pageSize.Value, pageNumber.Value);
-                }
-                else if (keySearchName != null && StringUtil.IsUnicode(keySearchName) == false)
-                {
-                    numberItems = await this._unitOfWork.ProductRepository.GetNumberProductsAsync(null, keySearchName, brandId, categoryId);
-                    products = await this._unitOfWork.ProductRepository.GetProductsByCategoryIdAsync(categoryId, brandId, null, keySearchName, pageSize.Value, pageNumber.Value);
-                }
-                else if (keySearchName == null)
-                {
-                    numberItems = await this._unitOfWork.ProductRepository.GetNumberProductsAsync(null, null, brandId, categoryId);
-                    products = await this._unitOfWork.ProductRepository.GetProductsByCategoryIdAsync(categoryId, brandId, null, null, pageSize.Value, pageNumber.Value);
-                }
-                _mapper.Map(products, productResponse);
-                int totalPages = (int)((numberItems + pageSize) / pageSize);
-                if (numberItems == 0)
-                {
-                    totalPages = 0;
-                }
-                return new GetProductsResponse()
-                {
-                    Products = productResponse,
-                    TotalItems = numberItems,
-                    TotalPages = totalPages,
-                };
-            }
-            catch (BadRequestException ex)
-            {
-
-                string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidCategoryId))
-                {
-                    fieldName = "Category id";
-                }
-                else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidCurrentPage))
-                {
-                    fieldName = "Current page";
-                }
-                else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidItemsPerPage))
-                {
-                    fieldName = "Items per page";
-                }
-                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
-                throw new BadRequestException(error);
-            }
-            catch (Exception ex)
-            {
-                string error = ErrorUtil.GetErrorString("Error", ex.Message);
-                throw new Exception(error);
-            }
-        }
-        #endregion
-
         #region Get Extra Categories From Normal Category
         public async Task<GetCategoriesResponse> GetExtraCategoriesByCategoryId(int categoryId, string? keySearchName, int? pageNumber, int? pageSize, HttpContext httpContext)
         {
@@ -510,7 +415,7 @@ namespace MBKC.Service.Services.Implementations
                 var brandAccount = await _unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId));
                 var brandId = brandAccount.BrandId;
                 var category = brandAccount.Brand.Categories.SingleOrDefault(c => c.CategoryId == categoryId);
-                if (category == null || category.Status == (int)CategoryEnum.Status.INACTIVE)
+                if (category == null)
                 {
                     throw new BadRequestException(MessageConstant.CommonMessage.CategoryIdNotBelongToBrand);
                 }
@@ -571,6 +476,7 @@ namespace MBKC.Service.Services.Implementations
                     numberItems = this._unitOfWork.CategoryRepository.GetNumberExtraCategories(listExtraCategoriesInNormalCategory, null, null, brandId);
                     listExtraCategoriesInNormalCategory = this._unitOfWork.CategoryRepository.SearchAndPagingExtraCategory(listExtraCategoriesInNormalCategory, null, null, pageSize.Value, pageNumber.Value, brandId);
                 }
+
 
                 _mapper.Map(listExtraCategoriesInNormalCategory, categoryResponse);
 

@@ -1,4 +1,5 @@
 ﻿using MBKC.Service.DTOs.KitchenCenters;
+using System.Security.Claims;
 
 namespace MBKC.Service.Services.Interfaces
 {
@@ -10,5 +11,6 @@ namespace MBKC.Service.Services.Interfaces
         public Task UpdateKitchenCenterAsync(int kitchenCenterId, UpdateKitchenCenterRequest updatedKitchenCenter);
         public Task DeleteKitchenCenterAsync(int kitchenCenterId);
         public Task UpdateKitchenCenterStatusAsync(int kitchenCenterId, UpdateKitchenCenterStatusRequest updateKitchenCenterStatusRequest);
+        public Task<GetKitchenCenterResponse> GetKitchenCenterProfileAsync(IEnumerable<Claim> claims);
     }
 }

@@ -17,7 +17,7 @@ namespace MBKC.Repository.Models
         public string Description { get; set; }
         public decimal SellingPrice { get; set; }
         public decimal DiscountPrice { get; set; }
-        public string Size { get; set; }
+        public string? Size { get; set; }
         public string Type { get; set; }
         public int Status { get; set; }
         public string Image { get; set; }
@@ -33,8 +33,8 @@ namespace MBKC.Repository.Models
         public virtual IEnumerable<OrderDetail> OrderDetails { get; set; }
         public virtual IEnumerable<MappingProduct> MappingProducts { get; set; }
         [ForeignKey("ParentProductId")]
-        public virtual Product ParentProduct { get; set; }
-        public virtual IEnumerable<Product> ChildrenProducts { get; set; }
+        public virtual Product? ParentProduct { get; set; }
+        public virtual IEnumerable<Product>? ChildrenProducts { get; set; }
 
     }
 }
