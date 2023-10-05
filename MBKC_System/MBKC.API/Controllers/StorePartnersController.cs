@@ -32,7 +32,7 @@ namespace MBKC.API.Controllers
         /// <summary>
         ///  Create new store partner.
         /// </summary>
-        /// <param name="postBrandRequest">
+        /// <param name="postStorePartnerRequest">
         /// An object includes information about store partner. 
         /// </param>
         /// <returns>
@@ -43,12 +43,11 @@ namespace MBKC.API.Controllers
         ///     
         ///         POST
         ///         {
-        ///         
+        ///             "storeId" = 1,
+        ///             "partnerId" = 1,
+        ///             "userName" = "passsio_68"
+        ///             "password" =  "12345678"
         ///         }
-        ///         Name = MyBrand
-        ///         Address = 123 Main St
-        ///         ManagerEmail = manager@gmail.com
-        ///         Logo =  [Image file]
         /// </remarks>
         /// <response code="200">Created new brand successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
@@ -62,7 +61,7 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.Application_Json)]
         [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager)]
         [HttpPost(APIEndPointConstant.StorePartner.StorePartnersEndpoint)]
-        public async Task<IActionResult> PostCreateStorePartnerAsync([FromBody] PostStorePartnerRequest postStorePartnerRequest)
+        public async Task<IActionResult> CreateStorePartnerAsync([FromBody] PostStorePartnerRequest postStorePartnerRequest)
         {
             ValidationResult validationResult = await _postStorePartnerRequest.ValidateAsync(postStorePartnerRequest);
             if (validationResult.IsValid == false)

@@ -13,7 +13,7 @@ namespace MBKC.Service.Services.Interfaces
         public Task CreateStorePartnerAsync(PostStorePartnerRequest postStorePartnerRequest, IEnumerable<Claim> claims);
         public Task UpdateStorePartnerRequestAsync(UpdateStorePartnerRequest updateStorePartnerRequest, IEnumerable<Claim> claims);
         public Task GetStorePartnersAsync(string? searchValue, int? currentPage, int? itemsPerPage, IEnumerable<Claim> claims);
-        public Task GetStorePartnerAsync(int storeId, IEnumerable<Claim> claims);
-        public Task DeleteStorePartnerAsync(int storeId, IEnumerable<Claim> claims);
+        public Task<GetStorePartnerResponse> GetStorePartnerAsync(int storeId, int partnerId, IEnumerable<Claim> claims);
+        public Task DeleteStorePartnerAsync(int storeId, int partnerId, IEnumerable<Claim> claims);
     }
 }

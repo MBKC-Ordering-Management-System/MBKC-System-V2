@@ -116,6 +116,8 @@
             public const string PartnerExceed3 = "A store can only have a maximum of 3 partners.";
             public const string LinkedWithParner = "This store is already linked to this partner.";
             public const string UsernameExisted = "User name already exist in the system.";
+            public const string NotLinkedWithParner = "This store is not linked to this partner.";
+
         }
     }
 }

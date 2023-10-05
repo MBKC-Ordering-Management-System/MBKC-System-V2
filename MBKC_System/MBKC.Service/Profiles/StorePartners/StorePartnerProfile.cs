@@ -1,4 +1,7 @@
 ﻿using AutoMapper;
+using MBKC.Repository.Models;
+using MBKC.Service.DTOs.StorePartners;
+using MBKC.Service.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +14,10 @@ namespace MBKC.Service.Profiles.StorePartners
     {
         public StorePartnerProfile()
         {
-
+            CreateMap<StorePartner, GetStorePartnerResponse>()
+                .ForMember(dept => dept.Status, opt => opt.MapFrom(src => StatusUtil.ChangeBrandStatus(src.Status)))
+                .ForMember(dept => dept.PartnerName, opt => opt.MapFrom(src => src.Partner.Name))
+                .ReverseMap();
         }
     }
 }

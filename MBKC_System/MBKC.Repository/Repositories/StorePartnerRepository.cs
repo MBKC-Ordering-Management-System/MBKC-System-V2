@@ -30,11 +30,11 @@ namespace MBKC.Repository.Repositories
             }
         }
 
-        public async Task<List<StorePartner>> GetStorePartnersByUserNameAsync(string userName)
+        public async Task<List<StorePartner>> GetStorePartnersByUserNameAndStoreIdAsync(string userName, int storeId, int partnerId)
         {
             try
             {
-                return await this._dbContext.StorePartners.Where(s => s.UserName.Equals(userName) && s.Status != (int)StorePartnerEnum.Status.DEACTIVE).ToListAsync();
+                return await this._dbContext.StorePartners.Where(s => s.StoreId != storeId && s.UserName.Equals(userName) && s.PartnerId == partnerId).ToListAsync();
             }
             catch (Exception ex)
             {
@@ -42,7 +42,7 @@ namespace MBKC.Repository.Repositories
             }
         }
 
-        public async Task<List<StorePartner>> GetStorePartnersByStoreIdAsync(int storeId)
+        public async Task<List<StorePartner>> GetStorePartnersByStoreIdAndBrandIdAsync(string? searchValue, int? currentPage, int? itemsPerPage, int storeId, int brandId)
         {
             try
             {
@@ -59,6 +59,18 @@ namespace MBKC.Repository.Repositories
             try
             {
                 await this._dbContext.AddAsync(storePartner);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public void UpdateStorePartner(StorePartner storePartner)
+        {
+            try
+            {
+                this._dbContext.StorePartners.Update(storePartner);
             }
             catch (Exception ex)
             {

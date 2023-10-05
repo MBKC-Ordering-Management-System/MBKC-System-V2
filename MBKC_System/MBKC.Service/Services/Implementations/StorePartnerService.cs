@@ -52,17 +52,20 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistStoreId);
                 }
+
+                // Check number of partner in store partner
+                if (store.StorePartners.Count() >= 3)
+                {
+                    throw new BadRequestException(MessageConstant.StorePartnerMessage.PartnerExceed3);
+                }
+
                 // Check partner existed or not
                 var partner = await this._unitOfWork.PartnerRepository.GetPartnerAsync(postStorePartnerRequest.PartnerId);
                 if (partner == null)
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistPartnerId);
                 }
-                // Check number of partner in store partner
-                if (store.StorePartners.Count() > 3)
-                {
-                    throw new BadRequestException(MessageConstant.StorePartnerMessage.PartnerExceed3);
-                }
+
 
 
                 // Check the store is linked to that partner or not 
@@ -72,19 +75,12 @@ namespace MBKC.Service.Services.Implementations
                     throw new BadRequestException(MessageConstant.StorePartnerMessage.LinkedWithParner);
                 }
 
-                // Get list store partners in system by user name
-                var listStorePartner = await this._unitOfWork.StorePartnerRepository.GetStorePartnersByUserNameAsync(postStorePartnerRequest.UserName);
+                // Check user name with difference store id
+                var checkUserNameInDifferenceStore = await this._unitOfWork.StorePartnerRepository.GetStorePartnersByUserNameAndStoreIdAsync(postStorePartnerRequest.UserName, store.StoreId, postStorePartnerRequest.PartnerId);
 
-                // Get list store partners with specific store id 
-                var listStorePartnerWithSpecificStoreId = await this._unitOfWork.StorePartnerRepository.GetStorePartnersByStoreIdAsync(postStorePartnerRequest.StoreId);
-
-                // If user name in specific store id dupplicated with user name of any store partner in the system then throw bad request exception.
-                if (listStorePartner.Any() && listStorePartnerWithSpecificStoreId.Any())
+                if (checkUserNameInDifferenceStore.Any())
                 {
-                    if (listStorePartner.Any(s => s.UserName.Equals(listStorePartnerWithSpecificStoreId.Select(st => st.UserName))))
-                    {
-                        throw new BadRequestException(MessageConstant.StorePartnerMessage.UsernameExisted);
-                    }
+                    throw new BadRequestException(MessageConstant.StorePartnerMessage.UsernameExisted);
                 }
 
                 var storePartnerInsert = new StorePartner()
@@ -148,19 +144,135 @@ namespace MBKC.Service.Services.Implementations
 
         }
 
-        public Task DeleteStorePartnerAsync(int storeId, IEnumerable<Claim> claims)
+        public async Task DeleteStorePartnerAsync(int storeId, int partnerId, IEnumerable<Claim> claims)
         {
-            throw new NotImplementedException();
+            try
+            {
+                // Get brandId from claim
+                Claim accountId = claims.First(x => x.Type.ToLower().Equals("sid"));
+                var brandAccount = await this._unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId.Value));
+                var brandId = brandAccount.Brand.BrandId;
+
+                // Check store belong to brand or not
+                var store = await this._unitOfWork.StoreRepository.GetStoreAsync(storeId);
+                if (store != null)
+                {
+                    if (store.Brand.BrandId != brandId)
+                    {
+                        throw new BadRequestException(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand);
+                    }
+                }
+                else
+                {
+                    throw new NotFoundException(MessageConstant.CommonMessage.NotExistStoreId);
+                }
+
+                // Check partner existed or not
+                var partner = await this._unitOfWork.PartnerRepository.GetPartnerAsync(partnerId);
+                if (partner == null)
+                {
+                    throw new NotFoundException(MessageConstant.CommonMessage.NotExistPartnerId);
+                }
+
+                // Check the store is linked to that partner or not 
+                var storePartner = await this._unitOfWork.StorePartnerRepository.GetStorePartnerByPartnerIdAndStoreIdAsync(partnerId, storeId);
+                if (storePartner != null)
+                {
+                    storePartner.Status = (int)StorePartnerEnum.Status.DEACTIVE;
+                }
+                else
+                {
+                    throw new BadRequestException(MessageConstant.StorePartnerMessage.NotLinkedWithParner);
+                }
+
+                this._unitOfWork.StorePartnerRepository.UpdateStorePartner(storePartner);
+                this._unitOfWork.Commit();
+            }
+            catch (NotFoundException ex)
+            {
+                string fieldName = "";
+                if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistPartnerId))
+                {
+                    fieldName = "Partner id";
+                }
+                else if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistStoreId))
+                {
+                    fieldName = "Store id";
+                }
+                else if (ex.Message.Equals(MessageConstant.StorePartnerMessage.NotLinkedWithParner))
+                {
+                    fieldName = "Store id, Partner id";
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new NotFoundException(error);
+            }
+            catch (BadRequestException ex)
+            {
+                string fieldName = "";
+                if (ex.Message.Equals(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand))
+                {
+                    fieldName = "Store id";
+                }
+                else if (ex.Message.Equals(MessageConstant.StorePartnerMessage.InactiveStore_Create))
+                {
+                    fieldName = "Store id";
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new BadRequestException(error);
+            }
+            catch (Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                throw new Exception(error);
+            }
         }
 
-        public Task GetStorePartnerAsync(int storeId, IEnumerable<Claim> claims)
+        public async Task<GetStorePartnerResponse> GetStorePartnerAsync(int storeId, int partnerId, IEnumerable<Claim> claims)
         {
-            throw new NotImplementedException();
+            // Get brandId from claim
+            Claim accountId = claims.First(x => x.Type.ToLower().Equals("sid"));
+            var brandAccount = await this._unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId.Value));
+            var brandId = brandAccount.Brand.BrandId;
+
+            // Check store belong to brand or not
+            var store = await this._unitOfWork.StoreRepository.GetStoreAsync(storeId);
+            if (store != null)
+            {
+                if (store.Brand.BrandId != brandId)
+                {
+                    throw new BadRequestException(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand);
+                }
+            }
+            else
+            {
+                throw new NotFoundException(MessageConstant.CommonMessage.NotExistStoreId);
+            }
+
+            // Check partner existed or not
+            var partner = await this._unitOfWork.PartnerRepository.GetPartnerAsync(partnerId);
+            if (partner == null)
+            {
+                throw new NotFoundException(MessageConstant.CommonMessage.NotExistPartnerId);
+            }
+
+            // Check the store is linked to that partner or not 
+            var storePartner = await this._unitOfWork.StorePartnerRepository.GetStorePartnerByPartnerIdAndStoreIdAsync(partnerId, storeId);
+            if (storePartner == null)
+            {
+                throw new BadRequestException(MessageConstant.StorePartnerMessage.NotLinkedWithParner);
+            }
+            return this._mapper.Map<GetStorePartnerResponse>(storePartner);
+
         }
 
-        public Task GetStorePartnersAsync(string? searchValue, int? currentPage, int? itemsPerPage, IEnumerable<Claim> claims)
+        public async Task GetStorePartnersAsync(string? searchValue, int? currentPage, int? itemsPerPage, IEnumerable<Claim> claims)
         {
-            throw new NotImplementedException();
+            // Get brandId from claim
+            Claim accountId = claims.First(x => x.Type.ToLower().Equals("sid"));
+            var brandAccount = await this._unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId.Value));
+            var brandId = brandAccount.Brand.BrandId;
+
+
         }
 
         public Task UpdateStorePartnerRequestAsync(UpdateStorePartnerRequest updateStorePartnerRequest, IEnumerable<Claim> claims)
