@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace MBKC.Service.Utils
@@ -177,6 +178,16 @@ namespace MBKC.Service.Utils
                 return true;
             }
             return false;
+        }
+
+        public static bool IsMD5(string input)
+        {
+            if (String.IsNullOrEmpty(input))
+            {
+                return false;
+            }
+
+            return Regex.IsMatch(input, @"^[0-9a-fA-F]{32}$", RegexOptions.Compiled);
         }
     }
 }

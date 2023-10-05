@@ -69,5 +69,13 @@
             public const string DeletedPartnerSuccessfully = "Deleted Partner Successfully.";
 
         }
+
+        public static class CashierMessage
+        {
+            public const string CreatedCashierSuccessfully = "Created New Cashier Successfully.";
+            public const string UpdatedCashierSuccessfully = "Updated Cashier Successfully.";
+            public const string UpdatedCashierStatusSuccessfully = "Updated Cashier Status Successfully.";
+            public const string DeletedCashierSuccessfully = "Deleted Cashier Successfully.";
+        }
     }
 }

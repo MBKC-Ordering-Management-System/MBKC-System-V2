@@ -480,7 +480,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     fieldName = "Category id";
                 }
-                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new NotFoundException(error);
             }
             catch (Exception ex)
