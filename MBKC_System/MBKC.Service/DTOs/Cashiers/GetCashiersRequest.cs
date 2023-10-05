@@ -5,6 +5,6 @@
         public string? SearchValue { get; set; }
         public int? ItemsPerPage { get; set; } = 5;
         public int? CurrentPage { get; set; } = 1;
-        public List<string>? SortBy { get; set; }    
+        public string? SortBy { get; set; }    
     }
 }

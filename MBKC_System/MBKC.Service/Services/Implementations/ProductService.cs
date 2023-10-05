@@ -467,7 +467,7 @@ namespace MBKC.Service.Services.Implementations
                     fieldName = "Name";
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
-                throw new BadRequestException(ex.Message);
+                throw new BadRequestException(error);
             }
             catch (NotFoundException ex)
             {
@@ -480,7 +480,8 @@ namespace MBKC.Service.Services.Implementations
                 {
                     fieldName = "Category id";
                 }
-                throw new NotFoundException(ex.Message);
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new NotFoundException(error);
             }
             catch (Exception ex)
             {
@@ -489,7 +490,7 @@ namespace MBKC.Service.Services.Implementations
                     await this._unitOfWork.FirebaseStorageRepository.DeleteImageAsync(logoId, folderName);
                 }
                 string error = ErrorUtil.GetErrorString("Exception", ex.Message);
-                throw new Exception(ex.Message);
+                throw new Exception(error);
             }
         }
 

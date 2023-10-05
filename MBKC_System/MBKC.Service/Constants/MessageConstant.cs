@@ -8,6 +8,7 @@
 
             public const string NotExistEmail = "Email does not exist in the system.";
             public const string AlreadyExistEmail = "Email already exists in the system.";
+            public const string AlreadyExistCitizenNumber = "Citizen number already exists in the system.";
             public const string InvalidKitchenCenterId = "Kitchen center id is not suitable id in the system.";
             public const string InvalidBrandId = "Brand id is not suitable id in the system.";
             public const string InvalidStoreId = "Store id is not suitable id in the system.";

@@ -43,8 +43,8 @@ namespace MBKC.API.Controllers
                 throw new BadRequestException(errors);
             }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-
-            return Ok();
+            GetCashiersResponse getCashiersResponse = await this._cashierService.GetCashiersAsync(getCashiersRequest, claims);
+            return Ok(getCashiersResponse);
         }
 
         [Produces(MediaTypeConstant.Application_Json)]
@@ -70,6 +70,7 @@ namespace MBKC.API.Controllers
                 throw new BadRequestException(errors);
             }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
+            await this._cashierService.CreateCashierAsync(createCashierRequest, claims);
             return Ok(new
             {
                 Message = MessageConstant.CashierMessage.CreatedCashierSuccessfully

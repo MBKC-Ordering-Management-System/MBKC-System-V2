@@ -1,13 +1,12 @@
 ﻿using FluentValidation;
-using MBKC.API.Validators.Cashiers;
 using MBKC.Service.DTOs.Cashiers;
 using StackExchange.Redis;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace MBKC.API.Validators.Products
+namespace MBKC.API.Validators.Cashiers
 {
-    public class GetCashiersValidator: AbstractValidator<GetCashiersRequest>
+    public class GetCashiersValidator : AbstractValidator<GetCashiersRequest>
     {
         public GetCashiersValidator()
         {
@@ -15,7 +14,7 @@ namespace MBKC.API.Validators.Products
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .Custom((currentPage, context) =>
                 {
-                    if(currentPage is not null && currentPage <= 0)
+                    if (currentPage is not null && currentPage <= 0)
                     {
                         context.AddFailure("CurrentPage", "Current page number is required more than 0.");
                     }
@@ -40,18 +39,15 @@ namespace MBKC.API.Validators.Products
                     Regex regex = new Regex(strRegex);
                     if (sortBy is not null)
                     {
-                        sortBy.ForEach(sortBy =>
+                        if (regex.IsMatch(sortBy.Trim()) == false)
                         {
-                            if(regex.IsMatch(sortBy.Trim()) == false)
-                            {
-                                context.AddFailure("SortBy", "Sort by is required following format: propertyName_ASC | propertyName_DESC.");
-                            }
-                            string[] sortByParts = sortBy.Split("_");
-                            if(properties.Any(x => x.Name.ToLower().Equals(sortByParts[0].Trim().ToLower())) == false)
-                            {
-                                context.AddFailure("SortBy", "Property name in format does not exist in the system.");
-                            }
-                        });
+                            context.AddFailure("SortBy", "Sort by is required following format: propertyName_ASC | propertyName_DESC.");
+                        }
+                        string[] sortByParts = sortBy.Split("_");
+                        if (properties.Any(x => x.Name.ToLower().Equals(sortByParts[0].Trim().ToLower())) == false)
+                        {
+                            context.AddFailure("SortBy", "Property name in format does not exist in the system.");
+                        }
                     }
                 });
         }

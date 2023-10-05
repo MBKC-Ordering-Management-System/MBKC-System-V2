@@ -26,5 +26,10 @@ namespace MBKC.Service.Constants
         {
             public const string Message = "You have been assigned as Store Manager for the store";
         }
+
+        public static class Cashier
+        {
+            public const string Message = "You have been created as Cashier for the kitchen center";
+        }
     }
 }

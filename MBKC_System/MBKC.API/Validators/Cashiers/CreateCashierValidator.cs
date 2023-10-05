@@ -44,7 +44,7 @@ namespace MBKC.API.Validators.Cashiers
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotNull().WithMessage("{PropertyName} is not null.")
                 .NotEmpty().WithMessage("{PropertyName} is not empty.")
-                .MaximumLength(12).WithMessage("{PropertyName} is required less than or equal to 12 digits.")
+                .Length(12, 12).WithMessage("{PropertyName} is required 12 digits.")
                 .Must(StringUtil.IsDigitString).WithMessage("{PropertyName} only contains digits.");
 
             RuleFor(x => x.Avatar)
