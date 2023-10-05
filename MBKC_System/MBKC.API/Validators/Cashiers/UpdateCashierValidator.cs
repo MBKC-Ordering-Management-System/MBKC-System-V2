@@ -5,10 +5,10 @@ using MBKC.Service.Utils;
 
 namespace MBKC.API.Validators.Cashiers
 {
-    public class CreateCashierValidator: AbstractValidator<CreateCashierRequest>
+    public class UpdateCashierValidator: AbstractValidator<UpdateCashierRequest>
     {
         private const int MAX_BYTES = 5242880;
-        public CreateCashierValidator()
+        public UpdateCashierValidator()
         {
             RuleFor(x => x.FullName)
                 .Cascade(CascadeMode.StopOnFirstFailure)
@@ -27,18 +27,11 @@ namespace MBKC.API.Validators.Cashiers
                 .NotNull().WithMessage("{PropertyName} is not null.")
                 .Custom((dateOfBrith, context) =>
                 {
-                    if(DateTime.Now.Year - dateOfBrith.Year < 18 || DateTime.Now.Year - 55 > dateOfBrith.Year)
+                    if (DateTime.Now.Year - dateOfBrith.Year < 18 || DateTime.Now.Year - 55 > dateOfBrith.Year)
                     {
                         context.AddFailure("DateOfBirth", "Cashier's age is required from 18 to 55 years old.");
                     }
                 });
-
-            RuleFor(x => x.Email)
-                .Cascade(CascadeMode.StopOnFirstFailure)
-                .NotNull().WithMessage("{PropertyName} is not null.")
-                .NotEmpty().WithMessage("{PropertyName} is not empty.")
-                .MaximumLength(100).WithMessage("{PropertyName} is required less than or equal to 100 characters.")
-                .EmailAddress().WithMessage("{PropertyName} is invalid Email format.");
 
             RuleFor(x => x.CitizenNumber)
                 .Cascade(CascadeMode.StopOnFirstFailure)
@@ -60,6 +53,21 @@ namespace MBKC.API.Validators.Cashiers
                         .Cascade(CascadeMode.StopOnFirstFailure)
                         .Must(FileUtil.HaveSupportedFileType).WithMessage("Avatar is required extension type .png, .jpg, .jpeg, .webp.");
                 });
+
+            RuleFor(x => x.NewPassword)
+                .Cascade(CascadeMode.StopOnFirstFailure)
+                .ChildRules(x => x.RuleFor(x => x).Cascade(CascadeMode.StopOnFirstFailure)
+                                                  .NotEmpty().WithMessage("New password is not empty.")
+                                                  .MaximumLength(50).WithMessage("New password is required less than or equal to 50 characters."));
+
+            RuleFor(cpr => cpr.Status)
+                .Cascade(CascadeMode.StopOnFirstFailure)
+                .NotNull().WithMessage("{PropertyName} is not null.")
+                .NotEmpty().WithMessage("{PropertyName} is not empty.")
+                .IsEnumName(typeof(ProductEnum.Status), caseSensitive: false).WithMessage("{PropertyName} is required some statuses such as: INACTIVE, ACTIVE.")
+                .ChildRules(x => x.RuleFor(x => x.ToLower())
+                                         .Cascade(CascadeMode.StopOnFirstFailure)
+                                         .NotEqual(ProductEnum.Status.DEACTIVE.ToString().ToLower()).WithMessage("Status is required some statuses such as: INACTIVE, ACTIVE."));
         }
     }
 }

@@ -32,6 +32,8 @@ using MBKC.Service.DTOs.Partners;
 using MBKC.API.Validators.Partners;
 using MBKC.Service.DTOs.Products;
 using MBKC.API.Validators.Products;
+using MBKC.Service.DTOs.Cashiers;
+using MBKC.API.Validators.Cashiers;
 
 namespace MBKC.API.Extentions
 {
@@ -189,6 +191,10 @@ namespace MBKC.API.Extentions
             services.AddScoped<IValidator<UpdateProductStatusRequest>, UpdateProductStatusValidator>();
             services.AddScoped<IValidator<PostPartnerRequest>, CreatePartnerValidator>();
             services.AddScoped<IValidator<UpdatePartnerRequest>, UpdatePartnerValidator>();
+            services.AddScoped<IValidator<CreateCashierRequest>, CreateCashierValidator>();
+            services.AddScoped<IValidator<UpdateCashierRequest>, UpdateCashierValidator>();
+            services.AddScoped<IValidator<UpdateCashierStatusRequest>, UpdateCashierStatusValidator>();
+            services.AddScoped<IValidator<GetCashiersRequest>, GetCashiersValidator>();
             return services;
         }
 

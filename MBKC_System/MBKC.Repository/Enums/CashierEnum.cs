@@ -13,5 +13,12 @@ namespace MBKC.Repository.Enums
             FEMALE = 0,
             MALE = 1
         }
+
+        public enum Status
+        {
+            INACTIVE = 0,
+            ACRIVE  = 1,
+            DEACTIVE = 2
+        }
     }
 }
