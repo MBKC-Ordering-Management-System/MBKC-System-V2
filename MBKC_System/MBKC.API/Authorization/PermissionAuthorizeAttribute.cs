@@ -27,13 +27,14 @@ namespace MBKC.Service.Authorization
 
         public async void OnAuthorization(AuthorizationFilterContext context)
         {
+            
             if (context.HttpContext.User.Identity.IsAuthenticated)
             {
                 IAccountService accountService = context.HttpContext.RequestServices.GetService<IAccountService>();
                 var currentController = context.RouteData.Values["controller"];
                 var currentActionName = context.RouteData.Values["action"];
                 string email = context.HttpContext.User.Claims.First(x => x.Type.ToLower() == ClaimTypes.Email).Value;
-                string accountId = context.HttpContext.User.Claims.First(x => x.Type.ToLower() == ClaimTypes.Sid).Value;
+                string accountId = context.HttpContext.User.Claims.First(x => x.Type.ToLower() == JwtRegisteredClaimNames.Sid).Value;
                 bool isActiveAccount = accountService.IsActiveAccountAsync(email).Result;
 
                 GetAccountResponse existedAccount = accountService.GetAccountAsync(int.Parse(accountId), context.HttpContext.User.Claims).Result;

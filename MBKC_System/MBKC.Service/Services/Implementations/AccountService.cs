@@ -54,11 +54,11 @@ namespace MBKC.Service.Services.Implementations
                 string email = registeredEmailClaim.Value;
 
                 Account existedAccount = await this._unitOfWork.AccountRepository.GetAccountAsync(idAccount);
-                if (existedAccount is not null)
+                if (existedAccount is null)
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistAccountId);
                 }
-                if (existedAccount.Email.Equals(email))
+                if (existedAccount.Email.Equals(email) == false)
                 {
                     throw new BadRequestException(MessageConstant.AccountMessage.AccountIdNotBelongYourAccount);
                 }
