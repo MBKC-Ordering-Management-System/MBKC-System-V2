@@ -26,7 +26,7 @@ namespace MBKC.Service.DTOs.Products
         public int DisplayOrder { get; set; }
         public string? ParentProductId { get; set; }
         public IEnumerable<GetProductResponse>? ChildrenProducts { get; set; }
-        public GetCategoryResponse? Category { get; set; }
+        public int CategoryId { get; set; }
         public GetBrandResponse Brand { get; set; }
     }
 }

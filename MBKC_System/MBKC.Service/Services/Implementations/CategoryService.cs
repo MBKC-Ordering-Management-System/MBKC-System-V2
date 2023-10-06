@@ -11,6 +11,7 @@ using MBKC.Service.Services.Interfaces;
 using MBKC.Service.Utils;
 using Microsoft.AspNetCore.Http;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -203,26 +204,51 @@ namespace MBKC.Service.Services.Implementations
                 // Get brand from JWT
                 JwtSecurityToken jwtSecurityToken = TokenUtil.ReadToken(httpContext);
                 string accountId = jwtSecurityToken.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Sid).Value;
-                var brandAccount = await _unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId));
-                var brandId = brandAccount.BrandId;
-                var checkCategoryIdExisted = brandAccount.Brand.Categories.SingleOrDefault(c => c.CategoryId == id);
-                if (checkCategoryIdExisted == null)
+                string role = jwtSecurityToken.Claims.First(x => x.Type.ToLower().Equals("role")).Value;
+                string email = jwtSecurityToken.Claims.First(x => x.Type == JwtRegisteredClaimNames.Email).Value;
+                if (role.ToLower().Equals(RoleConstant.Brand_Manager.ToLower()))
                 {
-                    throw new BadRequestException(MessageConstant.CommonMessage.CategoryIdNotBelongToBrand);
+                    var brandAccount = await _unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId));
+                    var brandId = brandAccount.BrandId;
+                    var checkCategoryIdExisted = brandAccount.Brand.Categories.SingleOrDefault(c => c.CategoryId == id);
+                    if (checkCategoryIdExisted == null)
+                    {
+                        throw new BadRequestException(MessageConstant.CommonMessage.CategoryIdNotBelongToBrand);
+                    }
+                } else if (role.ToLower().Equals(RoleConstant.Store_Manager.ToLower()))
+                {
+                    Store existedStore = await this._unitOfWork.StoreRepository.GetStoreAsync(email);
+                    if(existedStore.Brand.Categories.Any(x => x.CategoryId == id) == false)
+                    {
+                        throw new BadRequestException(MessageConstant.CommonMessage.CategoryIdNotBelongToStore);
+                    }
                 }
                 var category = await _unitOfWork.CategoryRepository.GetCategoryByIdAsync(id);
+                if(category is null)
+                {
+                    throw new NotFoundException(MessageConstant.CommonMessage.NotExistCategoryId);
+                }
                 var categoryResponse = new GetCategoryResponse();
-                _mapper.Map(category, categoryResponse);
+                categoryResponse =  this._mapper.Map<GetCategoryResponse>(category);
+                categoryResponse.ExtraCategories = categoryResponse.ExtraCategories.OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name).ToList();
+                categoryResponse.ExtraCategories.ForEach(x => x.ExtraProducts = x.ExtraProducts.OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name).ToList());
                 return categoryResponse;
+            }
+            catch(NotFoundException ex)
+            {
+                string fieldName = "";
+                if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistCategoryId)) {
+                    fieldName = "Category id";
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new NotFoundException(error);
             }
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidCategoryId))
-                {
-                    fieldName = "Category id";
-                }
-                if (ex.Message.Equals(MessageConstant.CommonMessage.CategoryIdNotBelongToBrand))
+                if (ex.Message.Equals(MessageConstant.CommonMessage.CategoryIdNotBelongToBrand) ||
+                    ex.Message.Equals(MessageConstant.CommonMessage.CategoryIdNotBelongToStore) ||
+                    ex.Message.Equals(MessageConstant.CommonMessage.InvalidCategoryId))
                 {
                     fieldName = "Category Id";
                 }
@@ -301,16 +327,25 @@ namespace MBKC.Service.Services.Implementations
         #endregion
 
         #region Get Categories
-        public async Task<GetCategoriesResponse> GetCategoriesAsync(string type, string? keySearchName, int? pageNumber, int? pageSize, HttpContext httpContext)
+        public async Task<GetCategoriesResponse> GetCategoriesAsync(string type, string? keySearchName, int? pageNumber, int? pageSize, HttpContext httpContext, bool? isGetAll)
         {
             try
             {
                 // Get Brand Id from JWT
                 JwtSecurityToken jwtSecurityToken = TokenUtil.ReadToken(httpContext);
                 string accountId = jwtSecurityToken.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Sid).Value;
-                var brandAccount = await _unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId));
-                var brandId = brandAccount.BrandId;
-
+                string role = jwtSecurityToken.Claims.First(x => x.Type.ToLower().Equals("role")).Value;
+                string email = jwtSecurityToken.Claims.First(x => x.Type == JwtRegisteredClaimNames.Email).Value;
+                int? brandId = null;
+                if (role.ToLower().Equals(RoleConstant.Brand_Manager.ToLower()))
+                {
+                    var brandAccount = await _unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId));
+                    brandId = brandAccount.BrandId;
+                } else if (role.ToLower().Equals(RoleConstant.Store_Manager.ToLower()))
+                {
+                    Store existedStore = await this._unitOfWork.StoreRepository.GetStoreAsync(email);
+                    brandId = existedStore.Brand.BrandId;
+                }
                 var categories = new List<Category>();
                 var categoryResponse = new List<GetCategoryResponse>();
                 if (string.IsNullOrEmpty(type))
@@ -339,25 +374,36 @@ namespace MBKC.Service.Services.Implementations
                     pageSize = 5;
                 }
 
+                if(isGetAll is not null && isGetAll == true)
+                {
+                    pageSize = null;
+                    pageNumber = null;
+                }
+
                 int numberItems = 0;
                 if (keySearchName != null && StringUtil.IsUnicode(keySearchName))
                 {
-                    numberItems = await this._unitOfWork.CategoryRepository.GetNumberCategoriesAsync(keySearchName, null, type, brandId);
-                    categories = await this._unitOfWork.CategoryRepository.GetCategoriesAsync(keySearchName, null, type, pageSize.Value, pageNumber.Value, brandId);
+                    numberItems = await this._unitOfWork.CategoryRepository.GetNumberCategoriesAsync(keySearchName, null, type, brandId.Value);
+                    categories = await this._unitOfWork.CategoryRepository.GetCategoriesAsync(keySearchName, null, type, pageSize, pageNumber, brandId.Value);
                 }
                 else if (keySearchName != null && StringUtil.IsUnicode(keySearchName) == false)
                 {
-                    numberItems = await this._unitOfWork.CategoryRepository.GetNumberCategoriesAsync(null, keySearchName, type, brandId);
-                    categories = await this._unitOfWork.CategoryRepository.GetCategoriesAsync(null, keySearchName, type, pageSize.Value, pageNumber.Value, brandId);
+                    numberItems = await this._unitOfWork.CategoryRepository.GetNumberCategoriesAsync(null, keySearchName, type, brandId.Value);
+                    categories = await this._unitOfWork.CategoryRepository.GetCategoriesAsync(null, keySearchName, type, pageSize, pageNumber, brandId.Value);
                 }
                 else if (keySearchName == null)
                 {
-                    numberItems = await this._unitOfWork.CategoryRepository.GetNumberCategoriesAsync(null, null, type, brandId);
-                    categories = await this._unitOfWork.CategoryRepository.GetCategoriesAsync(null, null, type, pageSize.Value, pageNumber.Value, brandId);
+                    numberItems = await this._unitOfWork.CategoryRepository.GetNumberCategoriesAsync(null, null, type, brandId.Value);
+                    categories = await this._unitOfWork.CategoryRepository.GetCategoriesAsync(null, null, type, pageSize, pageNumber, brandId.Value);
                 }
                 _mapper.Map(categories, categoryResponse);
 
-                int totalPages = (int)((numberItems + pageSize) / pageSize);
+                int totalPages = 0;
+                if (numberItems > 0 && isGetAll == null || numberItems > 0 && isGetAll != null && isGetAll == false)
+                {
+                    totalPages = (int)((numberItems + pageSize.Value) / pageSize.Value);
+                }
+
                 if (numberItems == 0)
                 {
                     totalPages = 0;

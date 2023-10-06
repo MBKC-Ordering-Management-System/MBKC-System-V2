@@ -172,11 +172,11 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager, PermissionAuthorizeConstant.Store_Manager)]
         [HttpGet(APIEndPointConstant.Category.CategoriesEndpoint)]
-        public async Task<IActionResult> GetCategoriesAsync([FromQuery] string type, [FromQuery] string? keySearchName, [FromQuery] int? currentPage, [FromQuery] int? itemsPerPage)
+        public async Task<IActionResult> GetCategoriesAsync([FromQuery] string type, [FromQuery] string? keySearchName, [FromQuery] int? currentPage, [FromQuery] int? itemsPerPage, [FromQuery]bool? isGetAll)
         {
-            var data = await this._categoryService.GetCategoriesAsync(type, keySearchName, currentPage, itemsPerPage, HttpContext);
+            var data = await this._categoryService.GetCategoriesAsync(type, keySearchName, currentPage, itemsPerPage, HttpContext, isGetAll);
 
             return Ok(data);
         }
@@ -210,7 +210,7 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager, PermissionAuthorizeConstant.Store_Manager)]
         [HttpGet(APIEndPointConstant.Category.CategoryEndpoint)]
         public async Task<IActionResult> GetCategoryByIdAsync([FromRoute] int id)
         {
@@ -296,7 +296,7 @@ namespace MBKC.API.Controllers
         /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
         /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
         /// <exception cref="Exception">Throw Error about the system.</exception>
-        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GetCategoriesResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]

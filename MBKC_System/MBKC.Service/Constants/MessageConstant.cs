@@ -30,6 +30,7 @@
             public const string NotExistAccountId = "Account id does not exist in the system.";
             public const string InvalidPartnerId = "Partner id is not suitable id in the system.";
             public const string CategoryIdNotBelongToBrand = "Category id does not belong to your brand.";
+            public const string CategoryIdNotBelongToStore = "Category id does not belong to your store.";
         }
 
         public static class LoginMessage

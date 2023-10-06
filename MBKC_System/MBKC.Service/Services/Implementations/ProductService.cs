@@ -408,7 +408,7 @@ namespace MBKC.Service.Services.Implementations
                 else if (createProductRequest.CategoryId == null && createProductRequest.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))
                 {
                     existedCategory = existedParentProduct.Category;
-                    if(createProductRequest.Name.Trim().ToLower().EndsWith($"size {createProductRequest.Size.ToLower()}") == false)
+                    if(createProductRequest.Name.Trim().ToLower().Equals($"{existedParentProduct.Name.ToLower()} size {createProductRequest.Size.ToLower()}") == false)
                     {
                         throw new BadRequestException(MessageConstant.ProductMessage.EndswithProductNameNotContainSize);
                     }
@@ -682,6 +682,7 @@ namespace MBKC.Service.Services.Implementations
                     foreach (var childProduct in existedProduct.ChildrenProducts)
                     {
                         childProduct.Category = existedProduct.Category;
+                        childProduct.Name = existedProduct.Name + $"Size {childProduct.Size.ToLower()}";
                     }
                 }
 

@@ -3,6 +3,7 @@ using MBKC.Repository.Models;
 using Microsoft.EntityFrameworkCore;
 using MBKC.Repository.Enums;
 using MBKC.Repository.Utils;
+using System.Linq;
 
 namespace MBKC.Repository.Repositories
 {
@@ -63,7 +64,8 @@ namespace MBKC.Repository.Repositories
             {
                 return await _dbContext.Categories
                     .Include(c => c.Brand).ThenInclude(x => x.Stores).ThenInclude(x => x.KitchenCenter)
-                    .Include(c => c.ExtraCategoryProductCategories)
+                    .Include(c => c.ExtraCategoryProductCategories).ThenInclude(x => x.ExtraCategoryNavigation).ThenInclude(x => x.Products)
+                    .Include(x => x.ExtraCategoryExtraCategoryNavigations).ThenInclude(x => x.ProductCategory).ThenInclude(x => x.Products)
                     .Include(c => c.Products)
                     .SingleOrDefaultAsync(c => c.CategoryId.Equals(id) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE));
             }
@@ -75,10 +77,39 @@ namespace MBKC.Repository.Repositories
         #endregion
 
         #region Get Categories
-        public async Task<List<Category>> GetCategoriesAsync(string? keySearchNameUniCode, string? keySearchNameNotUniCode, string type, int itemsPerPage, int currentPage, int brandId)
+        public async Task<List<Category>> GetCategoriesAsync(string? keySearchNameUniCode, string? keySearchNameNotUniCode, string type, int? itemsPerPage, int? currentPage, int brandId)
         {
             try
             {
+                if(itemsPerPage is null && currentPage is null)
+                {
+                    if (keySearchNameUniCode == null && keySearchNameNotUniCode != null)
+                    {
+                        return this._dbContext.Categories.Where(delegate (Category category)
+                        {
+                            if (StringUtil.RemoveSign4VietnameseString(category.Name.ToLower()).Contains(keySearchNameNotUniCode.ToLower()))
+                            {
+                                return true;
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                        }).Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                          .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                          .ToList();
+                    }
+                    else if (keySearchNameUniCode != null && keySearchNameNotUniCode == null)
+                    {
+                        return await this._dbContext.Categories
+                            .Where(c => c.Name.ToLower().Contains(keySearchNameUniCode.ToLower()) && c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
+                            .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                            .ToListAsync();
+                    }
+                    return await this._dbContext.Categories.Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                        .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                        .ToListAsync();
+                }
                 if (keySearchNameUniCode == null && keySearchNameNotUniCode != null)
                 {
                     return this._dbContext.Categories.Where(delegate (Category category)
@@ -91,16 +122,20 @@ namespace MBKC.Repository.Repositories
                         {
                             return false;
                         }
-                    }).Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+                    }).Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                      .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                      .Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToList();
                 }
                 else if (keySearchNameUniCode != null && keySearchNameNotUniCode == null)
                 {
                     return await this._dbContext.Categories
                         .Where(c => c.Name.ToLower().Contains(keySearchNameUniCode.ToLower()) && c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
-                        .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
+                        .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                        .Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
                 }
                 return await this._dbContext.Categories.Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
-                    .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
+                    .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                    .Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
             }
             catch (Exception ex)
             {
