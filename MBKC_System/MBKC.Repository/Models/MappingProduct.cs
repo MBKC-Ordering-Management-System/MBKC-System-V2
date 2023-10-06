@@ -11,14 +11,13 @@ namespace MBKC.Repository.Models
     public class MappingProduct
     {
         public int ProductId { get; set; }
-        [ForeignKey("PartnerId")]
         public int PartnerId { get; set; }
-        [ForeignKey("StoreId")]
         public int StoreId { get; set; }
         public DateTime CreatedDate { get; set; }
         public string ProductCode { get; set; }
         [ForeignKey("ProductId")]
         public virtual Product Product { get; set; }
+        [ForeignKey("StoreId,PartnerId,CreatedDate")]
         public virtual StorePartner StorePartner { get; set; }
     }
 }

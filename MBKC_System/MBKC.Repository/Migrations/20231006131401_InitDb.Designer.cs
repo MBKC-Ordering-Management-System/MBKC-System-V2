@@ -12,18 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MBKC.Repository.Migrations
 {
     [DbContext(typeof(MBKCDbContext))]
-<<<<<<<< HEAD:MBKC_System/MBKC.Repository/Migrations/20231006055439_init database.Designer.cs
-    [Migration("20231006055439_init database")]
-    partial class initdatabase
-========
-<<<<<<<< HEAD:MBKC_System/MBKC.Repository/Migrations/20231005095218_init database .Designer.cs
-    [Migration("20231005095218_init database ")]
-    partial class initdatabase
-========
-    [Migration("20231006120103_Update Account Table")]
-    partial class UpdateAccountTable
->>>>>>>> main:MBKC_System/MBKC.Repository/Migrations/20231006120103_Update Account Table.Designer.cs
->>>>>>>> main:MBKC_System/MBKC.Repository/Migrations/20231005095218_init database .Designer.cs
+    [Migration("20231006131401_InitDb")]
+    partial class InitDb
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -394,24 +384,9 @@ namespace MBKC.Repository.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(50)");
 
-<<<<<<<< HEAD:MBKC_System/MBKC.Repository/Migrations/20231006055439_init database.Designer.cs
                     b.HasKey("ProductId", "PartnerId", "StoreId", "CreatedDate");
 
                     b.HasIndex("StoreId", "PartnerId", "CreatedDate");
-========
-                    b.Property<DateTime>("StorePartnerCreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("StorePartnerPartnerId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StorePartnerStoreId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ProductId", "PartnerId", "StoreId");
-
-                    b.HasIndex("StorePartnerStoreId", "StorePartnerPartnerId", "StorePartnerCreatedDate");
->>>>>>>> main:MBKC_System/MBKC.Repository/Migrations/20231005095218_init database .Designer.cs
 
                     b.ToTable("MappingProducts");
                 });
@@ -1130,11 +1105,7 @@ namespace MBKC.Repository.Migrations
 
                     b.HasOne("MBKC.Repository.Models.StorePartner", "StorePartner")
                         .WithMany("MappingProducts")
-<<<<<<<< HEAD:MBKC_System/MBKC.Repository/Migrations/20231006055439_init database.Designer.cs
                         .HasForeignKey("StoreId", "PartnerId", "CreatedDate")
-========
-                        .HasForeignKey("StorePartnerStoreId", "StorePartnerPartnerId", "StorePartnerCreatedDate")
->>>>>>>> main:MBKC_System/MBKC.Repository/Migrations/20231005095218_init database .Designer.cs
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

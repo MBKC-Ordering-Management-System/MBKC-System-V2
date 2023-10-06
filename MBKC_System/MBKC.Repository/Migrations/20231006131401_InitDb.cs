@@ -118,9 +118,10 @@ namespace MBKC.Repository.Migrations
                 {
                     AccountId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Email = table.Column<string>(type: "varchar(100)", unicode: false, maxLength: 100, nullable: true),
-                    Password = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: true),
+                    Email = table.Column<string>(type: "varchar(100)", unicode: false, maxLength: 100, nullable: false),
+                    Password = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
+                    IsConfirmed = table.Column<bool>(type: "bit", nullable: false),
                     RoleId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -500,13 +501,14 @@ namespace MBKC.Repository.Migrations
                 {
                     StoreId = table.Column<int>(type: "int", nullable: false),
                     PartnerId = table.Column<int>(type: "int", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UserName = table.Column<string>(type: "varchar(100)", unicode: false, maxLength: 100, nullable: false),
                     Password = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_StorePartners", x => new { x.StoreId, x.PartnerId });
+                    table.PrimaryKey("PK_StorePartners", x => new { x.StoreId, x.PartnerId, x.CreatedDate });
                     table.ForeignKey(
                         name: "FK_StorePartners_Partners_PartnerId",
                         column: x => x.PartnerId,
@@ -598,11 +600,12 @@ namespace MBKC.Repository.Migrations
                     ProductId = table.Column<int>(type: "int", nullable: false),
                     PartnerId = table.Column<int>(type: "int", nullable: false),
                     StoreId = table.Column<int>(type: "int", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ProductCode = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MappingProducts", x => new { x.ProductId, x.PartnerId, x.StoreId });
+                    table.PrimaryKey("PK_MappingProducts", x => new { x.ProductId, x.PartnerId, x.StoreId, x.CreatedDate });
                     table.ForeignKey(
                         name: "FK_MappingProducts_Products_ProductId",
                         column: x => x.ProductId,
@@ -610,10 +613,10 @@ namespace MBKC.Repository.Migrations
                         principalColumn: "ProductId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_MappingProducts_StorePartners_StoreId_PartnerId",
-                        columns: x => new { x.StoreId, x.PartnerId },
+                        name: "FK_MappingProducts_StorePartners_StoreId_PartnerId_CreatedDate",
+                        columns: x => new { x.StoreId, x.PartnerId, x.CreatedDate },
                         principalTable: "StorePartners",
-                        principalColumns: new[] { "StoreId", "PartnerId" },
+                        principalColumns: new[] { "StoreId", "PartnerId", "CreatedDate" },
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -741,9 +744,9 @@ namespace MBKC.Repository.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_MappingProducts_StoreId_PartnerId",
+                name: "IX_MappingProducts_StoreId_PartnerId_CreatedDate",
                 table: "MappingProducts",
-                columns: new[] { "StoreId", "PartnerId" });
+                columns: new[] { "StoreId", "PartnerId", "CreatedDate" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderDetails_Id",

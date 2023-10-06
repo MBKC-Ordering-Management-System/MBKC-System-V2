@@ -382,18 +382,9 @@ namespace MBKC.Repository.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(50)");
 
-                    b.Property<DateTime>("StorePartnerCreatedDate")
-                        .HasColumnType("datetime2");
+                    b.HasKey("ProductId", "PartnerId", "StoreId", "CreatedDate");
 
-                    b.Property<int>("StorePartnerPartnerId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StorePartnerStoreId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ProductId", "PartnerId", "StoreId");
-
-                    b.HasIndex("StorePartnerStoreId", "StorePartnerPartnerId", "StorePartnerCreatedDate");
+                    b.HasIndex("StoreId", "PartnerId", "CreatedDate");
 
                     b.ToTable("MappingProducts");
                 });
@@ -1112,7 +1103,7 @@ namespace MBKC.Repository.Migrations
 
                     b.HasOne("MBKC.Repository.Models.StorePartner", "StorePartner")
                         .WithMany("MappingProducts")
-                        .HasForeignKey("StorePartnerStoreId", "StorePartnerPartnerId", "StorePartnerCreatedDate")
+                        .HasForeignKey("StoreId", "PartnerId", "CreatedDate")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
