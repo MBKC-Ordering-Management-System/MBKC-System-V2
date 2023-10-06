@@ -11,6 +11,9 @@ using MBKC.Service.Utils;
 using MBKC.Service.Constants;
 using StackExchange.Redis;
 using Role = MBKC.Repository.Models.Role;
+using MBKC.Repository.RedisModels;
+using static MBKC.Service.Constants.EmailMessageConstant;
+using Brand = MBKC.Repository.Models.Brand;
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -258,6 +261,13 @@ namespace MBKC.Service.Services.Implementations
                 string messageBody = EmailMessageConstant.Brand.Message + $" \"{brand.Name}\" " + EmailMessageConstant.CommonMessage.Message;
                 string message = this._unitOfWork.EmailRepository.GetMessageToRegisterAccount(account.Email, unEncryptedPassword, messageBody);
                 await this._unitOfWork.EmailRepository.SendEmailAndPasswordToEmail(account.Email, message);
+
+                AccountConfirmation accountConfirmation = new AccountConfirmation()
+                {
+                    AccountId = account.AccountId.ToString(),
+                    IsConfirmationLogin = false
+                };
+                await this._unitOfWork.AccountConfirmationRedisRepository.CreateAccountConfirmationAsync(accountConfirmation);
             }
             catch (BadRequestException ex)
             {

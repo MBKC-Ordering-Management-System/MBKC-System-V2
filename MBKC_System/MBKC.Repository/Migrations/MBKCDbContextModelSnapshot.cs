@@ -1164,8 +1164,7 @@ namespace MBKC.Repository.Migrations
                     b.HasOne("MBKC.Repository.Models.Product", "ParentProduct")
                         .WithMany("ChildrenProducts")
                         .HasForeignKey("ParentProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Brand");
 

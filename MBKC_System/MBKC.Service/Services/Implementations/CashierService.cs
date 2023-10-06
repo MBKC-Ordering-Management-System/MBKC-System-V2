@@ -14,6 +14,7 @@ using MBKC.Service.Constants;
 using MBKC.Repository.Enums;
 using MBKC.Service.DTOs.Cashiers.Requests;
 using MBKC.Service.DTOs.Cashiers.Responses;
+using MBKC.Repository.RedisModels;
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -158,6 +159,13 @@ namespace MBKC.Service.Services.Implementations
                 string messageBody = EmailMessageConstant.Cashier.Message + $" {existedKitchenCenter.Name}. " + EmailMessageConstant.CommonMessage.Message;
                 string message = this._unitOfWork.EmailRepository.GetMessageToRegisterAccount(createCashierRequest.Email, password, messageBody);
                 await this._unitOfWork.EmailRepository.SendEmailAndPasswordToEmail(createCashierRequest.Email, message);
+
+                AccountConfirmation accountConfirmation = new AccountConfirmation()
+                {
+                    AccountId = cashierAccount.AccountId.ToString(),
+                    IsConfirmationLogin = false
+                };
+                await this._unitOfWork.AccountConfirmationRedisRepository.CreateAccountConfirmationAsync(accountConfirmation);
             }
             catch (BadRequestException ex)
             {

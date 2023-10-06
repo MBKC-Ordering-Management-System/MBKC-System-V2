@@ -2,6 +2,7 @@
 using MBKC.Repository.Enums;
 using MBKC.Repository.Infrastructures;
 using MBKC.Repository.Models;
+using MBKC.Repository.RedisModels;
 using MBKC.Service.Constants;
 using MBKC.Service.DTOs.Stores;
 using MBKC.Service.Exceptions;
@@ -740,18 +741,29 @@ namespace MBKC.Service.Services.Implementations
 
                 this._unitOfWork.StoreRepository.UpdateStore(existedStore);
                 string password = "";
+                Account storeManagerAccount = null;
                 if (isActiveStore)
                 {
-                    Account storeManagerAccount = await this._unitOfWork.AccountRepository.GetAccountAsync(existedStore.StoreManagerEmail);
+                    storeManagerAccount = await this._unitOfWork.AccountRepository.GetAccountAsync(existedStore.StoreManagerEmail);
                     password = storeManagerAccount.Password;
                     storeManagerAccount.Password = StringUtil.EncryptData(password);
                     this._unitOfWork.AccountRepository.UpdateAccount(storeManagerAccount);
                 }
                 await this._unitOfWork.CommitAsync();
 
-                string messageBody = EmailMessageConstant.Store.Message + $" {existedStore.Name}. " + EmailMessageConstant.CommonMessage.Message;
-                string message = this._unitOfWork.EmailRepository.GetMessageToRegisterAccount(existedStore.StoreManagerEmail, password, messageBody);
-                await this._unitOfWork.EmailRepository.SendEmailAndPasswordToEmail(existedStore.StoreManagerEmail, message);
+                if (isActiveStore)
+                {
+                    string messageBody = EmailMessageConstant.Store.Message + $" {existedStore.Name}. " + EmailMessageConstant.CommonMessage.Message;
+                    string message = this._unitOfWork.EmailRepository.GetMessageToRegisterAccount(existedStore.StoreManagerEmail, password, messageBody);
+                    await this._unitOfWork.EmailRepository.SendEmailAndPasswordToEmail(existedStore.StoreManagerEmail, message);
+
+                    AccountConfirmation accountConfirmation = new AccountConfirmation()
+                    {
+                        AccountId = storeManagerAccount.AccountId.ToString(),
+                        IsConfirmationLogin = false
+                    };
+                    await this._unitOfWork.AccountConfirmationRedisRepository.CreateAccountConfirmationAsync(accountConfirmation);
+                }
             }
             catch (BadRequestException ex)
             {

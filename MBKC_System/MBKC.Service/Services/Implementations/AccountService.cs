@@ -13,6 +13,8 @@ using System.Security.Claims;
 using MBKC.Service.Constants;
 using MBKC.Service.Exceptions;
 using System.Security.Cryptography.X509Certificates;
+using MBKC.Repository.RedisModels;
+using MBKC.Repository.SMTPModels;
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -31,12 +33,13 @@ namespace MBKC.Service.Services.Implementations
             try
             {
                 Account existedAccount = await this._unitOfWork.AccountRepository.GetActiveAccountAsync(email);
-                if(existedAccount == null)
+                if (existedAccount == null)
                 {
                     return false;
                 }
                 return true;
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 string error = ErrorUtil.GetErrorString("Exception", ex.Message);
                 throw new Exception(error);
@@ -51,7 +54,7 @@ namespace MBKC.Service.Services.Implementations
                 string email = registeredEmailClaim.Value;
 
                 Account existedAccount = await this._unitOfWork.AccountRepository.GetAccountAsync(idAccount);
-                if(existedAccount is not null)
+                if (existedAccount is not null)
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistAccountId);
                 }
@@ -62,12 +65,12 @@ namespace MBKC.Service.Services.Implementations
                 GetAccountResponse getAccountResponse = this._mapper.Map<GetAccountResponse>(existedAccount);
                 return getAccountResponse;
             }
-            catch(NotFoundException ex)
+            catch (NotFoundException ex)
             {
                 string error = ErrorUtil.GetErrorString("Account id", ex.Message);
                 throw new NotFoundException(error);
             }
-            catch(BadRequestException ex)
+            catch (BadRequestException ex)
             {
                 string error = ErrorUtil.GetErrorString("Account id", ex.Message);
                 throw new BadRequestException(error);
@@ -99,6 +102,10 @@ namespace MBKC.Service.Services.Implementations
                 existedAccount.Password = updateAccountRequest.NewPassword;
                 this._unitOfWork.AccountRepository.UpdateAccount(existedAccount);
                 await this._unitOfWork.CommitAsync();
+
+                AccountConfirmation accountConfirmation = await this._unitOfWork.AccountConfirmationRedisRepository.GetAccountConfirmationAsync(idAccount.ToString());
+                accountConfirmation.IsConfirmationLogin = true;
+                await this._unitOfWork.AccountConfirmationRedisRepository.UpdateAccountConfirmationAsync(accountConfirmation);
             }
             catch (NotFoundException ex)
             {

@@ -242,6 +242,18 @@ namespace MBKC.Service.Services.Implementations
                     RefreshToken = refreshToken
                 };
                 accountResponse.Tokens = tokens;
+                
+                if(accountResponse.RoleName.ToLower().Equals(RoleConstant.MBKC_Admin.ToLower()))
+                {
+                    MBKC.Repository.RedisModels.AccountConfirmation accountConfirmationMBKCAdmin = new Repository.RedisModels.AccountConfirmation()
+                    {
+                        AccountId = accountResponse.AccountId.ToString(),
+                        IsConfirmationLogin = true
+                    };
+                    await this._unitOfWork.AccountConfirmationRedisRepository.CreateAccountConfirmationAsync(accountConfirmationMBKCAdmin);
+                }
+                MBKC.Repository.RedisModels.AccountConfirmation accountConfirmation = await this._unitOfWork.AccountConfirmationRedisRepository.GetAccountConfirmationAsync(accountResponse.AccountId.ToString());
+                accountResponse.IsConfirmedAccount = accountConfirmation.IsConfirmationLogin;
                 return accountResponse;
             }
             catch (Exception ex)

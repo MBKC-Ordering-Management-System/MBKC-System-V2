@@ -43,6 +43,7 @@ namespace MBKC.Repository.Infrastructures
         private RedisConnectionProvider _redisConnectionProvider;
         private AccountTokenRedisRepository  _accountTokenRedisRepository;
         private EmailVerificationRedisRepository  _emailVerificationRedisRepository;
+        private AccountConfirmationRedisRepository  _accountConfirmationRedisRepository;
         private FirebaseStorageRepository _firebaseStorageRepository;
         private EmailRepository _emailRepository;
 
@@ -65,6 +66,22 @@ namespace MBKC.Repository.Infrastructures
                     this._accountRepository = new AccountRepository(this._dbContext);
                 }
                 return this._accountRepository;
+            }
+        }
+
+        public AccountConfirmationRedisRepository AccountConfirmationRedisRepository
+        {
+            get
+            {
+                if (this._redisConnectionProvider == null)
+                {
+                    this._redisConnectionProvider = this._dbFactory.InitRedisConnectionProvider().Result;
+                }
+                if (this._accountConfirmationRedisRepository == null)
+                {
+                    this._accountConfirmationRedisRepository = new AccountConfirmationRedisRepository(this._redisConnectionProvider);
+                }
+                return this._accountConfirmationRedisRepository;
             }
         }
 

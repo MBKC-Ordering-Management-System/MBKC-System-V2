@@ -8,6 +8,7 @@ using MBKC.Repository.Models;
 using MBKC.Service.Constants;
 using MBKC.Service.Utils;
 using System.Security.Claims;
+using MBKC.Repository.RedisModels;
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -187,6 +188,13 @@ namespace MBKC.Service.Services.Implementations
                 string messageBody = EmailMessageConstant.KitchenCenter.Message + $" \"{newKitchenCenter.Name}\". " + EmailMessageConstant.CommonMessage.Message;
                 string message = this._unitOfWork.EmailRepository.GetMessageToRegisterAccount(newKitchenCenter.ManagerEmail, password, messageBody);
                 await this._unitOfWork.EmailRepository.SendEmailAndPasswordToEmail(newKitchenCenter.ManagerEmail, message);
+
+                AccountConfirmation accountConfirmation = new AccountConfirmation()
+                {
+                    AccountId = kitchenCenter.Manager.AccountId.ToString(),
+                    IsConfirmationLogin = false
+                };
+                await this._unitOfWork.AccountConfirmationRedisRepository.CreateAccountConfirmationAsync(accountConfirmation);
             }
             catch (BadRequestException ex)
             {
