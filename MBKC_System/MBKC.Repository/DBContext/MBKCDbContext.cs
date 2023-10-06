@@ -174,7 +174,7 @@ namespace MBKC.Repository.DBContext
             #region MappingProduct
             modelBuilder.Entity<MappingProduct>(mappingProduct =>
             {
-                modelBuilder.Entity<MappingProduct>().HasKey(key => new { key.ProductId, key.PartnerId, key.StoreId });
+                modelBuilder.Entity<MappingProduct>().HasKey(key => new { key.ProductId, key.PartnerId, key.StoreId, key.CreatedDate});
                 mappingProduct.Property(prop => prop.ProductCode).IsUnicode(false).HasMaxLength(50).IsRequired(true);
             });
 
@@ -314,7 +314,7 @@ namespace MBKC.Repository.DBContext
             #region StorePartner
             modelBuilder.Entity<StorePartner>(storePartner =>
             {
-                modelBuilder.Entity<StorePartner>().HasKey(key => new { key.StoreId, key.PartnerId });
+                modelBuilder.Entity<StorePartner>().HasKey(key => new { key.StoreId, key.PartnerId , key.CreatedDate});
                 storePartner.Property(prop => prop.UserName).IsUnicode(false).HasMaxLength(100).IsRequired(true);
                 storePartner.Property(prop => prop.Password).IsUnicode(false).HasMaxLength(50).IsRequired(true);
                 storePartner.Property(prop => prop.Status).IsRequired(true);

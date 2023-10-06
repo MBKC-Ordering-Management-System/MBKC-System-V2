@@ -83,5 +83,11 @@
             public const string DeletedCashierSuccessfully = "Deleted Cashier Successfully.";
             public const string UpdatedCashierProfieSuccessfully = "Updated Cashier Profile Successfully.";
         }
+
+        public static class MappingProductMessage
+        {
+            public const string CreatedMappingProductSuccessfully = "Created New Mapping Product Successfully.";
+            public const string UpdatedMappingProductSuccessfully = "Updated Mapping Product Successfully.";
+        }
     }
 }

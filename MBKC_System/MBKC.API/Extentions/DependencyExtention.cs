@@ -34,6 +34,8 @@ using MBKC.Service.DTOs.Products;
 using MBKC.API.Validators.Products;
 using MBKC.API.Validators.Cashiers;
 using MBKC.Service.DTOs.Cashiers.Requests;
+using MBKC.Service.DTOs.MappingProducts;
+using MBKC.API.Validators.MappingProducts;
 
 namespace MBKC.API.Extentions
 {
@@ -198,6 +200,8 @@ namespace MBKC.API.Extentions
             services.AddScoped<IValidator<CashierRequest>, GetCashierValidator>();
             services.AddScoped<IValidator<AccountIdRequest>, AccountIdValidator>();
             services.AddScoped<IValidator<UpdateAccountRequest>, UpdateAccountValidator>();
+            services.AddScoped<IValidator<PostMappingProductRequest>, CreateMappingProductValidator>();
+            services.AddScoped<IValidator<UpdateMappingProductRequest>, UpdateMappingProductValidator>();
             return services;
         }
 

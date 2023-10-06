@@ -368,15 +368,18 @@ namespace MBKC.Repository.Migrations
                     b.Property<int>("StoreId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("ProductCode")
                         .IsRequired()
                         .HasMaxLength(50)
                         .IsUnicode(false)
                         .HasColumnType("varchar(50)");
 
-                    b.HasKey("ProductId", "PartnerId", "StoreId");
+                    b.HasKey("ProductId", "PartnerId", "StoreId", "CreatedDate");
 
-                    b.HasIndex("StoreId", "PartnerId");
+                    b.HasIndex("StoreId", "PartnerId", "CreatedDate");
 
                     b.ToTable("MappingProducts");
                 });
@@ -855,6 +858,9 @@ namespace MBKC.Repository.Migrations
                     b.Property<int>("PartnerId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -870,7 +876,7 @@ namespace MBKC.Repository.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(100)");
 
-                    b.HasKey("StoreId", "PartnerId");
+                    b.HasKey("StoreId", "PartnerId", "CreatedDate");
 
                     b.HasIndex("PartnerId");
 
@@ -1092,7 +1098,7 @@ namespace MBKC.Repository.Migrations
 
                     b.HasOne("MBKC.Repository.Models.StorePartner", "StorePartner")
                         .WithMany("MappingProducts")
-                        .HasForeignKey("StoreId", "PartnerId")
+                        .HasForeignKey("StoreId", "PartnerId", "CreatedDate")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1164,8 +1170,7 @@ namespace MBKC.Repository.Migrations
                     b.HasOne("MBKC.Repository.Models.Product", "ParentProduct")
                         .WithMany("ChildrenProducts")
                         .HasForeignKey("ParentProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Brand");
 

@@ -30,6 +30,9 @@
             public const string NotExistAccountId = "Account id does not exist in the system.";
             public const string InvalidPartnerId = "Partner id is not suitable id in the system.";
             public const string CategoryIdNotBelongToBrand = "Category id does not belong to your brand.";
+            public const string AlreadyExistMappingProduct = "Mapping product already exists in the system.";
+            public const string NotExistMappingProduct = "Mapping priduct does not exist in the system.";
+
         }
 
         public static class LoginMessage
@@ -73,6 +76,7 @@
             public const string ManagerEmailExisted = "Kitchen center manager email already existed in the system.";
             public const string ExistedActiveStores_Delete = "The kitchen center has active stores, so this kitchen center cannot be deleted.";
             public const string NotBelongToKitchenCenter = "Kitchen center id does not belong to your kitchen center.";
+
         }
 
         public static class BrandMessage
@@ -83,6 +87,8 @@
             public const string DeactiveBrand_Update = "Brand was deleted before, so this brand cannot update.";
             public const string ManagerEmailExisted = "Brand manager email already existed in the system.";
             public const string RoleNotSuitable = "Role is not suitable";
+            public const string ProductNotBelongToBrand = "This product not belong to brand.";
+
         }
 
         public static class StoreMessage
@@ -156,6 +162,21 @@
             public const string CashierIdNotBelogToCashier = "Cashier id is not suitable with your account.";
             public const string StatusIsRequiredWithKitchenCenterManager = "Status is not null";
             public const string StatusIsNotRequiredWithCashier = "Cashier does not allow to update Status property.";
+        }
+
+        public static class StorePartnerMessage
+        {
+            public const string InactiveStore_Create = "This store has been inactive.";
+            public const string StoreNotBelongToBrand = "Store does not belong to brand.";
+            public const string NotLinkedWithParner = "This store is not linked to this partner.";
+        }
+
+        public static class MappingProductMessage
+        {
+            public const string ProductCodeExisted = "Product Code already exist in the system.";
+            public const string DeactiveProduct_Create_Update = "This product is Deactive.";
+            public const string InactiveProduct_Create_Update = "This product is Inactive.";
+            public const string InactiveStore_Update = "This store has been inactive.";
         }
     }
 }

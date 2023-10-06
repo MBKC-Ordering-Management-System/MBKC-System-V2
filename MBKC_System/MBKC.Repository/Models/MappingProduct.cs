@@ -15,6 +15,7 @@ namespace MBKC.Repository.Models
         public int PartnerId { get; set; }
         [ForeignKey("StoreId")]
         public int StoreId { get; set; }
+        public DateTime CreatedDate { get; set; }
         public string ProductCode { get; set; }
         [ForeignKey("ProductId")]
         public virtual Product Product { get; set; }
