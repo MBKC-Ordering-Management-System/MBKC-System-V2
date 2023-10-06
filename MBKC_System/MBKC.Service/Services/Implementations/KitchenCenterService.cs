@@ -159,7 +159,8 @@ namespace MBKC.Service.Services.Implementations
                     Email = newKitchenCenter.ManagerEmail,
                     Password = StringUtil.EncryptData(password),
                     Status = (int)AccountEnum.Status.ACTIVE,
-                    Role = role
+                    Role = role,
+                    IsConfirmed = false
                 };
                 Wallet wallet = new Wallet()
                 {
@@ -188,13 +189,6 @@ namespace MBKC.Service.Services.Implementations
                 string messageBody = EmailMessageConstant.KitchenCenter.Message + $" \"{newKitchenCenter.Name}\". " + EmailMessageConstant.CommonMessage.Message;
                 string message = this._unitOfWork.EmailRepository.GetMessageToRegisterAccount(newKitchenCenter.ManagerEmail, password, messageBody);
                 await this._unitOfWork.EmailRepository.SendEmailAndPasswordToEmail(newKitchenCenter.ManagerEmail, message);
-
-                AccountConfirmation accountConfirmation = new AccountConfirmation()
-                {
-                    AccountId = kitchenCenter.Manager.AccountId.ToString(),
-                    IsConfirmationLogin = false
-                };
-                await this._unitOfWork.AccountConfirmationRedisRepository.CreateAccountConfirmationAsync(accountConfirmation);
             }
             catch (BadRequestException ex)
             {

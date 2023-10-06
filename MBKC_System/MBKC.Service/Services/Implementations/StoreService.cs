@@ -747,6 +747,7 @@ namespace MBKC.Service.Services.Implementations
                     storeManagerAccount = await this._unitOfWork.AccountRepository.GetAccountAsync(existedStore.StoreManagerEmail);
                     password = storeManagerAccount.Password;
                     storeManagerAccount.Password = StringUtil.EncryptData(password);
+                    storeManagerAccount.IsConfirmed = false;
                     this._unitOfWork.AccountRepository.UpdateAccount(storeManagerAccount);
                 }
                 await this._unitOfWork.CommitAsync();
@@ -756,13 +757,6 @@ namespace MBKC.Service.Services.Implementations
                     string messageBody = EmailMessageConstant.Store.Message + $" {existedStore.Name}. " + EmailMessageConstant.CommonMessage.Message;
                     string message = this._unitOfWork.EmailRepository.GetMessageToRegisterAccount(existedStore.StoreManagerEmail, password, messageBody);
                     await this._unitOfWork.EmailRepository.SendEmailAndPasswordToEmail(existedStore.StoreManagerEmail, message);
-
-                    AccountConfirmation accountConfirmation = new AccountConfirmation()
-                    {
-                        AccountId = storeManagerAccount.AccountId.ToString(),
-                        IsConfirmationLogin = false
-                    };
-                    await this._unitOfWork.AccountConfirmationRedisRepository.CreateAccountConfirmationAsync(accountConfirmation);
                 }
             }
             catch (BadRequestException ex)

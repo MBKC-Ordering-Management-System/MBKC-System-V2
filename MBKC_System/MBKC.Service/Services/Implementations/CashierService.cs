@@ -129,7 +129,8 @@ namespace MBKC.Service.Services.Implementations
                     Email = createCashierRequest.Email,
                     Password = StringUtil.EncryptData(password),
                     Role = cashierRole,
-                    Status = (int)AccountEnum.Status.ACTIVE
+                    Status = (int)AccountEnum.Status.ACTIVE,
+                    IsConfirmed = false
                 };
                 FileStream avatarFileStream = FileUtil.ConvertFormFileToStream(createCashierRequest.Avatar);
                 Guid guid = Guid.NewGuid();
@@ -159,13 +160,6 @@ namespace MBKC.Service.Services.Implementations
                 string messageBody = EmailMessageConstant.Cashier.Message + $" {existedKitchenCenter.Name}. " + EmailMessageConstant.CommonMessage.Message;
                 string message = this._unitOfWork.EmailRepository.GetMessageToRegisterAccount(createCashierRequest.Email, password, messageBody);
                 await this._unitOfWork.EmailRepository.SendEmailAndPasswordToEmail(createCashierRequest.Email, message);
-
-                AccountConfirmation accountConfirmation = new AccountConfirmation()
-                {
-                    AccountId = cashierAccount.AccountId.ToString(),
-                    IsConfirmationLogin = false
-                };
-                await this._unitOfWork.AccountConfirmationRedisRepository.CreateAccountConfirmationAsync(accountConfirmation);
             }
             catch (BadRequestException ex)
             {

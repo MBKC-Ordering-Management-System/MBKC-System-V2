@@ -100,12 +100,9 @@ namespace MBKC.Service.Services.Implementations
                 }
 
                 existedAccount.Password = updateAccountRequest.NewPassword;
+                existedAccount.IsConfirmed = true;
                 this._unitOfWork.AccountRepository.UpdateAccount(existedAccount);
                 await this._unitOfWork.CommitAsync();
-
-                AccountConfirmation accountConfirmation = await this._unitOfWork.AccountConfirmationRedisRepository.GetAccountConfirmationAsync(idAccount.ToString());
-                accountConfirmation.IsConfirmationLogin = true;
-                await this._unitOfWork.AccountConfirmationRedisRepository.UpdateAccountConfirmationAsync(accountConfirmation);
             }
             catch (NotFoundException ex)
             {

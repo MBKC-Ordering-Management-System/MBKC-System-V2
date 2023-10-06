@@ -233,7 +233,8 @@ namespace MBKC.Service.Services.Implementations
                     Email = postBrandRequest.ManagerEmail,
                     Password = StringUtil.EncryptData(unEncryptedPassword),
                     Status = (int)AccountEnum.Status.ACTIVE,
-                    Role = brandManagerRole
+                    Role = brandManagerRole,
+                    IsConfirmed = false
                 };
                 await _unitOfWork.AccountRepository.CreateAccountAsync(account);
 
@@ -261,13 +262,6 @@ namespace MBKC.Service.Services.Implementations
                 string messageBody = EmailMessageConstant.Brand.Message + $" \"{brand.Name}\" " + EmailMessageConstant.CommonMessage.Message;
                 string message = this._unitOfWork.EmailRepository.GetMessageToRegisterAccount(account.Email, unEncryptedPassword, messageBody);
                 await this._unitOfWork.EmailRepository.SendEmailAndPasswordToEmail(account.Email, message);
-
-                AccountConfirmation accountConfirmation = new AccountConfirmation()
-                {
-                    AccountId = account.AccountId.ToString(),
-                    IsConfirmationLogin = false
-                };
-                await this._unitOfWork.AccountConfirmationRedisRepository.CreateAccountConfirmationAsync(accountConfirmation);
             }
             catch (BadRequestException ex)
             {
