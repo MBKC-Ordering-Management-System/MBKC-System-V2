@@ -205,7 +205,7 @@ namespace MBKC.API.Controllers
         /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
         /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
         /// <exception cref="Exception">Throw Error about the system.</exception>
-        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GetCategoryResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
