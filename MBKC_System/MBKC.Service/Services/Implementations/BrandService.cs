@@ -11,6 +11,9 @@ using MBKC.Service.Utils;
 using MBKC.Service.Constants;
 using StackExchange.Redis;
 using Role = MBKC.Repository.Models.Role;
+using MBKC.Repository.RedisModels;
+using static MBKC.Service.Constants.EmailMessageConstant;
+using Brand = MBKC.Repository.Models.Brand;
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -230,7 +233,8 @@ namespace MBKC.Service.Services.Implementations
                     Email = postBrandRequest.ManagerEmail,
                     Password = StringUtil.EncryptData(unEncryptedPassword),
                     Status = (int)AccountEnum.Status.ACTIVE,
-                    Role = brandManagerRole
+                    Role = brandManagerRole,
+                    IsConfirmed = false
                 };
                 await _unitOfWork.AccountRepository.CreateAccountAsync(account);
 

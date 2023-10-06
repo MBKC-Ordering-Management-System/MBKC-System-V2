@@ -12,8 +12,13 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MBKC.Repository.Migrations
 {
     [DbContext(typeof(MBKCDbContext))]
+<<<<<<<< HEAD:MBKC_System/MBKC.Repository/Migrations/20231005095218_init database .Designer.cs
     [Migration("20231005095218_init database ")]
     partial class initdatabase
+========
+    [Migration("20231006120103_Update Account Table")]
+    partial class UpdateAccountTable
+>>>>>>>> main:MBKC_System/MBKC.Repository/Migrations/20231006120103_Update Account Table.Designer.cs
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -33,11 +38,16 @@ namespace MBKC.Repository.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AccountId"), 1L, 1);
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .IsUnicode(false)
                         .HasColumnType("varchar(100)");
 
+                    b.Property<bool>("IsConfirmed")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Password")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .IsUnicode(false)
                         .HasColumnType("varchar(50)");

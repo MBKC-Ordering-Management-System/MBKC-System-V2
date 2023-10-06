@@ -13,5 +13,6 @@ namespace MBKC.Service.DTOs.Accounts
         public string Email { get; set; }
         public string RoleName { get; set; }
         public string Status { get; set; }
+        public bool IsConfirmed { get; set; }
     }
 }

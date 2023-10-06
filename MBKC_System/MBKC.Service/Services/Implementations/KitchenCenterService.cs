@@ -8,6 +8,7 @@ using MBKC.Repository.Models;
 using MBKC.Service.Constants;
 using MBKC.Service.Utils;
 using System.Security.Claims;
+using MBKC.Repository.RedisModels;
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -158,7 +159,8 @@ namespace MBKC.Service.Services.Implementations
                     Email = newKitchenCenter.ManagerEmail,
                     Password = StringUtil.EncryptData(password),
                     Status = (int)AccountEnum.Status.ACTIVE,
-                    Role = role
+                    Role = role,
+                    IsConfirmed = false
                 };
                 Wallet wallet = new Wallet()
                 {

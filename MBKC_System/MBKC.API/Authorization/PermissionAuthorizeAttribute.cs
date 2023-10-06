@@ -1,4 +1,6 @@
-﻿using MBKC.Service.Errors;
+﻿using MBKC.Repository.Models;
+using MBKC.Service.DTOs.Accounts;
+using MBKC.Service.Errors;
 using MBKC.Service.Services.Interfaces;
 using MBKC.Service.Utils;
 using Microsoft.AspNetCore.Authorization;
@@ -22,13 +24,36 @@ namespace MBKC.Service.Authorization
         {
             this._roles = roles;
         }
-        public void OnAuthorization(AuthorizationFilterContext context)
+
+        public async void OnAuthorization(AuthorizationFilterContext context)
         {
             if (context.HttpContext.User.Identity.IsAuthenticated)
             {
                 IAccountService accountService = context.HttpContext.RequestServices.GetService<IAccountService>();
+                var currentController = context.RouteData.Values["controller"];
+                var currentActionName = context.RouteData.Values["action"];
                 string email = context.HttpContext.User.Claims.First(x => x.Type.ToLower() == ClaimTypes.Email).Value;
+                string accountId = context.HttpContext.User.Claims.First(x => x.Type.ToLower() == ClaimTypes.Sid).Value;
                 bool isActiveAccount = accountService.IsActiveAccountAsync(email).Result;
+
+                GetAccountResponse existedAccount = accountService.GetAccountAsync(int.Parse(accountId), context.HttpContext.User.Claims).Result;
+                if(existedAccount.IsConfirmed == false && currentController.ToString().ToLower().Equals("accounts") && currentActionName.ToString().ToLower().Equals("updateaccount"))
+                {
+                    return;
+                }
+
+                if(existedAccount.IsConfirmed == false)
+                {
+                    context.Result = new ObjectResult("Unauthorized")
+                    {
+                        StatusCode = 401,
+                        Value = new
+                        {
+                            Message = JsonConvert.DeserializeObject<List<ErrorDetail>>(ErrorUtil.GetErrorString("Unauthorized", "You have not changed your password for the first time after registering. " +
+                                                                                                                                "Please change the new password before using this function."))
+                        }
+                    };
+                }
                 if(isActiveAccount == false)
                 {
                     context.Result = new ObjectResult("Unauthorized")

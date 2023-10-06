@@ -15,6 +15,7 @@ namespace MBKC.Repository.Models
         public string Email { get; set; }
         public string Password { get; set; }
         public int Status { get; set; }
+        public bool IsConfirmed { get; set; }
         [ForeignKey("RoleId")]
         public virtual Role Role { get; set; }
     }
