@@ -42,7 +42,6 @@ namespace MBKC.API.Validators.Cashiers
 
             RuleFor(x => x.Avatar)
                 .Cascade(CascadeMode.StopOnFirstFailure)
-                .NotNull().WithMessage("{PropertyName} is not null.")
                 .ChildRules(x =>
                 {
                     x.RuleFor(x => x.Length)

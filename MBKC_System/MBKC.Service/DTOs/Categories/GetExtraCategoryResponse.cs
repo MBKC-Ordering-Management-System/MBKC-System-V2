@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MBKC.Service.DTOs.Categories
 {
-    public class GetCategoryResponse
+    public class GetExtraCategoryResponse
     {
         public int CategoryId { get; set; }
         public string Code { get; set; }
@@ -17,6 +17,6 @@ namespace MBKC.Service.DTOs.Categories
         public string Description { get; set; }
         public string ImageUrl { get; set; }
         public string Status { get; set; }
-        public List<GetExtraCategoryResponse> ExtraCategories { get; set; }
+        public List<GetProductResponse> ExtraProducts { get; set; }
     }
 }

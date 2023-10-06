@@ -22,7 +22,6 @@ namespace MBKC.API.Validators.Products
 
             RuleFor(cpr => cpr.Image)
                 .Cascade(CascadeMode.StopOnFirstFailure)
-                .NotNull().WithMessage("{PropertyName} is not null.")
                 .ChildRules(ckcr =>
                 {
                     ckcr.RuleFor(cpr => cpr.Length)
