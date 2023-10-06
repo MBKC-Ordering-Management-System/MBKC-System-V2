@@ -16,7 +16,9 @@ namespace MBKC.Service.Profiles.Categories
         public CategoryProfile()
         {
             CreateMap<Category, GetCategoryResponse>().ForMember(dept => dept.Status, opt => opt.MapFrom(src => StatusUtil.ChangeCategoryStatus(src.Status)))
-                                                        .ReverseMap();
+                                                      .ForMember(dept => dept.ExtraCategories, opt => opt.MapFrom(src => src.ExtraCategoryProductCategories))
+                                                      .ReverseMap();
+            CreateMap<Category, GetExtraCategoryResponse>().ReverseMap();
         }
     }
 }

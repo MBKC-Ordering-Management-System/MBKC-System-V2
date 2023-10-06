@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using MBKC.Service.DTOs.Accounts;
+using MBKC.Service.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +23,7 @@ namespace MBKC.API.Validators.Accounts
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotNull().WithMessage("{PropertyName} is not null.")
                 .NotEmpty().WithMessage("{PropertyName} is not empty.")
-                .MaximumLength(50).WithMessage("{PropertyName} is required less than or equal to 50 characters.");
+                .Must(StringUtil.IsMD5).WithMessage("New password must convert with MD5 althorigm before saving in the system.");
         }
     }
 }

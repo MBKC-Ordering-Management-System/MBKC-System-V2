@@ -7,6 +7,11 @@
             public const string ResetPasswordSuccessfully = "Reset Password Successfully.";
         }
 
+        public static class AccountMessage
+        {
+            public const string UpdateAccountSuccessfully = "Updated Account Successfully.";
+        }
+
         public static class VerificationMessage
         {
             public const string SentEmailConfirmationSuccessfully = "Sent Email Confirmation Successfully.";
@@ -77,6 +82,15 @@
             public const string UpdatedStorePartnerSuccessfully = "Updated Store Partner Information Successfully.";
             public const string UpdatedStorePartnerStatusSuccessfully = "Updated Store Partner Status Information Successfully.";
 
+        }
+
+        public static class CashierMessage
+        {
+            public const string CreatedCashierSuccessfully = "Created New Cashier Successfully.";
+            public const string UpdatedCashierSuccessfully = "Updated Cashier Successfully.";
+            public const string UpdatedCashierStatusSuccessfully = "Updated Cashier Status Successfully.";
+            public const string DeletedCashierSuccessfully = "Deleted Cashier Successfully.";
+            public const string UpdatedCashierProfieSuccessfully = "Updated Cashier Profile Successfully.";
         }
     }
 }

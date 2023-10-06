@@ -408,7 +408,7 @@ namespace MBKC.Service.Services.Implementations
                 else if (createProductRequest.CategoryId == null && createProductRequest.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))
                 {
                     existedCategory = existedParentProduct.Category;
-                    if(createProductRequest.Name.Trim().ToLower().EndsWith($"size {createProductRequest.Size}") == false)
+                    if(createProductRequest.Name.Trim().ToLower().Equals($"{existedParentProduct.Name.ToLower()} size {createProductRequest.Size.ToLower()}") == false)
                     {
                         throw new BadRequestException(MessageConstant.ProductMessage.EndswithProductNameNotContainSize);
                     }
@@ -467,7 +467,7 @@ namespace MBKC.Service.Services.Implementations
                     fieldName = "Name";
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
-                throw new BadRequestException(ex.Message);
+                throw new BadRequestException(error);
             }
             catch (NotFoundException ex)
             {
@@ -480,7 +480,8 @@ namespace MBKC.Service.Services.Implementations
                 {
                     fieldName = "Category id";
                 }
-                throw new NotFoundException(ex.Message);
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new NotFoundException(error);
             }
             catch (Exception ex)
             {
@@ -489,7 +490,7 @@ namespace MBKC.Service.Services.Implementations
                     await this._unitOfWork.FirebaseStorageRepository.DeleteImageAsync(logoId, folderName);
                 }
                 string error = ErrorUtil.GetErrorString("Exception", ex.Message);
-                throw new Exception(ex.Message);
+                throw new Exception(error);
             }
         }
 
@@ -681,6 +682,7 @@ namespace MBKC.Service.Services.Implementations
                     foreach (var childProduct in existedProduct.ChildrenProducts)
                     {
                         childProduct.Category = existedProduct.Category;
+                        childProduct.Name = existedProduct.Name + $"Size {childProduct.Size.ToLower()}";
                     }
                 }
 

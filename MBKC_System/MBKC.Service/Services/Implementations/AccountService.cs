@@ -8,6 +8,11 @@ using System.Text;
 using System.Threading.Tasks;
 using MBKC.Service.Utils;
 using MBKC.Repository.Models;
+using MBKC.Service.DTOs.Accounts;
+using System.Security.Claims;
+using MBKC.Service.Constants;
+using MBKC.Service.Exceptions;
+using System.Security.Cryptography.X509Certificates;
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -32,6 +37,80 @@ namespace MBKC.Service.Services.Implementations
                 }
                 return true;
             } catch(Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                throw new Exception(error);
+            }
+        }
+
+        public async Task<GetAccountResponse> GetAccountAsync(int idAccount, IEnumerable<Claim> claims)
+        {
+            try
+            {
+                Claim registeredEmailClaim = claims.First(x => x.Type == ClaimTypes.Email);
+                string email = registeredEmailClaim.Value;
+
+                Account existedAccount = await this._unitOfWork.AccountRepository.GetAccountAsync(idAccount);
+                if(existedAccount is not null)
+                {
+                    throw new NotFoundException(MessageConstant.CommonMessage.NotExistAccountId);
+                }
+                if (existedAccount.Email.Equals(email))
+                {
+                    throw new BadRequestException(MessageConstant.AccountMessage.AccountIdNotBelongYourAccount);
+                }
+                GetAccountResponse getAccountResponse = this._mapper.Map<GetAccountResponse>(existedAccount);
+                return getAccountResponse;
+            }
+            catch(NotFoundException ex)
+            {
+                string error = ErrorUtil.GetErrorString("Account id", ex.Message);
+                throw new NotFoundException(error);
+            }
+            catch(BadRequestException ex)
+            {
+                string error = ErrorUtil.GetErrorString("Account id", ex.Message);
+                throw new BadRequestException(error);
+            }
+            catch (Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                throw new Exception(error);
+            }
+        }
+
+        public async Task UpdateAccountAsync(int idAccount, UpdateAccountRequest updateAccountRequest, IEnumerable<Claim> claims)
+        {
+            try
+            {
+                Claim registeredEmailClaim = claims.First(x => x.Type == ClaimTypes.Email);
+                string email = registeredEmailClaim.Value;
+
+                Account existedAccount = await this._unitOfWork.AccountRepository.GetAccountAsync(idAccount);
+                if (existedAccount is not null)
+                {
+                    throw new NotFoundException(MessageConstant.CommonMessage.NotExistAccountId);
+                }
+                if (existedAccount.Email.Equals(email))
+                {
+                    throw new BadRequestException(MessageConstant.AccountMessage.AccountIdNotBelongYourAccount);
+                }
+
+                existedAccount.Password = updateAccountRequest.NewPassword;
+                this._unitOfWork.AccountRepository.UpdateAccount(existedAccount);
+                await this._unitOfWork.CommitAsync();
+            }
+            catch (NotFoundException ex)
+            {
+                string error = ErrorUtil.GetErrorString("Account id", ex.Message);
+                throw new NotFoundException(error);
+            }
+            catch (BadRequestException ex)
+            {
+                string error = ErrorUtil.GetErrorString("Account id", ex.Message);
+                throw new BadRequestException(error);
+            }
+            catch (Exception ex)
             {
                 string error = ErrorUtil.GetErrorString("Exception", ex.Message);
                 throw new Exception(error);

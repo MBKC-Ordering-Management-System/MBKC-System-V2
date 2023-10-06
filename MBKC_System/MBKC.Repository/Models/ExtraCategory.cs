@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace MBKC.Repository.Models
 {
     public class ExtraCategory
-    {
+    { 
         [Key]
         public int CategoryId { get; set; }
         public int Status { get; set; }

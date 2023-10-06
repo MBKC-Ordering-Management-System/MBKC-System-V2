@@ -32,6 +32,8 @@ using MBKC.Service.DTOs.Partners;
 using MBKC.API.Validators.Partners;
 using MBKC.Service.DTOs.Products;
 using MBKC.API.Validators.Products;
+using MBKC.API.Validators.Cashiers;
+using MBKC.Service.DTOs.Cashiers.Requests;
 using MBKC.Service.DTOs.StorePartners;
 using MBKC.API.Validators.StorePartners;
 
@@ -191,6 +193,13 @@ namespace MBKC.API.Extentions
             services.AddScoped<IValidator<UpdateProductStatusRequest>, UpdateProductStatusValidator>();
             services.AddScoped<IValidator<PostPartnerRequest>, CreatePartnerValidator>();
             services.AddScoped<IValidator<UpdatePartnerRequest>, UpdatePartnerValidator>();
+            services.AddScoped<IValidator<CreateCashierRequest>, CreateCashierValidator>();
+            services.AddScoped<IValidator<UpdateCashierRequest>, UpdateCashierValidator>();
+            services.AddScoped<IValidator<UpdateCashierStatusRequest>, UpdateCashierStatusValidator>();
+            services.AddScoped<IValidator<GetCashiersRequest>, GetCashiersValidator>();
+            services.AddScoped<IValidator<CashierRequest>, GetCashierValidator>();
+            services.AddScoped<IValidator<AccountIdRequest>, AccountIdValidator>();
+            services.AddScoped<IValidator<UpdateAccountRequest>, UpdateAccountValidator>();
 
             services.AddScoped<IValidator<PostStorePartnerRequest>, CreateStorePartnerValidator>();
             services.AddScoped<IValidator<UpdateStorePartnerRequest>, UpdateStorePartnerValidator>();
