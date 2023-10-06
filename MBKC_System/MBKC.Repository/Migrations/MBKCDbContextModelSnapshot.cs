@@ -31,11 +31,16 @@ namespace MBKC.Repository.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AccountId"), 1L, 1);
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .IsUnicode(false)
                         .HasColumnType("varchar(100)");
 
+                    b.Property<bool>("IsConfirmed")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Password")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .IsUnicode(false)
                         .HasColumnType("varchar(50)");
@@ -377,9 +382,18 @@ namespace MBKC.Repository.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(50)");
 
-                    b.HasKey("ProductId", "PartnerId", "StoreId", "CreatedDate");
+                    b.Property<DateTime>("StorePartnerCreatedDate")
+                        .HasColumnType("datetime2");
 
-                    b.HasIndex("StoreId", "PartnerId", "CreatedDate");
+                    b.Property<int>("StorePartnerPartnerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StorePartnerStoreId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProductId", "PartnerId", "StoreId");
+
+                    b.HasIndex("StorePartnerStoreId", "StorePartnerPartnerId", "StorePartnerCreatedDate");
 
                     b.ToTable("MappingProducts");
                 });
@@ -1098,7 +1112,7 @@ namespace MBKC.Repository.Migrations
 
                     b.HasOne("MBKC.Repository.Models.StorePartner", "StorePartner")
                         .WithMany("MappingProducts")
-                        .HasForeignKey("StoreId", "PartnerId", "CreatedDate")
+                        .HasForeignKey("StorePartnerStoreId", "StorePartnerPartnerId", "StorePartnerCreatedDate")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

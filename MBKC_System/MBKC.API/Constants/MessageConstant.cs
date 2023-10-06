@@ -74,6 +74,15 @@
             public const string DeletedPartnerSuccessfully = "Deleted Partner Successfully.";
 
         }
+        public static class StorePartnerMessage
+        {
+            public const string CreatedNewStorePartnerSuccessfully = "Created New Store Partner Successfully.";
+            public const string DeletedStorePartnerSuccessfully = "Deleted Store Partner Successfully.";
+            public const string UpdatedStatusStorePartnerSuccessfully = "Updated Store Partner Status Successfully.";
+            public const string UpdatedStorePartnerSuccessfully = "Updated Store Partner Information Successfully.";
+            public const string UpdatedStorePartnerStatusSuccessfully = "Updated Store Partner Status Information Successfully.";
+
+        }
 
         public static class CashierMessage
         {

@@ -108,7 +108,7 @@
 
         public static class CategoryMessage
         {
-            
+
             public const string CategoryCodeExisted = "Category code already exist in the system.";
             public const string DeactiveCategory_Delete = "Category cannot delete because that was deleted before.";
             public const string DeactiveCategory_Update = "Category was deleted before, so this category cannot update.";
@@ -169,7 +169,12 @@
         {
             public const string InactiveStore_Create = "This store has been inactive.";
             public const string StoreNotBelongToBrand = "Store does not belong to brand.";
+            public const string PartnerExceed3 = "A store can only have a maximum of 3 partners.";
+            public const string LinkedWithParner = "This store is already linked to this partner.";
+            public const string UsernameExisted = "User name already exist in the system.";
             public const string NotLinkedWithParner = "This store is not linked to this partner.";
+            public const string DeactiveStorePartner_Update = "Can't update store partner has been deactivated.";
+
         }
 
         public static class MappingProductMessage

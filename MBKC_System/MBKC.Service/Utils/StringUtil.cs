@@ -83,7 +83,7 @@ namespace MBKC.Service.Utils
             return false;
         }
 
-        public static bool  IsUnicode(string input)
+        public static bool IsUnicode(string input)
         {
             var asciiBytesCount = Encoding.ASCII.GetByteCount(input);
             var unicodBytesCount = Encoding.UTF8.GetByteCount(input);
@@ -135,7 +135,7 @@ namespace MBKC.Service.Utils
 
         public static bool CheckConfirmStoreRegistrationStatusName(string statusName)
         {
-            if(statusName.ToLower().Trim().Equals(StoreEnum.Status.ACTIVE.ToString().ToLower()) ||
+            if (statusName.ToLower().Trim().Equals(StoreEnum.Status.ACTIVE.ToString().ToLower()) ||
                 statusName.ToLower().Trim().Equals(StoreEnum.Status.REJECTED.ToString().ToLower()))
             {
                 return true;
@@ -188,6 +188,16 @@ namespace MBKC.Service.Utils
             }
 
             return Regex.IsMatch(input, @"^[0-9a-fA-F]{32}$", RegexOptions.Compiled);
+        }
+
+        public static bool CheckStorePartnerStatusName(string statusName)
+        {
+            if (statusName.ToLower().Trim().Equals(StorePartnerEnum.Status.ACTIVE.ToString().ToLower()) ||
+                statusName.ToLower().Trim().Equals(StorePartnerEnum.Status.INACTIVE.ToString().ToLower()))
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

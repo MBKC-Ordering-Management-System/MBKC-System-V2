@@ -21,7 +21,7 @@ namespace MBKC.Service.Utils
             }
             return char.ToUpper(BrandEnum.Status.DEACTIVE.ToString()[0]) + BrandEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
         }
-        
+
         public static string ChangeKitchenCenterStatus(int status)
         {
             if (status == (int)KitchenCenterEnum.Status.INACTIVE)
@@ -34,7 +34,7 @@ namespace MBKC.Service.Utils
             }
             return char.ToUpper(KitchenCenterEnum.Status.DEACTIVE.ToString()[0]) + KitchenCenterEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
         }
-        
+
         public static string ChangeStoreStatus(int status)
         {
             if (status == (int)StoreEnum.Status.INACTIVE)
@@ -44,16 +44,18 @@ namespace MBKC.Service.Utils
             else if (status == (int)StoreEnum.Status.ACTIVE)
             {
                 return char.ToUpper(StoreEnum.Status.ACTIVE.ToString()[0]) + StoreEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
-            } else if (status == (int)StoreEnum.Status.BE_CONFIRMING)
+            }
+            else if (status == (int)StoreEnum.Status.BE_CONFIRMING)
             {
                 return char.ToUpper(StoreEnum.Status.BE_CONFIRMING.ToString()[0]) + StoreEnum.Status.BE_CONFIRMING.ToString().ToLower().Substring(1);
-            }else if (status == (int)StoreEnum.Status.REJECTED)
+            }
+            else if (status == (int)StoreEnum.Status.REJECTED)
             {
                 return char.ToUpper(StoreEnum.Status.REJECTED.ToString()[0]) + StoreEnum.Status.REJECTED.ToString().ToLower().Substring(1);
             }
             return char.ToUpper(StoreEnum.Status.DEACTIVE.ToString()[0]) + StoreEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
         }
-        
+
         public static string ChangeCategoryStatus(int status)
         {
             if (status == (int)CategoryEnum.Status.INACTIVE)
@@ -134,6 +136,20 @@ namespace MBKC.Service.Utils
                 return char.ToUpper(AccountEnum.Status.ACTIVE.ToString()[0]) + AccountEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
             }
             return char.ToUpper(AccountEnum.Status.DEACTIVE.ToString()[0]) + AccountEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
+
+        }
+
+        public static string ChangeStorePartnerStatus(int status)
+        {
+            if (status == (int)StorePartnerEnum.Status.INACTIVE)
+            {
+                return char.ToUpper(StorePartnerEnum.Status.INACTIVE.ToString()[0]) + StorePartnerEnum.Status.INACTIVE.ToString().ToLower().Substring(1);
+            }
+            else if (status == (int)StorePartnerEnum.Status.ACTIVE)
+            {
+                return char.ToUpper(StorePartnerEnum.Status.ACTIVE.ToString()[0]) + StorePartnerEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
+            }
+            return char.ToUpper(StorePartnerEnum.Status.DEACTIVE.ToString()[0]) + StorePartnerEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
 
         }
     }

@@ -14,6 +14,7 @@ using MBKC.Service.Constants;
 using MBKC.Repository.Enums;
 using MBKC.Service.DTOs.Cashiers.Requests;
 using MBKC.Service.DTOs.Cashiers.Responses;
+using MBKC.Repository.RedisModels;
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -128,7 +129,8 @@ namespace MBKC.Service.Services.Implementations
                     Email = createCashierRequest.Email,
                     Password = StringUtil.EncryptData(password),
                     Role = cashierRole,
-                    Status = (int)AccountEnum.Status.ACTIVE
+                    Status = (int)AccountEnum.Status.ACTIVE,
+                    IsConfirmed = false
                 };
                 FileStream avatarFileStream = FileUtil.ConvertFormFileToStream(createCashierRequest.Avatar);
                 Guid guid = Guid.NewGuid();

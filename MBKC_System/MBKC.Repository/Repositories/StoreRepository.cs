@@ -80,9 +80,9 @@ namespace MBKC.Repository.Repositories
                 else if (searchValue != null && searchValueWithoutUnicode == null && brandId == null && kitchenCenterId != null)
                 {
                     return await this._dbContext.Stores.Include(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId)
-                                                       .Where(x => x.Name.ToLower().Contains(searchValue.ToLower()) 
+                                                       .Where(x => x.Name.ToLower().Contains(searchValue.ToLower())
                                                                 && x.KitchenCenter.KitchenCenterId == kitchenCenterId
-                                                                && x.Status != (int) KitchenCenterEnum.Status.DEACTIVE).CountAsync();
+                                                                && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE).CountAsync();
                 }
                 else if (searchValue == null && searchValueWithoutUnicode == null && brandId == null && kitchenCenterId != null)
                 {
@@ -93,7 +93,7 @@ namespace MBKC.Repository.Repositories
                 else if (searchValue == null && searchValueWithoutUnicode == null && brandId != null && kitchenCenterId != null)
                 {
                     return await this._dbContext.Stores.Include(x => x.Brand).Include(x => x.KitchenCenter)
-                                                 .Where(x => x.Brand.BrandId == brandId 
+                                                 .Where(x => x.Brand.BrandId == brandId
                                                           && x.KitchenCenter.KitchenCenterId == kitchenCenterId
                                                           && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE)
                                                  .CountAsync();
@@ -117,9 +117,9 @@ namespace MBKC.Repository.Repositories
                 else if (searchValue != null && searchValueWithoutUnicode == null && brandId != null && kitchenCenterId != null)
                 {
                     return await this._dbContext.Stores.Include(x => x.Brand).Where(x => x.Name.ToLower().Contains(searchValue.ToLower()) &&
-                                                                                         x.Brand.BrandId == brandId && 
-                                                                                         x.KitchenCenter.KitchenCenterId == kitchenCenterId && 
-                                                                                         x.Status != (int) KitchenCenterEnum.Status.DEACTIVE)
+                                                                                         x.Brand.BrandId == brandId &&
+                                                                                         x.KitchenCenter.KitchenCenterId == kitchenCenterId &&
+                                                                                         x.Status != (int)KitchenCenterEnum.Status.DEACTIVE)
                                                                              .CountAsync();
                 }
                 return await this._dbContext.Stores.Where(x => x.Status != (int)KitchenCenterEnum.Status.DEACTIVE).CountAsync();
@@ -276,9 +276,10 @@ namespace MBKC.Repository.Repositories
             try
             {
                 return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
-                                                 .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                 .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                 .FirstOrDefaultAsync(x => x.StoreId == id && x.Status != (int)StoreEnum.Status.DEACTIVE);
+                                                   .Include(x => x.StorePartners)
+                                                   .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                   .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                   .FirstOrDefaultAsync(x => x.StoreId == id && x.Status != (int)StoreEnum.Status.DEACTIVE);
             }
             catch (Exception ex)
             {

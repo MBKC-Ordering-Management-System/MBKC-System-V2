@@ -88,6 +88,14 @@
             public const string AccountEndpoint = ApiEndpoint + "/accounts" + "/{id}";
         }
 
+        public static class StorePartner
+        {
+            public const string StorePartnersEndpoint = ApiEndpoint + "/store-partners";
+            public const string StorePartnerEndpoint = StorePartnersEndpoint + "/{storeId}/{partnerId}";
+            public const string UpdatingStatusStorePartnerEndpoint = StorePartnerEndpoint + "/updating-status";
+
+        }
+
         public static class MappingProduct
         {
             public const string MappingProductsEndpoint = ApiEndpoint + "/mapping-products";

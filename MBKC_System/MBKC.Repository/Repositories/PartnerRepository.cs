@@ -159,5 +159,17 @@ namespace MBKC.Repository.Repositories
             }
         }
         #endregion
+
+        public async Task<Partner> GetPartnerAsync(int partnerId)
+        {
+            try
+            {
+                return await this._dbContext.Partners.FirstOrDefaultAsync(p => p.PartnerId == partnerId && p.Status != (int)PartnerEnum.Status.DEACTIVE);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }

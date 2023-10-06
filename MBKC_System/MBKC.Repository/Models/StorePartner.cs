@@ -12,6 +12,7 @@ namespace MBKC.Repository.Models
     {
         public int StoreId { get; set; }
         public int PartnerId { get; set; }
+        public DateTime CreatedDate { get; set; }
         public string UserName { get; set; }
         public string Password { get; set; }
         public int Status { get; set; }

@@ -66,9 +66,10 @@ namespace MBKC.Repository.DBContext
             #region Account
             modelBuilder.Entity<Account>(account =>
             {
-                account.Property(prop => prop.Email).IsUnicode(false).HasMaxLength(100).IsRequired(false);
-                account.Property(prop => prop.Password).IsUnicode(false).HasMaxLength(50).IsRequired(false);
+                account.Property(prop => prop.Email).IsUnicode(false).HasMaxLength(100).IsRequired(true);
+                account.Property(prop => prop.Password).IsUnicode(false).HasMaxLength(50).IsRequired(true);
                 account.Property(prop => prop.Status).IsRequired(true);
+                account.Property(prop => prop.IsConfirmed).IsRequired(true);
             });
             #endregion
 
@@ -315,10 +316,10 @@ namespace MBKC.Repository.DBContext
             modelBuilder.Entity<StorePartner>(storePartner =>
             {
                 modelBuilder.Entity<StorePartner>().HasKey(key => new { key.StoreId, key.PartnerId , key.CreatedDate});
+                storePartner.Property(prop => prop.CreatedDate).HasColumnType("datetime2").IsRequired(true);
                 storePartner.Property(prop => prop.UserName).IsUnicode(false).HasMaxLength(100).IsRequired(true);
                 storePartner.Property(prop => prop.Password).IsUnicode(false).HasMaxLength(50).IsRequired(true);
                 storePartner.Property(prop => prop.Status).IsRequired(true);
-
             });
             #endregion
 
