@@ -194,6 +194,7 @@ namespace MBKC.API.Extentions
 
             services.AddScoped<IValidator<PostStorePartnerRequest>, CreateStorePartnerValidator>();
             services.AddScoped<IValidator<UpdateStorePartnerRequest>, UpdateStorePartnerValidator>();
+            services.AddScoped<IValidator<UpdateStorePartnerStatusRequest>, UpdateStorePartnerStatusValidator>();
 
             return services;
         }

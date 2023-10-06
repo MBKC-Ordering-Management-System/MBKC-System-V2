@@ -26,6 +26,7 @@
             public const string NotExistPartnerId = "Partner id does not exist in the system.";
             public const string InvalidPartnerId = "Partner id is not suitable id in the system.";
             public const string CategoryIdNotBelongToBrand = "Category id does not belong to your brand.";
+
         }
 
         public static class LoginMessage
@@ -149,6 +150,7 @@
             public const string LinkedWithParner = "This store is already linked to this partner.";
             public const string UsernameExisted = "User name already exist in the system.";
             public const string NotLinkedWithParner = "This store is not linked to this partner.";
+            public const string DeactiveStorePartner_Update = "Can't update store partner has been deactivated.";
 
         }
     }

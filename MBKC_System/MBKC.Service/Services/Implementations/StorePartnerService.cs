@@ -30,6 +30,14 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
+                if (postStorePartnerRequest.StoreId <= 0)
+                {
+                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidStoreId);
+                }
+                if (postStorePartnerRequest.PartnerId <= 0)
+                {
+                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidPartnerId);
+                }
                 // Get brandId from claim
                 Claim accountId = claims.First(x => x.Type.ToLower().Equals("sid"));
                 var brandAccount = await this._unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId.Value));
@@ -114,7 +122,15 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand))
+                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidStoreId))
+                {
+                    fieldName = "Store id";
+                }
+                else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidPartnerId))
+                {
+                    fieldName = "Partner id";
+                }
+                else if (ex.Message.Equals(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand))
                 {
                     fieldName = "Store id";
                 }
@@ -149,6 +165,16 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
+
+                if (storeId <= 0)
+                {
+                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidStoreId);
+                }
+                if (partnerId <= 0)
+                {
+                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidPartnerId);
+                }
+
                 // Get brandId from claim
                 Claim accountId = claims.First(x => x.Type.ToLower().Equals("sid"));
                 var brandAccount = await this._unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId.Value));
@@ -210,7 +236,15 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand))
+                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidStoreId))
+                {
+                    fieldName = "Store id";
+                }
+                else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidPartnerId))
+                {
+                    fieldName = "Partner id";
+                }
+                else if (ex.Message.Equals(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand))
                 {
                     fieldName = "Store id";
                 }
@@ -233,6 +267,16 @@ namespace MBKC.Service.Services.Implementations
 
             try
             {
+
+                if (storeId <= 0)
+                {
+                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidStoreId);
+                }
+                if (partnerId <= 0)
+                {
+                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidPartnerId);
+                }
+
                 // Get brandId from claim
                 Claim accountId = claims.First(x => x.Type.ToLower().Equals("sid"));
                 var brandAccount = await this._unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId.Value));
@@ -284,7 +328,16 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand))
+
+                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidStoreId))
+                {
+                    fieldName = "Store id";
+                }
+                else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidPartnerId))
+                {
+                    fieldName = "Partner id";
+                }
+                else if (ex.Message.Equals(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand))
                 {
                     fieldName = "Store id";
                 }
@@ -306,6 +359,7 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
+
                 // Get brandId from claim
                 Claim accountId = claims.First(x => x.Type.ToLower().Equals("sid"));
                 var brandAccount = await this._unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId.Value));
@@ -386,6 +440,16 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
+
+                if (storeId <= 0)
+                {
+                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidStoreId);
+                }
+                if (partnerId <= 0)
+                {
+                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidPartnerId);
+                }
+
                 // Get brandId from claim
                 Claim accountId = claims.First(x => x.Type.ToLower().Equals("sid"));
                 var brandAccount = await this._unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId.Value));
@@ -427,15 +491,14 @@ namespace MBKC.Service.Services.Implementations
                     throw new BadRequestException(MessageConstant.StorePartnerMessage.UsernameExisted);
                 }
 
-                if (updateStorePartnerRequest.Status.Trim().ToLower().Equals(ProductEnum.Status.ACTIVE.ToString().ToLower()))
+                if (updateStorePartnerRequest.Status.Trim().ToLower().Equals(StorePartnerEnum.Status.ACTIVE.ToString().ToLower()))
                 {
-                    storePartnerExisted.Status = (int)ProductEnum.Status.ACTIVE;
+                    storePartnerExisted.Status = (int)StorePartnerEnum.Status.ACTIVE;
                 }
-                else if (updateStorePartnerRequest.Status.Trim().ToLower().Equals(ProductEnum.Status.INACTIVE.ToString().ToLower()))
+                else if (updateStorePartnerRequest.Status.Trim().ToLower().Equals(StorePartnerEnum.Status.INACTIVE.ToString().ToLower()))
                 {
-                    storePartnerExisted.Status = (int)ProductEnum.Status.INACTIVE;
+                    storePartnerExisted.Status = (int)StorePartnerEnum.Status.INACTIVE;
                 }
-                storePartnerExisted.CreatedDate = DateTime.Now;
                 this._unitOfWork.StorePartnerRepository.UpdateStorePartner(storePartnerExisted);
                 await this._unitOfWork.CommitAsync();
             }
@@ -456,7 +519,16 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand))
+
+                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidStoreId))
+                {
+                    fieldName = "Store id";
+                }
+                else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidPartnerId))
+                {
+                    fieldName = "Partner id";
+                }
+                else if (ex.Message.Equals(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand))
                 {
                     fieldName = "Store id";
                 }
@@ -477,5 +549,115 @@ namespace MBKC.Service.Services.Implementations
                 throw new Exception(error);
             }
         }
+
+        public async Task UpdateStatusStorePartnerAsync(int storeId, int partnerId, UpdateStorePartnerStatusRequest updateStorePartnerStatusRequest, IEnumerable<Claim> claims)
+        {
+            try
+            {
+
+                if (storeId <= 0)
+                {
+                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidStoreId);
+                }
+                if (partnerId <= 0)
+                {
+                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidPartnerId);
+                }
+
+                // Get brandId from claim
+                Claim accountId = claims.First(x => x.Type.ToLower().Equals("sid"));
+                var brandAccount = await this._unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId.Value));
+                var brandId = brandAccount.Brand.BrandId;
+
+                // Check store belong to brand or not
+                var store = await this._unitOfWork.StoreRepository.GetStoreAsync(storeId);
+                if (store != null)
+                {
+                    if (store.Brand.BrandId != brandId)
+                    {
+                        throw new BadRequestException(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand);
+                    }
+                }
+                else
+                {
+                    throw new NotFoundException(MessageConstant.CommonMessage.NotExistStoreId);
+                }
+
+                // Check partner existed or not
+                var partner = await this._unitOfWork.PartnerRepository.GetPartnerAsync(partnerId);
+                if (partner == null)
+                {
+                    throw new NotFoundException(MessageConstant.CommonMessage.NotExistPartnerId);
+                }
+
+                // Check the store is linked to that partner or not 
+                var storePartnerExisted = await this._unitOfWork.StorePartnerRepository.GetStorePartnerByPartnerIdAndStoreIdAsync(partnerId, storeId);
+                if (storePartnerExisted == null)
+                {
+                    throw new BadRequestException(MessageConstant.StorePartnerMessage.NotLinkedWithParner);
+                }
+
+                if (updateStorePartnerStatusRequest.Status.Trim().ToLower().Equals(StorePartnerEnum.Status.ACTIVE.ToString().ToLower()))
+                {
+                    storePartnerExisted.Status = (int)StorePartnerEnum.Status.ACTIVE;
+                }
+                else if (updateStorePartnerStatusRequest.Status.Trim().ToLower().Equals(StorePartnerEnum.Status.INACTIVE.ToString().ToLower()))
+                {
+                    storePartnerExisted.Status = (int)StorePartnerEnum.Status.INACTIVE;
+                }
+                else if (updateStorePartnerStatusRequest.Status.Trim().ToLower().Equals(StorePartnerEnum.Status.DEACTIVE.ToString().ToLower()))
+                {
+                    throw new BadRequestException(MessageConstant.StorePartnerMessage.DeactiveStorePartner_Update);
+                }
+                this._unitOfWork.StorePartnerRepository.UpdateStorePartner(storePartnerExisted);
+                await this._unitOfWork.CommitAsync();
+            }
+            catch (NotFoundException ex)
+            {
+                string fieldName = "";
+                if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistPartnerId))
+                {
+                    fieldName = "Partner id";
+                }
+                else if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistStoreId))
+                {
+                    fieldName = "Store id";
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new NotFoundException(error);
+            }
+            catch (BadRequestException ex)
+            {
+                string fieldName = "";
+                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidStoreId))
+                {
+                    fieldName = "Store id";
+                }
+                else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidPartnerId))
+                {
+                    fieldName = "Partner id";
+                }
+                else if (ex.Message.Equals(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand))
+                {
+                    fieldName = "Store id";
+                }
+                else if (ex.Message.Equals(MessageConstant.StorePartnerMessage.NotLinkedWithParner))
+                {
+                    fieldName = "Partner id";
+                }
+                else if (ex.Message.Equals(MessageConstant.StorePartnerMessage.DeactiveStorePartner_Update))
+                {
+                    fieldName = "Status";
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new BadRequestException(error);
+            }
+            catch (Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                throw new Exception(error);
+            }
+        }
+
     }
 }
