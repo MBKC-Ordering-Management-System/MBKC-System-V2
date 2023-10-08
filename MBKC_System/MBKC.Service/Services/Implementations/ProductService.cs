@@ -410,7 +410,7 @@ namespace MBKC.Service.Services.Implementations
                     existedCategory = existedParentProduct.Category;
                     if(createProductRequest.Name.Trim().ToLower().Equals($"{existedParentProduct.Name.ToLower()} size {createProductRequest.Size.ToLower()}") == false)
                     {
-                        throw new BadRequestException(MessageConstant.ProductMessage.EndswithProductNameNotContainSize);
+                        throw new BadRequestException(MessageConstant.ProductMessage.ProductNameNotFollowingFormat);
                     }
                 }
 
@@ -462,7 +462,7 @@ namespace MBKC.Service.Services.Implementations
                     ex.Message.Equals(MessageConstant.ProductMessage.CategoryNotSuitableForEXTRAProductType))
                 {
                     fieldName = "Category id";
-                } else if (ex.Message.Equals(MessageConstant.ProductMessage.EndswithProductNameNotContainSize))
+                } else if (ex.Message.Equals(MessageConstant.ProductMessage.ProductNameNotFollowingFormat))
                 {
                     fieldName = "Name";
                 }
