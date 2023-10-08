@@ -66,7 +66,7 @@ namespace MBKC.Repository.Repositories
                                                                      : true))
                                                          .Where(delegate (Product product)
                                                          {
-                                                             if (searchValueWithoutUnicode.ToLower().Contains(StringUtil.RemoveSign4VietnameseString(product.Name).ToLower()))
+                                                             if (StringUtil.RemoveSign4VietnameseString(product.Name).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
                                                              {
                                                                  return true;
                                                              }
@@ -151,7 +151,7 @@ namespace MBKC.Repository.Repositories
                                                                          : true))
                                                              .Where(delegate (Product product)
                                                              {
-                                                                 if (searchValueWithoutUnicode.ToLower().Contains(StringUtil.RemoveSign4VietnameseString(product.Name).ToLower()))
+                                                                 if (StringUtil.RemoveSign4VietnameseString(product.Name).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
                                                                  {
                                                                      return true;
                                                                  }
@@ -227,7 +227,7 @@ namespace MBKC.Repository.Repositories
                                                                      : true))
                                                          .Where(delegate (Product product)
                                                          {
-                                                             if (searchValueWithoutUnicode.ToLower().Contains(StringUtil.RemoveSign4VietnameseString(product.Name).ToLower()))
+                                                             if (StringUtil.RemoveSign4VietnameseString(product.Name).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
                                                              {
                                                                  return true;
                                                              }
