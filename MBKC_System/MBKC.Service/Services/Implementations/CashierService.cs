@@ -102,8 +102,8 @@ namespace MBKC.Service.Services.Implementations
 
                 KitchenCenter existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(email);
 
-                Cashier existedCashierWithEmail = await this._unitOfWork.CashierRepository.GetCashierAsync(createCashierRequest.Email);
-                if (existedCashierWithEmail is not null)
+                Account existedAccount = await this._unitOfWork.AccountRepository.GetAccountAsync(createCashierRequest.Email);
+                if (existedAccount != null)
                 {
                     throw new BadRequestException(MessageConstant.CommonMessage.AlreadyExistEmail);
                 }
