@@ -633,7 +633,7 @@ namespace MBKC.Service.Services.Implementations
                         throw new BadRequestException(MessageConstant.ProductMessage.ParentProductIdNotBelongToBrand);
                     }
 
-                    if (existedParentProduct.Type.ToUpper().Equals(ProductEnum.Type.PARENT.ToString().ToLower()) == false)
+                    if (existedParentProduct.Type.ToUpper().Equals(ProductEnum.Type.PARENT.ToString().ToUpper()) == false)
                     {
                         throw new BadRequestException(MessageConstant.ProductMessage.ProductIdNotParentType);
                     }
