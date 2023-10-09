@@ -10,6 +10,7 @@ namespace MBKC.Service.DTOs.StorePartners
     {
         public int StoreId { get; set; }
         public int PartnerId { get; set; }
+        public string PartnerLogo { get; set; }
         public string PartnerName { get; set; }
         public string UserName { get; set; }
         public string Password { get; set; }
