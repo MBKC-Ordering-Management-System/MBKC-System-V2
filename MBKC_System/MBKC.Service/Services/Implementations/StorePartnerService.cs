@@ -122,7 +122,7 @@ namespace MBKC.Service.Services.Implementations
                         PartnerId = p.PartnerId,
                         CreatedDate = DateTime.Now,
                         UserName = p.UserName,
-                        Password = StringUtil.EncryptData(p.Password),
+                        Password = p.Password,
                         Status = (int)StorePartnerEnum.Status.ACTIVE
                     };
                     listStorePartnerInsert.Add(storePartnerInsert);
@@ -603,8 +603,10 @@ namespace MBKC.Service.Services.Implementations
                 {
                     storePartnerExisted.Status = (int)StorePartnerEnum.Status.INACTIVE;
                 }
+                storePartnerExisted.UserName = updateStorePartnerRequest.UserName;
+                storePartnerExisted.Password = updateStorePartnerRequest.Password;
                 this._unitOfWork.StorePartnerRepository.UpdateStorePartner(storePartnerExisted);
-                await this._unitOfWork.CommitAsync();
+                this._unitOfWork.Commit();
             }
             catch (NotFoundException ex)
             {
