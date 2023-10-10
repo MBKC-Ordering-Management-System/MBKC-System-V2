@@ -355,6 +355,86 @@ namespace MBKC.Service.Services.Implementations
             }
         }
 
+        public async Task<GetStorePartnerInformationResponse> GetPartnerInformationAsync(int storeId, IEnumerable<Claim> claims)
+        {
+            try
+            {
+                if (storeId <= 0)
+                {
+                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidStoreId);
+                }
+
+                // Get brandId from claim
+                Claim accountId = claims.First(x => x.Type.ToLower().Equals("sid"));
+                var brandAccount = await this._unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId.Value));
+                var brandId = brandAccount.Brand.BrandId;
+
+                // Check store belong to brand or not
+                var store = await this._unitOfWork.StoreRepository.GetStoreAsync(storeId);
+                if (store != null)
+                {
+                    if (store.Brand.BrandId != brandId)
+                    {
+                        throw new BadRequestException(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand);
+                    }
+                }
+                else
+                {
+                    throw new NotFoundException(MessageConstant.CommonMessage.NotExistStoreId);
+                }
+                var storePartner = store.StorePartners.ToList();
+                var partnersInformation = new List<GetPartnerInformationResponse>();
+                foreach (var p in storePartner)
+                {
+                    var partner = new GetPartnerInformationResponse();
+                    partner.PartnerId = p.PartnerId;
+                    partner.PartnerLogo = p.Partner.Logo;
+                    partner.Status = StatusUtil.ChangeStorePartnerStatus(p.Status);
+                    partner.UserName = p.UserName;
+                    partner.Password = p.Password;
+                    partner.PartnerName = p.Partner.Name;
+                    partnersInformation.Add(partner);
+                }
+                return new GetStorePartnerInformationResponse()
+                {
+                    KitchenCenterName = storePartner.Select(x => x.Store.KitchenCenter.Name).FirstOrDefault(),
+                    StoreId = storePartner.Select(x => x.StoreId).FirstOrDefault(),
+                    StoreName = storePartner.Select(x => x.Store.Name).FirstOrDefault(),
+                    StorePartners = partnersInformation
+                };
+            }
+            catch (NotFoundException ex)
+            {
+                string fieldName = "";
+                if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistStoreId))
+                {
+                    fieldName = "Store id";
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new NotFoundException(error);
+            }
+            catch (BadRequestException ex)
+            {
+                string fieldName = "";
+
+                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidStoreId))
+                {
+                    fieldName = "Store id";
+                }
+                else if (ex.Message.Equals(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand))
+                {
+                    fieldName = "Store id";
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new BadRequestException(error);
+            }
+            catch (Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                throw new Exception(error);
+            }
+        }
+
         public async Task<GetStorePartnersResponse> GetStorePartnersAsync(string? searchValue, int? currentPage, int? itemsPerPage, IEnumerable<Claim> claims)
         {
             try

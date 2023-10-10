@@ -298,5 +298,41 @@ namespace MBKC.API.Controllers
             });
         }
         #endregion
+
+        #region Get store partner information by store Id
+        /// <summary>
+        /// Get a store partner information by store Id.
+        /// </summary>
+        /// <param name="storeId">The store's id.</param>
+        /// <returns>
+        /// An object contains the store partner, partner, kitchen center information.
+        /// </returns>
+        /// <remarks>
+        ///     Sample request:
+        ///
+        ///         GET 
+        ///         storeId = 1
+        /// </remarks>
+        /// <response code="200">Get store partner by store Id successfully.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
+        /// <response code="404">Some Error about request data not found.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
+        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(GetStorePartnerInformationResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Produces(MediaTypeConstant.Application_Json)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager)]
+        [HttpGet(APIEndPointConstant.StorePartner.PartnerInformationEndpoint)]
+        public async Task<IActionResult> GetStorePartnerInformationByIdAsync([FromRoute] int storeId)
+        {
+            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
+            var getStorePartnerResponse = await this._storePartnerService.GetPartnerInformationAsync(storeId, claims);
+            return Ok(getStorePartnerResponse);
+        }
+        #endregion
     }
 }
