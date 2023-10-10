@@ -14,9 +14,11 @@ namespace MBKC.Repository.Repositories
     public class StorePartnerRepository
     {
         private MBKCDbContext _dbContext;
+        protected readonly DbSet<StorePartner> _dbSet;
         public StorePartnerRepository(MBKCDbContext dbContext)
         {
             this._dbContext = dbContext;
+            this._dbSet = dbContext.Set<StorePartner>();
         }
 
         public async Task<StorePartner> GetStorePartnerByPartnerIdAndStoreIdAsync(int partnerId, int storeId)
@@ -50,8 +52,8 @@ namespace MBKC.Repository.Repositories
                 if (searchName == null && searchValueWithoutUnicode != null)
                 {
                     return this._dbContext.StorePartners.Include(x => x.Partner)
-                                                         .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
-
+                                                        .Include(x => x.Store).ThenInclude(x => x.KitchenCenter)
+                                                        .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
                                                                      (brandId != null
                                                                      ? x.Store.Brand.BrandId == brandId
                                                                      : true)
@@ -68,7 +70,8 @@ namespace MBKC.Repository.Repositories
                 else if (searchName != null && searchValueWithoutUnicode == null)
                 {
                     return await this._dbContext.StorePartners.Include(x => x.Partner)
-                                                         .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
+                                                              .Include(x => x.Store).ThenInclude(x => x.KitchenCenter)
+                                                              .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
                                                                      x.Partner.Name.ToLower().Contains(searchName.ToLower()) &&
 
                                                                      (brandId != null
@@ -77,7 +80,8 @@ namespace MBKC.Repository.Repositories
 
                 }
                 return await this._dbContext.StorePartners.Include(x => x.Partner)
-                                                         .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
+                                                          .Include(x => x.Store).ThenInclude(x => x.KitchenCenter)
+                                                          .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
                                                                      (brandId != null
                                                                      ? x.Store.Brand.BrandId == brandId
                                                                      : true)).CountAsync();
@@ -120,7 +124,8 @@ namespace MBKC.Repository.Repositories
                 if (searchName == null && searchValueWithoutUnicode != null)
                 {
                     return this._dbContext.StorePartners.Include(x => x.Partner)
-                                                         .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
+                                                        .Include(x => x.Store).ThenInclude(x => x.KitchenCenter)
+                                                        .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
                                                                      (brandId != null
                                                                      ? x.Store.Brand.BrandId == brandId
                                                                      : true))
@@ -137,7 +142,8 @@ namespace MBKC.Repository.Repositories
                 else if (searchName != null && searchValueWithoutUnicode == null)
                 {
                     return await this._dbContext.StorePartners.Include(x => x.Partner)
-                                                         .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
+                                                              .Include(x => x.Store).ThenInclude(x => x.KitchenCenter)
+                                                              .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
                                                                       x.Partner.Name.ToLower().Contains(searchName.ToLower()) &&
 
                                                                      (brandId != null
@@ -145,12 +151,25 @@ namespace MBKC.Repository.Repositories
                                                                      : true)).Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
                 }
                 return await this._dbContext.StorePartners.Include(x => x.Partner)
-                                                         .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
+                                                          .Include(x => x.Store).ThenInclude(x => x.KitchenCenter)
+                                                          .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
 
                                                                      (brandId != null
                                                                      ? x.Store.Brand.BrandId == brandId
                                                                      : true)).Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
 
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task InsertRangeAsync(IEnumerable<StorePartner> storePartners)
+        {
+            try
+            {
+                await this._dbSet.AddRangeAsync(storePartners);
             }
             catch (Exception ex)
             {

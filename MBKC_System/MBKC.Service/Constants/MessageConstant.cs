@@ -174,7 +174,7 @@
             public const string UsernameExisted = "User name already exist in the system.";
             public const string NotLinkedWithParner = "This store is not linked to this partner.";
             public const string DeactiveStorePartner_Update = "Can't update store partner has been deactivated.";
-
+            public const string DupplicatedPartnerId_Create = "Partner Id cannot be duplicated";
         }
 
         public static class MappingProductMessage

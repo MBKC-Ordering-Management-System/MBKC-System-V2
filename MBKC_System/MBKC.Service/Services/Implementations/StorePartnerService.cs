@@ -34,10 +34,24 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new BadRequestException(MessageConstant.CommonMessage.InvalidStoreId);
                 }
-                if (postStorePartnerRequest.PartnerId <= 0)
+                foreach (var p in postStorePartnerRequest.partnerAccountRequests)
                 {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidPartnerId);
+                    if (p.PartnerId <= 0)
+                    {
+                        throw new BadRequestException(MessageConstant.CommonMessage.InvalidPartnerId);
+                    }
                 }
+
+                // Check dupplicated partnerId request.
+                var hasDuplicatePartnerId = postStorePartnerRequest.partnerAccountRequests
+                      .GroupBy(request => request.PartnerId)
+                      .Any(group => group.Count() > 1);
+
+                if (hasDuplicatePartnerId)
+                {
+                    throw new BadRequestException(MessageConstant.StorePartnerMessage.DupplicatedPartnerId_Create);
+                }
+
                 // Get brandId from claim
                 Claim accountId = claims.First(x => x.Type.ToLower().Equals("sid"));
                 var brandAccount = await this._unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId.Value));
@@ -68,42 +82,53 @@ namespace MBKC.Service.Services.Implementations
                 }
 
                 // Check partner existed or not
-                var partner = await this._unitOfWork.PartnerRepository.GetPartnerAsync(postStorePartnerRequest.PartnerId);
-                if (partner == null)
+                foreach (var p in postStorePartnerRequest.partnerAccountRequests)
                 {
-                    throw new NotFoundException(MessageConstant.CommonMessage.NotExistPartnerId);
+                    var partner = await this._unitOfWork.PartnerRepository.GetPartnerAsync(p.PartnerId);
+                    if (partner == null)
+                    {
+                        throw new NotFoundException(MessageConstant.CommonMessage.NotExistPartnerId);
+                    }
                 }
 
-
-
                 // Check the store is linked to that partner or not 
-                var storePartner = await this._unitOfWork.StorePartnerRepository.GetStorePartnerByPartnerIdAndStoreIdAsync(postStorePartnerRequest.PartnerId, postStorePartnerRequest.StoreId);
-                if (storePartner != null)
+                foreach (var p in postStorePartnerRequest.partnerAccountRequests)
                 {
-                    throw new BadRequestException(MessageConstant.StorePartnerMessage.LinkedWithParner);
+                    var storePartner = await this._unitOfWork.StorePartnerRepository.GetStorePartnerByPartnerIdAndStoreIdAsync(p.PartnerId, postStorePartnerRequest.StoreId);
+                    if (storePartner != null)
+                    {
+                        throw new BadRequestException(MessageConstant.StorePartnerMessage.LinkedWithParner);
+                    }
                 }
 
                 // Check user name with difference store id
-                var checkUserNameInDifferenceStore = await this._unitOfWork.StorePartnerRepository.GetStorePartnersByUserNameAndStoreIdAsync(postStorePartnerRequest.UserName, store.StoreId, postStorePartnerRequest.PartnerId);
-
-                if (checkUserNameInDifferenceStore.Any())
+                foreach (var p in postStorePartnerRequest.partnerAccountRequests)
                 {
-                    throw new BadRequestException(MessageConstant.StorePartnerMessage.UsernameExisted);
+                    var checkUserNameInDifferenceStore = await this._unitOfWork.StorePartnerRepository.GetStorePartnersByUserNameAndStoreIdAsync(p.UserName, store.StoreId, p.PartnerId);
+
+                    if (checkUserNameInDifferenceStore.Any())
+                    {
+                        throw new BadRequestException(MessageConstant.StorePartnerMessage.UsernameExisted);
+                    }
                 }
 
-                var storePartnerInsert = new StorePartner()
+                //Insert list store partner to database
+                var listStorePartnerInsert = new List<StorePartner>();
+                foreach (var p in postStorePartnerRequest.partnerAccountRequests)
                 {
-                    StoreId = postStorePartnerRequest.StoreId,
-                    PartnerId = postStorePartnerRequest.PartnerId,
-                    CreatedDate = DateTime.Now,
-                    UserName = postStorePartnerRequest.UserName,
-                    Password = StringUtil.EncryptData(postStorePartnerRequest.Password),
-                    Status = (int)StorePartnerEnum.Status.ACTIVE
-                };
-
-                await this._unitOfWork.StorePartnerRepository.CreateStorePartnerAsync(storePartnerInsert);
+                    var storePartnerInsert = new StorePartner()
+                    {
+                        StoreId = postStorePartnerRequest.StoreId,
+                        PartnerId = p.PartnerId,
+                        CreatedDate = DateTime.Now,
+                        UserName = p.UserName,
+                        Password = StringUtil.EncryptData(p.Password),
+                        Status = (int)StorePartnerEnum.Status.ACTIVE
+                    };
+                    listStorePartnerInsert.Add(storePartnerInsert);
+                }
+                await this._unitOfWork.StorePartnerRepository.InsertRangeAsync(listStorePartnerInsert);
                 await this._unitOfWork.CommitAsync();
-
             }
             catch (NotFoundException ex)
             {
@@ -406,8 +431,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     totalPages = 0;
                 }
-
-                _mapper.Map(storePartners, getStorePartnersResponse);
+               _mapper.Map(storePartners, getStorePartnersResponse);
                 return new GetStorePartnersResponse()
                 {
                     StorePartners = getStorePartnersResponse,
@@ -629,6 +653,7 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
+
                 if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidStoreId))
                 {
                     fieldName = "Store id";
@@ -642,6 +667,10 @@ namespace MBKC.Service.Services.Implementations
                     fieldName = "Store id";
                 }
                 else if (ex.Message.Equals(MessageConstant.StorePartnerMessage.NotLinkedWithParner))
+                {
+                    fieldName = "Partner id";
+                }
+                else if (ex.Message.Equals(MessageConstant.StorePartnerMessage.DupplicatedPartnerId_Create))
                 {
                     fieldName = "Partner id";
                 }

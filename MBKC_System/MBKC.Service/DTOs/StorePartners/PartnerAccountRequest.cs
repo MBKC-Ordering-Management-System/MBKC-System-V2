@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace MBKC.Service.DTOs.StorePartners
 {
-    public class PostStorePartnerRequest
+    public class PartnerAccountRequest
     {
-        public int StoreId { get; set; }
-        public List<PartnerAccountRequest> partnerAccountRequests { get; set; }
+        public int PartnerId { get; set; }
+        public string UserName { get; set; }
+        public string Password { get; set; }
     }
 }

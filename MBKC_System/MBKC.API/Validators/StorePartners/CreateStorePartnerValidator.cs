@@ -8,19 +8,23 @@ namespace MBKC.API.Validators.StorePartners
         public CreateStorePartnerValidator()
         {
             #region UserName
-            RuleFor(s => s.UserName)
+            RuleForEach(storePartner => storePartner.partnerAccountRequests)
+                .ChildRules(partnerAccount => partnerAccount.RuleFor(username => username.UserName)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotNull().WithMessage("{PropertyName} is not null.")
                 .NotEmpty().WithMessage("{PropertyName} is not empty.")
-                .MaximumLength(100).WithMessage("{PropertyName} is required less then or equal to 100 characters.");
+                .MaximumLength(100).WithMessage("{PropertyName} is required less then or equal to 100 characters."));
+
+
             #endregion
 
             #region Password
-            RuleFor(s => s.Password)
+            RuleForEach(storePartner => storePartner.partnerAccountRequests)
+                .ChildRules(partnerAccount => partnerAccount.RuleFor(username => username.Password)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotNull().WithMessage("{PropertyName} is not null.")
                 .NotEmpty().WithMessage("{PropertyName} is not empty.")
-                .MaximumLength(50).WithMessage("{PropertyName} is required less then or equal to 50 characters.");
+                .MaximumLength(50).WithMessage("{PropertyName} is required less then or equal to 50 characters."));
             #endregion
         }
     }
