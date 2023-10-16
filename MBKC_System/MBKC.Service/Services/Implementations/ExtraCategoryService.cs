@@ -1,12 +1,6 @@
 ﻿using AutoMapper;
-using MBKC.Service.Services.Interfaces;
 using MBKC.Repository.Infrastructures;
-using MBKC.Repository.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MBKC.Service.Services.Interfaces;
 namespace MBKC.Service.Services.Implementations
 {
     public class ExtraCategoryService : IExtraCategoryService

@@ -152,6 +152,39 @@ namespace MBKC.Repository.Migrations
                     b.ToTable("BrandAccounts");
                 });
 
+            modelBuilder.Entity("MBKC.Repository.Models.BrandPartner", b =>
+                {
+                    b.Property<int>("BrandId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PartnerId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(100)");
+
+                    b.HasKey("BrandId", "PartnerId", "CreatedDate");
+
+                    b.HasIndex("PartnerId");
+
+                    b.ToTable("BrandPartner");
+                });
+
             modelBuilder.Entity("MBKC.Repository.Models.Cashier", b =>
                 {
                     b.Property<int>("AccountId")
@@ -977,6 +1010,25 @@ namespace MBKC.Repository.Migrations
                     b.Navigation("Account");
 
                     b.Navigation("Brand");
+                });
+
+            modelBuilder.Entity("MBKC.Repository.Models.BrandPartner", b =>
+                {
+                    b.HasOne("MBKC.Repository.Models.Brand", "Brand")
+                        .WithMany()
+                        .HasForeignKey("BrandId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MBKC.Repository.Models.Partner", "Partner")
+                        .WithMany()
+                        .HasForeignKey("PartnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Brand");
+
+                    b.Navigation("Partner");
                 });
 
             modelBuilder.Entity("MBKC.Repository.Models.Cashier", b =>

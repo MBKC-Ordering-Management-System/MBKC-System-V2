@@ -2,14 +2,12 @@
 using MBKC.Repository.Enums;
 using MBKC.Repository.Infrastructures;
 using MBKC.Repository.Models;
-using MBKC.Repository.RedisModels;
 using MBKC.Service.Constants;
 using MBKC.Service.DTOs.Stores;
 using MBKC.Service.Exceptions;
 using MBKC.Service.Services.Interfaces;
 using MBKC.Service.Utils;
 using System.Security.Claims;
-using static MBKC.Service.Constants.EmailMessageConstant;
 using Brand = MBKC.Repository.Models.Brand;
 using KitchenCenter = MBKC.Repository.Models.KitchenCenter;
 using Store = MBKC.Repository.Models.Store;
@@ -74,6 +72,10 @@ namespace MBKC.Service.Services.Implementations
                             throw new BadRequestException(MessageConstant.StoreMessage.BrandNotJoinKitchenCenter);
                         }
                     }
+                } else if(claims != null && brandId == null)
+                {
+                    existedBrand = await this._unitOfWork.BrandRepository.GetBrandAsync(email);
+                    brandId = existedBrand.BrandId;
                 }
 
                 if (claims != null && kitchenCenterId != null)
@@ -89,6 +91,10 @@ namespace MBKC.Service.Services.Implementations
                             throw new BadRequestException(MessageConstant.StoreMessage.KitchenCenterNotHaveBrand);
                         }
                     }
+                } else if(claims != null && kitchenCenterId == null)
+                {
+                    existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(email);
+                    kitchenCenterId = existedKitchenCenter.KitchenCenterId;
                 }
 
                 if (itemsPerPage != null && itemsPerPage <= 0)

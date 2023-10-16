@@ -1,20 +1,12 @@
 ﻿using AutoMapper;
-using MBKC.Service.Services.Interfaces;
 using MBKC.Repository.Infrastructures;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MBKC.Service.Utils;
 using MBKC.Repository.Models;
-using MBKC.Service.DTOs.Accounts;
-using System.Security.Claims;
 using MBKC.Service.Constants;
+using MBKC.Service.DTOs.Accounts;
 using MBKC.Service.Exceptions;
-using System.Security.Cryptography.X509Certificates;
-using MBKC.Repository.RedisModels;
-using MBKC.Repository.SMTPModels;
+using MBKC.Service.Services.Interfaces;
+using MBKC.Service.Utils;
+using System.Security.Claims;
 
 namespace MBKC.Service.Services.Implementations
 {

@@ -323,6 +323,17 @@ namespace MBKC.Repository.DBContext
             });
             #endregion
 
+            #region BrandPartner
+            modelBuilder.Entity<BrandPartner>().HasKey(key => new { key.BrandId, key.PartnerId, key.CreatedDate });
+            modelBuilder.Entity<BrandPartner>(brandPartner =>
+            {
+                brandPartner.Property(prop => prop.CreatedDate).HasColumnType("datetime2").IsRequired(true);
+                brandPartner.Property(prop => prop.UserName).IsUnicode(false).HasMaxLength(100).IsRequired(true);
+                brandPartner.Property(prop => prop.Password).IsUnicode(false).HasMaxLength(50).IsRequired(true);
+                brandPartner.Property(prop => prop.Status).IsRequired(true);
+            });
+            #endregion
+
             #region Transaction
             modelBuilder.Entity<Transaction>(transaction =>
             {

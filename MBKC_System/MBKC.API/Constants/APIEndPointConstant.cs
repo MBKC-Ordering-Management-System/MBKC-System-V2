@@ -101,5 +101,11 @@
             public const string MappingProductsEndpoint = ApiEndpoint + "/mapping-products";
             public const string MappingProductEndpoint = MappingProductsEndpoint + "/{productId}/{partnerId}/{storeId}";
         }
+
+        public static class BrandPartner
+        {
+            public const string BrandPartnersEndPoint = ApiEndpoint + "/BrandPartners";
+            public const string UpdatingStatusBrandPartnerEndPoint = BrandPartnersEndPoint + "/updating-status";
+        }
     }
 }

@@ -83,6 +83,7 @@ namespace MBKC.API.Extentions
             services.AddScoped<IStorePartnerService, StorePartnerService>();
             services.AddScoped<ITransactionService, TransactionService>();
             services.AddScoped<IWalletService, WalletService>();
+            services.AddScoped<IBrandPartnerService, BrandPartnerService>();
             return services;
         }
 
@@ -202,11 +203,9 @@ namespace MBKC.API.Extentions
             services.AddScoped<IValidator<CashierRequest>, GetCashierValidator>();
             services.AddScoped<IValidator<AccountIdRequest>, AccountIdValidator>();
             services.AddScoped<IValidator<UpdateAccountRequest>, UpdateAccountValidator>();
-
             services.AddScoped<IValidator<PostStorePartnerRequest>, CreateStorePartnerValidator>();
             services.AddScoped<IValidator<UpdateStorePartnerRequest>, UpdateStorePartnerValidator>();
             services.AddScoped<IValidator<UpdateStorePartnerStatusRequest>, UpdateStorePartnerStatusValidator>();
-
             services.AddScoped<IValidator<PostMappingProductRequest>, CreateMappingProductValidator>();
             services.AddScoped<IValidator<UpdateMappingProductRequest>, UpdateMappingProductValidator>();
             return services;

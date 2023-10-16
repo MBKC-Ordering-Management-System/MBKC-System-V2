@@ -1,19 +1,16 @@
 ﻿using AutoMapper;
+using MBKC.Repository.Enums;
+using MBKC.Repository.Infrastructures;
+using MBKC.Repository.Models;
+using MBKC.Service.Constants;
 using MBKC.Service.DTOs;
 using MBKC.Service.DTOs.Brands;
 using MBKC.Service.Exceptions;
 using MBKC.Service.Services.Interfaces;
-using MBKC.Repository.Enums;
-using MBKC.Repository.Infrastructures;
-using MBKC.Repository.Models;
-using System.Security.Claims;
 using MBKC.Service.Utils;
-using MBKC.Service.Constants;
-using StackExchange.Redis;
-using Role = MBKC.Repository.Models.Role;
-using MBKC.Repository.RedisModels;
-using static MBKC.Service.Constants.EmailMessageConstant;
+using System.Security.Claims;
 using Brand = MBKC.Repository.Models.Brand;
+using Role = MBKC.Repository.Models.Role;
 
 namespace MBKC.Service.Services.Implementations
 {

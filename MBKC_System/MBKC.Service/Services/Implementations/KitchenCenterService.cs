@@ -1,14 +1,13 @@
 ﻿using AutoMapper;
-using MBKC.Service.DTOs.KitchenCenters;
-using MBKC.Service.Exceptions;
-using MBKC.Service.Services.Interfaces;
 using MBKC.Repository.Enums;
 using MBKC.Repository.Infrastructures;
 using MBKC.Repository.Models;
 using MBKC.Service.Constants;
+using MBKC.Service.DTOs.KitchenCenters;
+using MBKC.Service.Exceptions;
+using MBKC.Service.Services.Interfaces;
 using MBKC.Service.Utils;
 using System.Security.Claims;
-using MBKC.Repository.RedisModels;
 
 namespace MBKC.Service.Services.Implementations
 {

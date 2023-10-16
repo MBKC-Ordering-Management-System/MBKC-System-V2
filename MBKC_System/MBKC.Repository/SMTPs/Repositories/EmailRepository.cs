@@ -1,11 +1,11 @@
 ﻿using MBKC.Repository.Enums;
 using MBKC.Repository.RedisModels;
-using MBKC.Repository.SMTPModels;
+using MBKC.Repository.SMTPs.Models;
 using Microsoft.Extensions.Configuration;
 using System.Net;
 using System.Net.Mail;
 
-namespace MBKC.Repository.SMTPRepositories
+namespace MBKC.Repository.SMTPs.Repositories
 {
     public class EmailRepository
     {

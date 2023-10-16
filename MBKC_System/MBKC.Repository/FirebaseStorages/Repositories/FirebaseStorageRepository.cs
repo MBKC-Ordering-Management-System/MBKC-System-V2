@@ -1,6 +1,6 @@
 ﻿using Firebase.Auth;
 using Firebase.Storage;
-using MBKC.Repository.FirebaseStorageModels;
+using MBKC.Repository.FirebaseStorages.Models;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -11,7 +11,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MBKC.Repository.FirebaseStorageRepositories
+namespace MBKC.Repository.FirebaseStorages.Repositories
 {
     public class FirebaseStorageRepository
     {

@@ -1,19 +1,12 @@
 ﻿using AutoMapper;
-using MBKC.Service.DTOs.Verifications;
-using MBKC.Service.Exceptions;
-using MBKC.Service.Services.Interfaces;
-
 using MBKC.Repository.Enums;
 using MBKC.Repository.Infrastructures;
 using MBKC.Repository.Models;
-using MBKC.Repository.RedisModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MBKC.Service.Utils;
 using MBKC.Service.Constants;
+using MBKC.Service.DTOs.Verifications;
+using MBKC.Service.Exceptions;
+using MBKC.Service.Services.Interfaces;
+using MBKC.Service.Utils;
 
 namespace MBKC.Service.Services.Implementations
 {

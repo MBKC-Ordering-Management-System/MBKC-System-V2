@@ -4,14 +4,12 @@ using MBKC.Repository.Infrastructures;
 using MBKC.Repository.Models;
 using MBKC.Service.Constants;
 using MBKC.Service.DTOs.Categories;
-using MBKC.Service.DTOs.Products;
 using MBKC.Service.DTOs.SplitIdCategories;
 using MBKC.Service.Exceptions;
 using MBKC.Service.Services.Interfaces;
 using MBKC.Service.Utils;
 using Microsoft.AspNetCore.Http;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 namespace MBKC.Service.Services.Implementations
 {

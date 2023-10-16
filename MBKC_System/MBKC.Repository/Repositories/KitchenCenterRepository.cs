@@ -144,7 +144,7 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await this._dbContext.KitchenCenters.Include(x => x.Manager).Include(x => x.Cashiers).FirstOrDefaultAsync(x => x.Manager.Email.Equals(managerEmail) && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE);
+                return await this._dbContext.KitchenCenters.Include(x => x.Manager).Include(x => x.Cashiers).Include(x => x.Stores).FirstOrDefaultAsync(x => x.Manager.Email.Equals(managerEmail) && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE);
             } catch(Exception ex)
             {
                 throw new Exception(ex.Message);

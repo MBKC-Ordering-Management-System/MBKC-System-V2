@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MBKC.Repository.FirebaseStorageModels
+namespace MBKC.Repository.FirebaseStorages.Models
 {
     public class FirebaseStorageModel
     {

@@ -1,19 +1,13 @@
 ﻿using AutoMapper;
-using MBKC.Service.Services.Interfaces;
+using MBKC.Repository.Enums;
 using MBKC.Repository.Infrastructures;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MBKC.Repository.Models;
 using MBKC.Service.Constants;
 using MBKC.Service.DTOs.BankingAccounts;
 using MBKC.Service.Exceptions;
+using MBKC.Service.Services.Interfaces;
 using MBKC.Service.Utils;
 using System.Security.Claims;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
-using MBKC.Repository.Enums;
 
 namespace MBKC.Service.Services.Implementations
 {

@@ -1,17 +1,12 @@
 ﻿using AutoMapper;
-using MBKC.Service.Services.Interfaces;
+using MBKC.Repository.Enums;
 using MBKC.Repository.Infrastructures;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MBKC.Repository.Models;
+using MBKC.Service.Constants;
 using MBKC.Service.DTOs.Partners;
 using MBKC.Service.Exceptions;
-using MBKC.Service.Constants;
+using MBKC.Service.Services.Interfaces;
 using MBKC.Service.Utils;
-using MBKC.Repository.Models;
-using MBKC.Repository.Enums;
 
 namespace MBKC.Service.Services.Implementations
 {
