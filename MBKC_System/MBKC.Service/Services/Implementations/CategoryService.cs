@@ -215,29 +215,31 @@ namespace MBKC.Service.Services.Implementations
                     {
                         throw new BadRequestException(MessageConstant.CommonMessage.CategoryIdNotBelongToBrand);
                     }
-                } else if (role.ToLower().Equals(RoleConstant.Store_Manager.ToLower()))
+                }
+                else if (role.ToLower().Equals(RoleConstant.Store_Manager.ToLower()))
                 {
                     Store existedStore = await this._unitOfWork.StoreRepository.GetStoreAsync(email);
-                    if(existedStore.Brand.Categories.Any(x => x.CategoryId == id) == false)
+                    if (existedStore.Brand.Categories.Any(x => x.CategoryId == id) == false)
                     {
                         throw new BadRequestException(MessageConstant.CommonMessage.CategoryIdNotBelongToStore);
                     }
                 }
                 var category = await _unitOfWork.CategoryRepository.GetCategoryByIdAsync(id);
-                if(category is null)
+                if (category is null)
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistCategoryId);
                 }
                 var categoryResponse = new GetCategoryResponse();
-                categoryResponse =  this._mapper.Map<GetCategoryResponse>(category);
+                categoryResponse = this._mapper.Map<GetCategoryResponse>(category);
                 categoryResponse.ExtraCategories = categoryResponse.ExtraCategories.OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name).ToList();
                 categoryResponse.ExtraCategories.ForEach(x => x.ExtraProducts = x.ExtraProducts.OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name).ToList());
                 return categoryResponse;
             }
-            catch(NotFoundException ex)
+            catch (NotFoundException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistCategoryId)) {
+                if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistCategoryId))
+                {
                     fieldName = "Category id";
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
@@ -327,7 +329,7 @@ namespace MBKC.Service.Services.Implementations
         #endregion
 
         #region Get Categories
-        public async Task<GetCategoriesResponse> GetCategoriesAsync(string type, string? keySearchName, int? pageNumber, int? pageSize, HttpContext httpContext, bool? isGetAll)
+        public async Task<GetCategoriesResponse> GetCategoriesAsync(string type, string? keySearchName, string? keySortName, string? keySortCode, string? keySortStatus, int? pageNumber, int? pageSize, HttpContext httpContext, bool? isGetAll)
         {
             try
             {
@@ -341,7 +343,8 @@ namespace MBKC.Service.Services.Implementations
                 {
                     var brandAccount = await _unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId));
                     brandId = brandAccount.BrandId;
-                } else if (role.ToLower().Equals(RoleConstant.Store_Manager.ToLower()))
+                }
+                else if (role.ToLower().Equals(RoleConstant.Store_Manager.ToLower()))
                 {
                     Store existedStore = await this._unitOfWork.StoreRepository.GetStoreAsync(email);
                     brandId = existedStore.Brand.BrandId;
@@ -355,8 +358,33 @@ namespace MBKC.Service.Services.Implementations
                 if (!type.ToLower().Equals(CategoryEnum.Type.EXTRA.ToString().ToLower())
                     && !type.ToLower().Equals(CategoryEnum.Type.NORMAL.ToString().ToLower()))
                 {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidCurrentPage);
+                    throw new BadRequestException(MessageConstant.CategoryMessage.NotExistCategoryType);
                 }
+                if (keySortName != null && keySortName != "")
+                {
+                    if (!keySortName.ToUpper().Equals(CategoryEnum.KeySort.ASC.ToString())
+                    && !keySortName.ToUpper().Equals(CategoryEnum.KeySort.DESC.ToString()))
+                    {
+                        throw new BadRequestException(MessageConstant.CategoryMessage.KeySortNotExist);
+                    }
+                }
+                if (keySortCode != null && keySortCode != "")
+                {
+                    if (!keySortCode.ToUpper().Equals(CategoryEnum.KeySort.ASC.ToString())
+                   && !keySortCode.ToUpper().Equals(CategoryEnum.KeySort.DESC.ToString()))
+                    {
+                        throw new BadRequestException(MessageConstant.CategoryMessage.KeySortNotExist);
+                    }
+                }
+                if (keySortStatus != null && keySortStatus != "")
+                {
+                    if (!keySortStatus.ToUpper().Equals(CategoryEnum.KeySort.ASC.ToString())
+                   && !keySortStatus.ToUpper().Equals(CategoryEnum.KeySort.DESC.ToString()))
+                    {
+                        throw new BadRequestException(MessageConstant.CategoryMessage.KeySortNotExist);
+                    }
+                }
+
                 if (pageNumber != null && pageNumber <= 0)
                 {
                     throw new BadRequestException(MessageConstant.CommonMessage.InvalidCurrentPage);
@@ -374,7 +402,7 @@ namespace MBKC.Service.Services.Implementations
                     pageSize = 5;
                 }
 
-                if(isGetAll is not null && isGetAll == true)
+                if (isGetAll is not null && isGetAll == true)
                 {
                     pageSize = null;
                     pageNumber = null;
@@ -396,7 +424,33 @@ namespace MBKC.Service.Services.Implementations
                     numberItems = await this._unitOfWork.CategoryRepository.GetNumberCategoriesAsync(null, null, type, brandId.Value);
                     categories = await this._unitOfWork.CategoryRepository.GetCategoriesAsync(null, null, type, pageSize, pageNumber, brandId.Value);
                 }
+
                 _mapper.Map(categories, categoryResponse);
+
+                if (keySortName != null && keySortName != "" && keySortName.ToUpper().Equals(CategoryEnum.KeySort.ASC.ToString()))
+                {
+                    categoryResponse = categoryResponse.OrderBy(x => x.Name).ToList();
+                }
+                else if (keySortName != null && keySortName != "" && keySortName.ToUpper().Equals(CategoryEnum.KeySort.DESC.ToString()))
+                {
+                    categoryResponse = categoryResponse.OrderByDescending(x => x.Name).ToList();
+                }
+                else if (keySortCode != null && keySortCode != "" && keySortCode.ToUpper().Equals(CategoryEnum.KeySort.ASC.ToString()))
+                {
+                    categoryResponse = categoryResponse.OrderBy(x => x.Code).ToList();
+                }
+                else if (keySortCode != null && keySortCode != "" && keySortCode.ToUpper().Equals(CategoryEnum.KeySort.DESC.ToString()))
+                {
+                    categoryResponse = categoryResponse.OrderByDescending(x => x.Code).ToList();
+                }
+                else if (keySortStatus != null && keySortStatus != "" && keySortStatus.ToUpper().Equals(CategoryEnum.KeySort.ASC.ToString()))
+                {
+                    categoryResponse = categoryResponse.OrderBy(x => x.Status).ToList();
+                }
+                else if (keySortStatus != null && keySortStatus != "" && keySortStatus.ToUpper().Equals(CategoryEnum.KeySort.DESC.ToString()))
+                {
+                    categoryResponse = categoryResponse.OrderByDescending(x => x.Status).ToList();
+                }
 
                 int totalPages = 0;
                 if (numberItems > 0 && isGetAll == null || numberItems > 0 && isGetAll != null && isGetAll == false)
@@ -430,9 +484,14 @@ namespace MBKC.Service.Services.Implementations
                 {
                     fieldName = "Current page";
                 }
+
                 else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidItemsPerPage))
                 {
                     fieldName = "Items per page";
+                }
+                else if (ex.Message.Equals(MessageConstant.CategoryMessage.KeySortNotExist))
+                {
+                    fieldName = "Key sort";
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);

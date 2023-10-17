@@ -16,6 +16,6 @@ namespace MBKC.Service.Services.Interfaces
         public Task<GetStorePartnersResponse> GetStorePartnersAsync(string? searchValue, int? currentPage, int? itemsPerPage, IEnumerable<Claim> claims);
         public Task<GetStorePartnerResponse> GetStorePartnerAsync(int storeId, int partnerId, IEnumerable<Claim> claims);
         public Task DeleteStorePartnerAsync(int storeId, int partnerId, IEnumerable<Claim> claims);
-        public Task<GetStorePartnerInformationResponse> GetPartnerInformationAsync(int storeId, IEnumerable<Claim> claims);
+        public Task<GetStorePartnerInformationResponse> GetPartnerInformationAsync(int storeId, string? keySortName, string? keySortStatus, IEnumerable<Claim> claims);
     }
 }

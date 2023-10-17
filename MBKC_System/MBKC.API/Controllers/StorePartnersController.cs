@@ -327,10 +327,10 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.Application_Json)]
         [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager)]
         [HttpGet(APIEndPointConstant.StorePartner.PartnerInformationEndpoint)]
-        public async Task<IActionResult> GetStorePartnerInformationByIdAsync([FromRoute] int storeId)
+        public async Task<IActionResult> GetStorePartnerInformationByIdAsync([FromRoute] int storeId, [FromQuery] string keySortName, [FromQuery] string keySortStatus)
         {
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            var getStorePartnerResponse = await this._storePartnerService.GetPartnerInformationAsync(storeId, claims);
+            var getStorePartnerResponse = await this._storePartnerService.GetPartnerInformationAsync(storeId, keySortName, keySortStatus, claims);
             return Ok(getStorePartnerResponse);
         }
         #endregion
