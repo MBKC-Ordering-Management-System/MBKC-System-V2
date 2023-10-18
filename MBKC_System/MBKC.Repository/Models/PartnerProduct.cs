@@ -8,13 +8,14 @@ using System.Threading.Tasks;
 
 namespace MBKC.Repository.Models
 {
-    public class MappingProduct
+    public class PartnerProduct
     {
         public int ProductId { get; set; }
         public int PartnerId { get; set; }
         public int StoreId { get; set; }
         public DateTime CreatedDate { get; set; }
         public string ProductCode { get; set; }
+        public int Status { get; set; }
         [ForeignKey("ProductId")]
         public virtual Product Product { get; set; }
         [ForeignKey("StoreId,PartnerId,CreatedDate")]

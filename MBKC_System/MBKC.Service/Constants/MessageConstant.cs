@@ -31,8 +31,8 @@
             public const string InvalidPartnerId = "Partner id is not suitable id in the system.";
             public const string CategoryIdNotBelongToBrand = "Category id does not belong to your brand.";
             public const string CategoryIdNotBelongToStore = "Category id does not belong to your store.";
-            public const string AlreadyExistMappingProduct = "Mapping product already exists in the system.";
-            public const string NotExistMappingProduct = "Mapping priduct does not exist in the system.";
+            public const string AlreadyExistPartnerProduct = "Mapping product already exists in the system.";
+            public const string NotExistPartnerProduct = "Mapping priduct does not exist in the system.";
 
         }
 
@@ -181,7 +181,7 @@
             public const string KeySortNotExist = "Key sort are ASC or DESC";
         }
 
-        public static class MappingProductMessage
+        public static class PartnerProductMessage
         {
             public const string ProductCodeExisted = "Product Code already exist in the system.";
             public const string DeactiveProduct_Create_Update = "This product is Deactive.";

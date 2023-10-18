@@ -31,7 +31,7 @@ namespace MBKC.Repository.Models
         [ForeignKey("BrandId")]
         public virtual Brand Brand { get; set; }
         public virtual IEnumerable<OrderDetail> OrderDetails { get; set; }
-        public virtual IEnumerable<MappingProduct> MappingProducts { get; set; }
+        public virtual IEnumerable<PartnerProduct> PartnerProducts { get; set; }
         [ForeignKey("ParentProductId")]
         public virtual Product? ParentProduct { get; set; }
         public virtual IEnumerable<Product>? ChildrenProducts { get; set; }

@@ -23,7 +23,7 @@ namespace MBKC.Repository.Infrastructures
         private CategoryRepository _categoryRepository;
         private ExtraCategoryRepository _extraCategoryRepository;
         private KitchenCenterRepository _kitchenCenterRepository;
-        private MappingProductRepository _mappingProductRepository;
+        private PartnerProductRepository _partnerProductRepository;
         private MoneyExchangeRepository _moneyExchangeRepository;
         private OrderRepository _orderRepository;
         private OrderDetailRepository _orderDetailRepository;
@@ -172,15 +172,15 @@ namespace MBKC.Repository.Infrastructures
             }
         }
 
-        public MappingProductRepository MappingProductRepository
+        public PartnerProductRepository PartnerProductRepository
         {
             get
             {
-                if (this._mappingProductRepository == null)
+                if (this._partnerProductRepository == null)
                 {
-                    this._mappingProductRepository = new MappingProductRepository(this._dbContext);
+                    this._partnerProductRepository = new PartnerProductRepository(this._dbContext);
                 }
-                return this._mappingProductRepository;
+                return this._partnerProductRepository;
             }
         }
 

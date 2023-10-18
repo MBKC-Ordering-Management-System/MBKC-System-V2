@@ -96,10 +96,10 @@
             public const string PartnerInformationEndpoint = StorePartnersEndpoint + "/{storeId}";
         }
 
-        public static class MappingProduct
+        public static class PartnerProduct
         {
-            public const string MappingProductsEndpoint = ApiEndpoint + "/mapping-products";
-            public const string MappingProductEndpoint = MappingProductsEndpoint + "/{productId}/{partnerId}/{storeId}";
+            public const string PartnerProductsEndpoint = ApiEndpoint + "/partner-products";
+            public const string PartnerProductEndpoint = PartnerProductsEndpoint + "/{productId}/{partnerId}/{storeId}";
         }
     }
 }

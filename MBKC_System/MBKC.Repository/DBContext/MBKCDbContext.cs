@@ -31,7 +31,7 @@ namespace MBKC.Repository.DBContext
         public DbSet<Category> Categories { get; set; }
         public DbSet<ExtraCategory> ExtraCategories { get; set; }
         public DbSet<KitchenCenter> KitchenCenters { get; set; }
-        public DbSet<MappingProduct> MappingProducts { get; set; }
+        public DbSet<PartnerProduct> PartnerProducts { get; set; }
         public DbSet<MoneyExchange> MoneyExchanges { get; set; }
         public DbSet<CashierMoneyExchange> CashierMoneyExchanges { get; set; }
         public DbSet<KitchenCenterMoneyExchange> KitchenCenterMoneyExchanges { get; set; }
@@ -172,11 +172,12 @@ namespace MBKC.Repository.DBContext
 
             #endregion
 
-            #region MappingProduct
-            modelBuilder.Entity<MappingProduct>(mappingProduct =>
+            #region PartnerProduct
+            modelBuilder.Entity<PartnerProduct>(partnerProduct =>
             {
-                modelBuilder.Entity<MappingProduct>().HasKey(key => new { key.ProductId, key.PartnerId, key.StoreId, key.CreatedDate});
-                mappingProduct.Property(prop => prop.ProductCode).IsUnicode(false).HasMaxLength(50).IsRequired(true);
+                modelBuilder.Entity<PartnerProduct>().HasKey(key => new { key.ProductId, key.PartnerId, key.StoreId, key.CreatedDate});
+                partnerProduct.Property(prop => prop.ProductCode).IsUnicode(false).HasMaxLength(50).IsRequired(true);
+                partnerProduct.Property(prop => prop.Status).IsRequired(true);
             });
 
             #endregion
@@ -283,6 +284,7 @@ namespace MBKC.Repository.DBContext
                 shipperPayment.Property(prop => prop.Amount).HasColumnType("decimal(18,2)").IsRequired(true);
                 shipperPayment.Property(prop => prop.CreateDate).HasColumnType("datetime2").IsRequired(true);
                 shipperPayment.Property(prop => prop.PaymentMethod).IsUnicode(false).HasMaxLength(20).IsRequired(true);
+                shipperPayment.Property(prop => prop.KCBankingAccountId).IsRequired(false);
             });
 
 
@@ -320,6 +322,7 @@ namespace MBKC.Repository.DBContext
                 storePartner.Property(prop => prop.UserName).IsUnicode(false).HasMaxLength(100).IsRequired(true);
                 storePartner.Property(prop => prop.Password).IsUnicode(false).HasMaxLength(50).IsRequired(true);
                 storePartner.Property(prop => prop.Status).IsRequired(true);
+                storePartner.Property(prop => prop.Commission).IsRequired(true);
             });
             #endregion
 
@@ -328,6 +331,7 @@ namespace MBKC.Repository.DBContext
             {
                 transaction.Property(prop => prop.TransactionTime).HasColumnType("datetime2").IsRequired(true);
                 transaction.Property(prop => prop.Status).IsRequired(true);
+                transaction.Property(prop => prop.ExchangeId).IsRequired(false);
             });
 
             modelBuilder.Entity<Transaction>()
