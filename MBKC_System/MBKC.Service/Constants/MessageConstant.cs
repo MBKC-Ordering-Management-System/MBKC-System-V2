@@ -23,6 +23,7 @@
             public const string NotExistCategoryId = "Category id does not exist in the system.";
             public const string NotExistBankingAccountId = "Banking account id does not exist in the system.";
             public const string NotExistProductId = "Product id does not exist in the system.";
+            public const string NotExistOrderPartnerId = "Order parnter id does not exist in the system.";
             public const string NotExistCashierId = "Cashier id does not exist in the system.";
             public const string InvalidItemsPerPage = "Items per page number is required more than 0.";
             public const string InvalidCurrentPage = "Current page number is required more than 0.";
@@ -185,6 +186,12 @@
             public const string DeactiveProduct_Create_Update = "This product is Deactive.";
             public const string InactiveProduct_Create_Update = "This product is Inactive.";
             public const string InactiveStore_Update = "This store has been inactive.";
+        }
+
+        public static class OrderMessage
+        {
+            public const string OrderNotBelongToKitchenCenter = "Order partner id does not belong to your kitchen center.";
+
         }
     }
 }
