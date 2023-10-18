@@ -301,9 +301,11 @@ namespace MBKC.API.Controllers
 
         #region Get store partner information by store Id
         /// <summary>
-        /// Get a store partner information by store Id.
+        /// Get a store partner information by store Id, sortByName, sortByStatus.
         /// </summary>
         /// <param name="storeId">The store's id.</param>
+        /// <param name="keySortName">Keywords when the user wants to sort by name ascending or descending(ASC or DESC).</param>
+        /// <param name="keySortStatus">Keywords when the user wants to sort by status ascending or descending(ASC or DESC).</param>
         /// <returns>
         /// An object contains the store partner, partner, kitchen center information.
         /// </returns>
@@ -312,6 +314,8 @@ namespace MBKC.API.Controllers
         ///
         ///         GET 
         ///         storeId = 1
+        ///         keySortName = ASC | DESC
+        ///         keySortStatus = ASC | DESC
         /// </remarks>
         /// <response code="200">Get store partner by store Id successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>

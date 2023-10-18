@@ -87,9 +87,9 @@
             public const string DeactiveBrand_Delete = "Brand cannot delete because that was deleted before.";
             public const string DeactiveBrand_Update = "Brand was deleted before, so this brand cannot update.";
             public const string ManagerEmailExisted = "Brand manager email already existed in the system.";
-            public const string RoleNotSuitable = "Role is not suitable";
+            public const string RoleNotSuitable = "Role is not suitable"; 
             public const string ProductNotBelongToBrand = "This product not belong to brand.";
-
+            public const string KeySortNotExist = "Key sort are ASC or DESC";
         }
 
         public static class StoreMessage
@@ -155,6 +155,8 @@
             public const string DeactivePartner_Update = "Partner was deleted before, so this partner cannot update.";
             public const string DeactivePartner_Delete = "Partner cannot delete because that was deleted before.";
             public const string DeactivePartner_Get = "Partner cannot get because that was deleted before.";
+            public const string KeySortNotExist = "Key sort are ASC or DESC";
+
 
         }
 
