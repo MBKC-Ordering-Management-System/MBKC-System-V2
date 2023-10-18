@@ -165,7 +165,8 @@ namespace MBKC.API.Controllers
         /// </summary>
         /// <param name="storeId">The store's id.</param>
         /// <param name="partnerId">The partner's id.</param>
-        ///  <param name="productId">The product's id.</param>
+        /// <param name="productId">The product's id.</param>
+        /// <param name="updatePartnerProductRequest">Information to update partner product.</param>
         /// <returns>
         /// A success message about updating partner product information.  
         /// </returns>
@@ -176,9 +177,10 @@ namespace MBKC.API.Controllers
         ///         storeId = 1
         ///         partnerId = 1
         ///         productId = 1
-        ///         {
-        ///             "ProductCode": "ST001"
-        ///         }
+        ///           {
+        ///             "productCode": "ST001"
+        ///             "status" : "INACTIVE"
+        ///           }
         /// </remarks>
         /// <response code="200">Updated partner product information successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
