@@ -20,5 +20,11 @@ namespace MBKC.Repository.Enums
             NORMAL,
             EXTRA 
         }
+
+        public enum KeySort
+        {
+            ASC,
+            DESC
+        }
     }
 }

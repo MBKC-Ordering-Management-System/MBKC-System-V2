@@ -174,9 +174,9 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.Application_Json)]
         [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager, PermissionAuthorizeConstant.Store_Manager)]
         [HttpGet(APIEndPointConstant.Category.CategoriesEndpoint)]
-        public async Task<IActionResult> GetCategoriesAsync([FromQuery] string type, [FromQuery] string? keySearchName, [FromQuery] int? currentPage, [FromQuery] int? itemsPerPage, [FromQuery]bool? isGetAll)
+        public async Task<IActionResult> GetCategoriesAsync([FromQuery] string type, [FromQuery] string? keySearchName, [FromQuery] string? keySortName, [FromQuery] string? keySortCode, [FromQuery] string? keySortStatus, [FromQuery] int? currentPage, [FromQuery] int? itemsPerPage, [FromQuery] bool? isGetAll)
         {
-            var data = await this._categoryService.GetCategoriesAsync(type, keySearchName, currentPage, itemsPerPage, HttpContext, isGetAll);
+            var data = await this._categoryService.GetCategoriesAsync(type, keySearchName, keySortName, keySortCode, keySortStatus, currentPage, itemsPerPage, HttpContext, isGetAll);
 
             return Ok(data);
         }
