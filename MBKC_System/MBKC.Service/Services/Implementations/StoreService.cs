@@ -74,8 +74,11 @@ namespace MBKC.Service.Services.Implementations
                     }
                 } else if(claims != null && brandId == null)
                 {
-                    existedBrand = await this._unitOfWork.BrandRepository.GetBrandAsync(email);
-                    brandId = existedBrand.BrandId;
+                    if (role.ToLower().Equals(RoleConstant.Brand_Manager.ToLower()))
+                    {
+                        existedBrand = await this._unitOfWork.BrandRepository.GetBrandAsync(email);
+                        brandId = existedBrand.BrandId;
+                    }
                 }
 
                 if (claims != null && kitchenCenterId != null)
@@ -91,10 +94,13 @@ namespace MBKC.Service.Services.Implementations
                             throw new BadRequestException(MessageConstant.StoreMessage.KitchenCenterNotHaveBrand);
                         }
                     }
-                } else if(claims != null && kitchenCenterId == null)
+                } else if (claims != null && kitchenCenterId == null)
                 {
-                    existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(email);
-                    kitchenCenterId = existedKitchenCenter.KitchenCenterId;
+                    if (role.ToLower().Equals(RoleConstant.Kitchen_Center_Manager.ToLower()))
+                    {
+                        existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(email);
+                        kitchenCenterId = existedKitchenCenter.KitchenCenterId;
+                    }
                 }
 
                 if (itemsPerPage != null && itemsPerPage <= 0)

@@ -375,13 +375,31 @@ namespace MBKC.Service.Services.Implementations
             }
         }
 
-        public async Task<GetStorePartnerInformationResponse> GetPartnerInformationAsync(int storeId, IEnumerable<Claim> claims)
+        public async Task<GetStorePartnerInformationResponse> GetPartnerInformationAsync(int storeId, string? keySortName, string? keySortStatus, IEnumerable<Claim> claims)
         {
             try
             {
                 if (storeId <= 0)
                 {
                     throw new BadRequestException(MessageConstant.CommonMessage.InvalidStoreId);
+                }
+
+                if (keySortName != null && keySortName != "")
+                {
+                    if (!keySortName.ToUpper().Equals(StorePartnerEnum.KeySort.ASC.ToString())
+                    && !keySortName.ToUpper().Equals(StorePartnerEnum.KeySort.DESC.ToString()))
+                    {
+                        throw new BadRequestException(MessageConstant.StorePartnerMessage.KeySortNotExist);
+                    }
+                }
+
+                if (keySortStatus != null && keySortStatus != "")
+                {
+                    if (!keySortStatus.ToUpper().Equals(StorePartnerEnum.KeySort.ASC.ToString())
+                    && !keySortStatus.ToUpper().Equals(StorePartnerEnum.KeySort.DESC.ToString()))
+                    {
+                        throw new BadRequestException(MessageConstant.StorePartnerMessage.KeySortNotExist);
+                    }
                 }
 
                 // Get brandId from claim
@@ -415,6 +433,24 @@ namespace MBKC.Service.Services.Implementations
                     partner.PartnerName = p.Partner.Name;
                     partnersInformation.Add(partner);
                 }
+                if (keySortName != null && keySortName.ToUpper().Equals(StorePartnerEnum.KeySort.ASC.ToString()))
+                {
+                    partnersInformation = partnersInformation.OrderBy(x => x.PartnerName).ToList();
+                }
+                else if (keySortName != null && keySortName.ToUpper().Equals(StorePartnerEnum.KeySort.DESC.ToString()))
+                {
+                    partnersInformation = partnersInformation.OrderByDescending(x => x.PartnerName).ToList();
+                }
+
+                if (keySortStatus != null && keySortStatus.ToUpper().Equals(StorePartnerEnum.KeySort.ASC.ToString()))
+                {
+                    partnersInformation = partnersInformation.OrderBy(x => x.Status).ToList();
+                }
+                else if (keySortStatus != null && keySortStatus.ToUpper().Equals(StorePartnerEnum.KeySort.DESC.ToString()))
+                {
+                    partnersInformation = partnersInformation.OrderByDescending(x => x.Status).ToList();
+                }
+
                 return new GetStorePartnerInformationResponse()
                 {
                     KitchenCenterName = storePartner.Select(x => x.Store.KitchenCenter.Name).FirstOrDefault(),
@@ -441,9 +477,14 @@ namespace MBKC.Service.Services.Implementations
                 {
                     fieldName = "Store id";
                 }
+
                 else if (ex.Message.Equals(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand))
                 {
                     fieldName = "Store id";
+                }
+                else if (ex.Message.Equals(MessageConstant.StorePartnerMessage.KeySortNotExist))
+                {
+                    fieldName = "Key sort";
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
@@ -506,7 +547,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     totalPages = 0;
                 }
-               _mapper.Map(storePartners, getStorePartnersResponse);
+                _mapper.Map(storePartners, getStorePartnersResponse);
                 return new GetStorePartnersResponse()
                 {
                     StorePartners = getStorePartnersResponse,

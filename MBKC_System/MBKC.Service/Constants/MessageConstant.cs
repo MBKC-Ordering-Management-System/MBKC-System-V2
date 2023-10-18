@@ -121,6 +121,7 @@
             public const string ListExtraCategoryIdIsActive = "List extra category Id need status is ACTIVE.";
             public const string ExtraCategoryIdNotBelongToBrand = "Extra category Id does not belong to brand.";
             public const string ExtraCategoryIdDoesNotExist = "Extra category Id does not exist in the system.";
+            public const string KeySortNotExist = "Key sort are ASC or DESC";
         }
 
         public static class BankingAccountMessage
@@ -175,6 +176,7 @@
             public const string NotLinkedWithParner = "This store is not linked to this partner.";
             public const string DeactiveStorePartner_Update = "Can't update store partner has been deactivated.";
             public const string DupplicatedPartnerId_Create = "Partner Id cannot be duplicated";
+            public const string KeySortNotExist = "Key sort are ASC or DESC";
         }
 
         public static class MappingProductMessage
