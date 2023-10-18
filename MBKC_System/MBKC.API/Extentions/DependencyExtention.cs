@@ -36,8 +36,8 @@ using MBKC.API.Validators.Cashiers;
 using MBKC.Service.DTOs.Cashiers.Requests;
 using MBKC.Service.DTOs.StorePartners;
 using MBKC.API.Validators.StorePartners;
-using MBKC.Service.DTOs.MappingProducts;
-using MBKC.API.Validators.MappingProducts;
+using MBKC.Service.DTOs.PartnerProducts;
+using MBKC.API.Validators.PartnerProducts;
 
 namespace MBKC.API.Extentions
 {
@@ -69,7 +69,7 @@ namespace MBKC.API.Extentions
             services.AddScoped<IExtraCategoryService, ExtraCategoryService>();
             services.AddScoped<IKitchenCenterService, KitchenCenterService>();
             services.AddScoped<IKitchenCenterMoneyExchangeService, KitchenCenterMoneyExchangeService>();
-            services.AddScoped<IMappingProductService, MappingProductService>();
+            services.AddScoped<IPartnerProductService, PartnerProductService>();
             services.AddScoped<IMoneyExchangeService, MoneyExchangeService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IOrderDetailService, OrderDetailService>();
@@ -207,8 +207,8 @@ namespace MBKC.API.Extentions
             services.AddScoped<IValidator<UpdateStorePartnerRequest>, UpdateStorePartnerValidator>();
             services.AddScoped<IValidator<UpdateStorePartnerStatusRequest>, UpdateStorePartnerStatusValidator>();
 
-            services.AddScoped<IValidator<PostMappingProductRequest>, CreateMappingProductValidator>();
-            services.AddScoped<IValidator<UpdateMappingProductRequest>, UpdateMappingProductValidator>();
+            services.AddScoped<IValidator<PostPartnerProductRequest>, CreatePartnerProductValidator>();
+            services.AddScoped<IValidator<UpdatePartnerProductRequest>, UpdatePartnerProductValidator>();
             return services;
         }
 

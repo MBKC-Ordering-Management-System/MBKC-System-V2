@@ -10,20 +10,20 @@ using System.Threading.Tasks;
 
 namespace MBKC.Repository.Repositories
 {
-    public class MappingProductRepository
+    public class PartnerProductRepository
     {
         private MBKCDbContext _dbContext;
-        public MappingProductRepository(MBKCDbContext dbContext)
+        public PartnerProductRepository(MBKCDbContext dbContext)
         {
             this._dbContext = dbContext;
         }
 
-        #region GetMappingProductAsync
-        public async Task<MappingProduct> GetMappingProductAsync(int productId, int partnerId, int storeId, DateTime createdDate)
+        #region GetPartnerProductAsync
+        public async Task<PartnerProduct> GetPartnerProductAsync(int productId, int partnerId, int storeId, DateTime createdDate)
         {
             try
             {
-                return await this._dbContext.MappingProducts
+                return await this._dbContext.PartnerProducts
                     .Include(x => x.Product)
                     .Include(x => x.StorePartner)
                     .ThenInclude(x => x.Store)
@@ -42,12 +42,12 @@ namespace MBKC.Repository.Repositories
         }
         #endregion
 
-        #region GetMappingProductByProductCodeAsync
-        public async Task<MappingProduct> GetMappingProductByProductCodeAsync(string productCode)
+        #region GetPartnerProductByProductCodeAsync
+        public async Task<PartnerProduct> GetPartnerProductByProductCodeAsync(string productCode)
         {
             try
             {
-                return await this._dbContext.MappingProducts.SingleOrDefaultAsync(mp => mp.ProductCode.Equals(productCode));
+                return await this._dbContext.PartnerProducts.SingleOrDefaultAsync(mp => mp.ProductCode.Equals(productCode));
             }
             catch (Exception ex)
             {
@@ -56,12 +56,12 @@ namespace MBKC.Repository.Repositories
         }
         #endregion
 
-        #region Create Mapping Product
-        public async Task CreateMappingProductAsync(MappingProduct mappingProduct)
+        #region Create Partner Product
+        public async Task CreatePartnerProductAsync(PartnerProduct partnerProduct)
         {
             try
             {
-                await this._dbContext.MappingProducts.AddAsync(mappingProduct);
+                await this._dbContext.PartnerProducts.AddAsync(partnerProduct);
             }
             catch (Exception ex)
             {
@@ -70,22 +70,22 @@ namespace MBKC.Repository.Repositories
         }
         #endregion
 
-        #region GetNumberMappingProductsAsync
-        public async Task<int> GetNumberMappingProductsAsync(string? searchName, string? searchValueWithoutUnicode, int? brandId)
+        #region GetNumberPartnerProductsAsync
+        public async Task<int> GetNumberPartnerProductsAsync(string? searchName, string? searchValueWithoutUnicode, int? brandId)
         {
             try
             {
                 if (searchName == null && searchValueWithoutUnicode != null)
                 {
-                    return this._dbContext.MappingProducts.Include(x => x.Product)
+                    return this._dbContext.PartnerProducts.Include(x => x.Product)
                                                           .Include(x => x.StorePartner).ThenInclude(x => x.Store).ThenInclude(x => x.Brand)
                                                           .Include(x => x.StorePartner).ThenInclude(x => x.Partner)
                                                           .Where(x => brandId != null
                                                                      ? x.StorePartner.Store.Brand.BrandId == brandId
                                                                      : true)
-                                                         .Where(delegate (MappingProduct mappingProduct)
+                                                         .Where(delegate (PartnerProduct partnerProduct)
                                                          {
-                                                             if (searchValueWithoutUnicode.ToLower().Contains(StringUtil.RemoveSign4VietnameseString(mappingProduct.Product.Name).ToLower()))
+                                                             if (searchValueWithoutUnicode.ToLower().Contains(StringUtil.RemoveSign4VietnameseString(partnerProduct.Product.Name).ToLower()))
                                                              {
                                                                  return true;
                                                              }
@@ -94,7 +94,7 @@ namespace MBKC.Repository.Repositories
                 }
                 else if (searchName != null && searchValueWithoutUnicode == null)
                 {
-                    return await this._dbContext.MappingProducts.Include(x => x.Product)
+                    return await this._dbContext.PartnerProducts.Include(x => x.Product)
                                                          .Include(x => x.StorePartner).ThenInclude(x => x.Store).ThenInclude(x => x.Brand)
                                                          .Include(x => x.StorePartner).ThenInclude(x => x.Partner)
                                                          .Where(x => x.Product.Name.ToLower().Contains(searchName.ToLower()) &&
@@ -104,7 +104,7 @@ namespace MBKC.Repository.Repositories
 
 
                 }
-                return await this._dbContext.MappingProducts.Include(x => x.Product)
+                return await this._dbContext.PartnerProducts.Include(x => x.Product)
                                                          .Include(x => x.StorePartner).ThenInclude(x => x.Store).ThenInclude(x => x.Brand)
                                                          .Include(x => x.StorePartner).ThenInclude(x => x.Partner)
                                                          .Where(x => brandId != null
@@ -119,22 +119,22 @@ namespace MBKC.Repository.Repositories
         }
         #endregion
 
-        #region GetMappingProductsAsync
-        public async Task<List<MappingProduct>> GetMappingProductsAsync(string? searchName, string? searchValueWithoutUnicode, int? currentPage, int? itemsPerPage, int? brandId)
+        #region GetPartnerProductsAsync
+        public async Task<List<PartnerProduct>> GetPartnerProductsAsync(string? searchName, string? searchValueWithoutUnicode, int? currentPage, int? itemsPerPage, int? brandId)
         {
             try
             {
                 if (searchName == null && searchValueWithoutUnicode != null)
                 {
-                    return this._dbContext.MappingProducts.Include(x => x.Product)
+                    return this._dbContext.PartnerProducts.Include(x => x.Product)
                                                           .Include(x => x.StorePartner).ThenInclude(x => x.Store).ThenInclude(x => x.Brand)
                                                           .Include(x => x.StorePartner).ThenInclude(x => x.Partner)
                                                           .Where(x => brandId != null
                                                                      ? x.StorePartner.Store.Brand.BrandId == brandId
                                                                      : true)
-                                                         .Where(delegate (MappingProduct mappingProduct)
+                                                         .Where(delegate (PartnerProduct partnerProduct)
                                                          {
-                                                             if (searchValueWithoutUnicode.ToLower().Contains(StringUtil.RemoveSign4VietnameseString(mappingProduct.Product.Name).ToLower()))
+                                                             if (searchValueWithoutUnicode.ToLower().Contains(StringUtil.RemoveSign4VietnameseString(partnerProduct.Product.Name).ToLower()))
                                                              {
                                                                  return true;
                                                              }
@@ -143,7 +143,7 @@ namespace MBKC.Repository.Repositories
                 }
                 else if (searchName != null && searchValueWithoutUnicode == null)
                 {
-                    return await this._dbContext.MappingProducts.Include(x => x.Product)
+                    return await this._dbContext.PartnerProducts.Include(x => x.Product)
                                                                 .Include(x => x.StorePartner).ThenInclude(x => x.Store).ThenInclude(x => x.Brand)
                                                                 .Include(x => x.StorePartner).ThenInclude(x => x.Partner)
                                                                 .Where(x => x.Product.Name.ToLower().Contains(searchName.ToLower()) &&
@@ -151,7 +151,7 @@ namespace MBKC.Repository.Repositories
                                                                      ? x.StorePartner.Store.Brand.BrandId == brandId
                                                                      : true)).Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
                 }
-                return await this._dbContext.MappingProducts.Include(x => x.Product)
+                return await this._dbContext.PartnerProducts.Include(x => x.Product)
                                                             .Include(x => x.StorePartner).ThenInclude(x => x.Store).ThenInclude(x => x.Brand)
                                                             .Include(x => x.StorePartner).ThenInclude(x => x.Partner)
                                                             .Where(x => brandId != null
@@ -166,12 +166,12 @@ namespace MBKC.Repository.Repositories
         }
         #endregion
 
-        #region UpdateMappingProduct
-        public void UpdateMappingProduct(MappingProduct mappingProduct)
+        #region UpdatePartProduct
+        public void UpdatePartnerProduct(PartnerProduct partnerProduct)
         {
             try
             {
-                this._dbContext.MappingProducts.Update(mappingProduct);
+                this._dbContext.PartnerProducts.Update(partnerProduct);
             }
             catch (Exception ex)
             {

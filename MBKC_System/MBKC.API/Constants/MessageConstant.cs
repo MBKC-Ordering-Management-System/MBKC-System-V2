@@ -93,10 +93,10 @@
             public const string UpdatedCashierProfieSuccessfully = "Updated Cashier Profile Successfully.";
         }
 
-        public static class MappingProductMessage
+        public static class PartnerProductMessage
         {
-            public const string CreatedMappingProductSuccessfully = "Created New Mapping Product Successfully.";
-            public const string UpdatedMappingProductSuccessfully = "Updated Mapping Product Successfully.";
+            public const string CreatedPartnerProductSuccessfully = "Created New Partner Product Successfully.";
+            public const string UpdatedPartnerProductSuccessfully = "Updated Partner Product Successfully.";
         }
     }
 }

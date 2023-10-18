@@ -362,33 +362,6 @@ namespace MBKC.Repository.Migrations
                     b.ToTable("KitchenCenterMoneyExchanges");
                 });
 
-            modelBuilder.Entity("MBKC.Repository.Models.MappingProduct", b =>
-                {
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PartnerId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StoreId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ProductCode")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(50)");
-
-                    b.HasKey("ProductId", "PartnerId", "StoreId", "CreatedDate");
-
-                    b.HasIndex("StoreId", "PartnerId", "CreatedDate");
-
-                    b.ToTable("MappingProducts");
-                });
-
             modelBuilder.Entity("MBKC.Repository.Models.MoneyExchange", b =>
                 {
                     b.Property<int>("ExchangeId")
@@ -592,6 +565,36 @@ namespace MBKC.Repository.Migrations
                     b.ToTable("Partners");
                 });
 
+            modelBuilder.Entity("MBKC.Repository.Models.PartnerProduct", b =>
+                {
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PartnerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StoreId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ProductCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProductId", "PartnerId", "StoreId", "CreatedDate");
+
+                    b.HasIndex("StoreId", "PartnerId", "CreatedDate");
+
+                    b.ToTable("PartnerProducts");
+                });
+
             modelBuilder.Entity("MBKC.Repository.Models.Product", b =>
                 {
                     b.Property<int>("ProductId")
@@ -742,7 +745,7 @@ namespace MBKC.Repository.Migrations
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("KCBankingAccountId")
+                    b.Property<int?>("KCBankingAccountId")
                         .HasColumnType("int");
 
                     b.Property<int>("OrderId")
@@ -866,6 +869,9 @@ namespace MBKC.Repository.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<float>("Commission")
+                        .HasColumnType("real");
+
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -896,7 +902,7 @@ namespace MBKC.Repository.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TracsactionId"), 1L, 1);
 
-                    b.Property<int>("ExchangeId")
+                    b.Property<int?>("ExchangeId")
                         .HasColumnType("int");
 
                     b.Property<int>("PaymentId")
@@ -1093,25 +1099,6 @@ namespace MBKC.Repository.Migrations
                     b.Navigation("MoneyExchange");
                 });
 
-            modelBuilder.Entity("MBKC.Repository.Models.MappingProduct", b =>
-                {
-                    b.HasOne("MBKC.Repository.Models.Product", "Product")
-                        .WithMany("MappingProducts")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MBKC.Repository.Models.StorePartner", "StorePartner")
-                        .WithMany("MappingProducts")
-                        .HasForeignKey("StoreId", "PartnerId", "CreatedDate")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-
-                    b.Navigation("StorePartner");
-                });
-
             modelBuilder.Entity("MBKC.Repository.Models.Order", b =>
                 {
                     b.HasOne("MBKC.Repository.Models.Partner", "Partner")
@@ -1156,6 +1143,25 @@ namespace MBKC.Repository.Migrations
                     b.Navigation("Order");
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("MBKC.Repository.Models.PartnerProduct", b =>
+                {
+                    b.HasOne("MBKC.Repository.Models.Product", "Product")
+                        .WithMany("PartnerProducts")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MBKC.Repository.Models.StorePartner", "StorePartner")
+                        .WithMany("PartnerProducts")
+                        .HasForeignKey("StoreId", "PartnerId", "CreatedDate")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("StorePartner");
                 });
 
             modelBuilder.Entity("MBKC.Repository.Models.Product", b =>
@@ -1292,8 +1298,7 @@ namespace MBKC.Repository.Migrations
                     b.HasOne("MBKC.Repository.Models.MoneyExchange", "MoneyExchange")
                         .WithMany("Transactions")
                         .HasForeignKey("ExchangeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("MBKC.Repository.Models.ShipperPayment", "ShipperPayment")
                         .WithMany("Transactions")
@@ -1383,9 +1388,9 @@ namespace MBKC.Repository.Migrations
                 {
                     b.Navigation("ChildrenProducts");
 
-                    b.Navigation("MappingProducts");
-
                     b.Navigation("OrderDetails");
+
+                    b.Navigation("PartnerProducts");
                 });
 
             modelBuilder.Entity("MBKC.Repository.Models.Role", b =>
@@ -1411,7 +1416,7 @@ namespace MBKC.Repository.Migrations
 
             modelBuilder.Entity("MBKC.Repository.Models.StorePartner", b =>
                 {
-                    b.Navigation("MappingProducts");
+                    b.Navigation("PartnerProducts");
                 });
 
             modelBuilder.Entity("MBKC.Repository.Models.Wallet", b =>

@@ -2,7 +2,7 @@
 using FluentValidation.Results;
 using MBKC.API.Constants;
 using MBKC.Service.Authorization;
-using MBKC.Service.DTOs.MappingProducts;
+using MBKC.Service.DTOs.PartnerProducts;
 using MBKC.Service.Errors;
 using MBKC.Service.Exceptions;
 using MBKC.Service.Services.Interfaces;
@@ -15,26 +15,26 @@ namespace MBKC.API.Controllers
 {
 
     [ApiController]
-    public class MappingProductsController : ControllerBase
+    public class PartnerProductsController : ControllerBase
     {
-        private IMappingProductService _mappingProductService;
-        private IValidator<PostMappingProductRequest> _createMappingProductValidator;
-        private IValidator<UpdateMappingProductRequest> _updateMappingProductValidator;
-        public MappingProductsController(IMappingProductService mappingProductService,
-            IValidator<UpdateMappingProductRequest> updateMappingProductValidator,
-            IValidator<PostMappingProductRequest> createMappingProductValidator)
+        private IPartnerProductService _PartnerProductService;
+        private IValidator<PostPartnerProductRequest> _createPartnerProductValidator;
+        private IValidator<UpdatePartnerProductRequest> _updatePartnerProductValidator;
+        public PartnerProductsController(IPartnerProductService PartnerProductService,
+            IValidator<UpdatePartnerProductRequest> updatePartnerProductValidator,
+            IValidator<PostPartnerProductRequest> createPartnerProductValidator)
         {
-            this._mappingProductService = mappingProductService;
-            this._createMappingProductValidator = createMappingProductValidator;
-            this._updateMappingProductValidator = updateMappingProductValidator;
+            this._PartnerProductService = PartnerProductService;
+            this._createPartnerProductValidator = createPartnerProductValidator;
+            this._updatePartnerProductValidator = updatePartnerProductValidator;
         }
-        #region Create Mapping Product
+        #region Create Partner Product
         /// <summary>
-        /// Create new mapping product.
+        /// Create new Partner product.
         /// </summary>
-        /// <param name="postMappingProductRequest">A mapping product object contains created information.</param>
+        /// <param name="postPartnerProductRequest">A partner product object contains created information.</param>
         /// <returns>
-        /// A success message about creating mapping product information.
+        /// A success message about creating partner product information.
         /// </returns>
         /// <remarks>
         ///     Sample request:
@@ -47,7 +47,7 @@ namespace MBKC.API.Controllers
         ///             "ProductCode": "CT001"
         ///         }
         /// </remarks>
-        /// <response code="200">Created new mapping product successfully.</response>
+        /// <response code="200">Created new partner product successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
         /// <response code="404">Some Error about request data not found.</response>
         /// <response code="500">Some Error about the system.</response>
@@ -60,33 +60,33 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces(MediaTypeConstant.Application_Json)]
         [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager)]
-        [HttpPost(APIEndPointConstant.MappingProduct.MappingProductsEndpoint)]
-        public async Task<IActionResult> PostCreateMappingProductAsync([FromBody] PostMappingProductRequest postMappingProductRequest)
+        [HttpPost(APIEndPointConstant.PartnerProduct.PartnerProductsEndpoint)]
+        public async Task<IActionResult> PostCreatePartnerProductAsync([FromBody] PostPartnerProductRequest postPartnerProductRequest)
         {
-            ValidationResult validationResult = await this._createMappingProductValidator.ValidateAsync(postMappingProductRequest);
+            ValidationResult validationResult = await this._createPartnerProductValidator.ValidateAsync(postPartnerProductRequest);
             if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            await this._mappingProductService.CreateMappingProduct(postMappingProductRequest, claims);
+            await this._PartnerProductService.CreatePartnerProduct(postPartnerProductRequest, claims);
             return Ok(new
             {
-                Message = MessageConstant.MappingProductMessage.CreatedMappingProductSuccessfully
+                Message = MessageConstant.PartnerProductMessage.CreatedPartnerProductSuccessfully
             });
         }
         #endregion
 
-        #region Get a specific Mapping Product
+        #region Get a specific Partner Product
         /// <summary>
-        /// Get a specific mapping product by storeId, partnerId, productId.
+        /// Get a specific partner product by storeId, partnerId, productId.
         /// </summary>
         /// <param name="storeId">The store's id.</param>
         /// <param name="partnerId">The partner's id.</param>
         ///  <param name="productId">The product's id.</param>
         /// <returns>
-        /// An object contains the mapping product information.
+        /// An object contains the partner product information.
         /// </returns>
         /// <remarks>
         ///     Sample request:
@@ -96,37 +96,37 @@ namespace MBKC.API.Controllers
         ///         partnerId = 1
         ///         storeId = 1
         /// </remarks>
-        /// <response code="200">Get a specific mapping product successfully.</response>
+        /// <response code="200">Get a specific partner product successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
         /// <response code="404">Some Error about request data not found.</response>
         /// <response code="500">Some Error about the system.</response>
         /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
         /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
         /// <exception cref="Exception">Throw Error about the system.</exception>
-        [ProducesResponseType(typeof(GetMappingProductResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GetPartnerProductResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces(MediaTypeConstant.Application_Json)]
         [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager)]
-        [HttpGet(APIEndPointConstant.MappingProduct.MappingProductEndpoint)]
-        public async Task<IActionResult> GetProductAsync([FromRoute] int productId, [FromRoute] int partnerId, [FromRoute] int storeId)
+        [HttpGet(APIEndPointConstant.PartnerProduct.PartnerProductEndpoint)]
+        public async Task<IActionResult> GetPartnerProductAsync([FromRoute] int productId, [FromRoute] int partnerId, [FromRoute] int storeId)
         {
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            var getMappingProductResponse = await this._mappingProductService.GetMappingProduct(productId, partnerId, storeId, claims);
-            return Ok(getMappingProductResponse);
+            var getPartnerProductResponse = await this._PartnerProductService.GetPartnerProduct(productId, partnerId, storeId, claims);
+            return Ok(getPartnerProductResponse);
         }
         #endregion
 
-        #region Get Mapping Products
+        #region Get Partner Products
         /// <summary>
-        /// Get Mapping Products in the system.
+        /// Get Partner Products in the system.
         /// </summary>
         /// <param name="searchName">The name of product that user wants to find out.</param>
         /// <param name="currentPage">The number of page</param>
         /// <param name="itemsPerPage">The number of records that user wants to get.</param>
         /// <returns>
-        /// A list of mapping products with requested conditions.
+        /// A list of Partner products with requested conditions.
         /// </returns>
         /// <remarks>
         ///     Sample request:
@@ -143,31 +143,31 @@ namespace MBKC.API.Controllers
         /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
         /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
         /// <exception cref="Exception">Throw Error about the system.</exception>
-        [ProducesResponseType(typeof(GetMappingProductsResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GetPartnerProductsResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces(MediaTypeConstant.Application_Json)]
         [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager)]
-        [HttpGet(APIEndPointConstant.MappingProduct.MappingProductsEndpoint)]
-        public async Task<IActionResult> GetMappingProductsAsync([FromQuery] string? searchName, [FromQuery] int? currentPage, [FromQuery] int? itemsPerPage)
+        [HttpGet(APIEndPointConstant.PartnerProduct.PartnerProductsEndpoint)]
+        public async Task<IActionResult> GetPartnerProductsAsync([FromQuery] string? searchName, [FromQuery] int? currentPage, [FromQuery] int? itemsPerPage)
 
         {
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            GetMappingProductsResponse getMappingProductsResponse = await this._mappingProductService.GetMappingProducts(searchName, currentPage, itemsPerPage, claims);
-            return Ok(getMappingProductsResponse);
+            GetPartnerProductsResponse getPartnerProductsResponse = await this._PartnerProductService.GetPartnerProducts(searchName, currentPage, itemsPerPage, claims);
+            return Ok(getPartnerProductsResponse);
         }
         #endregion
 
-        #region Update Existed Mapping Product.
+        #region Update Existed Partner Product.
         /// <summary>
-        /// Update product code of Mapping Product.
+        /// Update existed partner product.
         /// </summary>
         /// <param name="storeId">The store's id.</param>
         /// <param name="partnerId">The partner's id.</param>
         ///  <param name="productId">The product's id.</param>
         /// <returns>
-        /// A success message about updating mapping product information.  
+        /// A success message about updating partner product information.  
         /// </returns>
         /// <remarks>
         ///     Sample request:
@@ -180,7 +180,7 @@ namespace MBKC.API.Controllers
         ///             "ProductCode": "ST001"
         ///         }
         /// </remarks>
-        /// <response code="200">Updated mapping product information successfully.</response>
+        /// <response code="200">Updated partner product information successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
         /// <response code="404">Some Error about request data not found.</response>
         /// <response code="500">Some Error about the system.</response>
@@ -193,20 +193,20 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces(MediaTypeConstant.Application_Json)]
         [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager)]
-        [HttpPut(APIEndPointConstant.MappingProduct.MappingProductEndpoint)]
-        public async Task<IActionResult> PutUpdateStoreAsync([FromRoute] int productId, [FromRoute] int partnerId, [FromRoute] int storeId, [FromBody] UpdateMappingProductRequest updateMappingProductRequest)
+        [HttpPut(APIEndPointConstant.PartnerProduct.PartnerProductEndpoint)]
+        public async Task<IActionResult> PutUpdatePartnerProductAsync([FromRoute] int productId, [FromRoute] int partnerId, [FromRoute] int storeId, [FromBody] UpdatePartnerProductRequest updatePartnerProductRequest)
         {
-            ValidationResult validationResult = await this._updateMappingProductValidator.ValidateAsync(updateMappingProductRequest);
+            ValidationResult validationResult = await this._updatePartnerProductValidator.ValidateAsync(updatePartnerProductRequest);
             if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            await this._mappingProductService.UpdateMappingProduct(productId, partnerId, storeId, updateMappingProductRequest, claims);
+            await this._PartnerProductService.UpdatePartnerProduct(productId, partnerId, storeId, updatePartnerProductRequest, claims);
             return Ok(new
             {
-                Message = MessageConstant.MappingProductMessage.UpdatedMappingProductSuccessfully
+                Message = MessageConstant.PartnerProductMessage.UpdatedPartnerProductSuccessfully
             });
         }
         #endregion
