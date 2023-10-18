@@ -15,11 +15,12 @@ namespace MBKC.Repository.Models
         public DateTime CreatedDate { get; set; }
         public string UserName { get; set; }
         public string Password { get; set; }
+        public float Commission { get; set; }
         public int Status { get; set; }
         [ForeignKey("PartnerId")]
         public virtual Partner Partner { get; set; }
         [ForeignKey("StoreId")]
         public virtual Store Store { get; set; }
-        public virtual IEnumerable<MappingProduct> MappingProducts { get; set; }
+        public virtual IEnumerable<PartnerProduct> PartnerProducts { get; set; }
     }
 }

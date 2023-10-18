@@ -14,8 +14,9 @@ namespace MBKC.Repository.Models
         public int TracsactionId { get; set; }
         public DateTime TransactionTime { get; set; }
         public int Status { get; set; }
+        public int? ExchangeId { get; set; }
         [ForeignKey("ExchangeId")]
-        public virtual MoneyExchange MoneyExchange { get; set; }
+        public virtual MoneyExchange? MoneyExchange { get; set; }
         [ForeignKey("WalletId")]
         public virtual Wallet Wallet { get; set; }
         [ForeignKey("PaymentId")]

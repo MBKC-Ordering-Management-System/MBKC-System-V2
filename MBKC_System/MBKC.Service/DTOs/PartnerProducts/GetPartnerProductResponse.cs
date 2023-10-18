@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MBKC.Service.DTOs.MappingProducts
+namespace MBKC.Service.DTOs.PartnerProducts
 {
-    public class GetMappingProductResponse
+    public class GetPartnerProductResponse
     {
         public int ProductId { get; set; }
         public int PartnerId { get; set; }

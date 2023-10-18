@@ -1,11 +1,11 @@
 ﻿ using FluentValidation;
-using MBKC.Service.DTOs.MappingProducts;
+using MBKC.Service.DTOs.PartnerProducts;
 
-namespace MBKC.API.Validators.MappingProducts
+namespace MBKC.API.Validators.PartnerProducts
 {
-    public class UpdateMappingProductValidator : AbstractValidator<UpdateMappingProductRequest>
+    public class UpdatePartnerProductValidator : AbstractValidator<UpdatePartnerProductRequest>
     {
-        public UpdateMappingProductValidator()
+        public UpdatePartnerProductValidator()
         {
             RuleFor(mp => mp.ProductCode)
                 .Cascade(CascadeMode.StopOnFirstFailure)

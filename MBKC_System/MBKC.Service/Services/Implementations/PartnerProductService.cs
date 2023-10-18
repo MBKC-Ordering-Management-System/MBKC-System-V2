@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MBKC.Service.DTOs.MappingProducts;
+using MBKC.Service.DTOs.PartnerProducts;
 using System.Security.Claims;
 using MBKC.Service.Exceptions;
 using MBKC.Service.Constants;
@@ -16,30 +16,30 @@ using MBKC.Service.Utils;
 
 namespace MBKC.Service.Services.Implementations
 {
-    public class MappingProductService : IMappingProductService
+    public class PartnerProductService : IPartnerProductService
     {
         private UnitOfWork _unitOfWork;
         private IMapper _mapper;
-        public MappingProductService(IUnitOfWork unitOfWork, IMapper mapper)
+        public PartnerProductService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             this._unitOfWork = (UnitOfWork)unitOfWork;
             this._mapper = mapper;
         }
 
-        #region Create Mapping Product
-        public async Task CreateMappingProduct(PostMappingProductRequest postMappingProductRequest, IEnumerable<Claim> claims)
+        #region Create Partner Product
+        public async Task CreatePartnerProduct(PostPartnerProductRequest postPartnerProductRequest, IEnumerable<Claim> claims)
         {
             try
             {
-                if (postMappingProductRequest.StoreId <= 0)
+                if (postPartnerProductRequest.StoreId <= 0)
                 {
                     throw new BadRequestException(MessageConstant.CommonMessage.InvalidStoreId);
                 }
-                if (postMappingProductRequest.PartnerId <= 0)
+                if (postPartnerProductRequest.PartnerId <= 0)
                 {
                     throw new BadRequestException(MessageConstant.CommonMessage.InvalidPartnerId);
                 }
-                if (postMappingProductRequest.ProductId <= 0)
+                if (postPartnerProductRequest.ProductId <= 0)
                 {
                     throw new BadRequestException(MessageConstant.CommonMessage.InvalidProductId);
                 }
@@ -49,7 +49,7 @@ namespace MBKC.Service.Services.Implementations
                 var brandId = brandAccount.Brand.BrandId;
 
                 // Check store belong to brand or not
-                var store = await this._unitOfWork.StoreRepository.GetStoreAsync(postMappingProductRequest.StoreId);
+                var store = await this._unitOfWork.StoreRepository.GetStoreAsync(postPartnerProductRequest.StoreId);
                 if (store != null)
                 {
                     if (store.Brand.BrandId != brandId)
@@ -67,7 +67,7 @@ namespace MBKC.Service.Services.Implementations
                 }
 
                 // Check partner existed or not
-                var partner = await this._unitOfWork.PartnerRepository.GetPartnerByIdAsync(postMappingProductRequest.PartnerId);
+                var partner = await this._unitOfWork.PartnerRepository.GetPartnerByIdAsync(postPartnerProductRequest.PartnerId);
                 if (partner == null)
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistPartnerId);
@@ -76,7 +76,7 @@ namespace MBKC.Service.Services.Implementations
 
 
                 // Check the store is linked to that partner or not 
-                var storePartner = await this._unitOfWork.StorePartnerRepository.GetStorePartnerByPartnerIdAndStoreIdAsync(postMappingProductRequest.PartnerId, postMappingProductRequest.StoreId);
+                var storePartner = await this._unitOfWork.StorePartnerRepository.GetStorePartnerByPartnerIdAndStoreIdAsync(postPartnerProductRequest.PartnerId, postPartnerProductRequest.StoreId);
                 if (storePartner == null)
                 {
                     throw new BadRequestException(MessageConstant.StorePartnerMessage.NotLinkedWithParner);
@@ -84,16 +84,16 @@ namespace MBKC.Service.Services.Implementations
 
 
                 // check product belong to brand or not
-                var product = await this._unitOfWork.ProductRepository.GetProductAsync(postMappingProductRequest.ProductId);
+                var product = await this._unitOfWork.ProductRepository.GetProductAsync(postPartnerProductRequest.ProductId);
                 if (product != null)
                 {
                     if (product.Status == (int)ProductEnum.Status.DEACTIVE && product.Brand.BrandId == brandId)
                     {
-                        throw new BadRequestException(MessageConstant.MappingProductMessage.DeactiveProduct_Create_Update);
+                        throw new BadRequestException(MessageConstant.PartnerProductMessage.DeactiveProduct_Create_Update);
                     }
                     else if (product.Status == (int)ProductEnum.Status.INACTIVE && product.Brand.BrandId == brandId)
                     {
-                        throw new BadRequestException(MessageConstant.MappingProductMessage.InactiveProduct_Create_Update);
+                        throw new BadRequestException(MessageConstant.PartnerProductMessage.InactiveProduct_Create_Update);
                     }
                     else if (product.Status == (int)ProductEnum.Status.ACTIVE && product.Brand.BrandId != brandId)
                     {
@@ -106,28 +106,29 @@ namespace MBKC.Service.Services.Implementations
                 }
 
                 // Check product code existed or not
-                var checkProductCode = await this._unitOfWork.MappingProductRepository.GetMappingProductByProductCodeAsync(postMappingProductRequest.ProductCode);
+                var checkProductCode = await this._unitOfWork.PartnerProductRepository.GetPartnerProductByProductCodeAsync(postPartnerProductRequest.ProductCode);
                 if (checkProductCode != null)
                 {
-                    throw new BadRequestException(MessageConstant.MappingProductMessage.ProductCodeExisted);
+                    throw new BadRequestException(MessageConstant.PartnerProductMessage.ProductCodeExisted);
                 }
 
                 // Check mapping product existed in system or not
-                var mappingProduct = await this._unitOfWork.MappingProductRepository.GetMappingProductAsync(postMappingProductRequest.ProductId, postMappingProductRequest.PartnerId, postMappingProductRequest.StoreId, storePartner.CreatedDate);
-                if (mappingProduct != null)
+                var PartnerProduct = await this._unitOfWork.PartnerProductRepository.GetPartnerProductAsync(postPartnerProductRequest.ProductId, postPartnerProductRequest.PartnerId, postPartnerProductRequest.StoreId, storePartner.CreatedDate);
+                if (PartnerProduct != null)
                 {
-                    throw new BadRequestException(MessageConstant.CommonMessage.AlreadyExistMappingProduct);
+                    throw new BadRequestException(MessageConstant.CommonMessage.AlreadyExistPartnerProduct);
                 }
 
-                var mappingProductInsert = new MappingProduct()
+                var PartnerProductInsert = new PartnerProduct()
                 {
-                    ProductId = postMappingProductRequest.ProductId,
-                    PartnerId = postMappingProductRequest.PartnerId,
-                    StoreId = postMappingProductRequest.StoreId,
-                    ProductCode = postMappingProductRequest.ProductCode,
-                    CreatedDate = storePartner.CreatedDate
+                    ProductId = postPartnerProductRequest.ProductId,
+                    PartnerId = postPartnerProductRequest.PartnerId,
+                    StoreId = postPartnerProductRequest.StoreId,
+                    ProductCode = postPartnerProductRequest.ProductCode,
+                    CreatedDate = storePartner.CreatedDate,
+                    Status = (int)PartnerProductEnum.Status.ACTIVE
                 };
-                await this._unitOfWork.MappingProductRepository.CreateMappingProductAsync(mappingProductInsert);
+                await this._unitOfWork.PartnerProductRepository.CreatePartnerProductAsync(PartnerProductInsert);
                 await this._unitOfWork.CommitAsync();
             }
             catch (BadRequestException ex)
@@ -160,12 +161,12 @@ namespace MBKC.Service.Services.Implementations
                     fieldName = "Store id";
                 }
 
-                else if (ex.Message.Equals(MessageConstant.MappingProductMessage.DeactiveProduct_Create_Update))
+                else if (ex.Message.Equals(MessageConstant.PartnerProductMessage.DeactiveProduct_Create_Update))
                 {
                     fieldName = "Product id";
                 }
 
-                else if (ex.Message.Equals(MessageConstant.MappingProductMessage.InactiveProduct_Create_Update))
+                else if (ex.Message.Equals(MessageConstant.PartnerProductMessage.InactiveProduct_Create_Update))
                 {
                     fieldName = "Product id";
                 }
@@ -179,11 +180,11 @@ namespace MBKC.Service.Services.Implementations
                     fieldName = "Product id";
                 }
 
-                else if (ex.Message.Equals(MessageConstant.CommonMessage.AlreadyExistMappingProduct))
+                else if (ex.Message.Equals(MessageConstant.CommonMessage.AlreadyExistPartnerProduct))
                 {
                     fieldName = "Mapping product";
                 }
-                else if (ex.Message.Equals(MessageConstant.MappingProductMessage.ProductCodeExisted))
+                else if (ex.Message.Equals(MessageConstant.PartnerProductMessage.ProductCodeExisted))
                 {
                     fieldName = "Product code";
                 }
@@ -213,8 +214,8 @@ namespace MBKC.Service.Services.Implementations
         }
         #endregion
 
-        #region Get Specific Mapping Product
-        public async Task<GetMappingProductResponse> GetMappingProduct(int productId, int partnerId, int storeId, IEnumerable<Claim> claims)
+        #region Get Specific Partner Product
+        public async Task<GetPartnerProductResponse> GetPartnerProduct(int productId, int partnerId, int storeId, IEnumerable<Claim> claims)
         {
             try
             {
@@ -272,7 +273,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     if (product.Status == (int)ProductEnum.Status.DEACTIVE && product.Brand.BrandId == brandId)
                     {
-                        throw new BadRequestException(MessageConstant.MappingProductMessage.DeactiveProduct_Create_Update);
+                        throw new BadRequestException(MessageConstant.PartnerProductMessage.DeactiveProduct_Create_Update);
                     }
                     else if (product.Status == (int)ProductEnum.Status.ACTIVE && product.Brand.BrandId != brandId)
                     {
@@ -293,13 +294,13 @@ namespace MBKC.Service.Services.Implementations
                 }
 
                 // Check mapping product existed in system or not
-                var mappingProduct = await this._unitOfWork.MappingProductRepository.GetMappingProductAsync(productId, partnerId, storeId, storePartner.CreatedDate);
-                if (mappingProduct == null)
+                var PartnerProduct = await this._unitOfWork.PartnerProductRepository.GetPartnerProductAsync(productId, partnerId, storeId, storePartner.CreatedDate);
+                if (PartnerProduct == null)
                 {
-                    throw new NotFoundException(MessageConstant.CommonMessage.NotExistMappingProduct);
+                    throw new NotFoundException(MessageConstant.CommonMessage.NotExistPartnerProduct);
                 }
 
-                return this._mapper.Map<GetMappingProductResponse>(mappingProduct);
+                return this._mapper.Map<GetPartnerProductResponse>(PartnerProduct);
             }
             catch (BadRequestException ex)
             {
@@ -331,12 +332,12 @@ namespace MBKC.Service.Services.Implementations
                     fieldName = "Store id";
                 }
 
-                else if (ex.Message.Equals(MessageConstant.MappingProductMessage.DeactiveProduct_Create_Update))
+                else if (ex.Message.Equals(MessageConstant.PartnerProductMessage.DeactiveProduct_Create_Update))
                 {
                     fieldName = "Product id";
                 }
 
-                else if (ex.Message.Equals(MessageConstant.MappingProductMessage.InactiveProduct_Create_Update))
+                else if (ex.Message.Equals(MessageConstant.PartnerProductMessage.InactiveProduct_Create_Update))
                 {
                     fieldName = "Product id";
                 }
@@ -349,7 +350,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     fieldName = "Product id";
                 }
-                else if (ex.Message.Equals(MessageConstant.MappingProductMessage.ProductCodeExisted))
+                else if (ex.Message.Equals(MessageConstant.PartnerProductMessage.ProductCodeExisted))
                 {
                     fieldName = "Product code";
                 }
@@ -367,7 +368,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     fieldName = "Partner id";
                 }
-                else if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistMappingProduct))
+                else if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistPartnerProduct))
                 {
                     fieldName = "Partner id, Product id, Store id";
                 }
@@ -383,8 +384,8 @@ namespace MBKC.Service.Services.Implementations
         }
         #endregion
 
-        #region Get Mapping Products
-        public async Task<GetMappingProductsResponse> GetMappingProducts(string? searchName, int? currentPage, int? itemsPerPage, IEnumerable<Claim> claims)
+        #region Get Partner Products
+        public async Task<GetPartnerProductsResponse> GetPartnerProducts(string? searchName, int? currentPage, int? itemsPerPage, IEnumerable<Claim> claims)
         {
             try
             {
@@ -412,22 +413,22 @@ namespace MBKC.Service.Services.Implementations
                 }
 
                 int numberItems = 0;
-                List<MappingProduct> mappingProducts = null;
+                List<PartnerProduct> PartnerProducts = null;
                 if (searchName != null && StringUtil.IsUnicode(searchName) == false)
                 {
-                    numberItems = await this._unitOfWork.MappingProductRepository.GetNumberMappingProductsAsync(searchName, null, brandId);
-                    mappingProducts = await this._unitOfWork.MappingProductRepository.GetMappingProductsAsync(searchName, null, currentPage, itemsPerPage, brandId);
+                    numberItems = await this._unitOfWork.PartnerProductRepository.GetNumberPartnerProductsAsync(searchName, null, brandId);
+                    PartnerProducts = await this._unitOfWork.PartnerProductRepository.GetPartnerProductsAsync(searchName, null, currentPage, itemsPerPage, brandId);
 
                 }
                 else if (searchName != null && StringUtil.IsUnicode(searchName))
                 {
-                    numberItems = await this._unitOfWork.MappingProductRepository.GetNumberMappingProductsAsync(null, searchName, brandId);
-                    mappingProducts = await this._unitOfWork.MappingProductRepository.GetMappingProductsAsync(null, searchName, currentPage, itemsPerPage, brandId);
+                    numberItems = await this._unitOfWork.PartnerProductRepository.GetNumberPartnerProductsAsync(null, searchName, brandId);
+                    PartnerProducts = await this._unitOfWork.PartnerProductRepository.GetPartnerProductsAsync(null, searchName, currentPage, itemsPerPage, brandId);
                 }
                 else if (searchName == null)
                 {
-                    numberItems = await this._unitOfWork.MappingProductRepository.GetNumberMappingProductsAsync(null, null, brandId);
-                    mappingProducts = await this._unitOfWork.MappingProductRepository.GetMappingProductsAsync(null, null, currentPage, itemsPerPage, brandId);
+                    numberItems = await this._unitOfWork.PartnerProductRepository.GetNumberPartnerProductsAsync(null, null, brandId);
+                    PartnerProducts = await this._unitOfWork.PartnerProductRepository.GetPartnerProductsAsync(null, null, currentPage, itemsPerPage, brandId);
                 }
 
                 int totalPages = (int)((numberItems + itemsPerPage) / itemsPerPage);
@@ -435,12 +436,12 @@ namespace MBKC.Service.Services.Implementations
                 {
                     totalPages = 0;
                 }
-                List<GetMappingProductResponse> getMappingProductResponse = this._mapper.Map<List<GetMappingProductResponse>>(mappingProducts);
-                return new GetMappingProductsResponse()
+                List<GetPartnerProductResponse> getPartnerProductResponse = this._mapper.Map<List<GetPartnerProductResponse>>(PartnerProducts);
+                return new GetPartnerProductsResponse()
                 {
                     NumberItems = numberItems,
                     TotalPages = totalPages,
-                    MappingProducts = getMappingProductResponse
+                    PartnerProducts = getPartnerProductResponse
                 };
             }
             catch (BadRequestException ex)
@@ -465,8 +466,8 @@ namespace MBKC.Service.Services.Implementations
         }
         #endregion
 
-        #region Update Mapping Product
-        public async Task UpdateMappingProduct(int productId, int partnerId, int storeId, UpdateMappingProductRequest updateMappingProductRequest, IEnumerable<Claim> claims)
+        #region Update Partner Product
+        public async Task UpdatePartnerProduct(int productId, int partnerId, int storeId, UpdatePartnerProductRequest updatePartnerProductRequest, IEnumerable<Claim> claims)
         {
             try
             {
@@ -497,7 +498,7 @@ namespace MBKC.Service.Services.Implementations
                     }
                     else if (store.Brand.BrandId == brandId && store.Status == (int)StoreEnum.Status.INACTIVE)
                     {
-                        throw new BadRequestException(MessageConstant.MappingProductMessage.InactiveStore_Update);
+                        throw new BadRequestException(MessageConstant.PartnerProductMessage.InactiveStore_Update);
                     }
                 }
                 else
@@ -528,11 +529,11 @@ namespace MBKC.Service.Services.Implementations
                 {
                     if (product.Status == (int)ProductEnum.Status.DEACTIVE && product.Brand.BrandId == brandId)
                     {
-                        throw new BadRequestException(MessageConstant.MappingProductMessage.DeactiveProduct_Create_Update);
+                        throw new BadRequestException(MessageConstant.PartnerProductMessage.DeactiveProduct_Create_Update);
                     }
                     else if (product.Status == (int)ProductEnum.Status.INACTIVE && product.Brand.BrandId == brandId)
                     {
-                        throw new BadRequestException(MessageConstant.MappingProductMessage.InactiveProduct_Create_Update);
+                        throw new BadRequestException(MessageConstant.PartnerProductMessage.InactiveProduct_Create_Update);
                     }
                     else if (product.Status == (int)ProductEnum.Status.ACTIVE && product.Brand.BrandId != brandId)
                     {
@@ -545,21 +546,21 @@ namespace MBKC.Service.Services.Implementations
                 }
 
                 // Check product code existed or not
-                var checkProductCode = await this._unitOfWork.MappingProductRepository.GetMappingProductByProductCodeAsync(updateMappingProductRequest.ProductCode);
+                var checkProductCode = await this._unitOfWork.PartnerProductRepository.GetPartnerProductByProductCodeAsync(updatePartnerProductRequest.ProductCode);
                 if (checkProductCode != null)
                 {
-                    throw new BadRequestException(MessageConstant.MappingProductMessage.ProductCodeExisted);
+                    throw new BadRequestException(MessageConstant.PartnerProductMessage.ProductCodeExisted);
                 }
 
                 // Check mapping product existed in system or not
-                var mappingProductExisted = await this._unitOfWork.MappingProductRepository.GetMappingProductAsync(productId, partnerId, storeId, storePartner.CreatedDate);
-                if (mappingProductExisted == null)
+                var PartnerProductExisted = await this._unitOfWork.PartnerProductRepository.GetPartnerProductAsync(productId, partnerId, storeId, storePartner.CreatedDate);
+                if (PartnerProductExisted == null)
                 {
-                    throw new BadRequestException(MessageConstant.CommonMessage.NotExistMappingProduct);
+                    throw new BadRequestException(MessageConstant.CommonMessage.NotExistPartnerProduct);
                 }
-                mappingProductExisted.ProductCode = updateMappingProductRequest.ProductCode;
+                PartnerProductExisted.ProductCode = updatePartnerProductRequest.ProductCode;
 
-                this._unitOfWork.MappingProductRepository.UpdateMappingProduct(mappingProductExisted);
+                this._unitOfWork.PartnerProductRepository.UpdatePartnerProduct(PartnerProductExisted);
                 await this._unitOfWork.CommitAsync();
             }
             catch (BadRequestException ex)
@@ -582,7 +583,7 @@ namespace MBKC.Service.Services.Implementations
                     fieldName = "Store id";
                 }
 
-                else if (ex.Message.Equals(MessageConstant.MappingProductMessage.InactiveStore_Update))
+                else if (ex.Message.Equals(MessageConstant.PartnerProductMessage.InactiveStore_Update))
                 {
                     fieldName = "Store id";
                 }
@@ -592,12 +593,12 @@ namespace MBKC.Service.Services.Implementations
                     fieldName = "Store id";
                 }
 
-                else if (ex.Message.Equals(MessageConstant.MappingProductMessage.DeactiveProduct_Create_Update))
+                else if (ex.Message.Equals(MessageConstant.PartnerProductMessage.DeactiveProduct_Create_Update))
                 {
                     fieldName = "Product id";
                 }
 
-                else if (ex.Message.Equals(MessageConstant.MappingProductMessage.InactiveProduct_Create_Update))
+                else if (ex.Message.Equals(MessageConstant.PartnerProductMessage.InactiveProduct_Create_Update))
                 {
                     fieldName = "Product id";
                 }
@@ -611,11 +612,11 @@ namespace MBKC.Service.Services.Implementations
                     fieldName = "Product id";
                 }
 
-                else if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistMappingProduct))
+                else if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistPartnerProduct))
                 {
                     fieldName = "Mapping product";
                 }
-                else if (ex.Message.Equals(MessageConstant.MappingProductMessage.ProductCodeExisted))
+                else if (ex.Message.Equals(MessageConstant.PartnerProductMessage.ProductCodeExisted))
                 {
                     fieldName = "Product code";
                 }
