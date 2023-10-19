@@ -803,7 +803,7 @@ namespace MBKC.Service.Services.Implementations
 
                 else if (ex.Message.Equals(MessageConstant.CommonMessage.AlreadyExistPartnerProduct))
                 {
-                    fieldName = "Mapping product";
+                    fieldName = "Partner product";
                 }
                 else if (ex.Message.Equals(MessageConstant.PartnerProductMessage.ProductCodeExisted))
                 {

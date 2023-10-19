@@ -17,14 +17,14 @@ namespace MBKC.API.Controllers
     [ApiController]
     public class PartnerProductsController : ControllerBase
     {
-        private IPartnerProductService _PartnerProductService;
+        private IPartnerProductService _partnerProductService;
         private IValidator<PostPartnerProductRequest> _createPartnerProductValidator;
         private IValidator<UpdatePartnerProductRequest> _updatePartnerProductValidator;
-        public PartnerProductsController(IPartnerProductService PartnerProductService,
+        public PartnerProductsController(IPartnerProductService partnerProductService,
             IValidator<UpdatePartnerProductRequest> updatePartnerProductValidator,
             IValidator<PostPartnerProductRequest> createPartnerProductValidator)
         {
-            this._PartnerProductService = PartnerProductService;
+            this._partnerProductService = partnerProductService;
             this._createPartnerProductValidator = createPartnerProductValidator;
             this._updatePartnerProductValidator = updatePartnerProductValidator;
         }
@@ -70,7 +70,7 @@ namespace MBKC.API.Controllers
                 throw new BadRequestException(errors);
             }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            await this._PartnerProductService.CreatePartnerProduct(postPartnerProductRequest, claims);
+            await this._partnerProductService.CreatePartnerProduct(postPartnerProductRequest, claims);
             return Ok(new
             {
                 Message = MessageConstant.PartnerProductMessage.CreatedPartnerProductSuccessfully
@@ -113,7 +113,7 @@ namespace MBKC.API.Controllers
         public async Task<IActionResult> GetPartnerProductAsync([FromRoute] int productId, [FromRoute] int partnerId, [FromRoute] int storeId)
         {
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            var getPartnerProductResponse = await this._PartnerProductService.GetPartnerProduct(productId, partnerId, storeId, claims);
+            var getPartnerProductResponse = await this._partnerProductService.GetPartnerProduct(productId, partnerId, storeId, claims);
             return Ok(getPartnerProductResponse);
         }
         #endregion
@@ -154,7 +154,7 @@ namespace MBKC.API.Controllers
 
         {
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            GetPartnerProductsResponse getPartnerProductsResponse = await this._PartnerProductService.GetPartnerProducts(searchName, currentPage, itemsPerPage, claims);
+            GetPartnerProductsResponse getPartnerProductsResponse = await this._partnerProductService.GetPartnerProducts(searchName, currentPage, itemsPerPage, claims);
             return Ok(getPartnerProductsResponse);
         }
         #endregion
@@ -205,10 +205,53 @@ namespace MBKC.API.Controllers
                 throw new BadRequestException(errors);
             }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            await this._PartnerProductService.UpdatePartnerProduct(productId, partnerId, storeId, updatePartnerProductRequest, claims);
+            await this._partnerProductService.UpdatePartnerProduct(productId, partnerId, storeId, updatePartnerProductRequest, claims);
             return Ok(new
             {
                 Message = MessageConstant.PartnerProductMessage.UpdatedPartnerProductSuccessfully
+            });
+        }
+        #endregion
+
+        #region Delete existed Partner Product By Id
+        /// <summary>
+        /// Delete existed partner product by id.
+        /// </summary>
+        /// <param name="id">
+        ///  Id of partner.
+        /// </param>
+        /// <returns>
+        /// An object will return message "Deleted Partner Successfully".
+        /// </returns>
+        /// <remarks>
+        ///     Sample request:
+        ///     
+        ///         DELETE
+        ///         
+        ///             id: 3
+        ///         
+        /// </remarks>
+        /// <response code="200">Delete partner successfully.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
+        /// <response code="404">Some Error about request data not found.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
+        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Produces(MediaTypeConstant.Application_Json)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager)]
+        [HttpDelete(APIEndPointConstant.PartnerProduct.PartnerProductEndpoint)]
+        public async Task<IActionResult> DeActivePartnerByIdAsync([FromRoute] int productId, int partnerId, int storeId)
+        {
+            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
+            await this._partnerProductService.DeletePartnerProductByIdAsync(productId, partnerId, storeId, claims);
+            return Ok(new
+            {
+                Message = MessageConstant.PartnerProductMessage.DeletedPartnerProductSuccessfully
             });
         }
         #endregion

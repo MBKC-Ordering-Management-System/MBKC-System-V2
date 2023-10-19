@@ -30,18 +30,6 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
-                if (postStorePartnerRequest.StoreId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidStoreId);
-                }
-                foreach (var p in postStorePartnerRequest.partnerAccountRequests)
-                {
-                    if (p.PartnerId <= 0)
-                    {
-                        throw new BadRequestException(MessageConstant.CommonMessage.InvalidPartnerId);
-                    }
-                }
-
                 // Check dupplicated partnerId request.
                 var hasDuplicatePartnerId = postStorePartnerRequest.partnerAccountRequests
                       .GroupBy(request => request.PartnerId)
@@ -123,6 +111,7 @@ namespace MBKC.Service.Services.Implementations
                         CreatedDate = DateTime.Now,
                         UserName = p.UserName,
                         Password = p.Password,
+                        Commission = p.Commission,
                         Status = (int)StorePartnerEnum.Status.ACTIVE
                     };
                     listStorePartnerInsert.Add(storePartnerInsert);
@@ -147,15 +136,7 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidStoreId))
-                {
-                    fieldName = "Store id";
-                }
-                else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidPartnerId))
-                {
-                    fieldName = "Partner id";
-                }
-                else if (ex.Message.Equals(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand))
+                if (ex.Message.Equals(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand))
                 {
                     fieldName = "Store id";
                 }

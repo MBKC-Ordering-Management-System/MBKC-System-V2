@@ -14,5 +14,7 @@ namespace MBKC.Service.Services.Interfaces
         public Task<GetPartnerProductsResponse> GetPartnerProducts(string? searchName, int? currentPage, int? itemsPerPage, IEnumerable<Claim> claims);
         public Task CreatePartnerProduct(PostPartnerProductRequest postPartnerProductRequest, IEnumerable<Claim> claims);
         public Task UpdatePartnerProduct(int productId, int partnerId, int storeId, UpdatePartnerProductRequest updatePartnerProductRequest, IEnumerable<Claim> claims);
+        public Task DeletePartnerProductByIdAsync(int productId, int partnerId, int storeId, IEnumerable<Claim> claims);
+
     }
 }
