@@ -113,7 +113,7 @@ namespace MBKC.Service.Services.Implementations
 
                 //Check 4: Check refresh token exist in Redis Db
                 string accountId = tokenVerification.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sid).Value;
-                MBKC.Repository.RedisModels.AccountToken accountTokenRedisModel = await this._unitOfWork.AccountTokenRedisRepository.GetAccountToken(accountId);
+                MBKC.Repository.Redis.Models.AccountToken accountTokenRedisModel = await this._unitOfWork.AccountTokenRedisRepository.GetAccountToken(accountId);
                 if (accountTokenRedisModel == null)
                 {
                     throw new NotFoundException(MessageConstant.ReGenerationMessage.NotExistAuthenticationToken);
@@ -168,7 +168,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistEmail);
                 }
-                MBKC.Repository.RedisModels.EmailVerification emailVerificationRedisModel = await this._unitOfWork.EmailVerificationRedisRepository.GetEmailVerificationAsync(resetPassword.Email);
+                MBKC.Repository.Redis.Models.EmailVerification emailVerificationRedisModel = await this._unitOfWork.EmailVerificationRedisRepository.GetEmailVerificationAsync(resetPassword.Email);
                 if (emailVerificationRedisModel == null)
                 {
                     throw new BadRequestException(MessageConstant.ChangePasswordMessage.NotAuthenticatedEmail);
@@ -233,7 +233,7 @@ namespace MBKC.Service.Services.Implementations
                     AccountId = accountResponse.AccountId
                 };
 
-                MBKC.Repository.RedisModels.AccountToken accountTokenRedisModel = this._mapper.Map<MBKC.Repository.RedisModels.AccountToken>(accountToken);
+                MBKC.Repository.Redis.Models.AccountToken accountTokenRedisModel = this._mapper.Map<MBKC.Repository.Redis.Models.AccountToken>(accountToken);
                 await this._unitOfWork.AccountTokenRedisRepository.AddAccountToken(accountTokenRedisModel);
 
                 AccountTokenResponse tokens = new AccountTokenResponse()

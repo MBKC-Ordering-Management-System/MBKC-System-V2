@@ -16,7 +16,7 @@ namespace MBKC.Repository.Models
         public decimal DiscountAmount { get; set; }
         public int Quantity { get; set; }
         public string Note { get; set; }
-        public int MasterOrderDetailId { get; set; }
+        public int? MasterOrderDetailId { get; set; }
 
         [ForeignKey("Id")]
         public virtual Order Order { get; set; }

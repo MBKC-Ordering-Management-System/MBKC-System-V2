@@ -143,7 +143,7 @@
             public const string ProductNotBelongToBrand = "Product id does not belong to your brand.";
             public const string ProductNotBelongToStore = "Product id does not belong to your store.";
             public const string ProductNotSpendToStore = "Product id does not spend to your kitchen center.";
-            public const string ProductNameNotFollowingFormat = "Name of product Type CHILD is required following format: 'ParentName Size x' With x is a your chosen size options.";
+            public const string ProductNameNotFollowingFormat = "Name of product Type CHILD is required following format: 'ParentName - Size x' With x is a your chosen size options.";
             public const string ProductNameTypeChildNotAllowUpdate = "Name of product which is type CHILD does not allow update.";
             public const string ProductIdNotParentType = "Product id is not a PARENT type.";
         }
@@ -168,15 +168,15 @@
 
         public static class StorePartnerMessage
         {
-            public const string InactiveStore_Create = "This store has been inactive.";
+            public const string InactiveStore_Create = "This store has been inactive or disabled.";
             public const string StoreNotBelongToBrand = "Store does not belong to brand.";
-            public const string PartnerExceed3 = "A store can only have a maximum of 3 partners.";
             public const string LinkedWithParner = "This store is already linked to this partner.";
-            public const string UsernameExisted = "User name already exist in the system.";
-            public const string NotLinkedWithParner = "This store is not linked to this partner.";
+            public const string UsernameExisted = "Username already exist in the system.";
+            public const string NotLinkedWithParner = "This store is not linked to this partner and it is still active.";
             public const string DeactiveStorePartner_Update = "Can't update store partner has been deactivated.";
-            public const string DupplicatedPartnerId_Create = "Partner Id cannot be duplicated";
+            public const string DupplicatedPartnerId_Create = "Partner Id cannot be duplicated in the partnerAccounts list.";
             public const string KeySortNotExist = "Key sort are ASC or DESC";
+            public const string GrabFoodAccountMustBeStoreManager = "GrabFood Account must be Store Manager Role.";
         }
 
         public static class PartnerProductMessage

@@ -11,7 +11,7 @@ using MBKC.Service.Utils;
 using MBKC.Service.Constants;
 using StackExchange.Redis;
 using Role = MBKC.Repository.Models.Role;
-using MBKC.Repository.RedisModels;
+using MBKC.Repository.Redis.Models;
 using static MBKC.Service.Constants.EmailMessageConstant;
 using Brand = MBKC.Repository.Models.Brand;
 

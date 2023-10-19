@@ -13,6 +13,9 @@ using MBKC.Service.Constants;
 using MBKC.Service.Exceptions;
 using MBKC.Repository.Models;
 using MBKC.Service.Utils;
+using MBKC.Repository.Constants;
+using System.Collections;
+using MBKC.Repository.GrabFood.Models;
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -30,20 +33,8 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
-                if (postStorePartnerRequest.StoreId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidStoreId);
-                }
-                foreach (var p in postStorePartnerRequest.partnerAccountRequests)
-                {
-                    if (p.PartnerId <= 0)
-                    {
-                        throw new BadRequestException(MessageConstant.CommonMessage.InvalidPartnerId);
-                    }
-                }
-
                 // Check dupplicated partnerId request.
-                var hasDuplicatePartnerId = postStorePartnerRequest.partnerAccountRequests
+                var hasDuplicatePartnerId = postStorePartnerRequest.partnerAccounts
                       .GroupBy(request => request.PartnerId)
                       .Any(group => group.Count() > 1);
 
@@ -65,7 +56,7 @@ namespace MBKC.Service.Services.Implementations
                     {
                         throw new BadRequestException(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand);
                     }
-                    else if (store.Brand.BrandId == brandId && store.Status == (int)StoreEnum.Status.INACTIVE)
+                    else if (store.Brand.BrandId == brandId && store.Status == (int)StoreEnum.Status.INACTIVE || store.Brand.BrandId == brandId && store.Status == (int)StoreEnum.Status.DEACTIVE)
                     {
                         throw new BadRequestException(MessageConstant.StorePartnerMessage.InactiveStore_Create);
                     }
@@ -75,24 +66,37 @@ namespace MBKC.Service.Services.Implementations
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistStoreId);
                 }
 
-                // Check number of partner in store partner
-                if (store.StorePartners.Where(s => s.Status != (int)StorePartnerEnum.Status.DEACTIVE).Count() >= 3)
-                {
-                    throw new BadRequestException(MessageConstant.StorePartnerMessage.PartnerExceed3);
-                }
-
                 // Check partner existed or not
-                foreach (var p in postStorePartnerRequest.partnerAccountRequests)
+                Dictionary<string, int> namePartners = new Dictionary<string, int>();
+                foreach (var p in postStorePartnerRequest.partnerAccounts)
                 {
                     var partner = await this._unitOfWork.PartnerRepository.GetPartnerAsync(p.PartnerId);
                     if (partner == null)
                     {
                         throw new NotFoundException(MessageConstant.CommonMessage.NotExistPartnerId);
                     }
+                    GrabFoodAccount grabFoodAccount = new GrabFoodAccount()
+                    {
+                        Username = p.UserName,
+                        Password = p.Password
+                    };
+                    //check partner account is valid
+                    if (partner.Name.ToLower().Equals(PartnerConstant.GrabFood.ToLower()))
+                    {
+                        GrabFoodAuthenticationResponse grabFoodAuthenticationResponse = await this._unitOfWork.GrabFoodRepository.LoginGrabFoodAsync(grabFoodAccount);
+                        if(grabFoodAuthenticationResponse != null && grabFoodAuthenticationResponse.Data.User_Profile.Role.ToLower().Equals(RoleConstant.Store_Manager.ToLower()) == false)
+                        {
+                            throw new BadRequestException(MessageConstant.StorePartnerMessage.GrabFoodAccountMustBeStoreManager);
+                        }
+                    }
+                    if(namePartners.Where(x => x.Key.ToLower().Equals(partner.Name.ToLower())).Count() == 0)
+                    {
+                        namePartners.Add(partner.Name, partner.PartnerId);
+                    }
                 }
 
                 // Check the store is linked to that partner or not 
-                foreach (var p in postStorePartnerRequest.partnerAccountRequests)
+                foreach (var p in postStorePartnerRequest.partnerAccounts)
                 {
                     var storePartner = await this._unitOfWork.StorePartnerRepository.GetStorePartnerByPartnerIdAndStoreIdAsync(p.PartnerId, postStorePartnerRequest.StoreId);
                     if (storePartner != null)
@@ -101,8 +105,8 @@ namespace MBKC.Service.Services.Implementations
                     }
                 }
 
-                // Check user name with difference store id
-                foreach (var p in postStorePartnerRequest.partnerAccountRequests)
+                // Check username with difference store id
+                foreach (var p in postStorePartnerRequest.partnerAccounts)
                 {
                     var checkUserNameInDifferenceStore = await this._unitOfWork.StorePartnerRepository.GetStorePartnersByUserNameAndStoreIdAsync(p.UserName, store.StoreId, p.PartnerId);
 
@@ -114,7 +118,7 @@ namespace MBKC.Service.Services.Implementations
 
                 //Insert list store partner to database
                 var listStorePartnerInsert = new List<StorePartner>();
-                foreach (var p in postStorePartnerRequest.partnerAccountRequests)
+                foreach (var p in postStorePartnerRequest.partnerAccounts)
                 {
                     var storePartnerInsert = new StorePartner()
                     {
@@ -123,9 +127,33 @@ namespace MBKC.Service.Services.Implementations
                         CreatedDate = DateTime.Now,
                         UserName = p.UserName,
                         Password = p.Password,
-                        Status = (int)StorePartnerEnum.Status.ACTIVE
+                        Status = (int)StorePartnerEnum.Status.ACTIVE,
+                        Commission = p.Commission
                     };
                     listStorePartnerInsert.Add(storePartnerInsert);
+                }
+
+                List<PartnerProduct> partnerProducts = null;
+                if (postStorePartnerRequest.IsMappingProducts)
+                {
+                    foreach (var namePartner in namePartners)
+                    {
+                        if (namePartner.Key.ToLower().Equals(PartnerConstant.GrabFood.ToLower()))
+                        {
+                            foreach (var storePartner in listStorePartnerInsert)
+                            {
+                                GrabFoodAccount grabFoodAccount = new GrabFoodAccount()
+                                {
+                                    Username = storePartner.UserName,
+                                    Password = storePartner.Password
+                                };
+                                GrabFoodAuthenticationResponse grabFoodAuthenticationResponse = await this._unitOfWork.GrabFoodRepository.LoginGrabFoodAsync(grabFoodAccount);
+                                GrabFoodMenu grabFoodMenu = await this._unitOfWork.GrabFoodRepository.GetGrabFoodMenuAsync(grabFoodAuthenticationResponse);
+                                List<Category> storeCategoires = await this._unitOfWork.CategoryRepository.GetCategories(storePartner.StoreId);
+
+                            }
+                        }
+                    }
                 }
                 await this._unitOfWork.StorePartnerRepository.InsertRangeAsync(listStorePartnerInsert);
                 await this._unitOfWork.CommitAsync();
@@ -163,10 +191,6 @@ namespace MBKC.Service.Services.Implementations
                 {
                     fieldName = "Store id";
                 }
-                else if (ex.Message.Equals(MessageConstant.StorePartnerMessage.PartnerExceed3))
-                {
-                    fieldName = "Store partner id";
-                }
                 else if (ex.Message.Equals(MessageConstant.StorePartnerMessage.LinkedWithParner))
                 {
                     fieldName = "Partner id";
@@ -180,7 +204,13 @@ namespace MBKC.Service.Services.Implementations
             }
             catch (Exception ex)
             {
-                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                string error = "";
+                if(ex.Message.Contains("for GrabFood Partner."))
+                {
+                    error = ErrorUtil.GetErrorString("GrabFood Account", ex.Message);
+                    throw new BadRequestException(error);
+                }
+                error = ErrorUtil.GetErrorString("Exception", ex.Message);
                 throw new Exception(error);
             }
 

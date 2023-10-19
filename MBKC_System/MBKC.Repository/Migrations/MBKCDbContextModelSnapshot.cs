@@ -502,7 +502,7 @@ namespace MBKC.Repository.Migrations
                     b.Property<int>("Id")
                         .HasColumnType("int");
 
-                    b.Property<int>("MasterOrderDetailId")
+                    b.Property<int?>("MasterOrderDetailId")
                         .HasColumnType("int");
 
                     b.Property<string>("Note")
@@ -540,7 +540,6 @@ namespace MBKC.Repository.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PartnerId"), 1L, 1);
 
                     b.Property<string>("Logo")
-                        .IsRequired()
                         .HasMaxLength(2147483647)
                         .IsUnicode(false)
                         .HasColumnType("varchar(max)");
@@ -555,14 +554,21 @@ namespace MBKC.Repository.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("WebUrl")
-                        .IsRequired()
-                        .HasMaxLength(150)
+                        .HasMaxLength(2147483647)
                         .IsUnicode(false)
-                        .HasColumnType("varchar(150)");
+                        .HasColumnType("varchar(max)");
 
                     b.HasKey("PartnerId");
 
                     b.ToTable("Partners");
+
+                    b.HasData(
+                        new
+                        {
+                            PartnerId = 1,
+                            Name = "GrabFood",
+                            Status = 1
+                        });
                 });
 
             modelBuilder.Entity("MBKC.Repository.Models.PartnerProduct", b =>

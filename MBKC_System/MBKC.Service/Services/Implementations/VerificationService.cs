@@ -6,7 +6,7 @@ using MBKC.Service.Services.Interfaces;
 using MBKC.Repository.Enums;
 using MBKC.Repository.Infrastructures;
 using MBKC.Repository.Models;
-using MBKC.Repository.RedisModels;
+using MBKC.Repository.Redis.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,7 +36,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistEmail);
                 }
-                Repository.RedisModels.EmailVerification emailVerificationRedisModel = this._unitOfWork.EmailRepository.SendEmailToResetPassword(emailVerificationRequest.Email);
+                Repository.Redis.Models.EmailVerification emailVerificationRedisModel = this._unitOfWork.EmailRepository.SendEmailToResetPassword(emailVerificationRequest.Email);
                 await this._unitOfWork.EmailVerificationRedisRepository.AddEmailVerificationAsync(emailVerificationRedisModel);
             }
             catch (NotFoundException ex)
@@ -60,7 +60,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistEmail);
                 }
-                Repository.RedisModels.EmailVerification emailVerificationRedisModel = await this._unitOfWork.EmailVerificationRedisRepository.GetEmailVerificationAsync(otpCodeVerificationRequest.Email);
+                Repository.Redis.Models.EmailVerification emailVerificationRedisModel = await this._unitOfWork.EmailVerificationRedisRepository.GetEmailVerificationAsync(otpCodeVerificationRequest.Email);
                 if (emailVerificationRedisModel == null)
                 {
                     throw new BadRequestException(MessageConstant.VerificationMessage.NotAuthenticatedEmailBefore);

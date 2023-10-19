@@ -1,4 +1,4 @@
-﻿using MBKC.Repository.RedisModels;
+﻿using MBKC.Repository.Redis.Models;
 using Redis.OM.Searching;
 using Redis.OM;
 using System;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MBKC.Repository.RedisRepositories
+namespace MBKC.Repository.Redis.Repositories
 {
     public class EmailVerificationRedisRepository
     {
