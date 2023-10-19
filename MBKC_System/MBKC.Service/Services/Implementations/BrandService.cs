@@ -31,7 +31,7 @@ namespace MBKC.Service.Services.Implementations
         }
 
         #region Get Brands
-        public async Task<GetBrandsResponse> GetBrandsAsync(string? keySearchName, string? keyStatusFilter, int? pageNumber, int? pageSize, bool? isGetAll)
+        public async Task<GetBrandsResponse> GetBrandsAsync(string? keySearchName, string? keyStatusFilter, string? keySortName, int? pageNumber, int? pageSize, bool? isGetAll)
         {
             try
             {
@@ -80,6 +80,15 @@ namespace MBKC.Service.Services.Implementations
                     }
                 }
 
+                if (keySortName != null && keySortName != "")
+                {
+                    if (!keySortName.ToUpper().Equals(BrandEnum.KeySort.ASC.ToString())
+                    && !keySortName.ToUpper().Equals(BrandEnum.KeySort.DESC.ToString()))
+                    {
+                        throw new BadRequestException(MessageConstant.BrandMessage.KeySortNotExist);
+                    }
+                }
+
                 int numberItems = 0;
                 if (keySearchName != null && StringUtil.IsUnicode(keySearchName))
                 {
@@ -98,6 +107,15 @@ namespace MBKC.Service.Services.Implementations
                 }
 
                 this._mapper.Map(brands, brandResponse);
+
+                if (keySortName != null && keySortName != "" && keySortName.ToUpper().Equals(BrandEnum.KeySort.ASC.ToString()))
+                {
+                    brandResponse = brandResponse.OrderBy(x => x.Name).ToList();
+                }
+                else if (keySortName != null && keySortName != "" && keySortName.ToUpper().Equals(BrandEnum.KeySort.DESC.ToString()))
+                {
+                    brandResponse = brandResponse.OrderByDescending(x => x.Name).ToList();
+                }
 
                 int totalPages = 0;
                 if (numberItems > 0 && isGetAll == null || numberItems > 0 && isGetAll != null && isGetAll == false)
@@ -123,13 +141,17 @@ namespace MBKC.Service.Services.Implementations
                 {
                     fieldName = "Key status filter";
                 }
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidCurrentPage))
+                else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidCurrentPage))
                 {
                     fieldName = "Current page";
                 }
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidItemsPerPage))
+                else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidItemsPerPage))
                 {
                     fieldName = "Items per page";
+                }
+                else if (ex.Message.Equals(MessageConstant.BrandMessage.KeySortNotExist))
+                {
+                    fieldName = "Key sort";
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
@@ -710,7 +732,8 @@ namespace MBKC.Service.Services.Implementations
                 Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandAsync(email);
                 GetBrandResponse getBrandResponse = this._mapper.Map<GetBrandResponse>(existedBrand);
                 return getBrandResponse;
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 string error = ErrorUtil.GetErrorString("Exception", ex.Message);
                 throw new Exception(error);
