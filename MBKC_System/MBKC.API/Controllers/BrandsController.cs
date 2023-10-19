@@ -38,13 +38,16 @@ namespace MBKC.API.Controllers
 
         #region Get Brands
         /// <summary>
-        ///  Get a list of brands from the system with condition paging, searchByName and filterByStatus.
+        ///  Get a list of brands from the system with condition paging, searchByName, filterByStatus, sortByName.
         /// </summary>
         /// <param name="keySearchName">
         ///  The brand name that the user wants to search.
         /// </param>
         /// <param name="keyStatusFilter">
         /// The status of the brand that the user wants to filter.
+        /// </param>
+        /// <param name="keySortName">
+        ///  Keywords when the user wants to sort by name ascending or descending(ASC or DESC)
         /// </param>
         /// <param name="currentPage">
         /// The current page the user wants to get next items.
@@ -64,6 +67,7 @@ namespace MBKC.API.Controllers
         ///         GET
         ///         keySearchName = HighLand Coffee
         ///         keyStatusFilter = ACTIVE | INACTIVE | DEACTIVE
+        ///         keySortName = ASC | DESC
         ///         itemsPerPage = 5
         ///         currentPage = 1
         /// </remarks>
@@ -78,9 +82,9 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.Application_Json)]
         [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin)]
         [HttpGet(APIEndPointConstant.Brand.BrandsEndpoint)]
-        public async Task<IActionResult> GetBrandsAsync([FromQuery] string? keySearchName, [FromQuery] string? keyStatusFilter, [FromQuery] int? currentPage, [FromQuery] int? itemsPerPage, [FromQuery] bool? isGetAll)
+        public async Task<IActionResult> GetBrandsAsync([FromQuery] string? keySearchName, [FromQuery] string? keyStatusFilter, [FromQuery] string? keySortName, [FromQuery] int? currentPage, [FromQuery] int? itemsPerPage, [FromQuery] bool? isGetAll)
         {
-            var data = await this._brandService.GetBrandsAsync(keySearchName, keyStatusFilter, currentPage, itemsPerPage, isGetAll);
+            var data = await this._brandService.GetBrandsAsync(keySearchName, keyStatusFilter, keySortName, currentPage, itemsPerPage, isGetAll);
 
             return Ok(data);
         }

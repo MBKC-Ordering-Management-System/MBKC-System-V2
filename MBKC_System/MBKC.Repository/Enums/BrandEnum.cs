@@ -21,5 +21,11 @@ namespace MBKC.Repository.Enums
             ACTIVE = 1,
             DEACTIVE = 2
         }
+
+        public enum KeySort
+        {
+            ASC,
+            DESC,
+        }
     }
 }

@@ -236,8 +236,8 @@ namespace MBKC.Repository.DBContext
             modelBuilder.Entity<Partner>(partner =>
             {
                 partner.Property(prop => prop.Name).IsUnicode(true).HasMaxLength(50).IsRequired(true);
-                partner.Property(prop => prop.Logo).IsUnicode(false).HasMaxLength(int.MaxValue).IsRequired(true);
-                partner.Property(prop => prop.WebUrl).IsUnicode(false).HasMaxLength(150).IsRequired(true);
+                partner.Property(prop => prop.Logo).IsUnicode(false).HasMaxLength(int.MaxValue).IsRequired(false);
+                partner.Property(prop => prop.WebUrl).IsUnicode(false).HasMaxLength(150).IsRequired(false);
                 partner.Property(prop => prop.Status).IsRequired(true);
             });
             #endregion
