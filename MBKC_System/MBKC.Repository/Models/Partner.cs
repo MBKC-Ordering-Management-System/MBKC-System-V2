@@ -13,8 +13,8 @@ namespace MBKC.Repository.Models
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int PartnerId { get; set; }
         public string Name { get; set; }
-        public string Logo { get; set; }
-        public string WebUrl { get; set; }
+        public string? Logo { get; set; }
+        public string? WebUrl { get; set; }
         public int Status { get; set; }
 
         public virtual IEnumerable<Order> Orders { get; set; }

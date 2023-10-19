@@ -128,10 +128,16 @@ namespace MBKC.API.Controllers
 
         #region Get Partners
         /// <summary>
-        ///  Get a list of partners from the system with condition paging, searchByName.
+        ///  Get a list of partners from the system with condition paging, searchByName, sortByName, sortByStatus.
         /// </summary>
         /// <param name="keySearchName">
         ///  The brand name that the user wants to search.
+        /// </param>
+        /// <param name="keySortName">
+        ///  Keywords when the user wants to sort by name ascending or descending(ASC or DESC).
+        /// </param>
+        /// <param name="keySortStatus">
+        ///  Keywords when the user wants to sort by stasus ascending or descending(ASC or DESC).
         /// </param>
         /// <param name="currentPage">
         /// The current page the user wants to get next items.
@@ -150,6 +156,8 @@ namespace MBKC.API.Controllers
         ///     
         ///         GET
         ///         keySearchName = Shoppe Food
+        ///         keySortName = ASC | DESC
+        ///         keySortStatus = ASC | DESC
         ///         currentPage = 1
         ///         itemsPerPage = 5
         ///         isGetAll = true
@@ -165,9 +173,9 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.Application_Json)]
         [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin, PermissionAuthorizeConstant.Brand_Manager)]
         [HttpGet(APIEndPointConstant.Partner.PartnersEndpoint)]
-        public async Task<IActionResult> GetPartnersAsync([FromQuery] string? keySearchName, [FromQuery] int? currentPage, [FromQuery] int? itemsPerPage, [FromQuery] bool? isGetAll)
+        public async Task<IActionResult> GetPartnersAsync([FromQuery] string? keySearchName, [FromQuery] string? keySortName, [FromQuery] string? keySortStatus, [FromQuery] int? currentPage, [FromQuery] int? itemsPerPage, [FromQuery] bool? isGetAll)
         {
-            var data = await this._partnerService.GetPartnersAsync(keySearchName, currentPage, itemsPerPage, isGetAll);
+            var data = await this._partnerService.GetPartnersAsync(keySearchName, keySortName, keySortStatus, currentPage, itemsPerPage, isGetAll);
 
             return Ok(data);
         }

@@ -135,7 +135,7 @@ namespace MBKC.API.Controllers
 
         #region Get Categories
         /// <summary>
-        /// Get a list of categories from the system with condition paging, searchByName.
+        /// Get a list of categories from the system with condition paging, searchByName, sortByName, sortByCode, sortByStatus.
         /// </summary>
         /// <param name="type">
         ///  Include type of category are NORMAL or EXTRA
@@ -143,11 +143,23 @@ namespace MBKC.API.Controllers
         /// <param name="keySearchName">
         ///  The category name that the user wants to search.
         /// </param>
+        /// <param name="keySortName">
+        ///  Keywords when the user wants to sort by name ascending or descending(ASC or DESC).
+        /// </param>
+        /// <param name="keySortCode">
+        ///  Keywords when the user wants to sort by code ascending or descending(ASC or DESC).
+        /// </param> 
+        /// <param name="keySortStatus">
+        ///  Keywords when the user wants to sort by status ascending or descending(ASC or DESC).
+        /// </param>
         /// <param name="currentPage">
         ///  Page number user want to go.
         /// </param>
         /// <param name="itemsPerPage">
         ///  Items user want display in 1 page.
+        /// </param>
+        /// <param name="isGetAll">
+        /// Get all Categories.
         /// </param>
         /// <returns>
         /// A list of categories contains TotalItems, TotalPages, Categories's information
@@ -158,9 +170,12 @@ namespace MBKC.API.Controllers
         ///         GET
         ///         type = NORMAL | EXTRA
         ///         keySearchName = Bánh
+        ///         keySortName = ASC | DESC
+        ///         keySortCode = ASC | DESC
+        ///         keySortStatus = ASC | DESC
         ///         currentPage = 5
         ///         itemsPerPage = 1
-        ///         
+        ///         isGetAll = false
         /// </remarks>
         /// <response code="200">Get categories Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
