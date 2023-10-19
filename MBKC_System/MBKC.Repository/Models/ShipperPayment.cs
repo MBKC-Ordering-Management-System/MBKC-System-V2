@@ -20,9 +20,10 @@ namespace MBKC.Repository.Models
         public string PaymentMethod { get; set; }
         [ForeignKey("OrderId")]
         public int OrderId { get; set; }
-        [ForeignKey("KCBankingAccountId")]
         public int? KCBankingAccountId { get; set; }
-        public BankingAccount BankingAccount { get; set; }
+
+        [ForeignKey("KCBankingAccountId")]
+        public BankingAccount? BankingAccount { get; set; }
         public Order Order { get; set; }
         public IEnumerable<Transaction> Transactions { get; set; }
     }

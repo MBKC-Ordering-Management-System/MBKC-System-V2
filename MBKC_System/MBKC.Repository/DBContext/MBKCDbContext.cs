@@ -218,6 +218,7 @@ namespace MBKC.Repository.DBContext
                 orderDetail.Property(prop => prop.SellingPrice).HasColumnType("decimal(9,2)").IsRequired(true);
                 orderDetail.Property(prop => prop.DiscountAmount).HasColumnType("decimal(9,2)").IsRequired(true);
                 orderDetail.Property(prop => prop.Note).IsUnicode(false).HasMaxLength(200).IsRequired(true);
+                orderDetail.Property(prop => prop.MasterOrderDetailId).IsRequired(false);
             });
 
             modelBuilder.Entity<OrderDetail>()
@@ -332,6 +333,7 @@ namespace MBKC.Repository.DBContext
                 transaction.Property(prop => prop.TransactionTime).HasColumnType("datetime2").IsRequired(true);
                 transaction.Property(prop => prop.Status).IsRequired(true);
                 transaction.Property(prop => prop.ExchangeId).IsRequired(false);
+                transaction.Property(prop => prop.PaymentId).IsRequired(false);
             });
 
             modelBuilder.Entity<Transaction>()

@@ -196,6 +196,7 @@ namespace MBKC.Repository.Repositories
             try
             {
                 return await this._dbContext.Cashiers.Include(x => x.Account)
+                                                     .Include(x => x.Wallet)
                                                      .Include(x => x.KitchenCenter).ThenInclude(kc => kc.Stores)
                                                      .Include(x => x.KitchenCenter).ThenInclude(kc => kc.BankingAccounts)
                                                      .SingleOrDefaultAsync(x => x.Account.Email.Equals(email));

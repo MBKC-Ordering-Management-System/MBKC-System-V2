@@ -38,6 +38,8 @@ using MBKC.Service.DTOs.StorePartners;
 using MBKC.API.Validators.StorePartners;
 using MBKC.Service.DTOs.PartnerProducts;
 using MBKC.API.Validators.PartnerProducts;
+using MBKC.Service.DTOs.Orders;
+using MBKC.API.Validators.Orders;
 
 namespace MBKC.API.Extentions
 {
@@ -209,6 +211,8 @@ namespace MBKC.API.Extentions
 
             services.AddScoped<IValidator<PostPartnerProductRequest>, CreatePartnerProductValidator>();
             services.AddScoped<IValidator<UpdatePartnerProductRequest>, UpdatePartnerProductValidator>();
+
+            services.AddScoped<IValidator<ConfirmOrderToCompletedRequest>, ConfirmOrderToCompletedValidator>();
             return services;
         }
 

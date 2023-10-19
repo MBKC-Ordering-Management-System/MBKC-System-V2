@@ -6,15 +6,12 @@ using System.Threading.Tasks;
 
 namespace MBKC.Repository.Enums
 {
-    public static class OrderEnum
+    public class ShipperPaymentEnum
     {
         public enum Status
         {
-            PREPARING,
-            READY,
-            UPCOMING,
-            COMPLETED,
-            CANCELLED,
+            FAIL = 0,
+            SUCCESS = 1
         }
 
         public enum PaymentMethod

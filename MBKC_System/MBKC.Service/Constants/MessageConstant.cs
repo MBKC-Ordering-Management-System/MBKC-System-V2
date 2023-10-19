@@ -127,8 +127,9 @@
 
         public static class BankingAccountMessage
         {
-            public const string BankingAccountNotBelongToKitchenCenter = "Your kitchen center does not have this banking account id.";
+            public const string BankingAccountNotBelongToKitchenCenter = "Banking account id does not belong to your kitchen center.";
             public const string NumberAccountExisted = "Number account already existed in the system.";
+            public const string BankingAccountIsInactive = "Banking account is no longer active.";
         }
 
         public static class ProductMessage
@@ -191,7 +192,18 @@
         public static class OrderMessage
         {
             public const string OrderNotBelongToKitchenCenter = "Order partner id does not belong to your kitchen center.";
+            public const string OrderShipperPhoneNotMatch = "Shipper phone does not match with shipper phone in order.";
+            public const string OrderIsPreparing = "This order is PREPARING.";
+            public const string OrderIsReady = "This order is READY.";
+            public const string OrderIsUpcoming = "This order is UPCOMING.";
+            public const string OrderIsCompleted = "This order is already COMPLETED.";
+            public const string OrderIsCancelled = "This order has been CANCELLED.";
+            public const string OrderAlreadyPaid = "This order has been paid.";
+        }
 
+        public static class ShipperPaymentMessage
+        {
+            
         }
     }
 }

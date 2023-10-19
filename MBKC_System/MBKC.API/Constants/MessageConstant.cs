@@ -98,5 +98,10 @@
             public const string CreatedPartnerProductSuccessfully = "Created New Partner Product Successfully.";
             public const string UpdatedPartnerProductSuccessfully = "Updated Partner Product Successfully.";
         }
+
+        public static class OrderMessage
+        {
+            public const string UpdateOrderSuccessfully = "Update Order Successfully.";
+        }
     }
 }

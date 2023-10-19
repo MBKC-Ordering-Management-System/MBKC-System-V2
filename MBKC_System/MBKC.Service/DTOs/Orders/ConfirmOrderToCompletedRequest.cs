@@ -8,7 +8,8 @@ namespace MBKC.Service.DTOs.Orders
 {
     public class ConfirmOrderToCompletedRequest
     {
-        public String OrderPartnerId { get; set; }
+        public string OrderPartnerId { get; set; }
+        public string ShipperPhone { get; set; }
         public int? BankingAccountId { get; set; }
     }
 }

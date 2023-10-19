@@ -101,5 +101,11 @@
             public const string PartnerProductsEndpoint = ApiEndpoint + "/partner-products";
             public const string PartnerProductEndpoint = PartnerProductsEndpoint + "/{productId}/{partnerId}/{storeId}";
         }
+
+        public static class Order
+        {
+            public const string OrderEndpoint = ApiEndpoint + "/orders";
+            public const string ConfirmOrderToCompletedEndpoint = OrderEndpoint + "/confirm-order-to-completed";
+        }
     }
 }

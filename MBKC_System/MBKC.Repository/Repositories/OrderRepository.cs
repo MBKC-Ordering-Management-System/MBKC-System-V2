@@ -18,6 +18,7 @@ namespace MBKC.Repository.Repositories
             this._dbContext = dbContext;
         }
 
+        #region get order by order partner id
         public async Task<Order> GetOrderByOrderPartnerIdAsync(String orderPartnerId)
         {
             try
@@ -29,6 +30,21 @@ namespace MBKC.Repository.Repositories
                 throw new Exception(ex.Message);
             }
         }
+        #endregion
+
+        #region update order
+        public void UpdateOrder(Order order)
+        {
+            try
+            {
+                this._dbContext.Entry<Order>(order).State = EntityState.Modified;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
 
     }
 }

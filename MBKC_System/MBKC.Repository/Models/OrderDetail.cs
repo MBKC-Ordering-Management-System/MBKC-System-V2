@@ -16,13 +16,15 @@ namespace MBKC.Repository.Models
         public decimal DiscountAmount { get; set; }
         public int Quantity { get; set; }
         public string Note { get; set; }
-        public int MasterOrderDetailId { get; set; }
+        public int? MasterOrderDetailId { get; set; }
 
         [ForeignKey("Id")]
         public virtual Order Order { get; set; }
         [ForeignKey("ProductId")]
         public virtual Product Product { get; set; }
-        public virtual OrderDetail MasterOrderDetail { get; set; }
+
+        [ForeignKey("MasterOrderDetailId")]
+        public virtual OrderDetail? MasterOrderDetail { get; set; }
         public virtual IEnumerable<OrderDetail> ExtraOrderDetails { get; set; }
     }
 }
