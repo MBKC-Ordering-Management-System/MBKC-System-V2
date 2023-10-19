@@ -44,9 +44,9 @@ namespace MBKC.API.Controllers
         ///     
         ///         PUT
         ///         {
-        ///         OrderPartnerId = MBKC2023,
-        ///         ShipperPhone = 0987654321,
-        ///         BankingAccountId = 1
+        ///           "orderPartnerId": "GRABFOOD",
+        ///           "shipperPhone": "0987654321",
+        ///           "bankingAccountId": 1
         ///         }
         /// </remarks>
         /// <response code="200">Changed order status successfully.</response>

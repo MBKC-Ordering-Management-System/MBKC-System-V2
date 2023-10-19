@@ -23,7 +23,7 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                this._dbContext.Entry<Wallet>(wallet).State = EntityState.Modified;
+                this._dbContext.Wallets.Update(wallet);
             }
             catch (Exception ex)
             {

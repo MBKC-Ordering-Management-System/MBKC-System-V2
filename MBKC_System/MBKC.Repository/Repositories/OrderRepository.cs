@@ -37,7 +37,7 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                this._dbContext.Entry<Order>(order).State = EntityState.Modified;
+                this._dbContext.Orders.Update(order);   
             }
             catch (Exception ex)
             {
