@@ -137,7 +137,7 @@ namespace MBKC.Service.Services.Implementations
                     throw new BadRequestException(MessageConstant.ReGenerationMessage.ExpiredRefreshToken);
                 }
 
-                Account existedAccount = await this._unitOfWork.AccountRepository.GetAccountAsync(accountId);
+                Account existedAccount = await this._unitOfWork.AccountRepository.GetAccountAsync(int.Parse(accountId));
                 AccountResponse accountResponse = this._mapper.Map<AccountResponse>(existedAccount);
                 accountResponse = await GenerateTokenAsync(accountResponse, jwtAuth);
                 return accountResponse.Tokens;
@@ -217,7 +217,7 @@ namespace MBKC.Service.Services.Implementations
                         new Claim("Role", accountResponse.RoleName),
                         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                     }),
-                    Expires = DateTime.UtcNow.AddHours(5),
+                    Expires = DateTime.UtcNow.AddMinutes(3),
                     SigningCredentials = credentials
                 };
 
