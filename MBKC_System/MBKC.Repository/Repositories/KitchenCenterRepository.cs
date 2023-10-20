@@ -144,11 +144,37 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await this._dbContext.KitchenCenters.Include(x => x.Manager).Include(x => x.Cashiers).Include(x => x.Stores).FirstOrDefaultAsync(x => x.Manager.Email.Equals(managerEmail) && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE);
+                return await this._dbContext.KitchenCenters.Include(x => x.Manager)
+                                                           .Include(x => x.Cashiers)
+                                                           .Include(x => x.Stores)
+                                                           .FirstOrDefaultAsync(x => x.Manager.Email.Equals(managerEmail) && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE);
             } catch(Exception ex)
             {
                 throw new Exception(ex.Message);
             }
         }
+
+        #region Get kitchen center include order
+        public async Task<KitchenCenter> GetKitchenCenterIncludeOrderAsync(string managerEmail)
+        {
+            try
+            {
+                return await this._dbContext.KitchenCenters.Include(kc => kc.Manager)
+                                                           .Include(kc => kc.Wallet)
+                                                           .Include(kc => kc.Stores)
+                                                           .ThenInclude(s => s.Wallet)
+                                                           .Include(kc => kc.Stores)
+                                                           .ThenInclude(s => s.Orders.Where(o => o.Status.Equals(OrderEnum.Status.COMPLETED.ToString()) 
+                                                                                              && o.ShipperPayments.Any(sp => sp.CreateDate.Day == DateTime.Now.Day 
+                                                                                                                          && sp.CreateDate.Month == DateTime.Now.Month
+                                                                                                                          && sp.CreateDate.Year == DateTime.Now.Year)))
+                                                           .FirstOrDefaultAsync(x => x.Manager.Email.Equals(managerEmail) && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
     }
 }

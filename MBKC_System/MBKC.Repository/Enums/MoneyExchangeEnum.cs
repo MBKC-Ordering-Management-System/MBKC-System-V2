@@ -12,6 +12,7 @@ namespace MBKC.Repository.Enums
         {
             SEND,
             RECEIVE,
+            WITHDRAW,
         }
 
         public enum Status

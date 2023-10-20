@@ -112,6 +112,7 @@
         {
             public const string MoneyExchangeEndpoint = ApiEndpoint + "/money-exchanges";
             public const string MoneyExchangeToKitchenCenter = MoneyExchangeEndpoint + "/money-exchange-to-kitchen-center";
+            public const string MoneyExchangeToStore = MoneyExchangeEndpoint + "/money-exchange-to-store";
         }
     }
 }

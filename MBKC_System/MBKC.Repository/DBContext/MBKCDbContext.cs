@@ -188,6 +188,7 @@ namespace MBKC.Repository.DBContext
                 moneyExchange.Property(prop => prop.Amount).HasColumnType("decimal(18,2)").IsRequired(true);
                 moneyExchange.Property(prop => prop.ExchangeType).IsUnicode(true).HasMaxLength(30).IsRequired(true);
                 moneyExchange.Property(prop => prop.Content).IsUnicode(true).HasMaxLength(300).IsRequired(true);
+                moneyExchange.Property(prop => prop.ExchangeImage).IsUnicode(false).HasMaxLength(int.MaxValue).IsRequired(false);
             });
             #endregion
 

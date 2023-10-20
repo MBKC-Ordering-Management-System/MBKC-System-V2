@@ -1,9 +1,11 @@
 ﻿using MBKC.Repository.DBContext;
+using MBKC.Repository.Enums;
 using MBKC.Repository.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,7 +21,7 @@ namespace MBKC.Repository.Repositories
         }
 
         #region get order by order partner id
-        public async Task<Order> GetOrderByOrderPartnerIdAsync(String orderPartnerId)
+        public async Task<Order> GetOrderByOrderPartnerIdAsync(string orderPartnerId)
         {
             try
             {

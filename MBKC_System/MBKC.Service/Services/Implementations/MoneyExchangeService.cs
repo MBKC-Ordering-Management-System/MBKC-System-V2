@@ -31,11 +31,11 @@ namespace MBKC.Service.Services.Implementations
         public async Task MoneyExchangeToKitchenCenterAsync(IEnumerable<Claim> claims)
         {
             try
-            {       
+            {
                 #region validation
                 string email = claims.First(x => x.Type == ClaimTypes.Email).Value;
                 Cashier existedCashier = await this._unitOfWork.CashierRepository.GetCashierAsync(email);
-                if(existedCashier.Wallet.Balance <= 0)
+                if (existedCashier.Wallet.Balance <= 0)
                 {
                     throw new BadRequestException(MessageConstant.WalletMessage.BalanceIsInvalid);
                 }
@@ -45,11 +45,12 @@ namespace MBKC.Service.Services.Implementations
 
                 #region create money exchange
                 List<MoneyExchange> moneyExchanges = new List<MoneyExchange>();
+                // create money exchange for cashier (sender)
                 MoneyExchange moneyExchangeCashier = new MoneyExchange()
                 {
                     Amount = existedCashier.Wallet.Balance,
                     ExchangeType = MoneyExchangeEnum.ExchangeType.SEND.ToString(),
-                    Content = $"Transfer money to kitchen center[id:{existedCashier.KitchenCenter.KitchenCenterId} - name:{existedCashier.KitchenCenter.Name}] {StringUtil.GetContentAmountAndTime(existedCashier.Wallet.Balance, DateTime.Now)}" ,
+                    Content = $"Transfer money to kitchen center[id:{existedCashier.KitchenCenter.KitchenCenterId} - name:{existedCashier.KitchenCenter.Name}] {StringUtil.GetContentAmountAndTime(existedCashier.Wallet.Balance, DateTime.Now)}",
                     Status = (int)MoneyExchangeEnum.Status.SUCCESS,
                     SenderId = existedCashier.AccountId,
                     ReceiveId = existedCashier.KitchenCenter.Manager.AccountId,
@@ -115,6 +116,160 @@ namespace MBKC.Service.Services.Implementations
                 this._unitOfWork.WalletRepository.UpdateRangeWallet(wallets);
                 #endregion
 
+                await this._unitOfWork.CommitAsync();
+                #endregion
+            }
+            catch (BadRequestException ex)
+            {
+                string fieldName = "";
+                switch (ex.Message)
+                {
+                    case MessageConstant.WalletMessage.BalanceIsInvalid:
+                        fieldName = "Wallet balance";
+                        break;
+
+                    default:
+                        fieldName = "Exception";
+                        break;
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new BadRequestException(error);
+            }
+            catch (Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.InnerException != null ? ex.InnerException.Message : ex.Message);
+                throw new Exception(error);
+            }
+        }
+        #endregion
+
+        #region money exchange to store
+        public async Task MoneyExchangeToStoreAsync(IEnumerable<Claim> claims)
+        {
+            try
+            {
+                #region validation
+                string email = claims.First(x => x.Type == ClaimTypes.Email).Value;
+                KitchenCenter existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterIncludeOrderAsync(email);
+                if (existedKitchenCenter.Wallet.Balance <= 0)
+                {
+                    throw new BadRequestException(MessageConstant.WalletMessage.BalanceIsInvalid);
+                }
+                #endregion
+
+                #region operation
+
+                #region count money must transfer for each store  
+                Dictionary<int, decimal> exchangeWallets = new Dictionary<int, decimal>();
+                foreach (var store in existedKitchenCenter.Stores)
+                {
+                    if (!store.Orders.Any())
+                    {
+                        continue;
+                    }
+
+                    foreach (var order in store.Orders)
+                    {
+                        if (exchangeWallets.ContainsKey(order.StoreId))
+                        {
+                            exchangeWallets[order.StoreId] += order.FinalTotalPrice - (order.FinalTotalPrice * order.Commission / 100);
+                        }
+                        else
+                        {
+                            exchangeWallets.Add(order.StoreId, order.FinalTotalPrice - (order.FinalTotalPrice * order.Commission / 100));
+                        }
+                    }
+                }
+                #endregion
+
+                #region transfer money to each store wallet
+                List<MoneyExchange> moneyExchanges = new List<MoneyExchange>();
+                List<KitchenCenterMoneyExchange> kitchenCenterMoneyExchanges = new List<KitchenCenterMoneyExchange>();
+                List<StoreMoneyExchange> storeMoneyExchanges = new List<StoreMoneyExchange>();
+                List<Wallet> wallets = new List<Wallet>();
+                foreach (var store in existedKitchenCenter.Stores)
+                {
+                    foreach (var exchangeWallet in exchangeWallets)
+                    {
+                        if (store.StoreId == exchangeWallet.Key)
+                        {
+                            #region create money exchange
+                            // create money exchange for kitchen center (sender)
+                            MoneyExchange moneyExchangeKitchenCenter = new MoneyExchange()
+                            {
+                                Amount = exchangeWallet.Value,
+                                ExchangeType = MoneyExchangeEnum.ExchangeType.SEND.ToString(),
+                                Content = $"Transfer money to store[id:{store.StoreId} - name:{store.Name}] {StringUtil.GetContentAmountAndTime(exchangeWallet.Value, DateTime.Now)}",
+                                Status = (int)MoneyExchangeEnum.Status.SUCCESS,
+                                SenderId = existedKitchenCenter.Manager.AccountId,
+                                ReceiveId = store.StoreId,
+                                Transactions = new List<Transaction>()
+                                {
+                                    new Transaction()
+                                    {
+                                        TransactionTime = DateTime.Now,
+                                        Wallet = existedKitchenCenter.Wallet,
+                                        Status = (int)TransactionEnum.Status.SUCCESS,
+                                    },
+                                }
+                            };
+                            moneyExchanges.Add(moneyExchangeKitchenCenter);
+
+                            // create money exchange for store (receiver)
+                            MoneyExchange moneyExchangeStore = new MoneyExchange()
+                            {
+                                Amount = exchangeWallet.Value,
+                                ExchangeType = MoneyExchangeEnum.ExchangeType.RECEIVE.ToString(),
+                                Content = $"Receiver money from kitchen center[id:{existedKitchenCenter.KitchenCenterId} - name:{existedKitchenCenter.Name}] {StringUtil.GetContentAmountAndTime(exchangeWallet.Value, DateTime.Now)}",
+                                Status = (int)MoneyExchangeEnum.Status.SUCCESS,
+                                SenderId = existedKitchenCenter.Manager.AccountId,
+                                ReceiveId = store.StoreId,
+                                Transactions = new List<Transaction>()
+                                {
+                                    new Transaction()
+                                    {
+                                        TransactionTime = DateTime.Now,
+                                        Wallet = store.Wallet,
+                                        Status = (int)TransactionEnum.Status.SUCCESS,
+                                    },
+                                }
+                            };
+                            moneyExchanges.Add(moneyExchangeStore);
+                            #endregion
+
+                            #region create kitchen center exchange and store exchange
+                            // kitchen center exchange
+                            KitchenCenterMoneyExchange kitchenCenterMoneyExchange = new KitchenCenterMoneyExchange()
+                            {
+                                KitchenCenter = existedKitchenCenter,
+                                MoneyExchange = moneyExchangeKitchenCenter,
+                            };
+                            kitchenCenterMoneyExchanges.Add(kitchenCenterMoneyExchange);
+
+                            // store exchange
+                            StoreMoneyExchange storeMoneyExchange = new StoreMoneyExchange()
+                            {
+                                Store = store,
+                                MoneyExchange = moneyExchangeStore,
+                            };
+                            storeMoneyExchanges.Add(storeMoneyExchange);
+                            #endregion
+
+                            #region update balance of kitchen center and store wallet
+                            store.Wallet.Balance += exchangeWallet.Value;
+                            existedKitchenCenter.Wallet.Balance -= exchangeWallet.Value;
+                            wallets.Add(store.Wallet);
+                            #endregion
+                        }
+                    }
+                }
+                wallets.Add(existedKitchenCenter.Wallet);
+                #endregion
+
+                await this._unitOfWork.MoneyExchangeRepository.CreateRangeMoneyExchangeAsync(moneyExchanges);
+                await this._unitOfWork.KitchenCenterMoneyExchangeRepository.CreateRangeKitchenCenterMoneyExchangeAsync(kitchenCenterMoneyExchanges);
+                await this._unitOfWork.StoreMoneyExchangeRepository.CreateRangeStoreMoneyExchangeAsync(storeMoneyExchanges);
+                this._unitOfWork.WalletRepository.UpdateRangeWallet(wallets);
                 await this._unitOfWork.CommitAsync();
                 #endregion
             }
