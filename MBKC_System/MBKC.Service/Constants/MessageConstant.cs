@@ -188,7 +188,7 @@
             public const string InactiveProduct_Create_Update = "This product is Inactive.";
             public const string InactiveStore_Update = "This store has been inactive.";
             public const string StatusInValid = "Status is ACTIVE or INACTIVE";
-
+            public const string KeySortNotExist = "Key sort are ASC or DESC";
         }
     }
 }

@@ -20,13 +20,16 @@ namespace MBKC.API.Controllers
         private IPartnerProductService _partnerProductService;
         private IValidator<PostPartnerProductRequest> _createPartnerProductValidator;
         private IValidator<UpdatePartnerProductRequest> _updatePartnerProductValidator;
+        private IValidator<UpdatePartnerProductStatusRequest> _updatePartnerProductStatusValidator;
         public PartnerProductsController(IPartnerProductService partnerProductService,
             IValidator<UpdatePartnerProductRequest> updatePartnerProductValidator,
+            IValidator<UpdatePartnerProductStatusRequest> updatePartnerProductStatusValidator,
             IValidator<PostPartnerProductRequest> createPartnerProductValidator)
         {
             this._partnerProductService = partnerProductService;
             this._createPartnerProductValidator = createPartnerProductValidator;
             this._updatePartnerProductValidator = updatePartnerProductValidator;
+            this._updatePartnerProductStatusValidator = updatePartnerProductStatusValidator;
         }
         #region Create Partner Product
         /// <summary>
@@ -123,6 +126,8 @@ namespace MBKC.API.Controllers
         /// Get Partner Products in the system.
         /// </summary>
         /// <param name="searchName">The name of product that user wants to find out.</param>
+        /// <param name="keySortProductCode">Keywords when the user wants to sort by product code ascending or descending(ASC or DESC).</param>
+        /// <param name="keySortStatus">Keywords when the user wants to sort by sort status ascending or descending(ASC or DESC).</param>
         /// <param name="currentPage">The number of page</param>
         /// <param name="itemsPerPage">The number of records that user wants to get.</param>
         /// <returns>
@@ -136,7 +141,7 @@ namespace MBKC.API.Controllers
         ///         currentPage = 1
         ///         itemsPerPage = 5
         /// </remarks>
-        /// <response code="200">Get list of mapping products successfully.</response>
+        /// <response code="200">Get list of partner products successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
         /// <response code="404">Some Error about request data not found.</response>
         /// <response code="500">Some Error about the system.</response>
@@ -150,11 +155,11 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.Application_Json)]
         [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager)]
         [HttpGet(APIEndPointConstant.PartnerProduct.PartnerProductsEndpoint)]
-        public async Task<IActionResult> GetPartnerProductsAsync([FromQuery] string? searchName, [FromQuery] int? currentPage, [FromQuery] int? itemsPerPage)
+        public async Task<IActionResult> GetPartnerProductsAsync([FromQuery] string? searchName, [FromQuery] string? keySortProductCode, [FromQuery] string? keySortStatus, [FromQuery] int? currentPage, [FromQuery] int? itemsPerPage)
 
         {
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            GetPartnerProductsResponse getPartnerProductsResponse = await this._partnerProductService.GetPartnerProducts(searchName, currentPage, itemsPerPage, claims);
+            GetPartnerProductsResponse getPartnerProductsResponse = await this._partnerProductService.GetPartnerProducts(searchName, keySortProductCode, keySortStatus, currentPage, itemsPerPage, claims);
             return Ok(getPartnerProductsResponse);
         }
         #endregion
@@ -199,6 +204,59 @@ namespace MBKC.API.Controllers
         public async Task<IActionResult> PutUpdatePartnerProductAsync([FromRoute] int productId, [FromRoute] int partnerId, [FromRoute] int storeId, [FromBody] UpdatePartnerProductRequest updatePartnerProductRequest)
         {
             ValidationResult validationResult = await this._updatePartnerProductValidator.ValidateAsync(updatePartnerProductRequest);
+            if (validationResult.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
+            }
+            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
+            await this._partnerProductService.UpdatePartnerProduct(productId, partnerId, storeId, updatePartnerProductRequest, claims);
+            return Ok(new
+            {
+                Message = MessageConstant.PartnerProductMessage.UpdatedPartnerProductSuccessfully
+            });
+        }
+        #endregion
+
+        #region Update Existed Partner Product Status.
+        /// <summary>
+        /// Update status of existed partner product.
+        /// </summary>
+        /// <param name="storeId">The store's id.</param>
+        /// <param name="partnerId">The partner's id.</param>
+        /// <param name="productId">The product's id.</param>
+        /// <param name="updatePartnerProductRequest">Status to update partner product.</param>
+        /// <returns>
+        /// A success message about updating partner product status.  
+        /// </returns>
+        /// <remarks>
+        ///     Sample request:
+        ///
+        ///         PUT 
+        ///         storeId = 1
+        ///         partnerId = 1
+        ///         productId = 1
+        ///           {
+        ///             "status" : "INACTIVE"
+        ///           }
+        /// </remarks>
+        /// <response code="200">Updated partner product status successfully.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
+        /// <response code="404">Some Error about request data not found.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
+        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Produces(MediaTypeConstant.Application_Json)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager)]
+        [HttpPut(APIEndPointConstant.PartnerProduct.PartnerProductEndpoint)]
+        public async Task<IActionResult> PutUpdatePartnerProductStatusAsync([FromRoute] int productId, [FromRoute] int partnerId, [FromRoute] int storeId, [FromBody] UpdatePartnerProductStatusRequest updatePartnerProductStatusRequest)
+        {
+            ValidationResult validationResult = await this._updatePartnerProductStatusValidator.ValidateAsync(updatePartnerProductStatusRequest);
             if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);

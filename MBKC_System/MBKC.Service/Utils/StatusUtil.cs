@@ -152,5 +152,18 @@ namespace MBKC.Service.Utils
             return char.ToUpper(StorePartnerEnum.Status.DEACTIVE.ToString()[0]) + StorePartnerEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
 
         }
+
+        public static string ChangePartnerProductStatus(int status)
+        {
+            if (status == (int)PartnerProductEnum.Status.INACTIVE)
+            {
+                return char.ToUpper(PartnerProductEnum.Status.INACTIVE.ToString()[0]) + PartnerProductEnum.Status.INACTIVE.ToString().ToLower().Substring(1);
+            }
+            else if (status == (int)PartnerProductEnum.Status.ACTIVE)
+            {
+                return char.ToUpper(PartnerProductEnum.Status.ACTIVE.ToString()[0]) + PartnerProductEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
+            }
+            return char.ToUpper(PartnerProductEnum.Status.DEACTIVE.ToString()[0]) + PartnerProductEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
+        }
     }
 }
