@@ -707,15 +707,12 @@ namespace MBKC.Service.Services.Implementations
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistPartnerId);
                 }
 
-
-
                 // Check the store is linked to that partner or not 
                 var storePartner = await this._unitOfWork.StorePartnerRepository.GetStorePartnerByPartnerIdAndStoreIdAsync(partnerId, storeId);
                 if (storePartner == null)
                 {
                     throw new BadRequestException(MessageConstant.StorePartnerMessage.NotLinkedWithParner);
                 }
-
 
                 // check product belong to brand or not
                 var product = await this._unitOfWork.ProductRepository.GetProductAsync(productId);

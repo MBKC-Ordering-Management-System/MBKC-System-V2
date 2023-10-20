@@ -34,8 +34,6 @@ namespace MBKC.API.Validators.StorePartners
                 .MaximumLength(100).WithMessage("{PropertyName} is required less then or equal to 100 characters."));
             #endregion
 
-
-
             #region Password
             RuleForEach(storePartner => storePartner.partnerAccountRequests)
                 .ChildRules(partnerAccount => partnerAccount.RuleFor(password => password.Password)

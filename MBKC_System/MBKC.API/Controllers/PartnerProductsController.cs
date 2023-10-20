@@ -217,21 +217,21 @@ namespace MBKC.API.Controllers
         /// <summary>
         /// Delete existed partner product by id.
         /// </summary>
-        /// <param name="id">
-        ///  Id of partner.
-        /// </param>
+        /// <param name="productId"> Id of product.</param>
+        /// <param name="partnerId"> Id of partner.</param>
+        /// <param name="storeId"> Id of store.</param>
         /// <returns>
-        /// An object will return message "Deleted Partner Successfully".
+        /// An object will return message "Deleted Partner Product Successfully".
         /// </returns>
         /// <remarks>
         ///     Sample request:
         ///     
         ///         DELETE
-        ///         
-        ///             id: 3
-        ///         
+        ///             productId: 1
+        ///             partnerId: 2
+        ///             storeId: 1
         /// </remarks>
-        /// <response code="200">Delete partner successfully.</response>
+        /// <response code="200">Delete partner product successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
         /// <response code="404">Some Error about request data not found.</response>
         /// <response code="500">Some Error about the system.</response>
@@ -245,7 +245,7 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.Application_Json)]
         [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager)]
         [HttpDelete(APIEndPointConstant.PartnerProduct.PartnerProductEndpoint)]
-        public async Task<IActionResult> DeActivePartnerByIdAsync([FromRoute] int productId, int partnerId, int storeId)
+        public async Task<IActionResult> DeActivePartnerProductByIdAsync([FromRoute] int productId, [FromRoute] int partnerId, [FromRoute] int storeId)
         {
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
             await this._partnerProductService.DeletePartnerProductByIdAsync(productId, partnerId, storeId, claims);

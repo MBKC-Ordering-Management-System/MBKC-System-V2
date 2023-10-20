@@ -15,7 +15,7 @@ namespace MBKC.Repository.Models
         public DateTime CreatedDate { get; set; }
         public string UserName { get; set; }
         public string Password { get; set; }
-        public float Commission { get; set; }
+        public decimal Commission { get; set; }
         public int Status { get; set; }
         [ForeignKey("PartnerId")]
         public virtual Partner Partner { get; set; }

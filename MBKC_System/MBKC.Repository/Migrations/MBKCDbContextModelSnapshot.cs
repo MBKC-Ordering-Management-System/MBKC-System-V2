@@ -540,7 +540,6 @@ namespace MBKC.Repository.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PartnerId"), 1L, 1);
 
                     b.Property<string>("Logo")
-                        .IsRequired()
                         .HasMaxLength(2147483647)
                         .IsUnicode(false)
                         .HasColumnType("varchar(max)");
@@ -555,7 +554,6 @@ namespace MBKC.Repository.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("WebUrl")
-                        .IsRequired()
                         .HasMaxLength(150)
                         .IsUnicode(false)
                         .HasColumnType("varchar(150)");
@@ -869,8 +867,8 @@ namespace MBKC.Repository.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<float>("Commission")
-                        .HasColumnType("real");
+                    b.Property<decimal>("Commission")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Password")
                         .IsRequired()

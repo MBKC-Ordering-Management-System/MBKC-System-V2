@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace MBKC.Repository.Migrations
 {
-    public partial class initdatabase : Migration
+    public partial class init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -51,8 +51,8 @@ namespace MBKC.Repository.Migrations
                     PartnerId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Logo = table.Column<string>(type: "varchar(max)", unicode: false, maxLength: 2147483647, nullable: false),
-                    WebUrl = table.Column<string>(type: "varchar(150)", unicode: false, maxLength: 150, nullable: false),
+                    Logo = table.Column<string>(type: "varchar(max)", unicode: false, maxLength: 2147483647, nullable: true),
+                    WebUrl = table.Column<string>(type: "varchar(150)", unicode: false, maxLength: 150, nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -504,7 +504,7 @@ namespace MBKC.Repository.Migrations
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UserName = table.Column<string>(type: "varchar(100)", unicode: false, maxLength: 100, nullable: false),
                     Password = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
-                    Commission = table.Column<float>(type: "real", nullable: false),
+                    Commission = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>

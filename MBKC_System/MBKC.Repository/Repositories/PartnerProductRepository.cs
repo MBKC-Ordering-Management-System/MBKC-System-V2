@@ -1,4 +1,5 @@
 ﻿using MBKC.Repository.DBContext;
+using MBKC.Repository.Enums;
 using MBKC.Repository.Models;
 using MBKC.Repository.Utils;
 using Microsoft.EntityFrameworkCore;
@@ -80,9 +81,10 @@ namespace MBKC.Repository.Repositories
                     return this._dbContext.PartnerProducts.Include(x => x.Product)
                                                           .Include(x => x.StorePartner).ThenInclude(x => x.Store).ThenInclude(x => x.Brand)
                                                           .Include(x => x.StorePartner).ThenInclude(x => x.Partner)
-                                                          .Where(x => brandId != null
+                                                          .Where(x => x.Status != (int)PartnerProductEnum.Status.DEACTIVE &&
+                                                          (brandId != null
                                                                      ? x.StorePartner.Store.Brand.BrandId == brandId
-                                                                     : true)
+                                                                     : true))
                                                          .Where(delegate (PartnerProduct partnerProduct)
                                                          {
                                                              if (searchValueWithoutUnicode.ToLower().Contains(StringUtil.RemoveSign4VietnameseString(partnerProduct.Product.Name).ToLower()))
@@ -98,6 +100,7 @@ namespace MBKC.Repository.Repositories
                                                          .Include(x => x.StorePartner).ThenInclude(x => x.Store).ThenInclude(x => x.Brand)
                                                          .Include(x => x.StorePartner).ThenInclude(x => x.Partner)
                                                          .Where(x => x.Product.Name.ToLower().Contains(searchName.ToLower()) &&
+                                                                     x.Status != (int)PartnerProductEnum.Status.DEACTIVE &&
                                                                      (brandId != null
                                                                      ? x.StorePartner.Store.Brand.BrandId == brandId
                                                                      : true)).CountAsync();
@@ -107,9 +110,10 @@ namespace MBKC.Repository.Repositories
                 return await this._dbContext.PartnerProducts.Include(x => x.Product)
                                                          .Include(x => x.StorePartner).ThenInclude(x => x.Store).ThenInclude(x => x.Brand)
                                                          .Include(x => x.StorePartner).ThenInclude(x => x.Partner)
-                                                         .Where(x => brandId != null
+                                                         .Where(x => x.Status != (int)PartnerProductEnum.Status.DEACTIVE &&
+                                                         (brandId != null
                                                                      ? x.StorePartner.Store.Brand.BrandId == brandId
-                                                                     : true).CountAsync();
+                                                                     : true)).CountAsync();
 
             }
             catch (Exception ex)
@@ -129,9 +133,10 @@ namespace MBKC.Repository.Repositories
                     return this._dbContext.PartnerProducts.Include(x => x.Product)
                                                           .Include(x => x.StorePartner).ThenInclude(x => x.Store).ThenInclude(x => x.Brand)
                                                           .Include(x => x.StorePartner).ThenInclude(x => x.Partner)
-                                                          .Where(x => brandId != null
+                                                          .Where(x => x.Status != (int)PartnerProductEnum.Status.DEACTIVE &&
+                                                          (brandId != null
                                                                      ? x.StorePartner.Store.Brand.BrandId == brandId
-                                                                     : true)
+                                                                     : true))
                                                          .Where(delegate (PartnerProduct partnerProduct)
                                                          {
                                                              if (searchValueWithoutUnicode.ToLower().Contains(StringUtil.RemoveSign4VietnameseString(partnerProduct.Product.Name).ToLower()))
@@ -147,6 +152,7 @@ namespace MBKC.Repository.Repositories
                                                                 .Include(x => x.StorePartner).ThenInclude(x => x.Store).ThenInclude(x => x.Brand)
                                                                 .Include(x => x.StorePartner).ThenInclude(x => x.Partner)
                                                                 .Where(x => x.Product.Name.ToLower().Contains(searchName.ToLower()) &&
+                                                                            x.Status != (int)PartnerProductEnum.Status.DEACTIVE &&
                                                                      (brandId != null
                                                                      ? x.StorePartner.Store.Brand.BrandId == brandId
                                                                      : true)).Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
@@ -154,9 +160,10 @@ namespace MBKC.Repository.Repositories
                 return await this._dbContext.PartnerProducts.Include(x => x.Product)
                                                             .Include(x => x.StorePartner).ThenInclude(x => x.Store).ThenInclude(x => x.Brand)
                                                             .Include(x => x.StorePartner).ThenInclude(x => x.Partner)
-                                                            .Where(x => brandId != null
+                                                            .Where(x => x.Status != (int)PartnerProductEnum.Status.DEACTIVE &&
+                                                             (brandId != null
                                                                   ? x.StorePartner.Store.Brand.BrandId == brandId
-                                                                  : true).Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
+                                                                  : true)).Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
 
             }
             catch (Exception ex)
