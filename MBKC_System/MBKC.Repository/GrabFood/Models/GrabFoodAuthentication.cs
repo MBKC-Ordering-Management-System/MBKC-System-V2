@@ -11,6 +11,5 @@ namespace MBKC.Repository.GrabFood.Models
         public bool Success { get; set; }
         public int? Code { get; set; }
         public GrabFoodToken Data { get; set; }
-        public GrabFoodUserProfile User_Profile { get; set; }
     }
 }

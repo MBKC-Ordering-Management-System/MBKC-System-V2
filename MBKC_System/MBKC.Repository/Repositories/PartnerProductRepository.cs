@@ -69,6 +69,20 @@ namespace MBKC.Repository.Repositories
             }
         }
         #endregion
+        
+        #region Create Range Partner Product
+        public async Task CreateRangePartnerProductAsync(List<PartnerProduct> partnerProducts)
+        {
+            try
+            {
+                await this._dbContext.PartnerProducts.AddRangeAsync(partnerProducts);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
 
         #region GetNumberPartnerProductsAsync
         public async Task<int> GetNumberPartnerProductsAsync(string? searchName, string? searchValueWithoutUnicode, int? brandId)

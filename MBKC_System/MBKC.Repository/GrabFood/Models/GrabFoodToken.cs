@@ -9,5 +9,6 @@ namespace MBKC.Repository.GrabFood.Models
     public class GrabFoodToken
     {
         public string? JWT { get; set; }
+        public GrabFoodUserProfile User_Profile { get; set; }
     }
 }

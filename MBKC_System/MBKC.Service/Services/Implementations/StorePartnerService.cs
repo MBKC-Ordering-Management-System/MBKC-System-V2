@@ -84,10 +84,10 @@ namespace MBKC.Service.Services.Implementations
                     if (partner.Name.ToLower().Equals(PartnerConstant.GrabFood.ToLower()))
                     {
                         GrabFoodAuthenticationResponse grabFoodAuthenticationResponse = await this._unitOfWork.GrabFoodRepository.LoginGrabFoodAsync(grabFoodAccount);
-                        if(grabFoodAuthenticationResponse != null && grabFoodAuthenticationResponse.Data.User_Profile.Role.ToLower().Equals(RoleConstant.Store_Manager.ToLower()) == false)
+                        /*if(grabFoodAuthenticationResponse != null && grabFoodAuthenticationResponse.Data.User_Profile.Role.ToLower().Equals(RoleConstant.Store_Manager.ToLower()) == false)
                         {
                             throw new BadRequestException(MessageConstant.StorePartnerMessage.GrabFoodAccountMustBeStoreManager);
-                        }
+                        }*/
                     }
                     if(namePartners.Where(x => x.Key.ToLower().Equals(partner.Name.ToLower())).Count() == 0)
                     {
@@ -133,7 +133,7 @@ namespace MBKC.Service.Services.Implementations
                     listStorePartnerInsert.Add(storePartnerInsert);
                 }
 
-                List<PartnerProduct> partnerProducts = null;
+                List<PartnerProduct> partnerProducts = new List<PartnerProduct>();
                 if (postStorePartnerRequest.IsMappingProducts)
                 {
                     foreach (var namePartner in namePartners)
@@ -150,13 +150,14 @@ namespace MBKC.Service.Services.Implementations
                                 GrabFoodAuthenticationResponse grabFoodAuthenticationResponse = await this._unitOfWork.GrabFoodRepository.LoginGrabFoodAsync(grabFoodAccount);
                                 GrabFoodMenu grabFoodMenu = await this._unitOfWork.GrabFoodRepository.GetGrabFoodMenuAsync(grabFoodAuthenticationResponse);
                                 List<Category> storeCategoires = await this._unitOfWork.CategoryRepository.GetCategories(storePartner.StoreId);
-
+                                partnerProducts.AddRange(GrabFoodUtil.GetPartnerProductsFromGrabFood(grabFoodMenu, storeCategoires, storePartner.StoreId, storePartner.PartnerId, storePartner.CreatedDate));
                             }
                         }
                     }
                 }
+                await this._unitOfWork.PartnerProductRepository.CreateRangePartnerProductAsync(partnerProducts);
                 await this._unitOfWork.StorePartnerRepository.InsertRangeAsync(listStorePartnerInsert);
-                await this._unitOfWork.CommitAsync();
+                //await this._unitOfWork.CommitAsync();
             }
             catch (NotFoundException ex)
             {

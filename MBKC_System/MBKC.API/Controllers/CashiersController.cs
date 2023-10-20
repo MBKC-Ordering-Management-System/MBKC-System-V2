@@ -50,7 +50,7 @@ namespace MBKC.API.Controllers
         ///         searchValue = Bún đậu mắm tôm
         ///         currentPage = 1
         ///         itemsPerPage = 5
-        ///         sortBy = "propertyName_asc | propertyName_ASC | propertyName_desc | propertyName|DESC"
+        ///         sortBy = "propertyName_asc | propertyName_ASC | propertyName_desc | propertyName_DESC"
         /// </remarks>
         /// <response code="200">Get list of cashiers successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>

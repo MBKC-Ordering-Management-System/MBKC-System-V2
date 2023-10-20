@@ -51,17 +51,17 @@
         {
             public const string NotAuthenticatedEmailBefore = "Email has not been previously authenticated.";
             public const string ExpiredOTPCode = "OTP code has expired.";
-            public const string NotMatchOTPCode = "Your OTP code does not match with the previously sent OTP code.";
+            public const string NotMatchOTPCode = "Your OTP code does not match the previously sent OTP code.";
         }
 
         public static class ReGenerationMessage
         {
             public const string InvalidAccessToken = "Access token is invalid.";
             public const string NotExpiredAccessToken = "Access token has not yet expired.";
-            public const string NotExistAuthenticationToken = "You do not has the authentication tokens in the system.";
-            public const string NotExistRefreshToken = "Refresh token does not exist.";
-            public const string NotMatchAccessToken = "Your access token does not match the registered access token before.";
-            public const string ExpiredRefreshToken = "Your refresh token expired now.";
+            public const string NotExistAuthenticationToken = "You do not have the authentication tokens in the system.";
+            public const string NotExistRefreshToken = "Refresh token does not exist in the system.";
+            public const string NotMatchAccessToken = "Your access token does not match the registered access token.";
+            public const string ExpiredRefreshToken = "Refresh token expired.";
         }
 
         public static class ChangePasswordMessage

@@ -11,93 +11,291 @@ namespace MBKC.Service.Utils
 {
     public static class GrabFoodUtil
     {
-        /*public List<PartnerProduct> GetPartnerProductsFromGrabFood(GrabFoodMenu grabFoodMenu, List<Category> storeCategories, int storeId, int partnerId, DateTime createdDate)
+        public static List<PartnerProduct> GetPartnerProductsFromGrabFood(GrabFoodMenu grabFoodMenu, List<Category> storeCategories, int storeId, int partnerId, DateTime createdDate)
         {
             try
             {
                 List<PartnerProduct> partnerProducts = new List<PartnerProduct>();
+                Product existedProduct = null;
+                List<GrabFoodModifier> CreatedMappingProduct = new List<GrabFoodModifier>();
 
-                foreach (var category in storeCategories)
+                foreach (var grabFoodCategory in grabFoodMenu.Categories)
                 {
-                    GrabFoodCategory grabFoodCategory = grabFoodMenu.Categories.SingleOrDefault(x => x.CategoryID.ToLower().Equals(category.Code.ToLower()));
-                    if(grabFoodCategory is not null)
+                    Category existedCategory = storeCategories.SingleOrDefault(x => x.Name.ToLower().Equals(grabFoodCategory.CategoryName.ToLower()));
+                    if (existedCategory is not null && existedCategory.Type.ToLower().Equals(CategoryEnum.Type.NORMAL.ToString().ToLower()))
                     {
                         List<GrabFoodItem> grabFoodItemsWithModifierGroup = grabFoodCategory.Items.Where(x => x.LinkedModifierGroupIDs != null).ToList();
                         List<GrabFoodItem> grabFoodItemsWithoutModifierGroup = grabFoodCategory.Items.Where(x => x.LinkedModifierGroupIDs == null).ToList();
-                        if(grabFoodItemsWithoutModifierGroup.Count > 0)
+
+                        if (grabFoodItemsWithoutModifierGroup.Count > 0)
                         {
                             foreach (var item in grabFoodItemsWithoutModifierGroup)
                             {
                                 if (string.IsNullOrWhiteSpace(item.ItemCode))
                                 {
                                     // compare name
-                                } else
+                                    existedProduct = existedCategory.Products.SingleOrDefault(x => x.Name.ToLower().Equals(item.ItemName.ToLower()) && x.SellingPrice == item.PriceInMin);
+                                    if (existedProduct is not null)
+                                    {
+                                        partnerProducts.Add(new PartnerProduct()
+                                        {
+                                            PartnerId = partnerId,
+                                            StoreId = storeId,
+                                            CreatedDate = createdDate,
+                                            ProductCode = item.ItemID,
+                                            Status = item.AvailableStatus,
+                                            Price = item.PriceInMin,
+                                            ProductId = existedProduct.ProductId,
+                                            MappedDate = DateTime.Now,
+                                            UpdatedDate = DateTime.Now
+                                        });
+                                    }
+                                }
+                                else
                                 {
                                     // compare code
+                                    existedProduct = existedCategory.Products.SingleOrDefault(x => x.Code.ToLower().Equals(item.ItemCode.ToLower()));
+                                    if (existedProduct is not null)
+                                    {
+                                        partnerProducts.Add(new PartnerProduct()
+                                        {
+                                            PartnerId = partnerId,
+                                            StoreId = storeId,
+                                            CreatedDate = createdDate,
+                                            ProductCode = item.ItemID,
+                                            Status = item.AvailableStatus,
+                                            Price = item.PriceInMin,
+                                            ProductId = existedProduct.ProductId,
+                                            MappedDate = DateTime.Now,
+                                            UpdatedDate = DateTime.Now
+                                        });
+                                    }
+                                }
+                            }
+                        }
+
+                        if (grabFoodItemsWithModifierGroup.Count > 0)
+                        {
+                            foreach (var item in grabFoodItemsWithModifierGroup)
+                            {
+                                if (string.IsNullOrEmpty(item.ItemCode))
+                                {
+                                    // compare name
+                                    existedProduct = existedCategory.Products.SingleOrDefault(x => x.Name.ToLower().Equals(item.ItemName.ToLower()));
+                                    if (existedProduct is not null)
+                                    {
+                                        if (existedProduct.Type.ToLower().Equals(ProductEnum.Type.PARENT.ToString().ToLower()))
+                                        {
+                                            partnerProducts.Add(new PartnerProduct()
+                                            {
+                                                PartnerId = partnerId,
+                                                StoreId = storeId,
+                                                CreatedDate = createdDate,
+                                                ProductCode = item.ItemID,
+                                                Status = item.AvailableStatus,
+                                                Price = 0,
+                                                ProductId = existedProduct.ProductId,
+                                                MappedDate = DateTime.Now,
+                                                UpdatedDate = DateTime.Now
+                                            });
+                                            Dictionary<string, GrabFoodModifier> nameProductsFollowingRule = new Dictionary<string, GrabFoodModifier>(StringComparer.InvariantCultureIgnoreCase);
+                                            foreach (var linkedModifierGroupId in item.LinkedModifierGroupIDs)
+                                            {
+                                                GrabFoodModifierGroup grabFoodModifierGroup = grabFoodMenu.ModifierGroups.SingleOrDefault(x => x.ModifierGroupID.ToString().ToLower().Equals(linkedModifierGroupId.ToLower()));
+                                                if (grabFoodModifierGroup is not null)
+                                                {
+                                                    foreach (var modifier in grabFoodModifierGroup.Modifiers)
+                                                    {
+                                                        string nameProductWithFollowingRule = $"{item.ItemName} - {modifier.ModifierName}";
+                                                        nameProductsFollowingRule.Add(nameProductWithFollowingRule, modifier);
+                                                        if(CreatedMappingProduct.Contains(modifier) == false)
+                                                        {
+                                                            CreatedMappingProduct.Add(modifier);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            if (existedProduct.ChildrenProducts is not null && existedProduct.ChildrenProducts.Count() > 0)
+                                            {
+                                                foreach (var childProduct in existedProduct.ChildrenProducts)
+                                                {
+                                                    GrabFoodModifier childItemFromGrabFood = null;
+                                                    if (nameProductsFollowingRule.ContainsKey(childProduct.Name))
+                                                    {
+                                                        childItemFromGrabFood = nameProductsFollowingRule[childProduct.Name];
+                                                    }
+                                                    
+                                                    if (childItemFromGrabFood is not null && childProduct.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))
+                                                    {
+                                                        string[] modifierNameParts = childItemFromGrabFood.ModifierName.Split(" ");
+                                                        string productCode = item.ItemID + "-";
+                                                        foreach (var modifierNamePart in modifierNameParts)
+                                                        {
+                                                            productCode += modifierNamePart;
+                                                        }
+                                                        partnerProducts.Add(new PartnerProduct()
+                                                        {
+                                                            PartnerId = partnerId,
+                                                            StoreId = storeId,
+                                                            CreatedDate = createdDate,
+                                                            ProductCode = productCode,
+                                                            Status = item.AvailableStatus,
+                                                            Price = item.PriceInMin + childItemFromGrabFood.PriceInMin,
+                                                            ProductId = childProduct.ProductId,
+                                                            MappedDate = DateTime.Now,
+                                                            UpdatedDate = DateTime.Now
+                                                        });
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        else if (existedProduct.Type.ToLower().Equals(ProductEnum.Type.SINGLE.ToString().ToLower()))
+                                        {
+                                            partnerProducts.Add(new PartnerProduct()
+                                            {
+                                                PartnerId = partnerId,
+                                                StoreId = storeId,
+                                                CreatedDate = createdDate,
+                                                ProductCode = item.ItemID,
+                                                Status = item.AvailableStatus,
+                                                Price = item.PriceInMin,
+                                                ProductId = existedProduct.ProductId,
+                                                MappedDate = DateTime.Now,
+                                                UpdatedDate = DateTime.Now
+                                            });
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    // compare code
+                                    existedProduct = existedCategory.Products.SingleOrDefault(x => x.Code.ToLower().Equals(item.ItemCode.ToLower()));
+                                    if (existedProduct is not null)
+                                    {
+                                        if (existedProduct.Type.ToLower().Equals(ProductEnum.Type.PARENT.ToString().ToLower()))
+                                        {
+                                            partnerProducts.Add(new PartnerProduct()
+                                            {
+                                                PartnerId = partnerId,
+                                                StoreId = storeId,
+                                                CreatedDate = createdDate,
+                                                ProductCode = item.ItemID,
+                                                Status = item.AvailableStatus,
+                                                Price = 0,
+                                                ProductId = existedProduct.ProductId,
+                                                MappedDate = DateTime.Now,
+                                                UpdatedDate = DateTime.Now
+                                            });
+                                            Dictionary<string, GrabFoodModifier> nameProductsFollowingRule = new Dictionary<string, GrabFoodModifier>();
+                                            foreach (var linkedModifierGroupId in item.LinkedModifierGroupIDs)
+                                            {
+                                                GrabFoodModifierGroup grabFoodModifierGroup = grabFoodMenu.ModifierGroups.SingleOrDefault(x => x.ToString().ToLower().Equals(linkedModifierGroupId));
+                                                if (grabFoodModifierGroup is not null)
+                                                {
+                                                    foreach (var modifier in grabFoodModifierGroup.Modifiers)
+                                                    {
+                                                        string nameProductWithFollowingRule = $"{item.ItemName} - {modifier.ModifierName}";
+                                                        nameProductsFollowingRule.Add(nameProductWithFollowingRule, modifier);
+                                                        if (CreatedMappingProduct.Contains(modifier) == false)
+                                                        {
+                                                            CreatedMappingProduct.Add(modifier);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            if (existedProduct.ChildrenProducts is not null && existedProduct.ChildrenProducts.Count() > 0)
+                                            {
+                                                foreach (var childProduct in existedProduct.ChildrenProducts)
+                                                {
+                                                    GrabFoodModifier childItemFromGrabFood = nameProductsFollowingRule.SingleOrDefault(x => x.Key.ToLower().Equals(childProduct.Name.ToLower())).Value;
+                                                    if (childItemFromGrabFood is not null && childProduct.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))
+                                                    {
+                                                        string[] modifierNameParts = childItemFromGrabFood.ModifierName.Split(" ");
+                                                        string productCode = item.ItemID + "-";
+                                                        foreach (var modifierNamePart in modifierNameParts)
+                                                        {
+                                                            productCode += modifierNamePart;
+                                                        }
+                                                        partnerProducts.Add(new PartnerProduct()
+                                                        {
+                                                            PartnerId = partnerId,
+                                                            StoreId = storeId,
+                                                            CreatedDate = createdDate,
+                                                            ProductCode = productCode,
+                                                            Status = item.AvailableStatus,
+                                                            Price = item.PriceInMin + childItemFromGrabFood.PriceInMin,
+                                                            ProductId = childProduct.ProductId,
+                                                            MappedDate = DateTime.Now,
+                                                            UpdatedDate = DateTime.Now
+                                                        });
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        else if (existedProduct.Type.ToLower().Equals(ProductEnum.Type.SINGLE.ToString().ToLower()))
+                                        {
+                                            partnerProducts.Add(new PartnerProduct()
+                                            {
+                                                PartnerId = partnerId,
+                                                StoreId = storeId,
+                                                CreatedDate = createdDate,
+                                                ProductCode = item.ItemID,
+                                                Status = item.AvailableStatus,
+                                                Price = item.PriceInMin,
+                                                ProductId = existedProduct.ProductId,
+                                                MappedDate = DateTime.Now,
+                                                UpdatedDate = DateTime.Now
+                                            });
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
 
-                #region Delete
-                *//*foreach (var grabFoodCategory in grabFoodMenu.Categories)
+                foreach (var grabFoodModifierGroup in grabFoodMenu.ModifierGroups)
                 {
-                    foreach (var grabFoodItem in grabFoodCategory.Items)
+                    Category existedCategory = storeCategories.SingleOrDefault(x => x.Name.ToLower().Equals(grabFoodModifierGroup.ModifierGroupName.ToLower()));
+                    if(existedCategory is not null && existedCategory.Type.ToLower().Equals(CategoryEnum.Type.EXTRA.ToString().ToLower()))
                     {
-                        Product existedProductInSystem = storeCategories.Products.SingleOrDefault(x => x.Code.ToLower().Equals(grabFoodItem.ItemCode.ToLower()));
-                        if (existedProductInSystem is not null)
+                        foreach (var grabFoodModifier in grabFoodModifierGroup.Modifiers)
                         {
-                            if (existedProductInSystem.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))
+                            existedProduct = existedCategory.Products.SingleOrDefault(x => x.Name.ToLower().Equals(grabFoodModifier.ModifierName.ToLower()));
+                            if (CreatedMappingProduct.Contains(grabFoodModifier) == false && existedProduct is not null)
                             {
-
-                            }
-                            partnerProducts.Add(new PartnerProduct()
-                            {
-                                PartnerId = partnerId,
-                                StoreId = storeId,
-                                CreatedDate = createdDate,
-                                ProductCode = grabFoodItem.ItemCode,
-                                Status = grabFoodItem.AvailableStatus,
-                                Price = grabFoodItem.PriceInMin,
-                                ProductId = existedProductInSystem.ProductId,
-                                MappedDate = DateTime.Now,
-                                UpdatedDate = DateTime.Now
-                            });
-                        }
-                        else
-                        {
-                            Dictionary<string, GrabFoodModifier> nameProductsFollowingRule = new Dictionary<string, GrabFoodModifier>();
-                            foreach (var modifierGroup in grabFoodItem.LinkedModifierGroupIDs)
-                            {
-                                GrabFoodModifierGroup grabFoodModifierGroup = grabFoodMenu.ModifierGroups.SingleOrDefault(x => x.ModifierGroupID.Equals(modifierGroup));
-                                if(grabFoodModifierGroup is not null)
+                                string[] modifierNameParts = grabFoodModifier.ModifierName.Split(" ");
+                                string productCode = "";
+                                foreach (var modifierNamePart in modifierNameParts)
                                 {
-                                    foreach (var modifier in grabFoodModifierGroup.Modifiers)
-                                    {
-                                        string nameProductFollowingRule = $"{grabFoodItem.ItemName} {modifier.ModifierName}";
-                                        nameProductsFollowingRule.Add(nameProductFollowingRule, modifier);
-                                    }
+                                    productCode += modifierNamePart[0].ToString().ToUpper();
                                 }
-                            }
-
-                            foreach (var nameProduct in nameProductsFollowingRule)
-                            {
-                                Product existedProductInSystemWithCOmpareName = storeCategories.Products.SingleOrDefault(x => x.Name.ToLower().Equals(nameProduct.Key.ToLower()));
-                                if (existedProductInSystemWithCOmpareName is not null)
+                                partnerProducts.Add(new PartnerProduct()
                                 {
-
+                                    PartnerId = partnerId,
+                                    StoreId = storeId,
+                                    CreatedDate = createdDate,
+                                    ProductCode = productCode,
+                                    Status = grabFoodModifier.AvailableStatus,
+                                    Price = grabFoodModifier.PriceInMin,
+                                    ProductId = existedProduct.ProductId,
+                                    MappedDate = DateTime.Now,
+                                    UpdatedDate = DateTime.Now
+                                });
+                                if (CreatedMappingProduct.Contains(grabFoodModifier) == false)
+                                {
+                                    CreatedMappingProduct.Add(grabFoodModifier);
                                 }
                             }
                         }
                     }
-                }*//*
-                #endregion
+                }
+                return partnerProducts;
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
-        }*/
+        }
     }
 }

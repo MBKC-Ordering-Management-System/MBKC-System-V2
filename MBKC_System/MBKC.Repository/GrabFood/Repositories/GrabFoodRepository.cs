@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -39,10 +40,11 @@ namespace MBKC.Repository.GrabFood.Repositories
             {
                 GrabFoodAPI grabFoodAPI = GetGrabFoodAPI();
                 HttpClient client = new HttpClient();
-                client.BaseAddress = new Uri(grabFoodAPI.AuthenticationURI);
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                HttpResponseMessage response = await client.PostAsJsonAsync("", account);
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, grabFoodAPI.AuthenticationURI);
+                request.Headers.Accept.Clear();
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                request.Content = new StringContent(JsonConvert.SerializeObject(account), Encoding.UTF8, "application/json");
+                HttpResponseMessage response = await client.SendAsync(request);
                 string responseText = await response.Content.ReadAsStringAsync();
                 GrabFoodAuthenticationResponse grabFoodAuthenticationResponse = JsonConvert.DeserializeObject<GrabFoodAuthenticationResponse>(responseText);
                 if (response.IsSuccessStatusCode)
@@ -63,13 +65,15 @@ namespace MBKC.Repository.GrabFood.Repositories
             {
                 GrabFoodAPI grabFoodAPI = GetGrabFoodAPI();
                 HttpClient client = new HttpClient();
-                client.BaseAddress = new Uri(grabFoodAPI.MenusURI);
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                client.DefaultRequestHeaders.Add("Merchantid", grabFoodAuthentication.Data.User_Profile.Grab_Food_Entity_Id);
-                client.DefaultRequestHeaders.Add("Authorization", grabFoodAuthentication.Data.Data.JWT);
-                client.DefaultRequestHeaders.Add("Requestsource", grabFoodAPI.RequestSource);
-                HttpResponseMessage response = await client.GetAsync("");
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, grabFoodAPI.MenusURI);
+                request.Headers.Accept.Clear();
+                request.Headers.Add("Merchantid", grabFoodAuthentication.Data.Data.User_Profile.Grab_Food_Entity_Id);
+                request.Headers.Add("Authorization", grabFoodAuthentication.Data.Data.JWT);
+                request.Headers.Add("Requestsource", grabFoodAPI.RequestSource);
+                ProductHeaderValue header = new ProductHeaderValue("MBKCApplication", Assembly.GetExecutingAssembly().GetName().Version.ToString());
+                ProductInfoHeaderValue userAgent = new ProductInfoHeaderValue(header);
+                client.DefaultRequestHeaders.UserAgent.Add(userAgent);
+                HttpResponseMessage response = await client.SendAsync(request);
                 string responseText = await response.Content.ReadAsStringAsync();
                 GrabFoodMenu grabFoodMenu = JsonConvert.DeserializeObject<GrabFoodMenu>(responseText);
                 return grabFoodMenu;
