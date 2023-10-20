@@ -18,7 +18,6 @@ namespace MBKC.Repository.Repositories
             this._dbContext = dbContext;
         }
 
-        #region update wallet
         public void UpdateWallet(Wallet wallet)
         {
             try
@@ -30,7 +29,18 @@ namespace MBKC.Repository.Repositories
                 throw new Exception(ex.Message);
             }
         }
-        #endregion
+
+        public void UpdateRangeWallet(IEnumerable<Wallet> wallets)
+        {
+            try
+            {
+                this._dbContext.Wallets.UpdateRange(wallets);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
 
     }
 }

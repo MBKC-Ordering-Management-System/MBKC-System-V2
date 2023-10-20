@@ -97,7 +97,7 @@ namespace MBKC.Service.Services.Implementations
 
                 #region operation
 
-                #region order
+                #region orders
                 existedOrder.Status = OrderEnum.Status.COMPLETED.ToString();
                 this._unitOfWork.OrderRepository.UpdateOrder(existedOrder);
                 #endregion
@@ -109,7 +109,7 @@ namespace MBKC.Service.Services.Implementations
                     ShipperPayment shipperPayment = new ShipperPayment()
                     {
                         Status = (int)ShipperPaymentEnum.Status.SUCCESS,
-                        Content = $"Payment for the Order - [orderId: {existedOrder.Id}]  with {existedOrder.Commission}% commission",
+                        Content = $"Payment for the order[orderId:{existedOrder.Id}] with {existedOrder.Commission}% commission {StringUtil.GetContentAmountAndTime(finalPrice, DateTime.Now)}",
                         OrderId = existedOrder.Id,
                         Amount = finalPrice,
                         CreateDate = DateTime.Now,
@@ -196,7 +196,7 @@ namespace MBKC.Service.Services.Implementations
             }
             catch (Exception ex)
             {
-                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                string error = ErrorUtil.GetErrorString("Exception", ex.InnerException != null ? ex.InnerException.Message : ex.Message);
                 throw new Exception(error);
             }
         }

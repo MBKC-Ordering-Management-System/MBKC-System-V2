@@ -46,6 +46,7 @@
         public static class AccountMessage
         {
             public const string AccountIdNotBelongYourAccount = "Account id does not belong to your account.";
+            public const string AccountNoLongerActive = "Your account is no longer active.";
         }
 
         public static class VerificationMessage
@@ -203,9 +204,10 @@
             public const string OrderAlreadyPaid = "This order has been paid.";
         }
 
-        public static class ShipperPaymentMessage
+        public static class WalletMessage
         {
-            
+            public const string BalanceIsInvalid = "Your balance is not enough to transfer money.";
         }
+
     }
 }

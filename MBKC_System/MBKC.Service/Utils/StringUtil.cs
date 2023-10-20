@@ -199,5 +199,10 @@ namespace MBKC.Service.Utils
             }
             return false;
         }
+
+        public static string GetContentAmountAndTime(decimal amount, DateTime time)
+        {
+            return $"in the amount of: {amount}đ at {time.Hour}:{time.Minute} - {time.Day}/{time.Month}/{time.Year}";
+        }
     }
 }

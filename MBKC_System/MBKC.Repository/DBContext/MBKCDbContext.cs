@@ -187,7 +187,7 @@ namespace MBKC.Repository.DBContext
             {
                 moneyExchange.Property(prop => prop.Amount).HasColumnType("decimal(18,2)").IsRequired(true);
                 moneyExchange.Property(prop => prop.ExchangeType).IsUnicode(true).HasMaxLength(30).IsRequired(true);
-                moneyExchange.Property(prop => prop.Content).IsUnicode(true).HasMaxLength(100).IsRequired(true);
+                moneyExchange.Property(prop => prop.Content).IsUnicode(true).HasMaxLength(300).IsRequired(true);
             });
             #endregion
 
@@ -281,7 +281,7 @@ namespace MBKC.Repository.DBContext
             #region ShipperPayment
             modelBuilder.Entity<ShipperPayment>(shipperPayment =>
             {
-                shipperPayment.Property(prop => prop.Content).IsUnicode(true).HasMaxLength(100).IsRequired(true);
+                shipperPayment.Property(prop => prop.Content).IsUnicode(true).HasMaxLength(300).IsRequired(true);
                 shipperPayment.Property(prop => prop.Amount).HasColumnType("decimal(18,2)").IsRequired(true);
                 shipperPayment.Property(prop => prop.CreateDate).HasColumnType("datetime2").IsRequired(true);
                 shipperPayment.Property(prop => prop.PaymentMethod).IsUnicode(false).HasMaxLength(20).IsRequired(true);

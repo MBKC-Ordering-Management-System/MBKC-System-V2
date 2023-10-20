@@ -107,5 +107,11 @@
             public const string OrderEndpoint = ApiEndpoint + "/orders";
             public const string ConfirmOrderToCompletedEndpoint = OrderEndpoint + "/confirm-order-to-completed";
         }
+
+        public static class MoneyExchange
+        {
+            public const string MoneyExchangeEndpoint = ApiEndpoint + "/money-exchanges";
+            public const string MoneyExchangeToKitchenCenter = MoneyExchangeEndpoint + "/money-exchange-to-kitchen-center";
+        }
     }
 }

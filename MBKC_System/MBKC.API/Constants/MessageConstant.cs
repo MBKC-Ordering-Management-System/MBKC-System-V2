@@ -103,5 +103,10 @@
         {
             public const string UpdateOrderSuccessfully = "Update Order Successfully.";
         }
+
+        public static class MoneyExchangeMessage
+        {
+            public const string MoneyExchangeToKitchenCenterSuccessfully = "Sent Money To Kitchen Center Successfully.";
+        }
     }
 }

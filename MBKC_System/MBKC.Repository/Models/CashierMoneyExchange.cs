@@ -10,11 +10,13 @@ namespace MBKC.Repository.Models
 {
     public class CashierMoneyExchange
     {
-        [Key]
         public int ExchangeId;
+
         public int CashierId;
-        [ForeignKey("AccountId")]
+
+        [ForeignKey("CashierId")]
         public virtual Cashier Cashier { get; set; }
+
         [ForeignKey("ExchangeId")]
         public virtual MoneyExchange MoneyExchange { get; set; }
     }
