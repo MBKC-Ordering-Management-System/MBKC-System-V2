@@ -221,7 +221,7 @@ namespace MBKC.API.Controllers
         /// <param name="partnerId"> Id of partner.</param>
         /// <param name="storeId"> Id of store.</param>
         /// <returns>
-        /// An object will return message "Deleted Partner Product Successfully".
+        /// A success message about deleting partner product.
         /// </returns>
         /// <remarks>
         ///     Sample request:
