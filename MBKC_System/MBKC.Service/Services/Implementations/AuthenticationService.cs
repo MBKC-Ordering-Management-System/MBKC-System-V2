@@ -217,7 +217,7 @@ namespace MBKC.Service.Services.Implementations
                         new Claim("Role", accountResponse.RoleName),
                         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                     }),
-                    Expires = DateTime.UtcNow.AddHours(1),
+                    Expires = DateTime.UtcNow.AddMinutes(3),
                     SigningCredentials = credentials
                 };
 
