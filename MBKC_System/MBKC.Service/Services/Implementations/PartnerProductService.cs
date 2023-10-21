@@ -385,7 +385,7 @@ namespace MBKC.Service.Services.Implementations
         #endregion
 
         #region Get Partner Products
-        public async Task<GetPartnerProductsResponse> GetPartnerProductsAsync(string? searchName, string? keySortProductCode, string? keySortStatus, int? currentPage, int? itemsPerPage, IEnumerable<Claim> claims)
+        public async Task<GetPartnerProductsResponse> GetPartnerProductsAsync(GetPartnerProductRequest getPartnerProductRequest, IEnumerable<Claim> claims)
         {
             try
             {
@@ -394,109 +394,43 @@ namespace MBKC.Service.Services.Implementations
                 var brandAccount = await this._unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId.Value));
                 var brandId = brandAccount.Brand.BrandId;
 
-                if (currentPage != null && currentPage <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidCurrentPage);
-                }
-                else if (currentPage == null)
-                {
-                    currentPage = 1;
-                }
-
-                if (itemsPerPage != null && itemsPerPage <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidItemsPerPage);
-                }
-                else if (itemsPerPage == null)
-                {
-                    itemsPerPage = 5;
-                }
-                // Check key sort product code valid or not
-                if (keySortProductCode != null && keySortProductCode != "")
-                {
-                    if (!keySortProductCode.ToUpper().Equals(PartnerProductEnum.KeySort.ASC.ToString())
-                    && !keySortProductCode.ToUpper().Equals(PartnerProductEnum.KeySort.DESC.ToString()))
-                    {
-                        throw new BadRequestException(MessageConstant.PartnerProductMessage.KeySortNotExist);
-                    }
-                }
-                // Check key sort status valid or not
-                if (keySortStatus != null && keySortStatus != "")
-                {
-                    if (!keySortStatus.ToUpper().Equals(PartnerProductEnum.KeySort.ASC.ToString())
-                   && !keySortStatus.ToUpper().Equals(PartnerProductEnum.KeySort.DESC.ToString()))
-                    {
-                        throw new BadRequestException(MessageConstant.PartnerProductMessage.KeySortNotExist);
-                    }
-                }
-
                 int numberItems = 0;
                 List<PartnerProduct> partnerProducts = null;
-                if (searchName != null && StringUtil.IsUnicode(searchName) == false)
+                if (getPartnerProductRequest.SearchValue != null && StringUtil.IsUnicode(getPartnerProductRequest.SearchValue) == false)
                 {
-                    numberItems = await this._unitOfWork.PartnerProductRepository.GetNumberPartnerProductsAsync(searchName, null, brandId);
-                    partnerProducts = await this._unitOfWork.PartnerProductRepository.GetPartnerProductsAsync(searchName, null, currentPage, itemsPerPage, brandId);
-
+                    numberItems = await this._unitOfWork.PartnerProductRepository.GetNumberPartnerProductsAsync(getPartnerProductRequest.SearchValue, null, brandId);
+                    partnerProducts = await this._unitOfWork.PartnerProductRepository.GetPartnerProductsAsync(getPartnerProductRequest.SearchValue, null, getPartnerProductRequest.CurrentPage.Value, getPartnerProductRequest.ItemsPerPage.Value,
+                                                                                                              getPartnerProductRequest.SortBy != null && getPartnerProductRequest.SortBy.ToLower().EndsWith("asc") ? getPartnerProductRequest.SortBy.Split("_")[0] : null,
+                                                                                                              getPartnerProductRequest.SortBy != null && getPartnerProductRequest.SortBy.ToLower().EndsWith("desc") ? getPartnerProductRequest.SortBy.Split("_")[0] : null, brandId);
                 }
-                else if (searchName != null && StringUtil.IsUnicode(searchName))
+                else if (getPartnerProductRequest.SearchValue != null && StringUtil.IsUnicode(getPartnerProductRequest.SearchValue))
                 {
-                    numberItems = await this._unitOfWork.PartnerProductRepository.GetNumberPartnerProductsAsync(null, searchName, brandId);
-                    partnerProducts = await this._unitOfWork.PartnerProductRepository.GetPartnerProductsAsync(null, searchName, currentPage, itemsPerPage, brandId);
+                    numberItems = await this._unitOfWork.PartnerProductRepository.GetNumberPartnerProductsAsync(null, getPartnerProductRequest.SearchValue, brandId);
+                    partnerProducts = await this._unitOfWork.PartnerProductRepository.GetPartnerProductsAsync(null, getPartnerProductRequest.SearchValue, getPartnerProductRequest.CurrentPage.Value, getPartnerProductRequest.ItemsPerPage.Value,
+                                                                                                              getPartnerProductRequest.SortBy != null && getPartnerProductRequest.SortBy.ToLower().EndsWith("asc") ? getPartnerProductRequest.SortBy.Split("_")[0] : null,
+                                                                                                              getPartnerProductRequest.SortBy != null && getPartnerProductRequest.SortBy.ToLower().EndsWith("desc") ? getPartnerProductRequest.SortBy.Split("_")[0] : null, brandId);
                 }
-                else if (searchName == null)
+                else if (getPartnerProductRequest.SearchValue == null)
                 {
                     numberItems = await this._unitOfWork.PartnerProductRepository.GetNumberPartnerProductsAsync(null, null, brandId);
-                    partnerProducts = await this._unitOfWork.PartnerProductRepository.GetPartnerProductsAsync(null, null, currentPage, itemsPerPage, brandId);
+                    partnerProducts = await this._unitOfWork.PartnerProductRepository.GetPartnerProductsAsync(null, null, getPartnerProductRequest.CurrentPage.Value, getPartnerProductRequest.ItemsPerPage.Value,
+                                                                                                             getPartnerProductRequest.SortBy != null && getPartnerProductRequest.SortBy.ToLower().EndsWith("asc") ? getPartnerProductRequest.SortBy.Split("_")[0] : null,
+                                                                                                             getPartnerProductRequest.SortBy != null && getPartnerProductRequest.SortBy.ToLower().EndsWith("desc") ? getPartnerProductRequest.SortBy.Split("_")[0] : null, brandId);
                 }
 
-                int totalPages = (int)((numberItems + itemsPerPage) / itemsPerPage);
+                int totalPages = (int)((numberItems + getPartnerProductRequest.ItemsPerPage) / getPartnerProductRequest.ItemsPerPage);
                 if (numberItems == 0)
                 {
                     totalPages = 0;
                 }
                 List<GetPartnerProductResponse> getPartnerProductResponse = this._mapper.Map<List<GetPartnerProductResponse>>(partnerProducts);
 
-                // Sort by product code or status
-                if (keySortProductCode != null && keySortProductCode != "" && keySortProductCode.ToUpper().Equals(PartnerProductEnum.KeySort.ASC.ToString()))
-                {
-                    getPartnerProductResponse = getPartnerProductResponse.OrderBy(x => x.ProductCode).ToList();
-                }
-                else if (keySortProductCode != null && keySortProductCode != "" && keySortProductCode.ToUpper().Equals(PartnerProductEnum.KeySort.DESC.ToString()))
-                {
-                    getPartnerProductResponse = getPartnerProductResponse.OrderByDescending(x => x.ProductCode).ToList();
-                }
-                else if (keySortStatus != null && keySortStatus != "" && keySortStatus.ToUpper().Equals(PartnerProductEnum.KeySort.ASC.ToString()))
-                {
-                    getPartnerProductResponse = getPartnerProductResponse.OrderBy(x => x.Status).ToList();
-                }
-                else if (keySortStatus != null && keySortStatus != "" && keySortStatus.ToUpper().Equals(PartnerProductEnum.KeySort.DESC.ToString()))
-                {
-                    getPartnerProductResponse = getPartnerProductResponse.OrderByDescending(x => x.Status).ToList();
-                }
                 return new GetPartnerProductsResponse()
                 {
                     NumberItems = numberItems,
                     TotalPages = totalPages,
                     PartnerProducts = getPartnerProductResponse
                 };
-            }
-            catch (BadRequestException ex)
-            {
-                string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidItemsPerPage))
-                {
-                    fieldName = "Items per page";
-                }
-                else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidCurrentPage))
-                {
-                    fieldName = "Current page";
-                }
-                else if (ex.Message.Equals(MessageConstant.PartnerProductMessage.KeySortNotExist))
-                {
-                    fieldName = "Key sort";
-                }
-                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
-                throw new BadRequestException(error);
             }
             catch (Exception ex)
             {

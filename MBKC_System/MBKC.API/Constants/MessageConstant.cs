@@ -98,7 +98,7 @@
             public const string CreatedPartnerProductSuccessfully = "Created New Partner Product Successfully.";
             public const string UpdatedPartnerProductSuccessfully = "Updated Partner Product Successfully.";
             public const string DeletedPartnerProductSuccessfully = "Deleted Partner Product Successfully.";
-
+            public const string UpdatedPartnerProductStatusSuccessfully = "Updated Partner Product Status Successfully.";
         }
     }
 }
