@@ -158,6 +158,10 @@ namespace MBKC.Repository.Repositories
             {
                 return await this._dbContext.KitchenCenters.Include(kc => kc.Manager)
                                                            .Include(kc => kc.Wallet)
+                                                           .Include(kc => kc.KitchenCenterMoneyExchanges.Where(kc => kc.MoneyExchange.ExchangeType.ToUpper().Equals(MoneyExchangeEnum.ExchangeType.SEND.ToString())
+                                                                                                                  && kc.MoneyExchange.Transactions.Any(ts => ts.TransactionTime.Day == DateTime.Now.Day
+                                                                                                                                                          && ts.TransactionTime.Month == DateTime.Now.Month
+                                                                                                                                                          && ts.TransactionTime.Year == DateTime.Now.Year)))
                                                            .Include(kc => kc.Stores.Where(s => s.Status == (int)StoreEnum.Status.ACTIVE))
                                                            .ThenInclude(s => s.Orders.Where(o => o.Status.Equals(OrderEnum.Status.COMPLETED.ToString()) 
                                                                                               && o.PaymentMethod.ToUpper().Equals(OrderEnum.PaymentMethod.CASH.ToString())

@@ -55,16 +55,5 @@ namespace MBKC.API.Controllers
         }
         #endregion
 
-        #region money exchange to store
-        [HttpPut(APIEndPointConstant.MoneyExchange.MoneyExchangeToStore)]
-        public async Task<IActionResult> MoneyExchangeToStoreAsync()
-        {
-            await this._moneyExchangeService.MoneyExchangeToStoreAsync();
-            return Ok(new
-            {
-                Message = "Success"
-            });
-        }
-        #endregion
     }
 }

@@ -94,7 +94,7 @@ namespace MBKC.API.Extentions
                                 .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
                                 .UseSimpleAssemblyNameTypeSerializer()
                                 .UseRecommendedSerializerSettings()
-                                .UseSQLiteStorage("hangfire.db"));
+                                .UseSQLiteStorage(HangfireConstant.DatabaseName));
             services.AddHangfireServer();
             return services;
         }
@@ -247,20 +247,23 @@ namespace MBKC.API.Extentions
             app.ConfigureExceptionMiddleware();
             app.MapControllers();
             app.UseHangfireDashboard();
-            app.MapHangfireDashboard(pattern: "/hangfire");
+            app.MapHangfireDashboard(pattern: HangfireConstant.DashboardEndpoint);
             app.AddBackgroundJob();
             return app;
         }
 
         public static void AddBackgroundJob(this IApplicationBuilder _)
         {
-            #region exchange money
-            BackgroundJob.Enqueue<IHangfireService>(x => x.MoneyExchangeToStoreAsync());
-            RecurringJob.AddOrUpdate("exchangeMoneyJob", () => Console.WriteLine("chay di"), cronExpression: "54 16 * * *", new RecurringJobOptions
-            {
-                TimeZone = TimeZoneInfo.Local,
-            });
-            // BackgroundJob.Schedule<IHangfireService>(x => x.MoneyExchangeToStoreAsync(), TimeSpan.FromSeconds(5));
+            #region money exchange to store
+            // auto execute at 23:00 daily
+            RecurringJob.AddOrUpdate(HangfireConstant.MoneyExchangeToStore_ID, 
+                                    (IHangfireService hangfireService) => hangfireService.MoneyExchangeToStoreAsync(), 
+                                    cronExpression: HangfireConstant.MoneyExchangeToStore_CronExpression, 
+                                    new RecurringJobOptions
+                                    {   
+                                        // sync time(utc +7)
+                                        TimeZone = TimeZoneInfo.Local,
+                                    });
             #endregion
         }
     }
