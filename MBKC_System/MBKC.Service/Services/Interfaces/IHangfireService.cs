@@ -7,9 +7,8 @@ using System.Threading.Tasks;
 
 namespace MBKC.Service.Services.Interfaces
 {
-    public interface IMoneyExchangeService
+    public interface IHangfireService
     {
-        public Task MoneyExchangeToKitchenCenterAsync(IEnumerable<Claim> claims);
         public Task MoneyExchangeToStoreAsync();
     }
 }

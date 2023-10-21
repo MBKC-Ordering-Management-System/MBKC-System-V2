@@ -40,6 +40,10 @@ using MBKC.Service.DTOs.PartnerProducts;
 using MBKC.API.Validators.PartnerProducts;
 using MBKC.Service.DTOs.Orders;
 using MBKC.API.Validators.Orders;
+using Hangfire;
+using System.Security.Cryptography.Xml;
+using Hangfire.Storage.SQLite;
+using MBKC.API.Constants;
 
 namespace MBKC.API.Extentions
 {
@@ -85,6 +89,13 @@ namespace MBKC.API.Extentions
             services.AddScoped<IStorePartnerService, StorePartnerService>();
             services.AddScoped<ITransactionService, TransactionService>();
             services.AddScoped<IWalletService, WalletService>();
+            services.AddScoped<IHangfireService, HangfireService>();
+            services.AddHangfire(config => config
+                                .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                                .UseSimpleAssemblyNameTypeSerializer()
+                                .UseRecommendedSerializerSettings()
+                                .UseSQLiteStorage("hangfire.db"));
+            services.AddHangfireServer();
             return services;
         }
 
@@ -220,6 +231,35 @@ namespace MBKC.API.Extentions
         {
             services.AddTransient<ExceptionMiddleware>();
             return services;
+        }
+
+        public static WebApplication AddApplicationConfig(this WebApplication app)
+        {
+            // Configure the HTTP request pipeline.
+            app.UseSwagger();
+            app.UseSwaggerUI();
+            app.UseCors(CorsConstant.PolicyName);
+            app.UseAuthentication();
+            app.UseAuthorization();
+            //Add middleware extentions
+            app.ConfigureExceptionMiddleware();
+            app.MapControllers();
+            app.UseHangfireDashboard();
+            app.MapHangfireDashboard(pattern: "/hangfire");
+            app.AddBackgroundJob();
+            return app;
+        }
+
+        public static void AddBackgroundJob(this IApplicationBuilder _)
+        {
+            #region exchange money
+            BackgroundJob.Enqueue<IHangfireService>(x => x.MoneyExchangeToStoreAsync());
+            RecurringJob.AddOrUpdate("exchangeMoneyJob", () => Console.WriteLine("chay di"), cronExpression: "54 16 * * *", new RecurringJobOptions
+            {
+                TimeZone = TimeZoneInfo.Local,
+            });
+            // BackgroundJob.Schedule<IHangfireService>(x => x.MoneyExchangeToStoreAsync(), TimeSpan.FromSeconds(5));
+            #endregion
         }
     }
 }

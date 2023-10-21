@@ -102,10 +102,10 @@ namespace MBKC.Service.Services.Implementations
                 this._unitOfWork.OrderRepository.UpdateOrder(existedOrder);
                 #endregion
 
-                #region shipper payment and transaction and wallet
+                #region shipper payment and transaction and wallet (Cash only)
                 if (existedOrder.PaymentMethod.ToUpper().Equals(OrderEnum.PaymentMethod.CASH.ToString()))
                 {
-                    decimal finalPrice = existedOrder.FinalTotalPrice - (existedOrder.FinalTotalPrice * existedOrder.Commission/100);
+                    decimal finalPrice = existedOrder.FinalTotalPrice - (existedOrder.FinalTotalPrice * existedOrder.Commission / 100);
                     ShipperPayment shipperPayment = new ShipperPayment()
                     {
                         Status = (int)ShipperPaymentEnum.Status.SUCCESS,
@@ -118,17 +118,17 @@ namespace MBKC.Service.Services.Implementations
                         : ShipperPaymentEnum.PaymentMethod.CASHLESS.ToString(),
                         KCBankingAccountId = confirmOrderToCompleted.BankingAccountId,
                         CreateBy = existedCashier.AccountId,
+                        Transactions = new List<Transaction>()
+                        {
+                            new Transaction()
+                            {
+                                TransactionTime = DateTime.Now,
+                                Status = (int)TransactionEnum.Status.SUCCESS,
+                                Wallet = existedCashier.Wallet,
+                            }
+                        }
                     };
                     await this._unitOfWork.ShipperPaymentRepository.CreateShipperPaymentAsync(shipperPayment);
-
-                    Transaction transaction = new Transaction()
-                    {
-                        TransactionTime = DateTime.Now,
-                        Status = (int)TransactionEnum.Status.SUCCESS,
-                        ShipperPayment = shipperPayment,
-                        Wallet = existedCashier.Wallet,
-                    };
-                    await this._unitOfWork.TransactionRepository.CreateTransactionAsync(transaction);
 
                     existedCashier.Wallet.Balance += finalPrice;
                     this._unitOfWork.WalletRepository.UpdateWallet(existedCashier.Wallet);
@@ -136,9 +136,9 @@ namespace MBKC.Service.Services.Implementations
                 }
                 #endregion
 
+                await this._unitOfWork.CommitAsync();
                 #endregion
 
-                await this._unitOfWork.CommitAsync();
             }
             catch (NotFoundException ex)
             {

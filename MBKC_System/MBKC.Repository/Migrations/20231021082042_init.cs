@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace MBKC.Repository.Migrations
 {
-    public partial class initial : Migration
+    public partial class init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -34,10 +34,11 @@ namespace MBKC.Repository.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     ExchangeType = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     SenderId = table.Column<int>(type: "int", nullable: false),
-                    ReceiveId = table.Column<int>(type: "int", nullable: false)
+                    ReceiveId = table.Column<int>(type: "int", nullable: false),
+                    ExchangeImage = table.Column<string>(type: "varchar(max)", unicode: false, maxLength: 2147483647, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -51,8 +52,8 @@ namespace MBKC.Repository.Migrations
                     PartnerId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Logo = table.Column<string>(type: "varchar(max)", unicode: false, maxLength: 2147483647, nullable: false),
-                    WebUrl = table.Column<string>(type: "varchar(150)", unicode: false, maxLength: 150, nullable: false),
+                    Logo = table.Column<string>(type: "varchar(max)", unicode: false, maxLength: 2147483647, nullable: true),
+                    WebUrl = table.Column<string>(type: "varchar(150)", unicode: false, maxLength: 150, nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -386,15 +387,14 @@ namespace MBKC.Repository.Migrations
                 columns: table => new
                 {
                     ExchangeId = table.Column<int>(type: "int", nullable: false),
-                    CashierId = table.Column<int>(type: "int", nullable: false),
-                    AccountId = table.Column<int>(type: "int", nullable: false)
+                    CashierId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CashierMoneyExchanges", x => new { x.ExchangeId, x.CashierId });
                     table.ForeignKey(
-                        name: "FK_CashierMoneyExchanges_Cashiers_AccountId",
-                        column: x => x.AccountId,
+                        name: "FK_CashierMoneyExchanges_Cashiers_CashierId",
+                        column: x => x.CashierId,
                         principalTable: "Cashiers",
                         principalColumn: "AccountId",
                         onDelete: ReferentialAction.Cascade);
@@ -568,7 +568,7 @@ namespace MBKC.Repository.Migrations
                     PaymentId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreateBy = table.Column<int>(type: "int", nullable: false),
@@ -684,9 +684,9 @@ namespace MBKC.Repository.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_CashierMoneyExchanges_AccountId",
+                name: "IX_CashierMoneyExchanges_CashierId",
                 table: "CashierMoneyExchanges",
-                column: "AccountId");
+                column: "CashierId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CashierMoneyExchanges_ExchangeId",

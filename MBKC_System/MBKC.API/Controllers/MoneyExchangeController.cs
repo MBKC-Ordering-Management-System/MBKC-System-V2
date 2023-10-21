@@ -56,12 +56,10 @@ namespace MBKC.API.Controllers
         #endregion
 
         #region money exchange to store
-        [PermissionAuthorize(PermissionAuthorizeConstant.Kitchen_Center_Manager)]
         [HttpPut(APIEndPointConstant.MoneyExchange.MoneyExchangeToStore)]
         public async Task<IActionResult> MoneyExchangeToStoreAsync()
         {
-            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            await this._moneyExchangeService.MoneyExchangeToStoreAsync(claims);
+            await this._moneyExchangeService.MoneyExchangeToStoreAsync();
             return Ok(new
             {
                 Message = "Success"

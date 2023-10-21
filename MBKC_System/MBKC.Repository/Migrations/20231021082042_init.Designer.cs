@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MBKC.Repository.Migrations
 {
     [DbContext(typeof(MBKCDbContext))]
-    [Migration("20231019044050_initial")]
-    partial class initial
+    [Migration("20231021082042_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -207,12 +207,9 @@ namespace MBKC.Repository.Migrations
                     b.Property<int>("CashierId")
                         .HasColumnType("int");
 
-                    b.Property<int>("AccountId")
-                        .HasColumnType("int");
-
                     b.HasKey("ExchangeId", "CashierId");
 
-                    b.HasIndex("AccountId");
+                    b.HasIndex("CashierId");
 
                     b.HasIndex("ExchangeId")
                         .IsUnique();
@@ -377,9 +374,14 @@ namespace MBKC.Repository.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasMaxLength(100)
+                        .HasMaxLength(300)
                         .IsUnicode(true)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("ExchangeImage")
+                        .HasMaxLength(2147483647)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(max)");
 
                     b.Property<string>("ExchangeType")
                         .IsRequired()
@@ -542,7 +544,6 @@ namespace MBKC.Repository.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PartnerId"), 1L, 1);
 
                     b.Property<string>("Logo")
-                        .IsRequired()
                         .HasMaxLength(2147483647)
                         .IsUnicode(false)
                         .HasColumnType("varchar(max)");
@@ -557,7 +558,6 @@ namespace MBKC.Repository.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("WebUrl")
-                        .IsRequired()
                         .HasMaxLength(150)
                         .IsUnicode(false)
                         .HasColumnType("varchar(150)");
@@ -734,9 +734,9 @@ namespace MBKC.Repository.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasMaxLength(100)
+                        .HasMaxLength(300)
                         .IsUnicode(true)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(300)");
 
                     b.Property<int>("CreateBy")
                         .HasColumnType("int");
@@ -1015,7 +1015,7 @@ namespace MBKC.Repository.Migrations
                 {
                     b.HasOne("MBKC.Repository.Models.Cashier", "Cashier")
                         .WithMany("CashierMoneyExchanges")
-                        .HasForeignKey("AccountId")
+                        .HasForeignKey("CashierId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
