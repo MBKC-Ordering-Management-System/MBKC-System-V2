@@ -179,7 +179,6 @@ namespace MBKC.Repository.DBContext
                 partnerProduct.Property(prop => prop.ProductCode).IsUnicode(false).HasMaxLength(50).IsRequired(true);
                 partnerProduct.Property(prop => prop.Status).IsRequired(true);
             });
-
             #endregion
 
             #region MoneyExchange

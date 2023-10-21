@@ -100,6 +100,8 @@
         {
             public const string PartnerProductsEndpoint = ApiEndpoint + "/partner-products";
             public const string PartnerProductEndpoint = PartnerProductsEndpoint + "/{productId}/{partnerId}/{storeId}";
+            public const string UpdatingStatusPartnerProductEndpoint = PartnerProductEndpoint + "/updating-status";
+
         }
 
         public static class Order

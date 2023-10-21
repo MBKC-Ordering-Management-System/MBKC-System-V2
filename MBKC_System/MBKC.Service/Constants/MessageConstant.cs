@@ -146,7 +146,7 @@
             public const string ProductNotBelongToBrand = "Product id does not belong to your brand.";
             public const string ProductNotBelongToStore = "Product id does not belong to your store.";
             public const string ProductNotSpendToStore = "Product id does not spend to your kitchen center.";
-            public const string ProductNameNotFollowingFormat = "Name of product Type CHILD is required following format: 'ParentName Size x' With x is a your chosen size options.";
+            public const string ProductNameNotFollowingFormat = "Name of product Type CHILD is required following format: 'ParentName - Size x' With x is a your chosen size options.";
             public const string ProductNameTypeChildNotAllowUpdate = "Name of product which is type CHILD does not allow update.";
             public const string ProductIdNotParentType = "Product id is not a PARENT type.";
         }
@@ -190,6 +190,8 @@
             public const string DeactiveProduct_Create_Update = "This product is Deactive.";
             public const string InactiveProduct_Create_Update = "This product is Inactive.";
             public const string InactiveStore_Update = "This store has been inactive.";
+            public const string StatusInValid = "Status is ACTIVE or INACTIVE";
+            public const string KeySortNotExist = "Key sort are ASC or DESC";
         }
 
         public static class OrderMessage

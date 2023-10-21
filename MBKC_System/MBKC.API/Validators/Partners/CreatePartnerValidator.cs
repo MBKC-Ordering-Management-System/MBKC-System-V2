@@ -21,7 +21,6 @@ namespace MBKC.API.Validators.Partners
             #region Logo
             RuleFor(b => b.Logo)
                        .Cascade(CascadeMode.StopOnFirstFailure)
-                       .NotNull().WithMessage("{PropertyName} is not null.")
                        .ChildRules(pro => pro.RuleFor(img => img.Length).ExclusiveBetween(0, MAX_BYTES)
                        .WithMessage($"Logo is required file length greater than 0 and less than {MAX_BYTES / 1024 / 1024} MB."));
             RuleFor(p => p.Logo)
@@ -31,8 +30,6 @@ namespace MBKC.API.Validators.Partners
             #region WebUrl
             RuleFor(p => p.WebUrl)
                          .Cascade(CascadeMode.StopOnFirstFailure)
-                         .NotNull().WithMessage("{PropertyName} is null.")
-                         .NotEmpty().WithMessage("{PropertyName} is empty.")
                          .MaximumLength(150).WithMessage("{PropertyName} is required less than or equal to 150 characters.");
 
             #endregion
