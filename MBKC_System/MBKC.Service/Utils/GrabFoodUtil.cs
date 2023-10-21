@@ -1,6 +1,8 @@
 ﻿using MBKC.Repository.Enums;
 using MBKC.Repository.GrabFood.Models;
 using MBKC.Repository.Models;
+using MBKC.Service.Constants;
+using MBKC.Service.GrabFoods;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,13 +13,18 @@ namespace MBKC.Service.Utils
 {
     public static class GrabFoodUtil
     {
-        public static List<PartnerProduct> GetPartnerProductsFromGrabFood(GrabFoodMenu grabFoodMenu, List<Category> storeCategories, int storeId, int partnerId, DateTime createdDate)
+        public static PartnerProductsFromGrabFood GetPartnerProductsFromGrabFood(GrabFoodMenu grabFoodMenu, List<Category> storeCategories, int storeId, int partnerId, DateTime createdDate)
         {
             try
             {
-                List<PartnerProduct> partnerProducts = new List<PartnerProduct>();
+                PartnerProductsFromGrabFood partnerProductsFromGrabFood = new PartnerProductsFromGrabFood();
+                List<PartnerProduct> newPartnerProducts = new List<PartnerProduct>();
+                List<PartnerProduct> oldPartnerProducts = new List<PartnerProduct>();
+                List<NotMappingGrabFoodItem> notMappingGrabFoodItems = new List<NotMappingGrabFoodItem>();
+                List<NotMappingGrabFoodModifierGroup> notMappingGrabFoodModifierGroups = new List<NotMappingGrabFoodModifierGroup>();
                 Product existedProduct = null;
-                List<GrabFoodModifier> CreatedMappingProduct = new List<GrabFoodModifier>();
+                List<GrabFoodModifier> CreatedMappingModifiers = new List<GrabFoodModifier>();
+                List<GrabFoodModifierGroup> CreatedMappingModifierGroups = new List<GrabFoodModifierGroup>();
 
                 foreach (var grabFoodCategory in grabFoodMenu.Categories)
                 {
@@ -31,13 +38,14 @@ namespace MBKC.Service.Utils
                         {
                             foreach (var item in grabFoodItemsWithoutModifierGroup)
                             {
+                                bool isMapped = false;
                                 if (string.IsNullOrWhiteSpace(item.ItemCode))
                                 {
                                     // compare name
                                     existedProduct = existedCategory.Products.SingleOrDefault(x => x.Name.ToLower().Equals(item.ItemName.ToLower()) && x.SellingPrice == item.PriceInMin);
-                                    if (existedProduct is not null)
+                                    if (existedProduct is not null && existedProduct.PartnerProducts.SingleOrDefault(x => x.ProductId == existedProduct.ProductId) is null)
                                     {
-                                        partnerProducts.Add(new PartnerProduct()
+                                        newPartnerProducts.Add(new PartnerProduct()
                                         {
                                             PartnerId = partnerId,
                                             StoreId = storeId,
@@ -49,15 +57,27 @@ namespace MBKC.Service.Utils
                                             MappedDate = DateTime.Now,
                                             UpdatedDate = DateTime.Now
                                         });
+                                        isMapped = true;
+                                    }
+                                    else if (existedProduct is not null && existedProduct.PartnerProducts.SingleOrDefault(x => x.ProductId == existedProduct.ProductId) is not null)
+                                    {
+                                        PartnerProduct existedPartnerProduct = existedProduct.PartnerProducts.SingleOrDefault(x => x.ProductId == existedProduct.ProductId);
+                                        existedPartnerProduct.ProductCode = item.ItemID;
+                                        existedPartnerProduct.Status = item.AvailableStatus;
+                                        existedPartnerProduct.Price = item.PriceInMin;
+                                        existedPartnerProduct.UpdatedDate = DateTime.Now;
+                                        
+                                        oldPartnerProducts.Add(existedPartnerProduct);
+                                        isMapped = true;
                                     }
                                 }
                                 else
                                 {
                                     // compare code
                                     existedProduct = existedCategory.Products.SingleOrDefault(x => x.Code.ToLower().Equals(item.ItemCode.ToLower()));
-                                    if (existedProduct is not null)
+                                    if (existedProduct is not null && existedProduct.PartnerProducts.SingleOrDefault(x => x.ProductId == existedProduct.ProductId) is null)
                                     {
-                                        partnerProducts.Add(new PartnerProduct()
+                                        newPartnerProducts.Add(new PartnerProduct()
                                         {
                                             PartnerId = partnerId,
                                             StoreId = storeId,
@@ -69,7 +89,28 @@ namespace MBKC.Service.Utils
                                             MappedDate = DateTime.Now,
                                             UpdatedDate = DateTime.Now
                                         });
+                                        isMapped = true;
                                     }
+                                    else if (existedProduct is not null && existedProduct.PartnerProducts.SingleOrDefault(x => x.ProductId == existedProduct.ProductId) is not null)
+                                    {
+                                        PartnerProduct existedPartnerProduct = existedProduct.PartnerProducts.SingleOrDefault(x => x.ProductId == existedProduct.ProductId);
+                                        existedPartnerProduct.ProductCode = item.ItemID;
+                                        existedPartnerProduct.Status = item.AvailableStatus;
+                                        existedPartnerProduct.Price = item.PriceInMin;
+                                        existedPartnerProduct.UpdatedDate = DateTime.Now;
+
+                                        oldPartnerProducts.Add(existedPartnerProduct);
+                                        isMapped = true;
+                                    }
+                                }
+
+                                if(isMapped == false)
+                                {
+                                    notMappingGrabFoodItems.Add(new NotMappingGrabFoodItem()
+                                    {
+                                        GrabFoodItem = item,
+                                        Reason = MessageConstant.StorePartnerMessage.ItemOnGrabfoodCanNotMapping
+                                    });
                                 }
                             }
                         }
@@ -78,15 +119,16 @@ namespace MBKC.Service.Utils
                         {
                             foreach (var item in grabFoodItemsWithModifierGroup)
                             {
+                                bool isMapped = false;
                                 if (string.IsNullOrEmpty(item.ItemCode))
                                 {
                                     // compare name
                                     existedProduct = existedCategory.Products.SingleOrDefault(x => x.Name.ToLower().Equals(item.ItemName.ToLower()));
-                                    if (existedProduct is not null)
+                                    if (existedProduct is not null && existedProduct.PartnerProducts.SingleOrDefault(x => x.ProductId == existedProduct.ProductId) is null)
                                     {
                                         if (existedProduct.Type.ToLower().Equals(ProductEnum.Type.PARENT.ToString().ToLower()))
                                         {
-                                            partnerProducts.Add(new PartnerProduct()
+                                            newPartnerProducts.Add(new PartnerProduct()
                                             {
                                                 PartnerId = partnerId,
                                                 StoreId = storeId,
@@ -108,10 +150,14 @@ namespace MBKC.Service.Utils
                                                     {
                                                         string nameProductWithFollowingRule = $"{item.ItemName} - {modifier.ModifierName}";
                                                         nameProductsFollowingRule.Add(nameProductWithFollowingRule, modifier);
-                                                        if(CreatedMappingProduct.Contains(modifier) == false)
+                                                        if(CreatedMappingModifiers.Contains(modifier) == false)
                                                         {
-                                                            CreatedMappingProduct.Add(modifier);
+                                                            CreatedMappingModifiers.Add(modifier);
                                                         }
+                                                    }
+                                                    if(CreatedMappingModifierGroups.Contains(grabFoodModifierGroup) == false)
+                                                    {
+                                                        CreatedMappingModifierGroups.Add(grabFoodModifierGroup);
                                                     }
                                                 }
                                             }
@@ -127,18 +173,18 @@ namespace MBKC.Service.Utils
                                                     
                                                     if (childItemFromGrabFood is not null && childProduct.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))
                                                     {
-                                                        string[] modifierNameParts = childItemFromGrabFood.ModifierName.Split(" ");
+                                                        /*string[] modifierNameParts = childItemFromGrabFood.ModifierName.Split(" ");
                                                         string productCode = item.ItemID + "-";
                                                         foreach (var modifierNamePart in modifierNameParts)
                                                         {
                                                             productCode += modifierNamePart;
-                                                        }
-                                                        partnerProducts.Add(new PartnerProduct()
+                                                        }*/
+                                                        newPartnerProducts.Add(new PartnerProduct()
                                                         {
                                                             PartnerId = partnerId,
                                                             StoreId = storeId,
                                                             CreatedDate = createdDate,
-                                                            ProductCode = productCode,
+                                                            ProductCode = childItemFromGrabFood.ModifierID,
                                                             Status = item.AvailableStatus,
                                                             Price = item.PriceInMin + childItemFromGrabFood.PriceInMin,
                                                             ProductId = childProduct.ProductId,
@@ -148,10 +194,11 @@ namespace MBKC.Service.Utils
                                                     }
                                                 }
                                             }
+                                            isMapped = true;
                                         }
                                         else if (existedProduct.Type.ToLower().Equals(ProductEnum.Type.SINGLE.ToString().ToLower()))
                                         {
-                                            partnerProducts.Add(new PartnerProduct()
+                                            newPartnerProducts.Add(new PartnerProduct()
                                             {
                                                 PartnerId = partnerId,
                                                 StoreId = storeId,
@@ -163,18 +210,30 @@ namespace MBKC.Service.Utils
                                                 MappedDate = DateTime.Now,
                                                 UpdatedDate = DateTime.Now
                                             });
+                                            isMapped = true;
                                         }
+                                    } 
+                                    else if(existedProduct is not null && existedProduct.PartnerProducts.SingleOrDefault(x => x.ProductId == existedProduct.ProductId) is not null)
+                                    {
+                                        PartnerProduct existedPartnerProduct = existedProduct.PartnerProducts.SingleOrDefault(x => x.ProductId == existedProduct.ProductId);
+                                        existedPartnerProduct.ProductCode = item.ItemID;
+                                        existedPartnerProduct.Status = item.AvailableStatus;
+                                        existedPartnerProduct.Price = item.PriceInMin;
+                                        existedPartnerProduct.UpdatedDate = DateTime.Now;
+
+                                        oldPartnerProducts.Add(existedPartnerProduct);
+                                        isMapped = true;
                                     }
                                 }
                                 else
                                 {
                                     // compare code
                                     existedProduct = existedCategory.Products.SingleOrDefault(x => x.Code.ToLower().Equals(item.ItemCode.ToLower()));
-                                    if (existedProduct is not null)
+                                    if (existedProduct is not null && existedProduct.PartnerProducts.SingleOrDefault(x => x.ProductId == existedProduct.ProductId) is null)
                                     {
                                         if (existedProduct.Type.ToLower().Equals(ProductEnum.Type.PARENT.ToString().ToLower()))
                                         {
-                                            partnerProducts.Add(new PartnerProduct()
+                                            newPartnerProducts.Add(new PartnerProduct()
                                             {
                                                 PartnerId = partnerId,
                                                 StoreId = storeId,
@@ -196,10 +255,14 @@ namespace MBKC.Service.Utils
                                                     {
                                                         string nameProductWithFollowingRule = $"{item.ItemName} - {modifier.ModifierName}";
                                                         nameProductsFollowingRule.Add(nameProductWithFollowingRule, modifier);
-                                                        if (CreatedMappingProduct.Contains(modifier) == false)
+                                                        if (CreatedMappingModifiers.Contains(modifier) == false)
                                                         {
-                                                            CreatedMappingProduct.Add(modifier);
+                                                            CreatedMappingModifiers.Add(modifier);
                                                         }
+                                                    }
+                                                    if (CreatedMappingModifierGroups.Contains(grabFoodModifierGroup) == false)
+                                                    {
+                                                        CreatedMappingModifierGroups.Add(grabFoodModifierGroup);
                                                     }
                                                 }
                                             }
@@ -210,18 +273,18 @@ namespace MBKC.Service.Utils
                                                     GrabFoodModifier childItemFromGrabFood = nameProductsFollowingRule.SingleOrDefault(x => x.Key.ToLower().Equals(childProduct.Name.ToLower())).Value;
                                                     if (childItemFromGrabFood is not null && childProduct.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))
                                                     {
-                                                        string[] modifierNameParts = childItemFromGrabFood.ModifierName.Split(" ");
+                                                        /*string[] modifierNameParts = childItemFromGrabFood.ModifierName.Split(" ");
                                                         string productCode = item.ItemID + "-";
                                                         foreach (var modifierNamePart in modifierNameParts)
                                                         {
                                                             productCode += modifierNamePart;
-                                                        }
-                                                        partnerProducts.Add(new PartnerProduct()
+                                                        }*/
+                                                        newPartnerProducts.Add(new PartnerProduct()
                                                         {
                                                             PartnerId = partnerId,
                                                             StoreId = storeId,
                                                             CreatedDate = createdDate,
-                                                            ProductCode = productCode,
+                                                            ProductCode = childItemFromGrabFood.ModifierID,
                                                             Status = item.AvailableStatus,
                                                             Price = item.PriceInMin + childItemFromGrabFood.PriceInMin,
                                                             ProductId = childProduct.ProductId,
@@ -231,10 +294,11 @@ namespace MBKC.Service.Utils
                                                     }
                                                 }
                                             }
+                                            isMapped = true;
                                         }
                                         else if (existedProduct.Type.ToLower().Equals(ProductEnum.Type.SINGLE.ToString().ToLower()))
                                         {
-                                            partnerProducts.Add(new PartnerProduct()
+                                            newPartnerProducts.Add(new PartnerProduct()
                                             {
                                                 PartnerId = partnerId,
                                                 StoreId = storeId,
@@ -246,12 +310,44 @@ namespace MBKC.Service.Utils
                                                 MappedDate = DateTime.Now,
                                                 UpdatedDate = DateTime.Now
                                             });
+                                            isMapped = true;
                                         }
                                     }
+                                    else if (existedProduct is not null && existedProduct.PartnerProducts.SingleOrDefault(x => x.ProductId == existedProduct.ProductId) is not null)
+                                    {
+                                        PartnerProduct existedPartnerProduct = existedProduct.PartnerProducts.SingleOrDefault(x => x.ProductId == existedProduct.ProductId);
+                                        existedPartnerProduct.ProductCode = item.ItemID;
+                                        existedPartnerProduct.Status = item.AvailableStatus;
+                                        existedPartnerProduct.Price = item.PriceInMin;
+                                        existedPartnerProduct.UpdatedDate = DateTime.Now;
+
+                                        oldPartnerProducts.Add(existedPartnerProduct);
+                                        isMapped = true;
+                                    }
+                                }
+
+                                if (isMapped == false)
+                                {
+                                    notMappingGrabFoodItems.Add(new NotMappingGrabFoodItem()
+                                    {
+                                        GrabFoodItem = item,
+                                        Reason = MessageConstant.StorePartnerMessage.ItemOnGrabfoodCanNotMapping
+                                    });
                                 }
                             }
                         }
                     }
+                    else if(existedCategory is null)
+                    {
+                        foreach (var grabFoodItem in grabFoodCategory.Items)
+                        {
+                            notMappingGrabFoodItems.Add(new NotMappingGrabFoodItem()
+                            {
+                                GrabFoodItem = grabFoodItem,
+                                Reason = MessageConstant.StorePartnerMessage.ItemOnGrabfoodCanNotMapping
+                            });
+                        }
+                    } 
                 }
 
                 foreach (var grabFoodModifierGroup in grabFoodMenu.ModifierGroups)
@@ -262,35 +358,60 @@ namespace MBKC.Service.Utils
                         foreach (var grabFoodModifier in grabFoodModifierGroup.Modifiers)
                         {
                             existedProduct = existedCategory.Products.SingleOrDefault(x => x.Name.ToLower().Equals(grabFoodModifier.ModifierName.ToLower()));
-                            if (CreatedMappingProduct.Contains(grabFoodModifier) == false && existedProduct is not null)
+                            if (CreatedMappingModifiers.Contains(grabFoodModifier) == false && existedProduct is not null && existedProduct.PartnerProducts.SingleOrDefault(x => x.ProductId == existedProduct.ProductId) is null)
                             {
-                                string[] modifierNameParts = grabFoodModifier.ModifierName.Split(" ");
+                                /*string[] modifierNameParts = grabFoodModifier.ModifierName.Split(" ");
                                 string productCode = "";
                                 foreach (var modifierNamePart in modifierNameParts)
                                 {
                                     productCode += modifierNamePart[0].ToString().ToUpper();
-                                }
-                                partnerProducts.Add(new PartnerProduct()
+                                }*/
+                                newPartnerProducts.Add(new PartnerProduct()
                                 {
                                     PartnerId = partnerId,
                                     StoreId = storeId,
                                     CreatedDate = createdDate,
-                                    ProductCode = productCode,
+                                    ProductCode = grabFoodModifier.ModifierID,
                                     Status = grabFoodModifier.AvailableStatus,
                                     Price = grabFoodModifier.PriceInMin,
                                     ProductId = existedProduct.ProductId,
                                     MappedDate = DateTime.Now,
                                     UpdatedDate = DateTime.Now
                                 });
-                                if (CreatedMappingProduct.Contains(grabFoodModifier) == false)
+                                if (CreatedMappingModifiers.Contains(grabFoodModifier) == false)
                                 {
-                                    CreatedMappingProduct.Add(grabFoodModifier);
+                                    CreatedMappingModifiers.Add(grabFoodModifier);
                                 }
+                            }
+                            else if (CreatedMappingModifiers.Contains(grabFoodModifier) == false &&  existedProduct is not null && existedProduct.PartnerProducts.SingleOrDefault(x => x.ProductId == existedProduct.ProductId) is not null)
+                            {
+                                PartnerProduct existedPartnerProduct = existedProduct.PartnerProducts.SingleOrDefault(x => x.ProductId == existedProduct.ProductId);
+                                existedPartnerProduct.ProductCode = grabFoodModifier.ModifierID;
+                                existedPartnerProduct.Status = grabFoodModifier.AvailableStatus;
+                                existedPartnerProduct.Price = grabFoodModifier.PriceInMin;
+                                existedPartnerProduct.UpdatedDate = DateTime.Now;
+
+                                oldPartnerProducts.Add(existedPartnerProduct);
                             }
                         }
                     }
+                    if(CreatedMappingModifierGroups.Contains(grabFoodModifierGroup) == false)
+                    {
+                        notMappingGrabFoodModifierGroups.Add(new NotMappingGrabFoodModifierGroup()
+                        {
+                            GrabFoodModifierGroup = grabFoodModifierGroup,
+                            Reason = MessageConstant.StorePartnerMessage.ModifierGroupOnGrabfoodCanNotMapping
+                        });
+                    }
                 }
-                return partnerProducts;
+                partnerProductsFromGrabFood.NewPartnerProducts = newPartnerProducts;
+                partnerProductsFromGrabFood.OldPartnerProducts = oldPartnerProducts;
+                partnerProductsFromGrabFood.NotMappingFromGrabFood = new NotMappingFromGrabFood()
+                {
+                    NotMappingGrabFoodItems = notMappingGrabFoodItems,
+                    NotMappingGrabFoodModifierGroups = notMappingGrabFoodModifierGroups
+                };
+                return partnerProductsFromGrabFood;
             }
             catch (Exception ex)
             {

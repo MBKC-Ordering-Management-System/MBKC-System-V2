@@ -16,6 +16,7 @@ using MBKC.Service.Utils;
 using MBKC.Repository.Constants;
 using System.Collections;
 using MBKC.Repository.GrabFood.Models;
+using MBKC.Service.GrabFoods;
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -133,7 +134,8 @@ namespace MBKC.Service.Services.Implementations
                     listStorePartnerInsert.Add(storePartnerInsert);
                 }
 
-                List<PartnerProduct> partnerProducts = new List<PartnerProduct>();
+                List<PartnerProduct> newPartnerProducts = null;
+                List<PartnerProduct> oldPartnerProducts = new List<PartnerProduct>();
                 if (postStorePartnerRequest.IsMappingProducts)
                 {
                     foreach (var namePartner in namePartners)
@@ -150,12 +152,27 @@ namespace MBKC.Service.Services.Implementations
                                 GrabFoodAuthenticationResponse grabFoodAuthenticationResponse = await this._unitOfWork.GrabFoodRepository.LoginGrabFoodAsync(grabFoodAccount);
                                 GrabFoodMenu grabFoodMenu = await this._unitOfWork.GrabFoodRepository.GetGrabFoodMenuAsync(grabFoodAuthenticationResponse);
                                 List<Category> storeCategoires = await this._unitOfWork.CategoryRepository.GetCategories(storePartner.StoreId);
-                                partnerProducts.AddRange(GrabFoodUtil.GetPartnerProductsFromGrabFood(grabFoodMenu, storeCategoires, storePartner.StoreId, storePartner.PartnerId, storePartner.CreatedDate));
+                                PartnerProductsFromGrabFood partnerProductsFromGrabFood = GrabFoodUtil.GetPartnerProductsFromGrabFood(grabFoodMenu, storeCategoires, storePartner.StoreId, storePartner.PartnerId, storePartner.CreatedDate);
+                                if(partnerProductsFromGrabFood.NewPartnerProducts is not null && partnerProductsFromGrabFood.NewPartnerProducts.Count() > 0)
+                                {
+                                    newPartnerProducts = partnerProductsFromGrabFood.NewPartnerProducts;
+                                    await this._unitOfWork.PartnerProductRepository.CreateRangePartnerProductsAsync(newPartnerProducts);
+                                }
+
+                                if(partnerProductsFromGrabFood.OldPartnerProducts is not null && partnerProductsFromGrabFood.OldPartnerProducts.Count() > 0)
+                                {
+                                    oldPartnerProducts = partnerProductsFromGrabFood.OldPartnerProducts;
+                                    this._unitOfWork.PartnerProductRepository.UpdateRangePartnerProductsAsync(oldPartnerProducts);
+                                }
+                                if(partnerProductsFromGrabFood.NotMappingFromGrabFood is not null)
+                                {
+                                    // send email notification
+                                }
                             }
                         }
                     }
                 }
-                await this._unitOfWork.PartnerProductRepository.CreateRangePartnerProductAsync(partnerProducts);
+                
                 await this._unitOfWork.StorePartnerRepository.InsertRangeAsync(listStorePartnerInsert);
                 //await this._unitOfWork.CommitAsync();
             }

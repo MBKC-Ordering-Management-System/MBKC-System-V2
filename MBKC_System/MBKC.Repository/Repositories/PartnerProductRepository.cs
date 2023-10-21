@@ -71,11 +71,23 @@ namespace MBKC.Repository.Repositories
         #endregion
         
         #region Create Range Partner Product
-        public async Task CreateRangePartnerProductAsync(List<PartnerProduct> partnerProducts)
+        public async Task CreateRangePartnerProductsAsync(List<PartnerProduct> partnerProducts)
         {
             try
             {
                 await this._dbContext.PartnerProducts.AddRangeAsync(partnerProducts);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        
+        public void UpdateRangePartnerProductsAsync(List<PartnerProduct> partnerProducts)
+        {
+            try
+            {
+                this._dbContext.PartnerProducts.UpdateRange(partnerProducts);
             }
             catch (Exception ex)
             {

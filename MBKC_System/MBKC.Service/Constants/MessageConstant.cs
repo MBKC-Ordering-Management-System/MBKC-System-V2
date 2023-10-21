@@ -179,6 +179,8 @@
             public const string DupplicatedPartnerId_Create = "Partner Id cannot be duplicated in the partnerAccounts list.";
             public const string KeySortNotExist = "Key sort are ASC or DESC";
             public const string GrabFoodAccountMustBeStoreManager = "GrabFood Account must be Store Manager Role.";
+            public const string ItemOnGrabfoodCanNotMapping = "The item on GrabFood cannot be mapped to any product in the MBKC System.";
+            public const string ModifierGroupOnGrabfoodCanNotMapping = "The modifier group on GrabFood cannot be mapped to any product in the MBKC System.";
         }
 
         public static class PartnerProductMessage
