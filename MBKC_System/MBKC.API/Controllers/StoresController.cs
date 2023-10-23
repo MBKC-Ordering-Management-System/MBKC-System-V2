@@ -62,8 +62,8 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(GetStoresResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin, PermissionAuthorizeConstant.Brand_Manager, PermissionAuthorizeConstant.Kitchen_Center_Manager)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin, PermissionAuthorizeConstant.BrandManager, PermissionAuthorizeConstant.KitchenCenterManager)]
         [HttpGet(APIEndPointConstant.Store.StoresEndpoint)]
         public async Task<IActionResult> GetStoresAync([FromQuery] int? itemsPerPage, [FromQuery] int? currentPage, [FromQuery] string? searchValue,
             [FromQuery] int? idBrand, [FromQuery] int? idKitchenCenter)
@@ -99,8 +99,8 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin, PermissionAuthorizeConstant.Kitchen_Center_Manager, PermissionAuthorizeConstant.Brand_Manager)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin, PermissionAuthorizeConstant.KitchenCenterManager, PermissionAuthorizeConstant.BrandManager)]
         [HttpGet(APIEndPointConstant.Store.StoreEndpoint)]
         public async Task<IActionResult> GetStoreAsync([FromRoute]int id)
         {
@@ -122,8 +122,8 @@ namespace MBKC.API.Controllers
         /// <exception cref="Exception">Throw Error about the system.</exception>
         [ProducesResponseType(typeof(GetStoreResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Store_Manager)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.StoreManager)]
         [HttpGet(APIEndPointConstant.Store.StoreProfileEndpoint)]
         public async Task<IActionResult> GetStoreProfileAsync()
         {
@@ -164,9 +164,9 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Consumes(MediaTypeConstant.Multipart_Form_Data)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager)]
+        [Consumes(MediaTypeConstant.MultipartFormData)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
         [HttpPost(APIEndPointConstant.Store.StoresEndpoint)]
         public async Task<IActionResult> PostRegisterStoreAsync([FromForm] RegisterStoreRequest storeRequest)
         {
@@ -218,9 +218,9 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Consumes(MediaTypeConstant.Multipart_Form_Data)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin, PermissionAuthorizeConstant.Brand_Manager)]
+        [Consumes(MediaTypeConstant.MultipartFormData)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin, PermissionAuthorizeConstant.BrandManager)]
         [HttpPut(APIEndPointConstant.Store.StoreEndpoint)]
         public async Task<IActionResult> PutUpdateStoreAsync([FromRoute]int id, [FromForm]UpdateStoreRequest updateStoreRequest)
         {
@@ -269,9 +269,9 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Consumes(MediaTypeConstant.Application_Json)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin, PermissionAuthorizeConstant.Brand_Manager)]
+        [Consumes(MediaTypeConstant.ApplicationJson)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin, PermissionAuthorizeConstant.BrandManager)]
         [HttpPut(APIEndPointConstant.Store.UpdateingStatusStore)]
         public async Task<IActionResult> PutUpdateStoreStatusAsync([FromRoute]int id, [FromBody] UpdateStoreStatusRequest updateStoreStatusRequest)
         {
@@ -315,8 +315,8 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin, PermissionAuthorizeConstant.Brand_Manager)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin, PermissionAuthorizeConstant.BrandManager)]
         [HttpDelete(APIEndPointConstant.Store.StoreEndpoint)]
         public async Task<IActionResult> DeleteStoreAsync([FromRoute] int id)
         {
@@ -360,9 +360,9 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Consumes(MediaTypeConstant.Application_Json)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin)]
+        [Consumes(MediaTypeConstant.ApplicationJson)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin)]
         [HttpPut(APIEndPointConstant.Store.ConfirmRegistrationStore)]
         public async Task<IActionResult> PutConfirmRegistrationStore([FromRoute]int id, [FromBody]ConfirmStoreRegistrationRequest confirmStoreRegistrationRequest)
         {

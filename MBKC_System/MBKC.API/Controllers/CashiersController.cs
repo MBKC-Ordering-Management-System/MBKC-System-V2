@@ -50,7 +50,7 @@ namespace MBKC.API.Controllers
         ///         searchValue = Bún đậu mắm tôm
         ///         currentPage = 1
         ///         itemsPerPage = 5
-        ///         sortBy = "propertyName_asc | propertyName_ASC | propertyName_desc | propertyName|DESC"
+        ///         sortBy = "propertyName_asc | propertyName_ASC | propertyName_desc | propertyName_DESC"
         /// </remarks>
         /// <response code="200">Get list of cashiers successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
@@ -63,8 +63,8 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Kitchen_Center_Manager)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.KitchenCenterManager)]
         [HttpGet(APIEndPointConstant.Cashier.CashiersEndpoint)]
         public async Task<IActionResult> GetCashiersAsync([FromQuery]GetCashiersRequest getCashiersRequest)
         {
@@ -105,8 +105,8 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Kitchen_Center_Manager, PermissionAuthorizeConstant.Cashier)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.KitchenCenterManager, PermissionAuthorizeConstant.Cashier)]
         [HttpGet(APIEndPointConstant.Cashier.CashierEndpoint)]
         public async Task<IActionResult> GetCashierAsync([FromRoute]CashierRequest getCashierRequest)
         {
@@ -152,9 +152,9 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Consumes(MediaTypeConstant.Multipart_Form_Data)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Kitchen_Center_Manager)]
+        [Consumes(MediaTypeConstant.MultipartFormData)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.KitchenCenterManager)]
         [HttpPost(APIEndPointConstant.Cashier.CashiersEndpoint)]
         public async Task<IActionResult> PostCreateCashierAsync([FromForm]CreateCashierRequest createCashierRequest)
         {
@@ -205,9 +205,9 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Consumes(MediaTypeConstant.Multipart_Form_Data)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Kitchen_Center_Manager, PermissionAuthorizeConstant.Cashier)]
+        [Consumes(MediaTypeConstant.MultipartFormData)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.KitchenCenterManager, PermissionAuthorizeConstant.Cashier)]
         [HttpPut(APIEndPointConstant.Cashier.CashierEndpoint)]
         public async Task<IActionResult> UpdateCashierAsync([FromRoute]CashierRequest getCashierRequest, [FromForm]UpdateCashierRequest updateCashierRequest)
         {
@@ -260,9 +260,9 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Consumes(MediaTypeConstant.Application_Json)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Kitchen_Center_Manager)]
+        [Consumes(MediaTypeConstant.ApplicationJson)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.KitchenCenterManager)]
         [HttpPut(APIEndPointConstant.Cashier.UpdatingCashierStatusEndpoint)]
         public async Task<IActionResult> UpdateCashierStatusAsync([FromRoute] CashierRequest getCashierRequest, [FromBody]UpdateCashierStatusRequest updateCashierStatusRequest)
         {
@@ -312,8 +312,8 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Kitchen_Center_Manager)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.KitchenCenterManager)]
         [HttpDelete(APIEndPointConstant.Cashier.CashierEndpoint)]
         public async Task<IActionResult> DeleteCashierAsync([FromRoute] CashierRequest getCashierRequest)
         {

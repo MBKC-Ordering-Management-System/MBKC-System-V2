@@ -2,7 +2,7 @@
 using MBKC.Service.DTOs.KitchenCenters;
 
 using MBKC.Repository.Models;
-using MBKC.Repository.RedisModels;
+using MBKC.Repository.Redis.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

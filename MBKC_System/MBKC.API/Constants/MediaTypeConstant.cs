@@ -2,7 +2,7 @@
 {
     public static class MediaTypeConstant
     {
-        public const string Application_Json = "application/json";
-        public const string Multipart_Form_Data = "multipart/form-data";
+        public const string ApplicationJson = "application/json";
+        public const string MultipartFormData = "multipart/form-data";
     }
 }

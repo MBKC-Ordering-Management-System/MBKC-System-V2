@@ -53,17 +53,17 @@
         {
             public const string NotAuthenticatedEmailBefore = "Email has not been previously authenticated.";
             public const string ExpiredOTPCode = "OTP code has expired.";
-            public const string NotMatchOTPCode = "Your OTP code does not match with the previously sent OTP code.";
+            public const string NotMatchOTPCode = "Your OTP code does not match the previously sent OTP code.";
         }
 
         public static class ReGenerationMessage
         {
             public const string InvalidAccessToken = "Access token is invalid.";
             public const string NotExpiredAccessToken = "Access token has not yet expired.";
-            public const string NotExistAuthenticationToken = "You do not has the authentication tokens in the system.";
-            public const string NotExistRefreshToken = "Refresh token does not exist.";
-            public const string NotMatchAccessToken = "Your access token does not match the registered access token before.";
-            public const string ExpiredRefreshToken = "Your refresh token expired now.";
+            public const string NotExistAuthenticationToken = "You do not have the authentication tokens in the system.";
+            public const string NotExistRefreshToken = "Refresh token does not exist in the system.";
+            public const string NotMatchAccessToken = "Your access token does not match the registered access token.";
+            public const string ExpiredRefreshToken = "Refresh token expired.";
         }
 
         public static class ChangePasswordMessage
@@ -159,6 +159,8 @@
             public const string DeactivePartner_Delete = "Partner cannot delete because that was deleted before.";
             public const string DeactivePartner_Get = "Partner cannot get because that was deleted before.";
             public const string KeySortNotExist = "Key sort are ASC or DESC";
+            public const string PartnerHasPartnerStoreActive_Update = "Partner can not update status because active stores is using this partner.";
+            public const string PartnerHasPartnerStoreActive_Delete = "Partner can not delete status because active stores is using this partner.";
 
 
         }
@@ -173,15 +175,17 @@
 
         public static class StorePartnerMessage
         {
-            public const string InactiveStore_Create = "This store has been inactive.";
+            public const string InactiveStore_Create = "This store has been inactive or disabled.";
             public const string StoreNotBelongToBrand = "Store does not belong to brand.";
-            public const string PartnerExceed3 = "A store can only have a maximum of 3 partners.";
             public const string LinkedWithParner = "This store is already linked to this partner.";
-            public const string UsernameExisted = "User name already exist in the system.";
-            public const string NotLinkedWithParner = "This store is not linked to this partner.";
+            public const string UsernameExisted = "Username already exist in the system.";
+            public const string NotLinkedWithParner = "This store is not linked to this partner and it is still active.";
             public const string DeactiveStorePartner_Update = "Can't update store partner has been deactivated.";
-            public const string DupplicatedPartnerId_Create = "Partner Id cannot be duplicated";
+            public const string DupplicatedPartnerId_Create = "Partner Id cannot be duplicated in the partnerAccounts list.";
             public const string KeySortNotExist = "Key sort are ASC or DESC";
+            public const string GrabFoodAccountMustBeStoreManager = "GrabFood Account must be Store Manager Role.";
+            public const string ItemOnGrabfoodCanNotMapping = "The item on GrabFood cannot be mapped to any product in the MBKC System.";
+            public const string ModifierGroupOnGrabfoodCanNotMapping = "The modifier group on GrabFood cannot be mapped to any product in the MBKC System.";
         }
 
         public static class PartnerProductMessage

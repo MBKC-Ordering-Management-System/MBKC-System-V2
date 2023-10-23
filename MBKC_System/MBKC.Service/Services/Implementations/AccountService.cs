@@ -13,8 +13,8 @@ using System.Security.Claims;
 using MBKC.Service.Constants;
 using MBKC.Service.Exceptions;
 using System.Security.Cryptography.X509Certificates;
-using MBKC.Repository.RedisModels;
-using MBKC.Repository.SMTPModels;
+using MBKC.Repository.Redis.Models;
+using MBKC.Repository.SMTPs.Models;
 
 namespace MBKC.Service.Services.Implementations
 {

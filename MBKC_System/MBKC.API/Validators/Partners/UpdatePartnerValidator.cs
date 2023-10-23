@@ -9,13 +9,6 @@ namespace MBKC.API.Validators.Partners
         private const int MAX_BYTES = 2048000;
         public UpdatePartnerValidator()
         {
-            #region Name
-            RuleFor(p => p.Name)
-                             .Cascade(CascadeMode.StopOnFirstFailure)
-                             .NotNull().WithMessage("{PropertyName} is null.")
-                             .NotEmpty().WithMessage("{PropertyName} is empty.")
-                             .MaximumLength(50).WithMessage("{PropertyName} is required less than or equal to 50 characters.");
-            #endregion
 
             #region Logo
             RuleFor(b => b.Logo)

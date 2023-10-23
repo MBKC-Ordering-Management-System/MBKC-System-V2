@@ -2,7 +2,7 @@
 using MBKC.Repository.Enums;
 using MBKC.Repository.Infrastructures;
 using MBKC.Repository.Models;
-using MBKC.Repository.RedisModels;
+using MBKC.Repository.Redis.Models;
 using MBKC.Service.Constants;
 using MBKC.Service.DTOs.Stores;
 using MBKC.Service.Exceptions;

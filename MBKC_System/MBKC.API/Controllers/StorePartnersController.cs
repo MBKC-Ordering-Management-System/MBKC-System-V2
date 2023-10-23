@@ -33,37 +33,31 @@ namespace MBKC.API.Controllers
 
         #region Create store partner
         /// <summary>
-        ///  Create new store partner.
+        ///  Create new store partners.
         /// </summary>
         /// <param name="postStorePartnerRequest">
         /// An object includes information about store partner. 
         /// </param>
         /// <returns>
-        /// A success message about creating new store partner.
+        /// A success message about creating new store partners.
         /// </returns>
         /// <remarks>
         ///     Sample request:
         ///     
         ///         POST
         ///         {
-        ///           "storeId": 1,
-        ///           "partnerAccountRequests": [
-        ///             {
-        ///               "partnerId": 2,
-        ///               "userName": "passio_q9",
-        ///               "password": "12345678",
-        ///               "commission": 10.5
-        ///             },
-        ///             {
-        ///               "partnerId": 3,
-        ///               "userName": "highland_9",
-        ///               "password": "12345678",
-        ///               "commission": 10.5
-        ///             }
-        ///           ]
+        ///             "storeId": 1,
+        ///             "partnerAccountRequests":[
+        ///                 {
+        ///                     "PartnerId": 1,
+        ///                     "UserName": "example",
+        ///                     "Password": "********"
+        ///                 }
+        ///             ],
+        ///             "isMappingProducts": true|false
         ///         }
         /// </remarks>
-        /// <response code="200">Created new store partner successfully.</response>
+        /// <response code="200">Created new store partners successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
         /// <response code="500">Some Error about the system.</response>
         /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
@@ -72,11 +66,16 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
         [HttpPost(APIEndPointConstant.StorePartner.StorePartnersEndpoint)]
         public async Task<IActionResult> CreateStorePartnerAsync([FromBody] PostStorePartnerRequest postStorePartnerRequest)
         {
+            if(postStorePartnerRequest == null)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", "Request message body is not null.");
+                throw new BadRequestException(error);
+            }
             ValidationResult validationResult = await _postStorePartnerRequest.ValidateAsync(postStorePartnerRequest);
             if (validationResult.IsValid == false)
             {
@@ -121,8 +120,8 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
         [HttpGet(APIEndPointConstant.StorePartner.StorePartnersEndpoint)]
         public async Task<IActionResult> GetProductsAsync([FromQuery] string? searchName, [FromQuery] int? currentPage, [FromQuery] int? itemsPerPage)
 
@@ -160,8 +159,8 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
         [HttpGet(APIEndPointConstant.StorePartner.StorePartnerEndpoint)]
         public async Task<IActionResult> GetStorePartnerAsync([FromRoute] int storeId, [FromRoute] int partnerId)
         {
@@ -205,8 +204,8 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
         [HttpPut(APIEndPointConstant.StorePartner.StorePartnerEndpoint)]
         public async Task<IActionResult> PutUpdateStorePartnerAsync([FromRoute] int storeId, [FromRoute] int partnerId, [FromBody] UpdateStorePartnerRequest updateStorePartnerRequest)
         {
@@ -252,9 +251,9 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Consumes(MediaTypeConstant.Application_Json)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager)]
+        [Consumes(MediaTypeConstant.ApplicationJson)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
         [HttpPut(APIEndPointConstant.StorePartner.UpdatingStatusStorePartnerEndpoint)]
         public async Task<IActionResult> PutUpdateStorePartnerStatusAsync([FromRoute] int storeId, [FromRoute] int partnerId, [FromBody] UpdateStorePartnerStatusRequest updateStorePartnerStatusRequest)
         {
@@ -300,8 +299,8 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
         [HttpDelete(APIEndPointConstant.StorePartner.StorePartnerEndpoint)]
         public async Task<IActionResult> DeleteStorePartnerAsync([FromRoute] int storeId, [FromRoute] int partnerId)
         {
@@ -343,8 +342,8 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
         [HttpGet(APIEndPointConstant.StorePartner.PartnerInformationEndpoint)]
         public async Task<IActionResult> GetStorePartnerInformationByIdAsync([FromRoute] int storeId, [FromQuery] string keySortName, [FromQuery] string keySortStatus)
         {

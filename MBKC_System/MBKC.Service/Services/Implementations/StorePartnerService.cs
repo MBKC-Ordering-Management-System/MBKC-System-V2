@@ -1,18 +1,19 @@
 ﻿using AutoMapper;
-using MBKC.Service.Services.Interfaces;
-using MBKC.Repository.Infrastructures;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MBKC.Service.DTOs.StorePartners;
-using System.Security.Claims;
+using MBKC.Repository.Constants;
 using MBKC.Repository.Enums;
-using MBKC.Service.Constants;
-using MBKC.Service.Exceptions;
+using MBKC.Repository.GrabFood.Models;
+using MBKC.Repository.Infrastructures;
 using MBKC.Repository.Models;
+using MBKC.Service.Constants;
+using MBKC.Service.DTOs.StorePartners;
+using MBKC.Service.Exceptions;
+using MBKC.Service.GrabFoods;
+using MBKC.Service.Services.Interfaces;
 using MBKC.Service.Utils;
+using OfficeOpenXml;
+using System.Data;
+using System.Net.Mail;
+using System.Security.Claims;
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -31,7 +32,7 @@ namespace MBKC.Service.Services.Implementations
             try
             {
                 // Check dupplicated partnerId request.
-                var hasDuplicatePartnerId = postStorePartnerRequest.partnerAccountRequests
+                var hasDuplicatePartnerId = postStorePartnerRequest.partnerAccounts
                       .GroupBy(request => request.PartnerId)
                       .Any(group => group.Count() > 1);
 
@@ -53,7 +54,7 @@ namespace MBKC.Service.Services.Implementations
                     {
                         throw new BadRequestException(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand);
                     }
-                    else if (store.Brand.BrandId == brandId && store.Status == (int)StoreEnum.Status.INACTIVE)
+                    else if (store.Brand.BrandId == brandId && store.Status == (int)StoreEnum.Status.INACTIVE || store.Brand.BrandId == brandId && store.Status == (int)StoreEnum.Status.DEACTIVE)
                     {
                         throw new BadRequestException(MessageConstant.StorePartnerMessage.InactiveStore_Create);
                     }
@@ -63,24 +64,37 @@ namespace MBKC.Service.Services.Implementations
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistStoreId);
                 }
 
-                // Check number of partner in store partner
-                if (store.StorePartners.Where(s => s.Status != (int)StorePartnerEnum.Status.DEACTIVE).Count() >= 3)
-                {
-                    throw new BadRequestException(MessageConstant.StorePartnerMessage.PartnerExceed3);
-                }
-
                 // Check partner existed or not
-                foreach (var p in postStorePartnerRequest.partnerAccountRequests)
+                Dictionary<string, int> namePartners = new Dictionary<string, int>();
+                foreach (var p in postStorePartnerRequest.partnerAccounts)
                 {
                     var partner = await this._unitOfWork.PartnerRepository.GetPartnerAsync(p.PartnerId);
                     if (partner == null)
                     {
                         throw new NotFoundException(MessageConstant.CommonMessage.NotExistPartnerId);
                     }
+                    GrabFoodAccount grabFoodAccount = new GrabFoodAccount()
+                    {
+                        Username = p.UserName,
+                        Password = p.Password
+                    };
+                    //check partner account is valid
+                    if (partner.Name.ToLower().Equals(PartnerConstant.GrabFood.ToLower()))
+                    {
+                        GrabFoodAuthenticationResponse grabFoodAuthenticationResponse = await this._unitOfWork.GrabFoodRepository.LoginGrabFoodAsync(grabFoodAccount);
+                        /*if(grabFoodAuthenticationResponse != null && grabFoodAuthenticationResponse.Data.User_Profile.Role.ToLower().Equals(RoleConstant.Store_Manager.ToLower()) == false)
+                        {
+                            throw new BadRequestException(MessageConstant.StorePartnerMessage.GrabFoodAccountMustBeStoreManager);
+                        }*/
+                    }
+                    if(namePartners.Where(x => x.Key.ToLower().Equals(partner.Name.ToLower())).Count() == 0)
+                    {
+                        namePartners.Add(partner.Name, partner.PartnerId);
+                    }
                 }
 
                 // Check the store is linked to that partner or not 
-                foreach (var p in postStorePartnerRequest.partnerAccountRequests)
+                foreach (var p in postStorePartnerRequest.partnerAccounts)
                 {
                     var storePartner = await this._unitOfWork.StorePartnerRepository.GetStorePartnerByPartnerIdAndStoreIdAsync(p.PartnerId, postStorePartnerRequest.StoreId);
                     if (storePartner != null)
@@ -89,8 +103,8 @@ namespace MBKC.Service.Services.Implementations
                     }
                 }
 
-                // Check user name with difference store id
-                foreach (var p in postStorePartnerRequest.partnerAccountRequests)
+                // Check username with difference store id
+                foreach (var p in postStorePartnerRequest.partnerAccounts)
                 {
                     var checkUserNameInDifferenceStore = await this._unitOfWork.StorePartnerRepository.GetStorePartnersByUserNameAndStoreIdAsync(p.UserName, store.StoreId, p.PartnerId);
 
@@ -102,7 +116,7 @@ namespace MBKC.Service.Services.Implementations
 
                 //Insert list store partner to database
                 var listStorePartnerInsert = new List<StorePartner>();
-                foreach (var p in postStorePartnerRequest.partnerAccountRequests)
+                foreach (var p in postStorePartnerRequest.partnerAccounts)
                 {
                     var storePartnerInsert = new StorePartner()
                     {
@@ -111,11 +125,72 @@ namespace MBKC.Service.Services.Implementations
                         CreatedDate = DateTime.Now,
                         UserName = p.UserName,
                         Password = p.Password,
-                        Commission = p.Commission,
-                        Status = (int)StorePartnerEnum.Status.ACTIVE
+                        Status = (int)StorePartnerEnum.Status.ACTIVE,
+                        Commission = p.Commission
                     };
                     listStorePartnerInsert.Add(storePartnerInsert);
                 }
+
+                List<PartnerProduct> newPartnerProducts = null;
+                List<PartnerProduct> oldPartnerProducts = new List<PartnerProduct>();
+                if (postStorePartnerRequest.IsMappingProducts)
+                {
+                    foreach (var namePartner in namePartners)
+                    {
+                        if (namePartner.Key.ToLower().Equals(PartnerConstant.GrabFood.ToLower()))
+                        {
+                            foreach (var storePartner in listStorePartnerInsert)
+                            {
+                                GrabFoodAccount grabFoodAccount = new GrabFoodAccount()
+                                {
+                                    Username = storePartner.UserName,
+                                    Password = storePartner.Password
+                                };
+                                GrabFoodAuthenticationResponse grabFoodAuthenticationResponse = await this._unitOfWork.GrabFoodRepository.LoginGrabFoodAsync(grabFoodAccount);
+                                GrabFoodMenu grabFoodMenu = await this._unitOfWork.GrabFoodRepository.GetGrabFoodMenuAsync(grabFoodAuthenticationResponse);
+                                List<Category> storeCategoires = await this._unitOfWork.CategoryRepository.GetCategories(storePartner.StoreId);
+                                PartnerProductsFromGrabFood partnerProductsFromGrabFood = GrabFoodUtil.GetPartnerProductsFromGrabFood(grabFoodMenu, storeCategoires, storePartner.StoreId, storePartner.PartnerId, storePartner.CreatedDate);
+                                if(partnerProductsFromGrabFood.NewPartnerProducts is not null && partnerProductsFromGrabFood.NewPartnerProducts.Count() > 0)
+                                {
+                                    newPartnerProducts = partnerProductsFromGrabFood.NewPartnerProducts;
+                                    await this._unitOfWork.PartnerProductRepository.CreateRangePartnerProductsAsync(newPartnerProducts);
+                                }
+
+                                if(partnerProductsFromGrabFood.OldPartnerProducts is not null && partnerProductsFromGrabFood.OldPartnerProducts.Count() > 0)
+                                {
+                                    oldPartnerProducts = partnerProductsFromGrabFood.OldPartnerProducts;
+                                    this._unitOfWork.PartnerProductRepository.UpdateRangePartnerProductsAsync(oldPartnerProducts);
+                                }
+                                if(partnerProductsFromGrabFood.NotMappingFromGrabFood is not null)
+                                {
+                                    // send email notification
+                                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                                    DataTable noneMappingGrabFoodItemData = ExcelUtil.GetNoneMappingGrabFoobItemData(partnerProductsFromGrabFood.NotMappingFromGrabFood.NotMappingGrabFoodItems);
+                                    DataTable noneMappingGrabFoodModifierGroupData = ExcelUtil.GetNoneMappingGrabFoodModifierGroupData(partnerProductsFromGrabFood.NotMappingFromGrabFood.NotMappingGrabFoodModifierGroups);
+                                    MemoryStream outputStream = new MemoryStream();
+                                    using (ExcelPackage package = new ExcelPackage(outputStream))
+                                    {
+                                        ExcelWorksheet grabFoodItemsWorksheet = package.Workbook.Worksheets.Add("GrabFood Items");
+                                        grabFoodItemsWorksheet.Cells.LoadFromDataTable(noneMappingGrabFoodItemData, true);
+                                        
+                                        ExcelWorksheet grabFoodModifierGroupWorksheet = package.Workbook.Worksheets.Add("GrabFood Modifier Groups");
+                                        grabFoodModifierGroupWorksheet.Cells.LoadFromDataTable(noneMappingGrabFoodModifierGroupData, true);
+
+                                        package.Save();
+                                    }
+
+                                    outputStream.Position = 0;
+                                    Attachment attachment = new Attachment(outputStream, "Non-mapping_Product_From_GrabFood.xlsx", "application/vnd.ms-excel");
+
+                                    string message = EmailMessageConstant.StorePartner.Message;
+                                    string messageBody = this._unitOfWork.EmailRepository.GetMessageToNotifyNonMappingProduct(brandAccount.Account.Email, "GrabFood", message);
+                                    await this._unitOfWork.EmailRepository.SendEmailToNotifyNonMappingProduct(brandAccount.Account.Email, messageBody, "GrabFood", attachment);
+                                }
+                            }
+                        }
+                    }
+                }
+                
                 await this._unitOfWork.StorePartnerRepository.InsertRangeAsync(listStorePartnerInsert);
                 await this._unitOfWork.CommitAsync();
             }
@@ -144,10 +219,6 @@ namespace MBKC.Service.Services.Implementations
                 {
                     fieldName = "Store id";
                 }
-                else if (ex.Message.Equals(MessageConstant.StorePartnerMessage.PartnerExceed3))
-                {
-                    fieldName = "Store partner id";
-                }
                 else if (ex.Message.Equals(MessageConstant.StorePartnerMessage.LinkedWithParner))
                 {
                     fieldName = "Partner id";
@@ -161,7 +232,13 @@ namespace MBKC.Service.Services.Implementations
             }
             catch (Exception ex)
             {
-                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                string error = "";
+                if(ex.Message.Contains("for GrabFood Partner."))
+                {
+                    error = ErrorUtil.GetErrorString("GrabFood Account", ex.Message);
+                    throw new BadRequestException(error);
+                }
+                error = ErrorUtil.GetErrorString("Exception", ex.Message);
                 throw new Exception(error);
             }
 
