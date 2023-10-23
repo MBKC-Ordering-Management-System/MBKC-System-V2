@@ -104,6 +104,7 @@
             public const string NotConfirmingStore = "Store is not a new store to confirm to become an ACTIVE store.";
             public const string NotRejectedResonForNewStore = "Rejected store registration is required a reason.";
             public const string StoreIdNotBelongToStore = "Store id does not belong to your store.";
+            public const string StoresWithStatusNameParam = "Status is required some type such as: Active, Inactive, Rejected, Be comfirming.";
         }
 
         public static class CategoryMessage

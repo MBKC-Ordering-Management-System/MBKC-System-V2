@@ -47,7 +47,8 @@ namespace MBKC.Service.Utils
             }
             else if (status == (int)StoreEnum.Status.BE_CONFIRMING)
             {
-                return char.ToUpper(StoreEnum.Status.BE_CONFIRMING.ToString()[0]) + StoreEnum.Status.BE_CONFIRMING.ToString().ToLower().Substring(1);
+                string[] statusNameParts = StoreEnum.Status.BE_CONFIRMING.ToString().Split("_");
+                return char.ToUpper(statusNameParts[0][0]) + statusNameParts[0].ToLower().Substring(1) + " " + char.ToUpper(statusNameParts[1][0]) + statusNameParts[1].ToLower().Substring(1);
             }
             else if (status == (int)StoreEnum.Status.REJECTED)
             {
@@ -164,6 +165,28 @@ namespace MBKC.Service.Utils
                 return char.ToUpper(PartnerProductEnum.Status.ACTIVE.ToString()[0]) + PartnerProductEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
             }
             return char.ToUpper(PartnerProductEnum.Status.DEACTIVE.ToString()[0]) + PartnerProductEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
+        }
+
+        public static int? ChangeStoreStatus(string status)
+        {
+            string[] statusNameParts = StoreEnum.Status.BE_CONFIRMING.ToString().Split("_");
+            if (status.ToLower().Equals(StoreEnum.Status.INACTIVE.ToString().ToLower()))
+            {
+                return (int)StoreEnum.Status.INACTIVE;
+            }
+            else if (status.ToLower().Equals(StoreEnum.Status.ACTIVE.ToString().ToLower()))
+            {
+                return (int)StoreEnum.Status.ACTIVE;
+            }
+            else if (status.ToLower().Equals(StoreEnum.Status.REJECTED.ToString().ToLower()))
+            {
+                return (int)StoreEnum.Status.REJECTED;
+            }
+            else if (status.ToLower().Equals($"{statusNameParts[0]} {statusNameParts[1]}".ToLower()))
+            {
+                return (int)StoreEnum.Status.BE_CONFIRMING;
+            }
+            return null;
         }
     }
 }

@@ -12,7 +12,7 @@ namespace MBKC.API.Validators.Stores
                      .Cascade(CascadeMode.StopOnFirstFailure)
                      .NotNull().WithMessage("{PropertyName} is not null.")
                      .NotEmpty().WithMessage("{PropertyName} is not empty.")
-                     .Must(StringUtil.CheckStoreStatusName).WithMessage("{PropertyName} is required INACTIVE or ACTIVE");
+                     .Must(StringUtil.CheckStoreStatusName).WithMessage("{PropertyName} is required 'Active' or 'InActive' Status.");
         }
     }
 }
