@@ -69,20 +69,20 @@ namespace MBKC.Repository.Repositories
         #endregion
 
         #region Get Brands
-        public async Task<List<Brand>> GetBrandsAsync(string? keySearchNameUniCode, string? keySearchNameNotUniCode, int? keyStatusFilter, int? itemsPerPage, int? currentPage)
+        public async Task<List<Brand>> GetBrandsAsync(string? searchValue, string? searchValueWithoutUnicode,
+            int currentPage, int itemsPerPage, string? sortByASC, string? sortByDESC)
         {
             try
             {
-                if (itemsPerPage != null && currentPage != null)
+                if (searchValue == null && searchValueWithoutUnicode is not null)
                 {
-                    if (keySearchNameUniCode == null && keySearchNameNotUniCode != null && keyStatusFilter == null)
-                    {
+                    if (sortByASC is not null)
                         return this._dbContext.Brands.Include(brand => brand.BrandAccounts)
                                                      .ThenInclude(brandAccount => brandAccount.Account)
                                                      .ThenInclude(account => account.Role)
                                                      .Where(delegate (Brand brand)
                                                      {
-                                                         if (StringUtil.RemoveSign4VietnameseString(brand.Name.ToLower()).Contains(keySearchNameNotUniCode.ToLower()))
+                                                         if (StringUtil.RemoveSign4VietnameseString(brand.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
                                                          {
                                                              return true;
                                                          }
@@ -91,16 +91,24 @@ namespace MBKC.Repository.Repositories
                                                              return false;
                                                          }
                                                      }).Where(x => x.Status != (int)BrandEnum.Status.DEACTIVE)
-                                                     .Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).AsQueryable().ToList();
-                    }
-                    else if (keySearchNameUniCode == null && keySearchNameNotUniCode != null && keyStatusFilter != null)
-                    {
+                                                       .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
+                                                                    then => then.OrderBy(x => x.Name))
+                                                       .If(sortByASC != null && sortByASC.ToLower().Equals("address"),
+                                                                then => then.OrderBy(x => x.Address))
+                                                       .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
+                                                                then => then.OrderBy(x => x.Status))
+                                                       .If(sortByASC != null && sortByASC.ToLower().Equals("brandmanageremail"),
+                                                                then => then.OrderBy(x => x.BrandManagerEmail))
+                                                       .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
+                                                                  then => then.OrderBy(x => x.Status).Reverse())
+                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+                    else if (sortByDESC is not null)
                         return this._dbContext.Brands.Include(brand => brand.BrandAccounts)
                                                      .ThenInclude(brandAccount => brandAccount.Account)
                                                      .ThenInclude(account => account.Role)
                                                      .Where(delegate (Brand brand)
                                                      {
-                                                         if (StringUtil.RemoveSign4VietnameseString(brand.Name.ToLower()).Contains(keySearchNameNotUniCode.ToLower()))
+                                                         if (StringUtil.RemoveSign4VietnameseString(brand.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
                                                          {
                                                              return true;
                                                          }
@@ -108,103 +116,119 @@ namespace MBKC.Repository.Repositories
                                                          {
                                                              return false;
                                                          }
-                                                     }).Where(x => x.Status == keyStatusFilter && x.Status != (int)BrandEnum.Status.DEACTIVE)
-                                                       .Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).AsQueryable().ToList();
-                    }
-                    else if (keySearchNameUniCode != null && keySearchNameNotUniCode == null && keyStatusFilter == null)
-                    {
-                        return await this._dbContext.Brands.Include(brand => brand.BrandAccounts)
-                                                           .ThenInclude(brandAccount => brandAccount.Account)
-                                                           .ThenInclude(account => account.Role)
-                                                           .Where(x => x.Name.ToLower().Contains(keySearchNameUniCode.ToLower()) && x.Status != (int)BrandEnum.Status.DEACTIVE)
-                                                           .Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
-                    }
-                    else if (keySearchNameUniCode != null && keySearchNameNotUniCode == null && keyStatusFilter != null)
-                    {
-                        return await this._dbContext.Brands.Include(brand => brand.BrandAccounts)
-                                                           .ThenInclude(brandAccount => brandAccount.Account)
-                                                           .ThenInclude(account => account.Role)
-                                                           .Where(x => x.Name.ToLower().Contains(keySearchNameUniCode.ToLower()) && x.Status == keyStatusFilter)
-                                                           .Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
-                    }
+                                                     }).Where(x => x.Status != (int)BrandEnum.Status.DEACTIVE)
+                                                       .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
+                                                                    then => then.OrderByDescending(x => x.Name))
+                                                       .If(sortByDESC != null && sortByDESC.ToLower().Equals("address"),
+                                                                then => then.OrderByDescending(x => x.Address))
+                                                       .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
+                                                                then => then.OrderByDescending(x => x.Status))
+                                                       .If(sortByDESC != null && sortByDESC.ToLower().Equals("brandmanageremail"),
+                                                                then => then.OrderByDescending(x => x.BrandManagerEmail))
+                                                       .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
+                                                                    then => then.OrderByDescending(x => x.Status).Reverse())
+                                                       .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
 
-                    else if (keySearchNameUniCode == null && keySearchNameNotUniCode == null && keyStatusFilter != null)
-                    {
-                        return await this._dbContext.Brands.Include(brand => brand.BrandAccounts)
-                                                           .ThenInclude(brandAccount => brandAccount.Account)
-                                                           .ThenInclude(account => account.Role)
-                                                           .Where(x => x.Status == keyStatusFilter)
-                                                           .Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
-                    }
-
-                    return await this._dbContext.Brands.Include(brand => brand.BrandAccounts).ThenInclude(brandAccount => brandAccount.Account).ThenInclude(account => account.Role)
-                                                       .Where(x => x.Status != (int)BrandEnum.Status.DEACTIVE)
-                                                       .Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
-                }
-                if (keySearchNameUniCode == null && keySearchNameNotUniCode != null && keyStatusFilter == null)
-                {
                     return this._dbContext.Brands.Include(brand => brand.BrandAccounts)
                                                  .ThenInclude(brandAccount => brandAccount.Account)
                                                  .ThenInclude(account => account.Role)
                                                  .Where(delegate (Brand brand)
-                                                 {
-                                                     if (StringUtil.RemoveSign4VietnameseString(brand.Name.ToLower()).Contains(keySearchNameNotUniCode.ToLower()))
                                                      {
-                                                         return true;
-                                                     }
-                                                     else
-                                                     {
-                                                         return false;
-                                                     }
-                                                 }).Where(x => x.Status != (int)BrandEnum.Status.DEACTIVE).AsQueryable().ToList();
+                                                         if (StringUtil.RemoveSign4VietnameseString(brand.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
+                                                         {
+                                                             return true;
+                                                         }
+                                                         else
+                                                         {
+                                                             return false;
+                                                         }
+                                                     }).Where(x => x.Status != (int)BrandEnum.Status.DEACTIVE)
+                                                       .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
                 }
-                else if (keySearchNameUniCode == null && keySearchNameNotUniCode != null && keyStatusFilter != null)
+
+                else if (searchValue != null && searchValueWithoutUnicode == null)
                 {
+                    if (sortByASC is not null)
+                        return this._dbContext.Brands.Include(brand => brand.BrandAccounts)
+                                                       .ThenInclude(brandAccount => brandAccount.Account)
+                                                       .ThenInclude(account => account.Role)
+                                                       .Where(x => x.Name.ToLower().Contains(searchValue.ToLower()) && x.Status != (int)BrandEnum.Status.DEACTIVE)
+                                                       .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
+                                                                    then => then.OrderBy(x => x.Name))
+                                                       .If(sortByASC != null && sortByASC.ToLower().Equals("address"),
+                                                                then => then.OrderBy(x => x.Address))
+                                                       .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
+                                                                then => then.OrderBy(x => x.Status))
+                                                       .If(sortByASC != null && sortByASC.ToLower().Equals("brandmanageremail"),
+                                                                then => then.OrderBy(x => x.BrandManagerEmail))
+                                                       .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
+                                                                  then => then.OrderBy(x => x.Status).Reverse())
+                                                       .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+
+                    else if (sortByDESC is not null)
+                        return this._dbContext.Brands.Include(brand => brand.BrandAccounts)
+                                                      .ThenInclude(brandAccount => brandAccount.Account)
+                                                      .ThenInclude(account => account.Role)
+                                                      .Where(x => x.Name.ToLower().Contains(searchValue.ToLower()) && x.Status != (int)BrandEnum.Status.DEACTIVE)
+                                                      .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
+                                                                    then => then.OrderByDescending(x => x.Name))
+                                                      .If(sortByDESC != null && sortByDESC.ToLower().Equals("address"),
+                                                               then => then.OrderByDescending(x => x.Address))
+                                                      .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
+                                                               then => then.OrderByDescending(x => x.Status))
+                                                      .If(sortByDESC != null && sortByDESC.ToLower().Equals("brandmanageremail"),
+                                                               then => then.OrderByDescending(x => x.BrandManagerEmail))
+                                                      .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
+                                                                    then => then.OrderByDescending(x => x.Status).Reverse())
+                                                      .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+
+
+                    return await this._dbContext.Brands.Include(brand => brand.BrandAccounts)
+                                                       .ThenInclude(brandAccount => brandAccount.Account)
+                                                       .ThenInclude(account => account.Role)
+                                                       .Where(x => x.Name.ToLower().Contains(searchValue.ToLower()) && x.Status != (int)BrandEnum.Status.DEACTIVE)
+                                                       .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
+                }
+
+                if (sortByASC is not null)
                     return this._dbContext.Brands.Include(brand => brand.BrandAccounts)
                                                  .ThenInclude(brandAccount => brandAccount.Account)
                                                  .ThenInclude(account => account.Role)
-                                                 .Where(delegate (Brand brand)
-                                                 {
-                                                     if (StringUtil.RemoveSign4VietnameseString(brand.Name.ToLower()).Contains(keySearchNameNotUniCode.ToLower()))
-                                                     {
-                                                         return true;
-                                                     }
-                                                     else
-                                                     {
-                                                         return false;
-                                                     }
-                                                 }).Where(x => x.Status == keyStatusFilter).AsQueryable().ToList();
-                }
-                else if (keySearchNameUniCode != null && keySearchNameNotUniCode == null && keyStatusFilter == null)
-                {
-                    return await this._dbContext.Brands.Include(brand => brand.BrandAccounts)
-                                                       .ThenInclude(brandAccount => brandAccount.Account)
-                                                       .ThenInclude(account => account.Role)
-                                                       .Where(x => x.Name.ToLower().Contains(keySearchNameUniCode.ToLower()) && x.Status != (int)BrandEnum.Status.DEACTIVE)
-                                                       .ToListAsync();
-                }
-                else if (keySearchNameUniCode != null && keySearchNameNotUniCode == null && keyStatusFilter != null)
-                {
-                    return await this._dbContext.Brands.Include(brand => brand.BrandAccounts)
-                                                       .ThenInclude(brandAccount => brandAccount.Account)
-                                                       .ThenInclude(account => account.Role)
-                                                       .Where(x => x.Name.ToLower().Contains(keySearchNameUniCode.ToLower()) && x.Status == keyStatusFilter)
-                                                       .ToListAsync();
-                }
+                                                 .Where(x => x.Status != (int)BrandEnum.Status.DEACTIVE)
+                                                 .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
+                                                              then => then.OrderBy(x => x.Name))
+                                                 .If(sortByASC != null && sortByASC.ToLower().Equals("address"),
+                                                          then => then.OrderBy(x => x.Address))
+                                                 .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
+                                                          then => then.OrderBy(x => x.Status))
+                                                 .If(sortByASC != null && sortByASC.ToLower().Equals("brandmanageremail"),
+                                                          then => then.OrderBy(x => x.BrandManagerEmail))
+                                                 .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
+                                                            then => then.OrderBy(x => x.Status).Reverse())
+                                                 .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
 
-                else if (keySearchNameUniCode == null && keySearchNameNotUniCode == null && keyStatusFilter != null)
-                {
-                    return await this._dbContext.Brands.Include(brand => brand.BrandAccounts)
-                                                       .ThenInclude(brandAccount => brandAccount.Account)
-                                                       .ThenInclude(account => account.Role)
-                                                       .Where(x => x.Status == keyStatusFilter)
-                                                       .ToListAsync();
-                }
+                else if (sortByDESC is not null)
+                    return this._dbContext.Brands.Include(brand => brand.BrandAccounts)
+                                                 .ThenInclude(brandAccount => brandAccount.Account)
+                                                 .ThenInclude(account => account.Role)
+                                                 .Where(x => x.Status != (int)BrandEnum.Status.DEACTIVE)
+                                                 .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
+                                                               then => then.OrderByDescending(x => x.Name))
+                                                 .If(sortByDESC != null && sortByDESC.ToLower().Equals("address"),
+                                                          then => then.OrderByDescending(x => x.Address))
+                                                 .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
+                                                          then => then.OrderByDescending(x => x.Status))
+                                                 .If(sortByDESC != null && sortByDESC.ToLower().Equals("brandmanageremail"),
+                                                          then => then.OrderByDescending(x => x.BrandManagerEmail))
+                                                 .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
+                                                               then => then.OrderByDescending(x => x.Status).Reverse())
+                                                 .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
 
-                return await this._dbContext.Brands.Include(brand => brand.BrandAccounts).ThenInclude(brandAccount => brandAccount.Account).ThenInclude(account => account.Role)
+                return await this._dbContext.Brands.Include(brand => brand.BrandAccounts)
+                                                   .ThenInclude(brandAccount => brandAccount.Account)
+                                                   .ThenInclude(account => account.Role)
                                                    .Where(x => x.Status != (int)BrandEnum.Status.DEACTIVE)
-                                                   .ToListAsync();
-
+                                                   .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
             }
             catch (Exception ex)
             {
@@ -214,11 +238,11 @@ namespace MBKC.Repository.Repositories
         #endregion
 
         #region Get Number Brands
-        public async Task<int> GetNumberBrandsAsync(string? keySearchUniCode, string? keySearchNotUniCode, int? keyStatusFilter)
+        public async Task<int> GetNumberBrandsAsync(string? keySearchUniCode, string? keySearchNotUniCode)
         {
             try
             {
-                if (keySearchUniCode == null && keySearchNotUniCode != null && keyStatusFilter == null)
+                if (keySearchUniCode == null && keySearchNotUniCode != null)
                 {
                     return this._dbContext.Brands.Where(delegate (Brand brand)
                     {
@@ -232,34 +256,11 @@ namespace MBKC.Repository.Repositories
                         }
                     }).Where(x => x.Status != (int)BrandEnum.Status.DEACTIVE).AsQueryable().Count();
                 }
-                else if (keySearchUniCode == null && keySearchNotUniCode != null && keyStatusFilter != null)
-                {
-                    return this._dbContext.Brands.Where(delegate (Brand brand)
-                    {
-                        if (StringUtil.RemoveSign4VietnameseString(brand.Name.ToLower()).Contains(keySearchNotUniCode.ToLower()))
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                    }).Where(b => b.Status == keyStatusFilter).AsQueryable().Count();
-                }
-                else if (keySearchUniCode != null && keySearchNotUniCode == null && keyStatusFilter == null)
+                else if (keySearchUniCode != null && keySearchNotUniCode == null)
                 {
                     return await this._dbContext.Brands.Where(x => x.Name.ToLower().Contains(keySearchUniCode.ToLower()) && x.Status != (int)BrandEnum.Status.DEACTIVE).CountAsync();
                 }
-                else if (keySearchUniCode != null && keySearchNotUniCode == null && keyStatusFilter != null)
-                {
-                    return await this._dbContext.Brands.Where(x => x.Name.ToLower().Contains(keySearchUniCode.ToLower()) && x.Status == keyStatusFilter).CountAsync();
-                }
-                else if (keySearchUniCode == null && keySearchNotUniCode == null && keyStatusFilter != null)
-                {
-                    return await this._dbContext.Brands.Where(x => x.Status == keyStatusFilter).CountAsync();
-                }
                 return await this._dbContext.Brands.Where(x => x.Status != (int)BrandEnum.Status.DEACTIVE).CountAsync();
-
             }
             catch (Exception ex)
             {
@@ -275,9 +276,10 @@ namespace MBKC.Repository.Repositories
                 return await this._dbContext.Brands.Include(x => x.Stores)
                                                    .Include(x => x.Products)
                                                    .Include(x => x.Categories)
-                                                   .FirstOrDefaultAsync(x => x.BrandManagerEmail.Equals(managerEmail) && 
+                                                   .FirstOrDefaultAsync(x => x.BrandManagerEmail.Equals(managerEmail) &&
                                                                               x.Status != (int)BrandEnum.Status.DEACTIVE);
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }

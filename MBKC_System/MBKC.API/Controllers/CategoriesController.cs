@@ -135,31 +135,13 @@ namespace MBKC.API.Controllers
 
         #region Get Categories
         /// <summary>
-        /// Get a list of categories from the system with condition paging, searchByName, sortByName, sortByCode, sortByStatus.
+        /// Get a list of categories from the system.
         /// </summary>
         /// <param name="type">
-        ///  Include type of category are NORMAL or EXTRA
+        ///  Type of category are NORMAL or EXTRA
         /// </param>
         /// <param name="keySearchName">
         ///  The category name that the user wants to search.
-        /// </param>
-        /// <param name="keySortName">
-        ///  Keywords when the user wants to sort by name ascending or descending(ASC or DESC).
-        /// </param>
-        /// <param name="keySortCode">
-        ///  Keywords when the user wants to sort by code ascending or descending(ASC or DESC).
-        /// </param> 
-        /// <param name="keySortStatus">
-        ///  Keywords when the user wants to sort by status ascending or descending(ASC or DESC).
-        /// </param>
-        /// <param name="currentPage">
-        ///  Page number user want to go.
-        /// </param>
-        /// <param name="itemsPerPage">
-        ///  Items user want display in 1 page.
-        /// </param>
-        /// <param name="isGetAll">
-        /// Get all Categories.
         /// </param>
         /// <returns>
         /// A list of categories contains TotalItems, TotalPages, Categories's information
@@ -189,9 +171,9 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.Application_Json)]
         [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager, PermissionAuthorizeConstant.Store_Manager)]
         [HttpGet(APIEndPointConstant.Category.CategoriesEndpoint)]
-        public async Task<IActionResult> GetCategoriesAsync([FromQuery] string type, [FromQuery] string? keySearchName, [FromQuery] string? keySortName, [FromQuery] string? keySortCode, [FromQuery] string? keySortStatus, [FromQuery] int? currentPage, [FromQuery] int? itemsPerPage, [FromQuery] bool? isGetAll)
+        public async Task<IActionResult> GetCategoriesAsync([FromQuery] GetCategoriesRequest getCategoriesRequest)
         {
-            var data = await this._categoryService.GetCategoriesAsync(type, keySearchName, keySortName, keySortCode, keySortStatus, currentPage, itemsPerPage, HttpContext, isGetAll);
+            var data = await this._categoryService.GetCategoriesAsync( getCategoriesRequest, HttpContext);
 
             return Ok(data);
         }

@@ -77,7 +77,8 @@ namespace MBKC.Repository.Repositories
         #endregion
 
         #region Get Categories
-        public async Task<List<Category>> GetCategoriesAsync(string? keySearchNameUniCode, string? keySearchNameNotUniCode, string type, int? itemsPerPage, int? currentPage, int brandId)
+        public async Task<List<Category>> GetCategoriesAsync(string? searchValue, string? searchValueWithoutUnicode,
+            int currentPage, int itemsPerPage, string? sortByASC, string? sortByDESC, string type, int brandId)
         {
             try
             {

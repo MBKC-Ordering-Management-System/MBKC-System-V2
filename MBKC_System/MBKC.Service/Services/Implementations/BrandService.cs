@@ -31,130 +31,49 @@ namespace MBKC.Service.Services.Implementations
         }
 
         #region Get Brands
-        public async Task<GetBrandsResponse> GetBrandsAsync(string? keySearchName, string? keyStatusFilter, string? keySortName, int? pageNumber, int? pageSize, bool? isGetAll)
+        public async Task<GetBrandsResponse> GetBrandsAsync(GetBrandsRequest getBrandsRequest)
         {
             try
             {
                 var brands = new List<Brand>();
                 var brandResponse = new List<GetBrandResponse>();
-                if (isGetAll != null && isGetAll.Value == true)
-                {
-                    pageNumber = null;
-                    pageSize = null;
-                }
-                else
-                {
-                    if (pageNumber != null && pageNumber <= 0)
-                    {
-                        throw new BadRequestException(MessageConstant.CommonMessage.InvalidCurrentPage);
-                    }
-                    else if (pageNumber == null)
-                    {
-                        pageNumber = 1;
-                    }
-
-                    if (pageSize != null && pageSize <= 0)
-                    {
-                        throw new BadRequestException(MessageConstant.CommonMessage.InvalidItemsPerPage);
-                    }
-                    else if (pageSize == null)
-                    {
-                        pageSize = 5;
-                    }
-                }
-
-                int? keyStatus = null;
-                if (keyStatusFilter != null)
-                {
-                    if (BrandEnum.Status.ACTIVE.ToString().ToLower().Equals(keyStatusFilter.Trim().ToLower()))
-                    {
-                        keyStatus = (int)BrandEnum.Status.ACTIVE;
-                    }
-                    else if (BrandEnum.Status.INACTIVE.ToString().ToLower().Equals(keyStatusFilter.Trim().ToLower()))
-                    {
-                        keyStatus = (int)BrandEnum.Status.INACTIVE;
-                    }
-                    else
-                    {
-                        throw new BadRequestException(MessageConstant.BrandMessage.InvalidStatusFilter);
-                    }
-                }
-
-                if (keySortName != null && keySortName != "")
-                {
-                    if (!keySortName.ToUpper().Equals(BrandEnum.KeySort.ASC.ToString())
-                    && !keySortName.ToUpper().Equals(BrandEnum.KeySort.DESC.ToString()))
-                    {
-                        throw new BadRequestException(MessageConstant.BrandMessage.KeySortNotExist);
-                    }
-                }
 
                 int numberItems = 0;
-                if (keySearchName != null && StringUtil.IsUnicode(keySearchName))
+                if (getBrandsRequest.SearchValue != null && StringUtil.IsUnicode(getBrandsRequest.SearchValue))
                 {
-                    numberItems = await this._unitOfWork.BrandRepository.GetNumberBrandsAsync(keySearchName, null, keyStatus);
-                    brands = await this._unitOfWork.BrandRepository.GetBrandsAsync(keySearchName, null, keyStatus, pageSize, pageNumber);
+                    numberItems = await this._unitOfWork.BrandRepository.GetNumberBrandsAsync(getBrandsRequest.SearchValue, null);
+                    brands = await this._unitOfWork.BrandRepository.GetBrandsAsync(getBrandsRequest.SearchValue, null, getBrandsRequest.CurrentPage.Value, getBrandsRequest.ItemsPerPage.Value,
+                                                                                                              getBrandsRequest.SortBy != null && getBrandsRequest.SortBy.ToLower().EndsWith("asc") ? getBrandsRequest.SortBy.Split("_")[0] : null,
+                                                                                                              getBrandsRequest.SortBy != null && getBrandsRequest.SortBy.ToLower().EndsWith("desc") ? getBrandsRequest.SortBy.Split("_")[0] : null);
                 }
-                else if (keySearchName != null && StringUtil.IsUnicode(keySearchName) == false)
+                else if (getBrandsRequest.SearchValue != null && StringUtil.IsUnicode(getBrandsRequest.SearchValue) == false)
                 {
-                    numberItems = await this._unitOfWork.BrandRepository.GetNumberBrandsAsync(null, keySearchName, keyStatus);
-                    brands = await this._unitOfWork.BrandRepository.GetBrandsAsync(null, keySearchName, keyStatus, pageSize, pageNumber);
+                    numberItems = await this._unitOfWork.BrandRepository.GetNumberBrandsAsync(null, getBrandsRequest.SearchValue);
+                    brands = await this._unitOfWork.BrandRepository.GetBrandsAsync(null, getBrandsRequest.SearchValue, getBrandsRequest.CurrentPage.Value, getBrandsRequest.ItemsPerPage.Value,
+                                                                                                              getBrandsRequest.SortBy != null && getBrandsRequest.SortBy.ToLower().EndsWith("asc") ? getBrandsRequest.SortBy.Split("_")[0] : null,
+                                                                                                              getBrandsRequest.SortBy != null && getBrandsRequest.SortBy.ToLower().EndsWith("desc") ? getBrandsRequest.SortBy.Split("_")[0] : null);
                 }
-                else if (keySearchName == null)
+                else if (getBrandsRequest.SearchValue == null)
                 {
-                    numberItems = await this._unitOfWork.BrandRepository.GetNumberBrandsAsync(null, null, keyStatus);
-                    brands = await this._unitOfWork.BrandRepository.GetBrandsAsync(null, null, keyStatus, pageSize, pageNumber);
-                }
-
-                this._mapper.Map(brands, brandResponse);
-
-                if (keySortName != null && keySortName != "" && keySortName.ToUpper().Equals(BrandEnum.KeySort.ASC.ToString()))
-                {
-                    brandResponse = brandResponse.OrderBy(x => x.Name).ToList();
-                }
-                else if (keySortName != null && keySortName != "" && keySortName.ToUpper().Equals(BrandEnum.KeySort.DESC.ToString()))
-                {
-                    brandResponse = brandResponse.OrderByDescending(x => x.Name).ToList();
+                    numberItems = await this._unitOfWork.BrandRepository.GetNumberBrandsAsync(null, null);
+                    brands = await this._unitOfWork.BrandRepository.GetBrandsAsync(null, null, getBrandsRequest.CurrentPage.Value, getBrandsRequest.ItemsPerPage.Value,
+                                                                                                              getBrandsRequest.SortBy != null && getBrandsRequest.SortBy.ToLower().EndsWith("asc") ? getBrandsRequest.SortBy.Split("_")[0] : null,
+                                                                                                              getBrandsRequest.SortBy != null && getBrandsRequest.SortBy.ToLower().EndsWith("desc") ? getBrandsRequest.SortBy.Split("_")[0] : null);
                 }
 
-                int totalPages = 0;
-                if (numberItems > 0 && isGetAll == null || numberItems > 0 && isGetAll != null && isGetAll == false)
-                {
-                    totalPages = (int)((numberItems + pageSize.Value) / pageSize.Value);
-                }
-
+                int totalPages = (int)((numberItems + getBrandsRequest.ItemsPerPage) / getBrandsRequest.ItemsPerPage);
                 if (numberItems == 0)
                 {
                     totalPages = 0;
                 }
+
+                this._mapper.Map(brands, brandResponse);
                 return new GetBrandsResponse()
                 {
                     Brands = brandResponse,
                     NumberItems = numberItems,
                     TotalPages = totalPages,
                 };
-            }
-            catch (BadRequestException ex)
-            {
-                string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.BrandMessage.InvalidStatusFilter))
-                {
-                    fieldName = "Key status filter";
-                }
-                else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidCurrentPage))
-                {
-                    fieldName = "Current page";
-                }
-                else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidItemsPerPage))
-                {
-                    fieldName = "Items per page";
-                }
-                else if (ex.Message.Equals(MessageConstant.BrandMessage.KeySortNotExist))
-                {
-                    fieldName = "Key sort";
-                }
-                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
-                throw new BadRequestException(error);
             }
             catch (Exception ex)
             {

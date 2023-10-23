@@ -321,7 +321,7 @@ namespace MBKC.Repository.DBContext
                 storePartner.Property(prop => prop.UserName).IsUnicode(false).HasMaxLength(100).IsRequired(true);
                 storePartner.Property(prop => prop.Password).IsUnicode(false).HasMaxLength(50).IsRequired(true);
                 storePartner.Property(prop => prop.Status).IsRequired(true);
-                storePartner.Property(prop => prop.Commission).IsRequired(true);
+                storePartner.Property(prop => prop.Commission).HasColumnType("decimal(9,2)").IsRequired(true);
             });
             #endregion
 

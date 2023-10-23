@@ -19,44 +19,32 @@ namespace MBKC.API.Controllers
     public class BrandsController : ControllerBase
     {
         private IBrandService _brandService;
-        private IValidator<PostBrandRequest> _postBrandRequest;
-        private IValidator<UpdateBrandRequest> _updateBrandRequest;
-        private IValidator<UpdateBrandStatusRequest> _updateBrandStatusRequest;
-        private IValidator<UpdateBrandProfileRequest> _updateBrandProfileRequest;
+        private IValidator<PostBrandRequest> _postBrandValidator;
+        private IValidator<UpdateBrandRequest> _updateBrandValidator;
+        private IValidator<UpdateBrandStatusRequest> _updateBrandStatusValidator;
+        private IValidator<UpdateBrandProfileRequest> _updateBrandProfileValidator;
+        private IValidator<GetBrandsRequest> _getBrandValidator;
         public BrandsController(IBrandService brandService,
-            IValidator<PostBrandRequest> postBrandRequest,
-            IValidator<UpdateBrandRequest> updateBrandRequest, 
-            IValidator<UpdateBrandStatusRequest> updateBrandStatusRequest,
-            IValidator<UpdateBrandProfileRequest> updateBrandProfileRequest)
+            IValidator<PostBrandRequest> postBrandValidator,
+            IValidator<UpdateBrandRequest> updateBrandValidator,
+            IValidator<UpdateBrandStatusRequest> updateBrandStatusValidator,
+            IValidator<GetBrandsRequest> getBrandValidator,
+            IValidator<UpdateBrandProfileRequest> updateBrandProfileValidator)
         {
             this._brandService = brandService;
-            this._postBrandRequest = postBrandRequest;
-            this._updateBrandRequest = updateBrandRequest;
-            this._updateBrandStatusRequest = updateBrandStatusRequest;
-            this._updateBrandProfileRequest = updateBrandProfileRequest;
+            this._postBrandValidator = postBrandValidator;
+            this._updateBrandValidator = updateBrandValidator;
+            this._updateBrandStatusValidator = updateBrandStatusValidator;
+            this._updateBrandProfileValidator = updateBrandProfileValidator;
+            this._getBrandValidator = getBrandValidator;
         }
 
         #region Get Brands
         /// <summary>
-        ///  Get a list of brands from the system with condition paging, searchByName, filterByStatus, sortByName.
+        ///  Get a list of brands from the system.
         /// </summary>
-        /// <param name="keySearchName">
-        ///  The brand name that the user wants to search.
-        /// </param>
-        /// <param name="keyStatusFilter">
-        /// The status of the brand that the user wants to filter.
-        /// </param>
-        /// <param name="keySortName">
-        ///  Keywords when the user wants to sort by name ascending or descending(ASC or DESC)
-        /// </param>
-        /// <param name="currentPage">
-        /// The current page the user wants to get next items.
-        /// </param>
-        /// <param name="itemsPerPage">
-        /// number of elements on a page.
-        /// </param>
-        /// <param name="isGetAll">
-        /// Input TRUE if you want to get all brands, ignoring pageNumber and pageSize, otherwise Input FALSE
+        /// <param name="getBrandsRequest">
+        ///  An object include SearchValue, ItemsPerPage, CurrentPage, SortBy for search, sort, paging.
         /// </param>
         /// <returns>
         /// A list of brands contains NumberItems, TotalPages, Brands' information
@@ -65,11 +53,10 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///     
         ///         GET
-        ///         keySearchName = HighLand Coffee
-        ///         keyStatusFilter = ACTIVE | INACTIVE | DEACTIVE
-        ///         keySortName = ASC | DESC
-        ///         itemsPerPage = 5
+        ///         searchValue = HighLand Coffee
         ///         currentPage = 1
+        ///         itemsPerPage = 5
+        ///         sortBy = "propertyName_asc | propertyName_ASC | propertyName_desc | propertyName_DESC"
         /// </remarks>
         /// <response code="200">Get brands Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
@@ -82,9 +69,15 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.Application_Json)]
         [PermissionAuthorize(PermissionAuthorizeConstant.MBKC_Admin)]
         [HttpGet(APIEndPointConstant.Brand.BrandsEndpoint)]
-        public async Task<IActionResult> GetBrandsAsync([FromQuery] string? keySearchName, [FromQuery] string? keyStatusFilter, [FromQuery] string? keySortName, [FromQuery] int? currentPage, [FromQuery] int? itemsPerPage, [FromQuery] bool? isGetAll)
+        public async Task<IActionResult> GetBrandsAsync([FromQuery] GetBrandsRequest getBrandsRequest)
         {
-            var data = await this._brandService.GetBrandsAsync(keySearchName, keyStatusFilter, keySortName, currentPage, itemsPerPage, isGetAll);
+            ValidationResult validationResult = await this._getBrandValidator.ValidateAsync(getBrandsRequest);
+            if (validationResult.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
+            }
+            var data = await this._brandService.GetBrandsAsync(getBrandsRequest);
 
             return Ok(data);
         }
@@ -92,13 +85,13 @@ namespace MBKC.API.Controllers
 
         #region Get Brand By Id
         /// <summary>
-        /// Get specific Brand By Brand Id.
+        /// Get specific brand by brand id.
         /// </summary>
         /// <param name="id">
-        ///  Id of Brand.
+        ///  id of brand.
         /// </param>
         /// <returns>
-        /// An Object contains brand's information.
+        /// An object contains brand's information.
         /// </returns>
         /// <remarks>
         ///     Sample request:
@@ -131,10 +124,10 @@ namespace MBKC.API.Controllers
 
         #region Ger Brand Profile
         /// <summary>
-        /// Get Brand profile.
+        /// Get brand profile.
         /// </summary>
         /// <returns>
-        /// An Object contains brand's information.
+        /// An object contains brand's information.
         /// </returns>
         /// <response code="200">Get brand profile Successfully.</response>
         /// <response code="500">Some Error about the system.</response>
@@ -186,7 +179,7 @@ namespace MBKC.API.Controllers
         [HttpPost(APIEndPointConstant.Brand.BrandsEndpoint)]
         public async Task<IActionResult> PostCreateBrandAsync([FromForm] PostBrandRequest postBrandRequest)
         {
-            ValidationResult validationResult = await _postBrandRequest.ValidateAsync(postBrandRequest);
+            ValidationResult validationResult = await _postBrandValidator.ValidateAsync(postBrandRequest);
             if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
@@ -211,14 +204,14 @@ namespace MBKC.API.Controllers
         /// A success message about updating brand information.
         ///  </param>
         /// <returns>
-        /// An Object will return BrandId, Name, Address, Logo and Status.
+        /// An object will return BrandId, Name, Address, Logo and Status.
         /// </returns>
         /// <remarks>
         ///     Sample request:
         ///     
         ///         PUT
         ///         id = 3
-        ///         Name = MyBrand
+        ///         Name = MyBrand 
         ///         Address = 123 Main St
         ///         Status = INACTIVE | ACTIVE
         ///         Logo = [Image File]
@@ -240,7 +233,7 @@ namespace MBKC.API.Controllers
         [HttpPut(APIEndPointConstant.Brand.BrandEndpoint)]
         public async Task<IActionResult> UpdateBrandAsync([FromRoute] int id, [FromForm] UpdateBrandRequest updateBrandRequest)
         {
-            ValidationResult validationResult = await _updateBrandRequest.ValidateAsync(updateBrandRequest);
+            ValidationResult validationResult = await _updateBrandValidator.ValidateAsync(updateBrandRequest);
             if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
@@ -262,7 +255,7 @@ namespace MBKC.API.Controllers
         /// Brand's id for update brand.
         /// </param>
         ///  <param name="updateBrandStatusRequest">
-        /// An Object includes status for updating brand.
+        /// An object includes status for updating brand.
         ///  </param>
         /// <returns>
         /// A success message about updating brand status.
@@ -294,8 +287,8 @@ namespace MBKC.API.Controllers
         [HttpPut(APIEndPointConstant.Brand.UpdatingStatusBrand)]
         public async Task<IActionResult> UpdateBrandStatusAsync([FromRoute] int id, [FromBody] UpdateBrandStatusRequest updateBrandStatusRequest)
         {
-            ValidationResult validationResult = await this._updateBrandStatusRequest.ValidateAsync(updateBrandStatusRequest);
-            if(validationResult.IsValid == false)
+            ValidationResult validationResult = await this._updateBrandStatusValidator.ValidateAsync(updateBrandStatusRequest);
+            if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
@@ -347,8 +340,8 @@ namespace MBKC.API.Controllers
         [HttpPut(APIEndPointConstant.Brand.UpdatingProfileBrand)]
         public async Task<IActionResult> UpdateBrandProfileAsync([FromRoute] int id, [FromForm] UpdateBrandProfileRequest updateBrandProfileRequest)
         {
-            ValidationResult validationResult = await this._updateBrandProfileRequest.ValidateAsync(updateBrandProfileRequest);
-            if(validationResult.IsValid == false)
+            ValidationResult validationResult = await this._updateBrandProfileValidator.ValidateAsync(updateBrandProfileRequest);
+            if (validationResult.IsValid == false)
             {
                 var errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
@@ -376,11 +369,9 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///     
         ///         DELETE
-        ///         {
-        ///             "id": 3
-        ///         }
+        ///         id  = 3
         /// </remarks>
-        /// <response code="200">Deactive brand successfully.</response>
+        /// <response code="200">Delete brand successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
         /// <response code="404">Some Error about request data not found.</response>
         /// <response code="500">Some Error about the system.</response>
