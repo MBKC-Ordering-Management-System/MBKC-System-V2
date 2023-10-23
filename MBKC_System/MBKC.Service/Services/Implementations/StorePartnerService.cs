@@ -211,15 +211,7 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidStoreId))
-                {
-                    fieldName = "Store id";
-                }
-                else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidPartnerId))
-                {
-                    fieldName = "Partner id";
-                }
-                else if (ex.Message.Equals(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand))
+                if (ex.Message.Equals(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand))
                 {
                     fieldName = "Store id";
                 }
@@ -502,6 +494,7 @@ namespace MBKC.Service.Services.Implementations
                     partner.UserName = p.UserName;
                     partner.Password = p.Password;
                     partner.PartnerName = p.Partner.Name;
+                    partner.Commission = p.Commission;
                     partnersInformation.Add(partner);
                 }
                 if (keySortName != null && keySortName.ToUpper().Equals(StorePartnerEnum.KeySort.ASC.ToString()))
@@ -647,7 +640,7 @@ namespace MBKC.Service.Services.Implementations
             }
         }
 
-        public async Task UpdateStorePartnerRequestAsync(int storeId, int partnerId, UpdateStorePartnerRequest updateStorePartnerRequest, IEnumerable<Claim> claims)
+        public async Task UpdateStorePartnerRequestAsync(int storeId, int partnerId, UpdateStorePartnerRequest updateStorePartnerRequest, IEnumerable<Claim> claims) 
         {
             try
             {
@@ -712,6 +705,7 @@ namespace MBKC.Service.Services.Implementations
                 }
                 storePartnerExisted.UserName = updateStorePartnerRequest.UserName;
                 storePartnerExisted.Password = updateStorePartnerRequest.Password;
+                storePartnerExisted.Commission = updateStorePartnerRequest.Commission;
                 this._unitOfWork.StorePartnerRepository.UpdateStorePartner(storePartnerExisted);
                 this._unitOfWork.Commit();
             }
@@ -767,7 +761,6 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
-
                 if (storeId <= 0)
                 {
                     throw new BadRequestException(MessageConstant.CommonMessage.InvalidStoreId);
@@ -876,6 +869,5 @@ namespace MBKC.Service.Services.Implementations
                 throw new Exception(error);
             }
         }
-
     }
 }

@@ -14,6 +14,7 @@ namespace MBKC.Service.DTOs.StorePartners
         public string UserName { get; set; }
         public string Password { get; set; }
         public string Status { get; set; }
+        public decimal Commission { get; set; }
        
     }
 }

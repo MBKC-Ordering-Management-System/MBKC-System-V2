@@ -44,24 +44,38 @@ namespace MBKC.Service.Services.Implementations
                     throw new BadRequestException(MessageConstant.PartnerMessage.DupplicatedWebUrl);
                 }
                 // Upload image to firebase
-                FileStream fileStream = FileUtil.ConvertFormFileToStream(postPartnerRequest.Logo);
-                Guid guild = Guid.NewGuid();
-                logoId = guild.ToString();
-                string urlImage = await this._unitOfWork.FirebaseStorageRepository.UploadImageAsync(fileStream, folderName, logoId);
-                if (urlImage != null)
+                if (postPartnerRequest.Logo != null)
                 {
-                    uploaded = true;
+                    FileStream fileStream = FileUtil.ConvertFormFileToStream(postPartnerRequest.Logo);
+                    Guid guild = Guid.NewGuid();
+                    logoId = guild.ToString();
+                    string urlImage = await this._unitOfWork.FirebaseStorageRepository.UploadImageAsync(fileStream, folderName, logoId);
+                    if (urlImage != null)
+                    {
+                        uploaded = true;
+                    }
+                    Partner partner = new Partner()
+                    {
+                        Name = postPartnerRequest.Name,
+                        Status = (int)PartnerEnum.Status.ACTIVE,
+                        WebUrl = postPartnerRequest.WebUrl,
+                        Logo = urlImage + $"&logoId={logoId}"
+                    };
+                    await this._unitOfWork.PartnerRepository.CreatePartnerAsync(partner);
+                    await this._unitOfWork.CommitAsync();
                 }
-
-                Partner partner = new Partner()
+                else
                 {
-                    Name = postPartnerRequest.Name,
-                    Status = (int)PartnerEnum.Status.ACTIVE,
-                    WebUrl = postPartnerRequest.WebUrl,
-                    Logo = urlImage + $"&logoId={logoId}"
-                };
-                await this._unitOfWork.PartnerRepository.CreatePartnerAsync(partner);
-                await this._unitOfWork.CommitAsync();
+                    Partner partner = new Partner()
+                    {
+                        Name = postPartnerRequest.Name,
+                        Status = (int)PartnerEnum.Status.ACTIVE,
+                        WebUrl = postPartnerRequest.WebUrl,
+                        Logo = null
+                    };
+                    await this._unitOfWork.PartnerRepository.CreatePartnerAsync(partner);
+                    await this._unitOfWork.CommitAsync();
+                }
             }
             catch (BadRequestException ex)
             {
@@ -131,9 +145,13 @@ namespace MBKC.Service.Services.Implementations
                     }
                     partner.Logo = urlImage + $"&logoId={logoId}";
 
+
                     //Delete image from database
-                    await this._unitOfWork.FirebaseStorageRepository.DeleteImageAsync(FileUtil.GetImageIdFromUrlImage(oldLogo, "logoId"), folderName);
-                    isDeleted = true;
+                    if (oldLogo != null)
+                    {
+                        await this._unitOfWork.FirebaseStorageRepository.DeleteImageAsync(FileUtil.GetImageIdFromUrlImage(oldLogo, "logoId"), folderName);
+                        isDeleted = true;
+                    }
                 }
                 partner.WebUrl = updatePartnerRequest.WebUrl;
 

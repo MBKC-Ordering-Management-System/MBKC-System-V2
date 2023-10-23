@@ -10,9 +10,12 @@ namespace MBKC.Service.Services.Interfaces
 {
     public interface IPartnerProductService
     {
-        public Task<GetPartnerProductResponse> GetPartnerProduct(int productId, int partnerId, int storeId, IEnumerable<Claim> claims);
-        public Task<GetPartnerProductsResponse> GetPartnerProducts(string? searchName, int? currentPage, int? itemsPerPage, IEnumerable<Claim> claims);
-        public Task CreatePartnerProduct(PostPartnerProductRequest postPartnerProductRequest, IEnumerable<Claim> claims);
-        public Task UpdatePartnerProduct(int productId, int partnerId, int storeId, UpdatePartnerProductRequest updatePartnerProductRequest, IEnumerable<Claim> claims);
+        public Task<GetPartnerProductResponse> GetPartnerProductAsync(int productId, int partnerId, int storeId, IEnumerable<Claim> claims);
+        public Task<GetPartnerProductsResponse> GetPartnerProductsAsync(GetPartnerProductRequest getPartnerProductRequest, IEnumerable<Claim> claims);
+        public Task CreatePartnerProductAsync(PostPartnerProductRequest postPartnerProductRequest, IEnumerable<Claim> claims);
+        public Task UpdatePartnerProductAsync(int productId, int partnerId, int storeId, UpdatePartnerProductRequest updatePartnerProductRequest, IEnumerable<Claim> claims);
+        public Task UpdatePartnerProductStatusAsync(int productId, int partnerId, int storeId, UpdatePartnerProductStatusRequest updatePartnerProductStatusRequest, IEnumerable<Claim> claims);
+        public Task DeletePartnerProductByIdAsync(int productId, int partnerId, int storeId, IEnumerable<Claim> claims);
+
     }
 }

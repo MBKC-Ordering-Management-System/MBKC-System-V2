@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MBKC.Repository.Migrations
 {
     [DbContext(typeof(MBKCDbContext))]
-    [Migration("20231018043400_Update partner product table")]
-    partial class Updatepartnerproducttable
+    [Migration("20231019091433_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -542,7 +542,6 @@ namespace MBKC.Repository.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PartnerId"), 1L, 1);
 
                     b.Property<string>("Logo")
-                        .IsRequired()
                         .HasMaxLength(2147483647)
                         .IsUnicode(false)
                         .HasColumnType("varchar(max)");
@@ -557,7 +556,6 @@ namespace MBKC.Repository.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("WebUrl")
-                        .IsRequired()
                         .HasMaxLength(150)
                         .IsUnicode(false)
                         .HasColumnType("varchar(150)");
@@ -871,8 +869,8 @@ namespace MBKC.Repository.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<float>("Commission")
-                        .HasColumnType("real");
+                    b.Property<decimal>("Commission")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Password")
                         .IsRequired()

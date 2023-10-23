@@ -183,12 +183,15 @@ namespace MBKC.API.Controllers
         /// <remarks>
         ///     Sample request:
         ///
-        ///         PUT 
+        ///         PUT
         ///         storeId = 1
         ///         partnerId = 1
-        ///         UserName = passio_q9
-        ///         Password = 12345678
-        ///         Status = ACTIVE | INACTIVE
+        ///         {
+        ///           "userName": "highlandq9",
+        ///           "password": "12345678",
+        ///           "status": "ACTIVE",
+        ///           "commission": 10.5
+        ///         }
         /// </remarks>
         /// <response code="200">Updated store partner successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
@@ -282,7 +285,8 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///
         ///         DELETE
-        ///         id= 1
+        ///         storeId = 1
+        ///         partnerId = 1
         /// </remarks>
         /// <response code="200">Deleted store partner successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
