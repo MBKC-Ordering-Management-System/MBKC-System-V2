@@ -31,5 +31,12 @@ namespace MBKC.Service.Constants
         {
             public const string Message = "You have been created as Cashier for the kitchen center";
         }
+
+        public static class StorePartner
+        {
+            public const string Message = "The MBKC system has just received a request from you to map products in the MBKC system and GrabFood's system. " +
+                                          "The system cannot perform mapping of some products in the Excel file attached to this email from GrabFood. " +
+                                          "Please review whether the product in the MKBC system is in accordance with regulations to perform mapping or not.";
+        }
     }
 }

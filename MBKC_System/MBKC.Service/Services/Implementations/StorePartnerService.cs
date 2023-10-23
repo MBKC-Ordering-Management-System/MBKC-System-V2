@@ -1,22 +1,19 @@
 ﻿using AutoMapper;
-using MBKC.Service.Services.Interfaces;
-using MBKC.Repository.Infrastructures;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MBKC.Service.DTOs.StorePartners;
-using System.Security.Claims;
-using MBKC.Repository.Enums;
-using MBKC.Service.Constants;
-using MBKC.Service.Exceptions;
-using MBKC.Repository.Models;
-using MBKC.Service.Utils;
 using MBKC.Repository.Constants;
-using System.Collections;
+using MBKC.Repository.Enums;
 using MBKC.Repository.GrabFood.Models;
+using MBKC.Repository.Infrastructures;
+using MBKC.Repository.Models;
+using MBKC.Service.Constants;
+using MBKC.Service.DTOs.StorePartners;
+using MBKC.Service.Exceptions;
 using MBKC.Service.GrabFoods;
+using MBKC.Service.Services.Interfaces;
+using MBKC.Service.Utils;
+using OfficeOpenXml;
+using System.Data;
+using System.Net.Mail;
+using System.Security.Claims;
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -167,6 +164,27 @@ namespace MBKC.Service.Services.Implementations
                                 if(partnerProductsFromGrabFood.NotMappingFromGrabFood is not null)
                                 {
                                     // send email notification
+                                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                                    DataTable noneMappingGrabFoodItemData = ExcelUtil.GetNoneMappingGrabFoobItemData(partnerProductsFromGrabFood.NotMappingFromGrabFood.NotMappingGrabFoodItems);
+                                    DataTable noneMappingGrabFoodModifierGroupData = ExcelUtil.GetNoneMappingGrabFoodModifierGroupData(partnerProductsFromGrabFood.NotMappingFromGrabFood.NotMappingGrabFoodModifierGroups);
+                                    MemoryStream outputStream = new MemoryStream();
+                                    using (ExcelPackage package = new ExcelPackage(outputStream))
+                                    {
+                                        ExcelWorksheet grabFoodItemsWorksheet = package.Workbook.Worksheets.Add("GrabFood Items");
+                                        grabFoodItemsWorksheet.Cells.LoadFromDataTable(noneMappingGrabFoodItemData, true);
+                                        
+                                        ExcelWorksheet grabFoodModifierGroupWorksheet = package.Workbook.Worksheets.Add("GrabFood Modifier Groups");
+                                        grabFoodModifierGroupWorksheet.Cells.LoadFromDataTable(noneMappingGrabFoodModifierGroupData, true);
+
+                                        package.Save();
+                                    }
+
+                                    outputStream.Position = 0;
+                                    Attachment attachment = new Attachment(outputStream, "Non-mapping_Product_From_GrabFood.xlsx", "application/vnd.ms-excel");
+
+                                    string message = EmailMessageConstant.StorePartner.Message;
+                                    string messageBody = this._unitOfWork.EmailRepository.GetMessageToNotifyNonMappingProduct(brandAccount.Account.Email, "GrabFood", message);
+                                    await this._unitOfWork.EmailRepository.SendEmailToNotifyNonMappingProduct(brandAccount.Account.Email, messageBody, "GrabFood", attachment);
                                 }
                             }
                         }
@@ -174,7 +192,7 @@ namespace MBKC.Service.Services.Implementations
                 }
                 
                 await this._unitOfWork.StorePartnerRepository.InsertRangeAsync(listStorePartnerInsert);
-                //await this._unitOfWork.CommitAsync();
+                await this._unitOfWork.CommitAsync();
             }
             catch (NotFoundException ex)
             {
