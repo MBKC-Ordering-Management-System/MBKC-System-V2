@@ -63,8 +63,8 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
         [HttpGet(APIEndPointConstant.PartnerProduct.PartnerProductsEndpoint)]
         public async Task<IActionResult> GetPartnerProductsAsync([FromQuery] GetPartnerProductRequest getPartnerProductRequest)
         {
@@ -150,8 +150,8 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
         [HttpPost(APIEndPointConstant.PartnerProduct.PartnerProductsEndpoint)]
         public async Task<IActionResult> PostCreatePartnerProductAsync([FromBody] PostPartnerProductRequest postPartnerProductRequest)
         {
@@ -257,8 +257,8 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
         [HttpPut(APIEndPointConstant.PartnerProduct.UpdatingStatusPartnerProductEndpoint)]
         public async Task<IActionResult> PutUpdatePartnerProductStatusAsync([FromRoute] int productId, [FromRoute] int partnerId, [FromRoute] int storeId, [FromBody] UpdatePartnerProductStatusRequest updatePartnerProductStatusRequest)
         {
@@ -306,8 +306,8 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Brand_Manager)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
         [HttpDelete(APIEndPointConstant.PartnerProduct.PartnerProductEndpoint)]
         public async Task<IActionResult> DeletePartnerProductByIdAsync([FromRoute] int productId, [FromRoute] int partnerId, [FromRoute] int storeId)
         {

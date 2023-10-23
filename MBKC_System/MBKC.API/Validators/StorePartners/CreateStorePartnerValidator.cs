@@ -17,7 +17,7 @@ namespace MBKC.API.Validators.StorePartners
             #endregion
 
             #region PartnerId
-            RuleForEach(storePartner => storePartner.partnerAccountRequests)
+            RuleForEach(storePartner => storePartner.partnerAccounts)
                 .ChildRules(partnerAccount => partnerAccount.RuleFor(partnerId => partnerId.PartnerId)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotNull().WithMessage("{PropertyName} is not null.")
@@ -35,7 +35,7 @@ namespace MBKC.API.Validators.StorePartners
             #endregion
 
             #region Password
-            RuleForEach(storePartner => storePartner.partnerAccountRequests)
+            RuleForEach(storePartner => storePartner.partnerAccounts)
                 .ChildRules(partnerAccount => partnerAccount.RuleFor(password => password.Password)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotNull().WithMessage("{PropertyName} is not null.")
@@ -44,12 +44,12 @@ namespace MBKC.API.Validators.StorePartners
             #endregion
 
             #region Commission
-            RuleForEach(storePartner => storePartner.partnerAccountRequests)
+            RuleForEach(storePartner => storePartner.partnerAccounts)
                 .ChildRules(partnerAccount => partnerAccount.RuleFor(commission => commission.Commission)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotNull().WithMessage("{PropertyName} is not null.")
                 .NotEmpty().WithMessage("{PropertyName} is not empty.")
-                .InclusiveBetween(0, 100).WithMessage("{PropertyName} must be between 0 and 100."));
+                .InclusiveBetween(0, 100).WithMessage("{PropertyName} must be between 0% and 100%."));
             #endregion
 
             RuleFor(x => x.IsMappingProducts)
