@@ -14,5 +14,6 @@ namespace MBKC.Service.Services.Interfaces
         public Task<GetPartnersResponse> GetPartnersAsync(string? keySearchName, string? keySortName, string? keySortStatus, int? pageNumber, int? pageSize, bool? isGetAll);
         public Task<GetPartnerResponse> GetPartnerByIdAsync(int id);
         public Task DeActivePartnerByIdAsync(int id);
+        public Task UpdatePartnerStatusAsync(int partnerId, UpdatePartnerStatusRequest updatePartnerStatusRequest);
     }
 }

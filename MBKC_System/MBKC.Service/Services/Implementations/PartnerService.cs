@@ -161,15 +161,11 @@ namespace MBKC.Service.Services.Implementations
                 }
                 else if (updatePartnerRequest.Status.ToLower().Equals(PartnerEnum.Status.INACTIVE.ToString().ToLower()))
                 {
-                    partner.Status = (int)PartnerEnum.Status.INACTIVE;
-                    //Inactive store partner
-                    if (partner.StorePartners.Any())
+                    if (partner.StorePartners.Any(x => x.Status == (int)StorePartnerEnum.Status.ACTIVE))
                     {
-                        foreach (var p in partner.StorePartners)
-                        {
-                            p.Status = (int)PartnerEnum.Status.INACTIVE;
-                        }
+                        throw new BadRequestException(MessageConstant.PartnerMessage.PartnerHasPartnerStoreActive_Update);
                     }
+                    partner.Status = (int)PartnerEnum.Status.INACTIVE;
                 }
 
                 _unitOfWork.PartnerRepository.UpdatePartner(partner);
@@ -184,6 +180,10 @@ namespace MBKC.Service.Services.Implementations
                     fieldName = "Partner id";
                 }
                 else if (ex.Message.Equals(MessageConstant.PartnerMessage.DeactivePartner_Update))
+                {
+                    fieldName = "Updated partner failed";
+                } 
+                else if (ex.Message.Equals(MessageConstant.PartnerMessage.PartnerHasPartnerStoreActive_Update))
                 {
                     fieldName = "Updated partner failed";
                 }
@@ -403,19 +403,14 @@ namespace MBKC.Service.Services.Implementations
                     throw new BadRequestException(MessageConstant.PartnerMessage.DeactivePartner_Delete);
                 }
 
+                if (partner.StorePartners.Any(x => x.Status == (int)StorePartnerEnum.Status.ACTIVE))
+                {
+                    throw new BadRequestException(MessageConstant.PartnerMessage.PartnerHasPartnerStoreActive_Delete);
+                }
                 partner.Status = (int)PartnerEnum.Status.DEACTIVE;
 
-                if (partner.StorePartners.Any())
-                {
-                    //Deactive store partner.
-                    foreach (var p in partner.StorePartners)
-                    {
-                        p.Status = (int)StorePartnerEnum.Status.DEACTIVE;
-                    }
-                }
-
                 this._unitOfWork.PartnerRepository.UpdatePartner(partner);
-                this._unitOfWork.Commit();
+                await this._unitOfWork.CommitAsync();
             }
             catch (BadRequestException ex)
             {
@@ -427,6 +422,78 @@ namespace MBKC.Service.Services.Implementations
                 else if (ex.Message.Equals(MessageConstant.PartnerMessage.DeactivePartner_Delete))
                 {
                     fieldName = "Delete partner failed";
+                } else if (ex.Message.Equals(MessageConstant.PartnerMessage.PartnerHasPartnerStoreActive_Delete))
+                {
+                    fieldName = "Delete partner failed";
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new BadRequestException(error);
+            }
+            catch (NotFoundException ex)
+            {
+                string fieldName = "";
+                if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistPartnerId))
+                {
+                    fieldName = "Partner id";
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new NotFoundException(error);
+            }
+            catch (Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                throw new Exception(error);
+            }
+        }
+
+        public async Task UpdatePartnerStatusAsync(int partnerId, UpdatePartnerStatusRequest updatePartnerStatusRequest)
+        {
+            try
+            {
+                if (partnerId <= 0)
+                {
+                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidPartnerId);
+                }
+                var partner = await _unitOfWork.PartnerRepository.GetPartnerByIdAsync(partnerId);
+
+                if (partner == null)
+                {
+                    throw new NotFoundException(MessageConstant.CommonMessage.NotExistPartnerId);
+                }
+
+                if (partner.Status == (int)PartnerEnum.Status.DEACTIVE)
+                {
+                    throw new BadRequestException(MessageConstant.PartnerMessage.DeactivePartner_Delete);
+                }
+
+                if (updatePartnerStatusRequest.Status.ToLower().Equals(PartnerEnum.Status.ACTIVE.ToString().ToLower()))
+                {
+                    partner.Status = (int)PartnerEnum.Status.ACTIVE;
+                }
+                else if (updatePartnerStatusRequest.Status.ToLower().Equals(PartnerEnum.Status.INACTIVE.ToString().ToLower()))
+                {
+                    if(partner.StorePartners.Any(x => x.Status == (int)StorePartnerEnum.Status.ACTIVE))
+                    {
+                        throw new BadRequestException(MessageConstant.PartnerMessage.PartnerHasPartnerStoreActive_Update);
+                    }
+                    partner.Status = (int)PartnerEnum.Status.INACTIVE;
+                }
+                this._unitOfWork.PartnerRepository.UpdatePartner(partner);
+                await this._unitOfWork.CommitAsync();
+            }
+            catch (BadRequestException ex)
+            {
+                string fieldName = "";
+                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidPartnerId))
+                {
+                    fieldName = "Partner id";
+                }
+                else if (ex.Message.Equals(MessageConstant.PartnerMessage.DeactivePartner_Delete))
+                {
+                    fieldName = "Update partner failed";
+                } else if (ex.Message.Equals(MessageConstant.PartnerMessage.PartnerHasPartnerStoreActive_Update))
+                {
+                    fieldName = "Update partner failed";
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);

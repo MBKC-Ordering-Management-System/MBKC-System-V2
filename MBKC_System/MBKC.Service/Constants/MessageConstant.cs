@@ -156,6 +156,8 @@
             public const string DeactivePartner_Delete = "Partner cannot delete because that was deleted before.";
             public const string DeactivePartner_Get = "Partner cannot get because that was deleted before.";
             public const string KeySortNotExist = "Key sort are ASC or DESC";
+            public const string PartnerHasPartnerStoreActive_Update = "Partner can not update status because active stores is using this partner.";
+            public const string PartnerHasPartnerStoreActive_Delete = "Partner can not delete status because active stores is using this partner.";
 
 
         }
