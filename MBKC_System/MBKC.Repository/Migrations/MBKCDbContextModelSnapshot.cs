@@ -600,7 +600,7 @@ namespace MBKC.Repository.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("UpdatedDate")
+                    b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("datetime2");
 
                     b.HasKey("ProductId", "PartnerId", "StoreId", "CreatedDate");
@@ -884,8 +884,8 @@ namespace MBKC.Repository.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<decimal>("Commission")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<float>("Commission")
+                        .HasColumnType("real");
 
                     b.Property<string>("Password")
                         .IsRequired()

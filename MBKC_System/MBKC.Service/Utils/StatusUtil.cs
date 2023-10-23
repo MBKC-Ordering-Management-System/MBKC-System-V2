@@ -108,8 +108,8 @@ namespace MBKC.Service.Utils
             return char.ToUpper(PartnerEnum.Status.DEACTIVE.ToString()[0]) + PartnerEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
 
         }
-        
-        
+
+
         public static string ChangeCashierStatus(int status)
         {
             if (status == (int)CashierEnum.Status.INACTIVE)
@@ -123,8 +123,8 @@ namespace MBKC.Service.Utils
             return char.ToUpper(CashierEnum.Status.DEACTIVE.ToString()[0]) + CashierEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
 
         }
-        
-        
+
+
         public static string ChangeAccountStatus(int status)
         {
             if (status == (int)AccountEnum.Status.INACTIVE)
@@ -155,15 +155,20 @@ namespace MBKC.Service.Utils
 
         public static string ChangePartnerProductStatus(int status)
         {
-            if (status == (int)PartnerProductEnum.Status.INACTIVE)
+            if (status == (int)GrabFoodItemEnum.AvailableStatus.AVAILABLE)
             {
-                return char.ToUpper(PartnerProductEnum.Status.INACTIVE.ToString()[0]) + PartnerProductEnum.Status.INACTIVE.ToString().ToLower().Substring(1);
+                return char.ToUpper(GrabFoodItemEnum.AvailableStatus.AVAILABLE.ToString()[0]) + GrabFoodItemEnum.AvailableStatus.AVAILABLE.ToString().ToLower().Substring(1);
             }
-            else if (status == (int)PartnerProductEnum.Status.ACTIVE)
+            else if (status == (int)GrabFoodItemEnum.AvailableStatus.OUT_OF_STOCK_TODAY)
             {
-                return char.ToUpper(PartnerProductEnum.Status.ACTIVE.ToString()[0]) + PartnerProductEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
+                return "Out of stock today";
             }
-            return char.ToUpper(PartnerProductEnum.Status.DEACTIVE.ToString()[0]) + PartnerProductEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
+            else if (status == (int)GrabFoodItemEnum.AvailableStatus.OUT_OF_STOCK_INDENTIFINITELY)
+            {
+                return "Out of stock Indentifinitely";
+            }
+            return char.ToUpper(GrabFoodItemEnum.AvailableStatus.DEACTIVE.ToString()[0]) + GrabFoodItemEnum.AvailableStatus.DEACTIVE.ToString().ToLower().Substring(1);
         }
     }
 }
+

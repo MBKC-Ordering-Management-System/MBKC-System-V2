@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MBKC.Repository.Migrations
 {
     [DbContext(typeof(MBKCDbContext))]
-    [Migration("20231019091433_init")]
-    partial class init
+    [Migration("20231023073736_init database")]
+    partial class initdatabase
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -504,7 +504,7 @@ namespace MBKC.Repository.Migrations
                     b.Property<int>("Id")
                         .HasColumnType("int");
 
-                    b.Property<int>("MasterOrderDetailId")
+                    b.Property<int?>("MasterOrderDetailId")
                         .HasColumnType("int");
 
                     b.Property<string>("Note")
@@ -556,13 +556,21 @@ namespace MBKC.Repository.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("WebUrl")
-                        .HasMaxLength(150)
+                        .HasMaxLength(2147483647)
                         .IsUnicode(false)
-                        .HasColumnType("varchar(150)");
+                        .HasColumnType("varchar(max)");
 
                     b.HasKey("PartnerId");
 
                     b.ToTable("Partners");
+
+                    b.HasData(
+                        new
+                        {
+                            PartnerId = 1,
+                            Name = "GrabFood",
+                            Status = 1
+                        });
                 });
 
             modelBuilder.Entity("MBKC.Repository.Models.PartnerProduct", b =>
@@ -579,6 +587,12 @@ namespace MBKC.Repository.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("MappedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(9,2)");
+
                     b.Property<string>("ProductCode")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -587,6 +601,9 @@ namespace MBKC.Repository.Migrations
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("ProductId", "PartnerId", "StoreId", "CreatedDate");
 
@@ -869,8 +886,8 @@ namespace MBKC.Repository.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<decimal>("Commission")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<float>("Commission")
+                        .HasColumnType("real");
 
                     b.Property<string>("Password")
                         .IsRequired()

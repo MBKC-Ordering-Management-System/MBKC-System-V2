@@ -31,22 +31,15 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
-                if (postPartnerProductRequest.StoreId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidStoreId);
-                }
-                if (postPartnerProductRequest.PartnerId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidPartnerId);
-                }
-                if (postPartnerProductRequest.ProductId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidProductId);
-                }
                 // Get brandId from claim
                 Claim accountId = claims.First(x => x.Type.ToLower().Equals("sid"));
                 var brandAccount = await this._unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId.Value));
                 var brandId = brandAccount.Brand.BrandId;
+                var products = brandAccount.Brand.Products.Where(p => p.Status == (int)ProductEnum.Status.ACTIVE).ToList();
+                if (products == null)
+                {
+                    throw new BadRequestException(MessageConstant.StorePartnerMessage.BrandHasNoActiveProduct);
+                }
 
                 // Check store belong to brand or not
                 var store = await this._unitOfWork.StoreRepository.GetStoreAsync(postPartnerProductRequest.StoreId);
@@ -119,34 +112,49 @@ namespace MBKC.Service.Services.Implementations
                     throw new BadRequestException(MessageConstant.CommonMessage.AlreadyExistPartnerProduct);
                 }
 
-                var PartnerProductInsert = new PartnerProduct()
+
+                // Check Status valid or not
+                if (!postPartnerProductRequest.Status.ToUpper().Equals(GrabFoodItemEnum.AvailableStatus.AVAILABLE.ToString())
+                    && !postPartnerProductRequest.Status.ToUpper().Equals(GrabFoodItemEnum.AvailableStatus.OUT_OF_STOCK_TODAY.ToString())
+                    && !postPartnerProductRequest.Status.ToUpper().Equals(GrabFoodItemEnum.AvailableStatus.OUT_OF_STOCK_INDENTIFINITELY.ToString()))
+                {
+                    throw new BadRequestException(MessageConstant.PartnerProductMessage.StatusInValid);
+                }
+
+                var partnerProductInsert = new PartnerProduct()
                 {
                     ProductId = postPartnerProductRequest.ProductId,
                     PartnerId = postPartnerProductRequest.PartnerId,
                     StoreId = postPartnerProductRequest.StoreId,
                     ProductCode = postPartnerProductRequest.ProductCode,
                     CreatedDate = storePartner.CreatedDate,
-                    Status = (int)PartnerProductEnum.Status.ACTIVE
+                    Price = postPartnerProductRequest.Price,
+                    MappedDate = DateTime.Now,
+                    UpdatedDate = null
                 };
-                await this._unitOfWork.PartnerProductRepository.CreatePartnerProductAsync(PartnerProductInsert);
+
+                switch (postPartnerProductRequest.Status.ToUpper())
+                {
+                    case nameof(GrabFoodItemEnum.AvailableStatus.AVAILABLE):
+                        partnerProductInsert.Status = (int)GrabFoodItemEnum.AvailableStatus.AVAILABLE;
+                        break;
+                    case nameof(GrabFoodItemEnum.AvailableStatus.OUT_OF_STOCK_TODAY):
+                        partnerProductInsert.Status = (int)GrabFoodItemEnum.AvailableStatus.OUT_OF_STOCK_TODAY;
+                        break;
+                    case nameof(GrabFoodItemEnum.AvailableStatus.OUT_OF_STOCK_INDENTIFINITELY):
+                        partnerProductInsert.Status = (int)GrabFoodItemEnum.AvailableStatus.OUT_OF_STOCK_INDENTIFINITELY;
+                        break;
+                    default:
+                        partnerProductInsert.Status = (int)GrabFoodItemEnum.AvailableStatus.AVAILABLE;
+                        break;
+                }
+                await this._unitOfWork.PartnerProductRepository.CreatePartnerProductAsync(partnerProductInsert);
                 await this._unitOfWork.CommitAsync();
             }
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidStoreId))
-                {
-                    fieldName = "Store id";
-                }
-                else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidPartnerId))
-                {
-                    fieldName = "Partner id";
-                }
-                else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidProductId))
-                {
-                    fieldName = "Product id";
-                }
-                else if (ex.Message.Equals(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand))
+                if (ex.Message.Equals(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand))
                 {
                     fieldName = "Store id";
                 }
@@ -187,6 +195,15 @@ namespace MBKC.Service.Services.Implementations
                 else if (ex.Message.Equals(MessageConstant.PartnerProductMessage.ProductCodeExisted))
                 {
                     fieldName = "Product code";
+                }
+
+                else if (ex.Message.Equals(MessageConstant.PartnerProductMessage.StatusInValid))
+                {
+                    fieldName = "Status";
+                }
+                else if (ex.Message.Equals(MessageConstant.StorePartnerMessage.BrandHasNoActiveProduct))
+                {
+                    fieldName = "Product";
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
@@ -445,18 +462,6 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
-                if (storeId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidStoreId);
-                }
-                if (partnerId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidPartnerId);
-                }
-                if (productId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidProductId);
-                }
                 // Get brandId from claim
                 Claim accountId = claims.First(x => x.Type.ToLower().Equals("sid"));
                 var brandAccount = await this._unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId.Value));
@@ -524,13 +529,6 @@ namespace MBKC.Service.Services.Implementations
                     throw new BadRequestException(MessageConstant.PartnerProductMessage.ProductCodeExisted);
                 }
 
-                // Check partner product status valid or not
-                if (!updatePartnerProductRequest.Status.ToUpper().Equals(PartnerProductEnum.Status.ACTIVE.ToString()) &&
-                    !updatePartnerProductRequest.Status.ToUpper().Equals(PartnerProductEnum.Status.INACTIVE.ToString()))
-                {
-                    throw new BadRequestException(MessageConstant.PartnerProductMessage.StatusInValid);
-                }
-
                 // Check partner product existed in system or not
                 var partnerProductExisted = await this._unitOfWork.PartnerProductRepository.GetPartnerProductAsync(productId, partnerId, storeId, storePartner.CreatedDate);
                 if (partnerProductExisted == null)
@@ -538,36 +536,40 @@ namespace MBKC.Service.Services.Implementations
                     throw new BadRequestException(MessageConstant.CommonMessage.NotExistPartnerProduct);
                 }
 
-                // assign update request to partner product existed
-                if (updatePartnerProductRequest.Status.Trim().ToLower().Equals(PartnerProductEnum.Status.ACTIVE.ToString().ToLower()))
+                // Check Status valid or not
+                if (!updatePartnerProductRequest.Status.ToUpper().Equals(GrabFoodItemEnum.AvailableStatus.AVAILABLE.ToString())
+                    && !updatePartnerProductRequest.Status.ToUpper().Equals(GrabFoodItemEnum.AvailableStatus.OUT_OF_STOCK_TODAY.ToString())
+                    && !updatePartnerProductRequest.Status.ToUpper().Equals(GrabFoodItemEnum.AvailableStatus.OUT_OF_STOCK_INDENTIFINITELY.ToString()))
                 {
-                    partnerProductExisted.Status = (int)StorePartnerEnum.Status.ACTIVE;
+                    throw new BadRequestException(MessageConstant.PartnerProductMessage.StatusInValid);
                 }
-                else if (updatePartnerProductRequest.Status.Trim().ToLower().Equals(PartnerProductEnum.Status.INACTIVE.ToString().ToLower()))
-                {
-                    partnerProductExisted.Status = (int)StorePartnerEnum.Status.INACTIVE;
-                }
-                partnerProductExisted.ProductCode = updatePartnerProductRequest.ProductCode;
 
+                // assign update request to partner product existed
+                partnerProductExisted.ProductCode = updatePartnerProductRequest.ProductCode;
+                partnerProductExisted.UpdatedDate = DateTime.Now;
+                partnerProductExisted.Price = updatePartnerProductRequest.Price;
+                switch (updatePartnerProductRequest.Status.ToUpper())
+                {
+                    case nameof(GrabFoodItemEnum.AvailableStatus.AVAILABLE):
+                        partnerProductExisted.Status = (int)GrabFoodItemEnum.AvailableStatus.AVAILABLE;
+                        break;
+                    case nameof(GrabFoodItemEnum.AvailableStatus.OUT_OF_STOCK_TODAY):
+                        partnerProductExisted.Status = (int)GrabFoodItemEnum.AvailableStatus.OUT_OF_STOCK_TODAY;
+                        break;
+                    case nameof(GrabFoodItemEnum.AvailableStatus.OUT_OF_STOCK_INDENTIFINITELY):
+                        partnerProductExisted.Status = (int)GrabFoodItemEnum.AvailableStatus.OUT_OF_STOCK_INDENTIFINITELY;
+                        break;
+                    default:
+                        partnerProductExisted.Status = (int)GrabFoodItemEnum.AvailableStatus.AVAILABLE;
+                        break;
+                }
                 this._unitOfWork.PartnerProductRepository.UpdatePartnerProduct(partnerProductExisted);
                 await this._unitOfWork.CommitAsync();
             }
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidStoreId))
-                {
-                    fieldName = "Store id";
-                }
-                else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidPartnerId))
-                {
-                    fieldName = "Partner id";
-                }
-                else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidProductId))
-                {
-                    fieldName = "Product id";
-                }
-                else if (ex.Message.Equals(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand))
+                if (ex.Message.Equals(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand))
                 {
                     fieldName = "Store id";
                 }

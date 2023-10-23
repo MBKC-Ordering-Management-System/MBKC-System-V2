@@ -82,13 +82,12 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                if(itemsPerPage is null && currentPage is null)
+                if (searchValue == null && searchValueWithoutUnicode is not null)
                 {
-                    if (keySearchNameUniCode == null && keySearchNameNotUniCode != null)
-                    {
+                    if (sortByASC is not null)
                         return this._dbContext.Categories.Where(delegate (Category category)
                         {
-                            if (StringUtil.RemoveSign4VietnameseString(category.Name.ToLower()).Contains(keySearchNameNotUniCode.ToLower()))
+                            if (StringUtil.RemoveSign4VietnameseString(category.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
                             {
                                 return true;
                             }
@@ -98,24 +97,62 @@ namespace MBKC.Repository.Repositories
                             }
                         }).Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
                           .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                          .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
+                                   then => then.OrderBy(x => x.Name))
+                          .If(sortByASC != null && sortByASC.ToLower().Equals("code"),
+                                   then => then.OrderBy(x => x.Code))
+                          .If(sortByASC != null && sortByASC.ToLower().Equals("type"),
+                                   then => then.OrderBy(x => x.Type))
+                          .If(sortByASC != null && sortByASC.ToLower().Equals("displayorder"),
+                                   then => then.OrderBy(x => x.DisplayOrder))
+                          .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
+                                then => then.OrderBy(x => x.Status).Reverse())
+                          .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage)
                           .ToList();
-                    }
-                    else if (keySearchNameUniCode != null && keySearchNameNotUniCode == null)
-                    {
-                        return await this._dbContext.Categories
-                            .Where(c => c.Name.ToLower().Contains(keySearchNameUniCode.ToLower()) && c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
-                            .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
-                            .ToListAsync();
-                    }
-                    return await this._dbContext.Categories.Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
-                        .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
-                        .ToListAsync();
+                    else if (sortByDESC is not null)
+                        return this._dbContext.Categories.Where(delegate (Category category)
+                        {
+                            if (StringUtil.RemoveSign4VietnameseString(category.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
+                            {
+                                return true;
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                        }).Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                         .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                         .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
+                                  then => then.OrderBy(x => x.Name))
+                         .If(sortByASC != null && sortByASC.ToLower().Equals("code"),
+                                  then => then.OrderBy(x => x.Code))
+                         .If(sortByASC != null && sortByASC.ToLower().Equals("type"),
+                                  then => then.OrderBy(x => x.Type))
+                         .If(sortByASC != null && sortByASC.ToLower().Equals("displayorder"),
+                                  then => then.OrderBy(x => x.DisplayOrder))
+                         .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
+                               then => then.OrderBy(x => x.Status).Reverse())
+                         .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage)
+                         .ToList(); 
                 }
-                if (keySearchNameUniCode == null && keySearchNameNotUniCode != null)
+                else if (searchValue != null && searchValueWithoutUnicode == null)
+                {
+                    return await this._dbContext.Categories
+                        .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
+                        .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                        .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage)
+                        .ToListAsync();
+
+                }
+                return await this._dbContext.Categories.Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                    .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                    .ToListAsync();
+
+                if (searchValue is not null && searchValueWithoutUnicode != null)
                 {
                     return this._dbContext.Categories.Where(delegate (Category category)
                     {
-                        if (StringUtil.RemoveSign4VietnameseString(category.Name.ToLower()).Contains(keySearchNameNotUniCode.ToLower()))
+                        if (StringUtil.RemoveSign4VietnameseString(category.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
                         {
                             return true;
                         }
@@ -142,6 +179,8 @@ namespace MBKC.Repository.Repositories
             {
                 throw new Exception(ex.Message);
             }
+            var category = new List<Category>();
+            return category;
         }
         #endregion
 
@@ -282,7 +321,8 @@ namespace MBKC.Repository.Repositories
                                                        .Include(x => x.ExtraCategoryExtraCategoryNavigations)
                                                        .Include(x => x.Products).ThenInclude(x => x.PartnerProducts)
                                                        .Where(x => x.Brand.Stores.Any(s => s.StoreId == storeId)).ToListAsync();
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace MBKC.Repository.Migrations
 {
-    public partial class init : Migration
+    public partial class initdatabase : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -52,7 +52,7 @@ namespace MBKC.Repository.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Logo = table.Column<string>(type: "varchar(max)", unicode: false, maxLength: 2147483647, nullable: true),
-                    WebUrl = table.Column<string>(type: "varchar(150)", unicode: false, maxLength: 150, nullable: true),
+                    WebUrl = table.Column<string>(type: "varchar(max)", unicode: false, maxLength: 2147483647, nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -504,7 +504,7 @@ namespace MBKC.Repository.Migrations
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UserName = table.Column<string>(type: "varchar(100)", unicode: false, maxLength: 100, nullable: false),
                     Password = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
-                    Commission = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Commission = table.Column<float>(type: "real", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -534,7 +534,7 @@ namespace MBKC.Repository.Migrations
                     DiscountAmount = table.Column<decimal>(type: "decimal(9,2)", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     Note = table.Column<string>(type: "varchar(200)", unicode: false, maxLength: 200, nullable: false),
-                    MasterOrderDetailId = table.Column<int>(type: "int", nullable: false),
+                    MasterOrderDetailId = table.Column<int>(type: "int", nullable: true),
                     Id = table.Column<int>(type: "int", nullable: false),
                     ProductId = table.Column<int>(type: "int", nullable: false)
                 },
@@ -603,7 +603,10 @@ namespace MBKC.Repository.Migrations
                     StoreId = table.Column<int>(type: "int", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ProductCode = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false)
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(9,2)", nullable: false),
+                    MappedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -656,6 +659,11 @@ namespace MBKC.Repository.Migrations
                         principalColumn: "WalletId",
                         onDelete: ReferentialAction.Restrict);
                 });
+
+            migrationBuilder.InsertData(
+                table: "Partners",
+                columns: new[] { "PartnerId", "Logo", "Name", "Status", "WebUrl" },
+                values: new object[] { 1, null, "GrabFood", 1, null });
 
             migrationBuilder.InsertData(
                 table: "Roles",

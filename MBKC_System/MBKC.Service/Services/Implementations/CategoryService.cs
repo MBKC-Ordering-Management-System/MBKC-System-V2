@@ -381,11 +381,7 @@ namespace MBKC.Service.Services.Implementations
                 _mapper.Map(categories, categoryResponse);
 
                 int totalPages = 0;
-                if (numberItems > 0 && isGetAll == null || numberItems > 0 && isGetAll != null && isGetAll == false)
-                {
-                    totalPages = (int)((numberItems + pageSize.Value) / pageSize.Value);
-                }
-
+                    totalPages = (int)((numberItems + getCategoriesRequest.ItemsPerPage.Value) / getCategoriesRequest.ItemsPerPage.Value);
                 if (numberItems == 0)
                 {
                     totalPages = 0;
