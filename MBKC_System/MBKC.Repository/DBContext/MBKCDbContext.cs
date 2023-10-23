@@ -178,6 +178,9 @@ namespace MBKC.Repository.DBContext
                 modelBuilder.Entity<PartnerProduct>().HasKey(key => new { key.ProductId, key.PartnerId, key.StoreId, key.CreatedDate});
                 partnerProduct.Property(prop => prop.ProductCode).IsUnicode(false).HasMaxLength(50).IsRequired(true);
                 partnerProduct.Property(prop => prop.Status).IsRequired(true);
+                partnerProduct.Property(prop => prop.Price).HasColumnType("decimal(9,2)").IsRequired(true);
+                partnerProduct.Property(prop => prop.MappedDate).HasColumnType("datetime2").IsRequired(true);
+                partnerProduct.Property(prop => prop.UpdatedDate).HasColumnType("datetime2").IsRequired(true);
             });
             #endregion
 
@@ -217,6 +220,7 @@ namespace MBKC.Repository.DBContext
                 orderDetail.Property(prop => prop.SellingPrice).HasColumnType("decimal(9,2)").IsRequired(true);
                 orderDetail.Property(prop => prop.DiscountAmount).HasColumnType("decimal(9,2)").IsRequired(true);
                 orderDetail.Property(prop => prop.Note).IsUnicode(false).HasMaxLength(200).IsRequired(true);
+                orderDetail.Property(prop => prop.MasterOrderDetailId).IsRequired(false);
             });
 
             modelBuilder.Entity<OrderDetail>()
@@ -236,7 +240,7 @@ namespace MBKC.Repository.DBContext
             {
                 partner.Property(prop => prop.Name).IsUnicode(true).HasMaxLength(50).IsRequired(true);
                 partner.Property(prop => prop.Logo).IsUnicode(false).HasMaxLength(int.MaxValue).IsRequired(false);
-                partner.Property(prop => prop.WebUrl).IsUnicode(false).HasMaxLength(150).IsRequired(false);
+                partner.Property(prop => prop.WebUrl).IsUnicode(false).HasMaxLength(int.MaxValue).IsRequired(false);
                 partner.Property(prop => prop.Status).IsRequired(true);
             });
             #endregion
@@ -418,7 +422,7 @@ namespace MBKC.Repository.DBContext
 
 
             modelBuilder.RoleData();
-
+            modelBuilder.PartnerData();
         }
     }
 }

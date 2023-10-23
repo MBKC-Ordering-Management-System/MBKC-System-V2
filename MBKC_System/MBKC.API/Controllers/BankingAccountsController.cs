@@ -65,8 +65,8 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Kitchen_Center_Manager)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.KitchenCenterManager)]
         [HttpGet(APIEndPointConstant.BankingAccount.BankingAccountsEndpoint)]
         public async Task<IActionResult> GetBankingAccountsAsync([FromQuery] string? searchValue, [FromQuery] int? currentPage, [FromQuery] int? itemsPerPage)
         {
@@ -101,8 +101,8 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Kitchen_Center_Manager)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.KitchenCenterManager)]
         [HttpGet(APIEndPointConstant.BankingAccount.BankingAccountEndpoint)]
         public async Task<IActionResult> GetBankingAccountAsync([FromRoute] int id)
         {
@@ -140,9 +140,9 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Consumes(MediaTypeConstant.Multipart_Form_Data)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Kitchen_Center_Manager)]
+        [Consumes(MediaTypeConstant.MultipartFormData)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.KitchenCenterManager)]
         [HttpPost(APIEndPointConstant.BankingAccount.BankingAccountsEndpoint)]
         public async Task<IActionResult> PostCreateBankingAccountAsync([FromForm]CreateBankingAccountRequest bankingAccountRequest)
         {
@@ -191,9 +191,9 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Consumes(MediaTypeConstant.Multipart_Form_Data)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Kitchen_Center_Manager)]
+        [Consumes(MediaTypeConstant.MultipartFormData)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.KitchenCenterManager)]
         [HttpPut(APIEndPointConstant.BankingAccount.BankingAccountEndpoint)]
         public async Task<IActionResult> PutUpdateBankingAccountAsync([FromRoute] int id, [FromForm]UpdateBankingAccountRequest bankingAccountRequest)
         {
@@ -243,9 +243,9 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Consumes(MediaTypeConstant.Application_Json)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Kitchen_Center_Manager)]
+        [Consumes(MediaTypeConstant.ApplicationJson)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.KitchenCenterManager)]
         [HttpPut(APIEndPointConstant.BankingAccount.UpdatingStatusBankingAccountEndpoint)]
         public async Task<IActionResult> PutUpdateBankingAccountStatusAsync([FromRoute] int id, [FromBody] UpdateBankingAccountStatusRequest bankingAccountStatusRequest)
         {
@@ -290,8 +290,8 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Kitchen_Center_Manager)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.KitchenCenterManager)]
         [HttpDelete(APIEndPointConstant.BankingAccount.BankingAccountEndpoint)]
         public async Task<IActionResult> DeleteBankingAccountAsync([FromRoute] int id)
         {

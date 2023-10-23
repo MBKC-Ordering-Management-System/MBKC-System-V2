@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using MBKC.Service.DTOs.AccountTokens;
-using MBKC.Repository.RedisModels;
+using MBKC.Repository.Redis.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +14,7 @@ namespace MBKC.Service.Profiles.AccountTokens
     {
         public AccountTokenProfile()
         {
-            CreateMap<DTOs.AccountTokens.AccountToken, Repository.RedisModels.AccountToken>().ReverseMap();
+            CreateMap<DTOs.AccountTokens.AccountToken, Repository.Redis.Models.AccountToken>().ReverseMap();
         }
     }
 }

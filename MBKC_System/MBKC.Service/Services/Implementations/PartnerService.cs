@@ -124,13 +124,8 @@ namespace MBKC.Service.Services.Implementations
                     throw new BadRequestException(MessageConstant.PartnerMessage.DeactivePartner_Update);
                 }
 
-                var checkDupplicatedName = await _unitOfWork.PartnerRepository.GetPartnerByNameAsync(updatePartnerRequest.Name);
                 var checkDupplicatedWebUrl = await _unitOfWork.PartnerRepository.GetPartnerByWebUrlAsync(updatePartnerRequest.WebUrl);
 
-                if (checkDupplicatedName != null && checkDupplicatedName.PartnerId != partnerId)
-                {
-                    throw new BadRequestException(MessageConstant.PartnerMessage.DupplicatedPartnerName);
-                }
                 if (checkDupplicatedWebUrl != null && checkDupplicatedWebUrl.PartnerId != partnerId)
                 {
                     throw new BadRequestException(MessageConstant.PartnerMessage.DupplicatedWebUrl);
@@ -158,8 +153,6 @@ namespace MBKC.Service.Services.Implementations
                         isDeleted = true;
                     }
                 }
-
-                partner.Name = updatePartnerRequest.Name;
                 partner.WebUrl = updatePartnerRequest.WebUrl;
 
                 if (updatePartnerRequest.Status.ToLower().Equals(PartnerEnum.Status.ACTIVE.ToString().ToLower()))

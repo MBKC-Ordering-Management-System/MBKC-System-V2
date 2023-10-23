@@ -1,11 +1,11 @@
 ﻿using MBKC.Repository.Enums;
-using MBKC.Repository.RedisModels;
-using MBKC.Repository.SMTPModels;
+using MBKC.Repository.Redis.Models;
+using MBKC.Repository.SMTPs.Models;
 using Microsoft.Extensions.Configuration;
 using System.Net;
 using System.Net.Mail;
 
-namespace MBKC.Repository.SMTPRepositories
+namespace MBKC.Repository.SMTPs.Repositories
 {
     public class EmailRepository
     {
@@ -118,6 +118,37 @@ namespace MBKC.Repository.SMTPRepositories
             return emailBody;
         }
 
+        public string GetMessageToNotifyNonMappingProduct(string receiverEmail, string partnerName, string messageBody)
+        {
+            Email senderEmail = GetEmailProperty();
+            string emailBody = "";
+            string htmlParentDivStart = "<div style=\"font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2\">";
+            string htmlParentDivEnd = "</div>";
+            string htmlMainDivStart = "<div style=\"margin:50px auto;width:70%;padding:20px 0\">";
+            string htmlMainDivEnd = "</div>";
+            string htmlSystemNameDivStart = "<div style=\"border-bottom:1px solid #eee\">";
+            string htmlSystemNameDivEnd = "</div";
+            string htmlSystemNameSpanStart = "<span style=\"font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600\">";
+            string htmlSystemNameSpanEnd = "</span>";
+            string htmlHeaderBodyStart = "<p style=\"font-size:1.1em\">";
+            string htmlHeaderBodyEnd = "</p>";
+            string htmlBodyStart = "<p>";
+            string htmlBodyEnd = "</p>";
+            string htmlFooterBodyStart = "<p style=\"font-size:0.9em;\">";
+            string htmlBreakLine = "<br />";
+            string htmlFooterBodyEnd = "</p>";
+
+            emailBody += htmlParentDivStart;
+            emailBody += htmlMainDivStart;
+            emailBody += htmlSystemNameDivStart + htmlSystemNameSpanStart + senderEmail.SystemName + htmlSystemNameSpanEnd + htmlSystemNameDivEnd + htmlBreakLine;
+            emailBody += htmlHeaderBodyStart + $"Hi {receiverEmail}," + htmlHeaderBodyEnd;
+            emailBody += htmlBodyStart + messageBody + htmlBodyEnd;
+            emailBody += htmlFooterBodyStart + "Regards," + htmlBreakLine + senderEmail.SystemName + htmlFooterBodyEnd;
+            emailBody += htmlMainDivEnd;
+            emailBody += htmlParentDivEnd;
+
+            return emailBody;
+        }
 
         public EmailVerification SendEmailToResetPassword(string receiverEmail)
         {
@@ -170,6 +201,32 @@ namespace MBKC.Repository.SMTPRepositories
             catch (AggregateException ex)
             {
                 throw new AggregateException(ex.InnerExceptions);
+            }
+        }
+
+        public async Task SendEmailToNotifyNonMappingProduct(string receiverEmail, string message, string partnerName, Attachment attachment)
+        {
+            try
+            {
+                Email email = GetEmailProperty();
+                MailMessage mailMessage = new MailMessage();
+                SmtpClient smtp = new SmtpClient();
+                mailMessage.From = new MailAddress(email.Sender);
+                mailMessage.To.Add(new MailAddress(receiverEmail));
+                mailMessage.Subject = $"Non-Mapping Items From {partnerName}";
+                mailMessage.IsBodyHtml = true;
+                mailMessage.Body = message;
+                mailMessage.Attachments.Add(attachment);
+                smtp.Port = email.Port;
+                smtp.Host = email.Host;
+                smtp.EnableSsl = true;
+                smtp.UseDefaultCredentials = false;
+                smtp.Credentials = new NetworkCredential(email.Sender, email.Password);
+                smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+                await smtp.SendMailAsync(mailMessage);
+            } catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
             }
         }
 

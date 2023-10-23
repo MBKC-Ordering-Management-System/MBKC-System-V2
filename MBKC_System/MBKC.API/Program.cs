@@ -19,7 +19,7 @@ using MBKC.API.Validators;
 using MBKC.API.Constants;
 using MBKC.Service.DTOs.Verifications;
 using MBKC.Service.DTOs.JWTs;
-using MBKC.Repository.FirebaseStorageModels;
+using MBKC.Repository.FirebaseStorages.Models;
 using MBKC.Service.Utils;
 
 var builder = WebApplication.CreateBuilder(args);

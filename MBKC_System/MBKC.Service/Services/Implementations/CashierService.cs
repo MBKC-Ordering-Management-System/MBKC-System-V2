@@ -14,7 +14,7 @@ using MBKC.Service.Constants;
 using MBKC.Repository.Enums;
 using MBKC.Service.DTOs.Cashiers.Requests;
 using MBKC.Service.DTOs.Cashiers.Responses;
-using MBKC.Repository.RedisModels;
+using MBKC.Repository.Redis.Models;
 
 namespace MBKC.Service.Services.Implementations
 {

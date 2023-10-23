@@ -37,7 +37,7 @@ namespace MBKC.API.Validators.KitchenCenters
 
                     ckcr.RuleFor(ckcr => ckcr.FileName)
                         .Cascade(CascadeMode.StopOnFirstFailure)
-                        .Must(FileUtil.HaveSupportedFileType).WithMessage("{PropertyName} is required extension type .png, .jpg, .jpeg, .webp.");
+                        .Must(FileUtil.HaveSupportedFileType).WithMessage("Logo is required extension type .png, .jpg, .jpeg, .webp.");
                 });
 
             RuleFor(ckcr => ckcr.ManagerEmail)

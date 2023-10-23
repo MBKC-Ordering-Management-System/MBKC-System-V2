@@ -8,7 +8,7 @@ using MBKC.Repository.Models;
 using MBKC.Service.Constants;
 using MBKC.Service.Utils;
 using System.Security.Claims;
-using MBKC.Repository.RedisModels;
+using MBKC.Repository.Redis.Models;
 
 namespace MBKC.Service.Services.Implementations
 {

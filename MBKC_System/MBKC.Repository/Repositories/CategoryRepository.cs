@@ -272,5 +272,20 @@ namespace MBKC.Repository.Repositories
             }
         }
         #endregion
+
+        public async Task<List<Category>> GetCategories(int storeId)
+        {
+            try
+            {
+                return await this._dbContext.Categories.Include(x => x.Products).ThenInclude(x => x.ChildrenProducts)
+                                                       .Include(x => x.Brand).ThenInclude(x => x.Stores)
+                                                       .Include(x => x.ExtraCategoryExtraCategoryNavigations)
+                                                       .Include(x => x.Products).ThenInclude(x => x.PartnerProducts)
+                                                       .Where(x => x.Brand.Stores.Any(s => s.StoreId == storeId)).ToListAsync();
+            } catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }

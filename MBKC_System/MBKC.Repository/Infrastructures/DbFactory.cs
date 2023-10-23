@@ -1,5 +1,5 @@
 ﻿using MBKC.Repository.DBContext;
-using MBKC.Repository.RedisModels;
+using MBKC.Repository.Redis.Models;
 using Microsoft.Extensions.Configuration;
 using Redis.OM;
 using System;

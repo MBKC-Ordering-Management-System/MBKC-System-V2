@@ -1,14 +1,15 @@
 ﻿using MBKC.Repository.Repositories;
 using MBKC.Repository.DBContext;
-using MBKC.Repository.RedisRepositories;
+using MBKC.Repository.Redis.Repositories;
 using Redis.OM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MBKC.Repository.FirebaseStorageRepositories;
-using MBKC.Repository.SMTPRepositories;
+using MBKC.Repository.FirebaseStorages.Repositories;
+using MBKC.Repository.SMTPs.Repositories;
+using MBKC.Repository.GrabFood.Repositories;
 
 namespace MBKC.Repository.Infrastructures
 {
@@ -45,6 +46,7 @@ namespace MBKC.Repository.Infrastructures
         private EmailVerificationRedisRepository  _emailVerificationRedisRepository;
         private FirebaseStorageRepository _firebaseStorageRepository;
         private EmailRepository _emailRepository;
+        private GrabFoodRepository _grabFoodRepository;
 
 
         public UnitOfWork(IDbFactory dbFactory)
@@ -397,6 +399,18 @@ namespace MBKC.Repository.Infrastructures
                     this._emailRepository = new EmailRepository();
                 }
                 return this._emailRepository;
+            }
+        }
+
+        public GrabFoodRepository GrabFoodRepository
+        {
+            get
+            {
+                if (this._grabFoodRepository == null)
+                {
+                    this._grabFoodRepository = new GrabFoodRepository();
+                }
+                return this._grabFoodRepository;
             }
         }
 

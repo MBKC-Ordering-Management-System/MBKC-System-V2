@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MBKC.Repository.RedisModels
+namespace MBKC.Repository.Redis.Models
 {
     [Document(StorageType = StorageType.Json, Prefixes = new[] { "EmailVerification" }, IndexName = "emailverifications")]
     public class EmailVerification

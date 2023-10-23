@@ -53,9 +53,9 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Cashier, PermissionAuthorizeConstant.Kitchen_Center_Manager, 
-                             PermissionAuthorizeConstant.Brand_Manager, PermissionAuthorizeConstant.Store_Manager)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.Cashier, PermissionAuthorizeConstant.KitchenCenterManager, 
+                             PermissionAuthorizeConstant.BrandManager, PermissionAuthorizeConstant.StoreManager)]
         [HttpGet(APIEndPointConstant.Account.AccountEndpoint)]
         public async Task<IActionResult> GetAccountAsync([FromRoute]AccountIdRequest accountIdRequest)
         {
@@ -96,10 +96,10 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
-        [Consumes(MediaTypeConstant.Application_Json)]
-        [Produces(MediaTypeConstant.Application_Json)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Cashier, PermissionAuthorizeConstant.Kitchen_Center_Manager,
-                             PermissionAuthorizeConstant.Brand_Manager, PermissionAuthorizeConstant.Store_Manager)]
+        [Consumes(MediaTypeConstant.ApplicationJson)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.Cashier, PermissionAuthorizeConstant.KitchenCenterManager,
+                             PermissionAuthorizeConstant.BrandManager, PermissionAuthorizeConstant.StoreManager)]
         [HttpPut(APIEndPointConstant.Account.AccountEndpoint)]
         public async Task<IActionResult> UpdateAccountAsync([FromRoute] AccountIdRequest accountIdRequest, [FromBody]UpdateAccountRequest updateAccountRequest)
         {
