@@ -73,6 +73,7 @@
         {
             public const string PartnersEndpoint = ApiEndpoint + "/partners";
             public const string PartnerEndpoint = PartnersEndpoint + "/{id}";
+            public const string UpdatingPartnerStatusEndpoint = PartnerEndpoint + "/updating-status";
         }
 
         public static class Cashier

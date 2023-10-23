@@ -258,7 +258,7 @@ namespace MBKC.API.Controllers
         [Consumes(MediaTypeConstant.MultipartFormData)]
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin)]
-        [HttpPut(APIEndPointConstant.Partner.PartnerEndpoint)]
+        [HttpPut(APIEndPointConstant.Partner.UpdatingPartnerStatusEndpoint)]
         public async Task<IActionResult> UpdatePartnerStatusAsync([FromRoute] int id, [FromBody] UpdatePartnerStatusRequest updatePartnerStatusRequest)
         {
             ValidationResult validationResult = await this._updatePartnerStatusValidator.ValidateAsync(updatePartnerStatusRequest);
