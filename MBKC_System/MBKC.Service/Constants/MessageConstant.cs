@@ -89,7 +89,7 @@
             public const string DeactiveBrand_Delete = "Brand cannot delete because that was deleted before.";
             public const string DeactiveBrand_Update = "Brand was deleted before, so this brand cannot update.";
             public const string ManagerEmailExisted = "Brand manager email already existed in the system.";
-            public const string RoleNotSuitable = "Role is not suitable"; 
+            public const string RoleNotSuitable = "Role is not suitable";
             public const string ProductNotBelongToBrand = "This product not belong to brand.";
             public const string KeySortNotExist = "Key sort are ASC or DESC";
         }
@@ -209,6 +209,13 @@
         public static class WalletMessage
         {
             public const string BalanceIsInvalid = "Your balance is not enough to transfer money.";
+        }
+
+        public static class MoneyExchangeMessage
+        {
+            public const string StoreIdNotBelogToKitchenCenter = "Store id does not belong to your kitchen center.";
+            public const string BalanceIsInvalid = "This store balance is invalid.";
+            public const string BalanceDoesNotEnough = "This store does not have enough balance to make a withdraw.";
         }
 
     }

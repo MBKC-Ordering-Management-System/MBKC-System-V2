@@ -9,7 +9,7 @@
         public const string MoneyExchangeToStore_ID = "money_exchange_to_store";
 
         // cron expression
-        public const string MoneyExchangeToStore_CronExpression = "0 23 * * *";
+        public const string MoneyExchangeToStore_CronExpression = "* 23 * * *";
 
     }
 }

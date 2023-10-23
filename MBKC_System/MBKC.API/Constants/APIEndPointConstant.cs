@@ -114,6 +114,7 @@
         {
             public const string MoneyExchangeEndpoint = ApiEndpoint + "/money-exchanges";
             public const string MoneyExchangeToKitchenCenter = MoneyExchangeEndpoint + "/money-exchange-to-kitchen-center";
+            public const string WithdrawMoneyToStore = MoneyExchangeEndpoint + "/withdraw-money-to-store";
         }
     }
 }

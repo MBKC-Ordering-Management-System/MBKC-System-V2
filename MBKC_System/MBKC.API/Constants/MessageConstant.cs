@@ -109,6 +109,7 @@
         public static class MoneyExchangeMessage
         {
             public const string MoneyExchangeToKitchenCenterSuccessfully = "Sent Money To Kitchen Center Successfully.";
+            public const string WithdrawMoneySuccessfully = "Withdraw Money To Store Successfully.";
         }
     }
 }

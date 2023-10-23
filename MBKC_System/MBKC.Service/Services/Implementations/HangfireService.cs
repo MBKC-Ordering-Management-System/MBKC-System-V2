@@ -32,7 +32,7 @@ namespace MBKC.Service.Services.Implementations
                 if (!kitchenCenters.Any())
                 {
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine("There are currently no kitchens.");
+                    Console.WriteLine("There are currently no kitchen center.");
                     return;
                 }
 
@@ -82,7 +82,6 @@ namespace MBKC.Service.Services.Implementations
                 #endregion
 
                 #region transfer money to each store wallet
-                List<MoneyExchange> moneyExchanges = new List<MoneyExchange>();
                 List<KitchenCenterMoneyExchange> kitchenCenterMoneyExchanges = new List<KitchenCenterMoneyExchange>();
                 List<StoreMoneyExchange> storeMoneyExchanges = new List<StoreMoneyExchange>();
                 List<Wallet> wallets = new List<Wallet>();
@@ -104,16 +103,19 @@ namespace MBKC.Service.Services.Implementations
                         var exchangeWalletValue = exchangeWallets[store.StoreId];
 
                         #region create money exchange
-                        // create money exchange for kitchen center (sender)
-                        MoneyExchange moneyExchangeKitchenCenter = new MoneyExchange()
+                        // creat kitchen center money exchange (sender)
+                        KitchenCenterMoneyExchange kitchenCenterMoneyExchange = new KitchenCenterMoneyExchange()
                         {
-                            Amount = exchangeWalletValue,
-                            ExchangeType = MoneyExchangeEnum.ExchangeType.SEND.ToString(),
-                            Content = $"Transfer money to store[id:{store.StoreId} - name:{store.Name}] {StringUtil.GetContentAmountAndTime(exchangeWalletValue, DateTime.Now)}",
-                            Status = (int)MoneyExchangeEnum.Status.SUCCESS,
-                            SenderId = kitchenCenter.KitchenCenterId,
-                            ReceiveId = store.StoreId,
-                            Transactions = new List<Transaction>()
+                            KitchenCenter = kitchenCenter,
+                            MoneyExchange = new MoneyExchange()
+                            {
+                                Amount = exchangeWalletValue,
+                                ExchangeType = MoneyExchangeEnum.ExchangeType.SEND.ToString(),
+                                Content = $"Transfer money to store[id:{store.StoreId} - name:{store.Name}] {StringUtil.GetContentAmountAndTime(exchangeWalletValue)}",
+                                Status = (int)MoneyExchangeEnum.Status.SUCCESS,
+                                SenderId = kitchenCenter.KitchenCenterId,
+                                ReceiveId = store.StoreId,
+                                Transactions = new List<Transaction>()
                                 {
                                     new Transaction()
                                     {
@@ -122,19 +124,23 @@ namespace MBKC.Service.Services.Implementations
                                         Status = (int)TransactionEnum.Status.SUCCESS,
                                     },
                                 }
+                            }
                         };
-                        moneyExchanges.Add(moneyExchangeKitchenCenter);
+                        kitchenCenterMoneyExchanges.Add(kitchenCenterMoneyExchange);
 
-                        // create money exchange for store (receiver)
-                        MoneyExchange moneyExchangeStore = new MoneyExchange()
+                        // creat store money exchange (receiver)
+                        StoreMoneyExchange storeMoneyExchange = new StoreMoneyExchange()
                         {
-                            Amount = exchangeWalletValue,
-                            ExchangeType = MoneyExchangeEnum.ExchangeType.RECEIVE.ToString(),
-                            Content = $"Receiver money from kitchen center[id:{kitchenCenter.KitchenCenterId} - name:{kitchenCenter.Name}] {StringUtil.GetContentAmountAndTime(exchangeWalletValue, DateTime.Now)}",
-                            Status = (int)MoneyExchangeEnum.Status.SUCCESS,
-                            SenderId = kitchenCenter.KitchenCenterId,
-                            ReceiveId = store.StoreId,
-                            Transactions = new List<Transaction>()
+                            Store = store,
+                            MoneyExchange = new MoneyExchange()
+                            {
+                                Amount = exchangeWalletValue,
+                                ExchangeType = MoneyExchangeEnum.ExchangeType.RECEIVE.ToString(),
+                                Content = $"Receiver money from kitchen center[id:{kitchenCenter.KitchenCenterId} - name:{kitchenCenter.Name}] {StringUtil.GetContentAmountAndTime(exchangeWalletValue)}",
+                                Status = (int)MoneyExchangeEnum.Status.SUCCESS,
+                                SenderId = kitchenCenter.KitchenCenterId,
+                                ReceiveId = store.StoreId,
+                                Transactions = new List<Transaction>()
                                 {
                                     new Transaction()
                                     {
@@ -143,24 +149,7 @@ namespace MBKC.Service.Services.Implementations
                                         Status = (int)TransactionEnum.Status.SUCCESS,
                                     },
                                 }
-                        };
-                        moneyExchanges.Add(moneyExchangeStore);
-                        #endregion
-
-                        #region create kitchen center exchange and store exchange
-                        // kitchen center exchange
-                        KitchenCenterMoneyExchange kitchenCenterMoneyExchange = new KitchenCenterMoneyExchange()
-                        {
-                            KitchenCenter = kitchenCenter,
-                            MoneyExchange = moneyExchangeKitchenCenter,
-                        };
-                        kitchenCenterMoneyExchanges.Add(kitchenCenterMoneyExchange);
-
-                        // store exchange
-                        StoreMoneyExchange storeMoneyExchange = new StoreMoneyExchange()
-                        {
-                            Store = store,
-                            MoneyExchange = moneyExchangeStore,
+                            }
                         };
                         storeMoneyExchanges.Add(storeMoneyExchange);
                         #endregion
@@ -174,10 +163,8 @@ namespace MBKC.Service.Services.Implementations
 
                     wallets.Add(kitchenCenter.Wallet);
                 }
-
                 #endregion
 
-                await this._unitOfWork.MoneyExchangeRepository.CreateRangeMoneyExchangeAsync(moneyExchanges);
                 await this._unitOfWork.KitchenCenterMoneyExchangeRepository.CreateRangeKitchenCenterMoneyExchangeAsync(kitchenCenterMoneyExchanges);
                 await this._unitOfWork.StoreMoneyExchangeRepository.CreateRangeStoreMoneyExchangeAsync(storeMoneyExchanges);
                 this._unitOfWork.WalletRepository.UpdateRangeWallet(wallets);

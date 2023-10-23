@@ -14,6 +14,9 @@ using MBKC.Service.Exceptions;
 using MBKC.Service.Utils;
 using System.Security.Claims;
 using MBKC.Repository.SMTPModels;
+using MBKC.Service.DTOs.MoneyExchanges;
+using MBKC.Service.DTOs.Brands;
+using static MBKC.Service.Constants.EmailMessageConstant;
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -35,7 +38,7 @@ namespace MBKC.Service.Services.Implementations
             {
                 #region validation
                 string email = claims.First(x => x.Type == ClaimTypes.Email).Value;
-                Cashier existedCashier = await this._unitOfWork.CashierRepository.GetCashierAsync(email);
+                var existedCashier = await this._unitOfWork.CashierRepository.GetCashierAsync(email);
                 if (existedCashier.Wallet.Balance <= 0)
                 {
                     throw new BadRequestException(MessageConstant.WalletMessage.BalanceIsInvalid);
@@ -45,65 +48,53 @@ namespace MBKC.Service.Services.Implementations
                 #region operation
 
                 #region create money exchange
-                List<MoneyExchange> moneyExchanges = new List<MoneyExchange>();
-                // create money exchange for cashier (sender)
-                MoneyExchange moneyExchangeCashier = new MoneyExchange()
-                {
-                    Amount = existedCashier.Wallet.Balance,
-                    ExchangeType = MoneyExchangeEnum.ExchangeType.SEND.ToString(),
-                    Content = $"Transfer money to kitchen center[id:{existedCashier.KitchenCenter.KitchenCenterId} - name:{existedCashier.KitchenCenter.Name}] {StringUtil.GetContentAmountAndTime(existedCashier.Wallet.Balance, DateTime.Now)}",
-                    Status = (int)MoneyExchangeEnum.Status.SUCCESS,
-                    SenderId = existedCashier.AccountId,
-                    ReceiveId = existedCashier.KitchenCenter.Manager.AccountId,
-                    Transactions = new List<Transaction>()
-                    {
-                        new Transaction()
-                        {
-                            TransactionTime = DateTime.Now,
-                            Wallet = existedCashier.Wallet,
-                            Status = (int)TransactionEnum.Status.SUCCESS,
-                        },
-                    }
-                };
-                moneyExchanges.Add(moneyExchangeCashier);
-
-                // create money exchange for kitchen center (receiver)
-                MoneyExchange moneyExchangeKitchenCenter = new MoneyExchange()
-                {
-                    Amount = existedCashier.Wallet.Balance,
-                    ExchangeType = MoneyExchangeEnum.ExchangeType.RECEIVE.ToString(),
-                    Content = $"Receive money from cashier[id:{existedCashier.AccountId} - name:{existedCashier.FullName}] {StringUtil.GetContentAmountAndTime(existedCashier.Wallet.Balance, DateTime.Now)}",
-                    Status = (int)MoneyExchangeEnum.Status.SUCCESS,
-                    SenderId = existedCashier.AccountId,
-                    ReceiveId = existedCashier.KitchenCenter.Manager.AccountId,
-                    Transactions = new List<Transaction>()
-                    {
-                        new Transaction()
-                        {
-                            TransactionTime = DateTime.Now,
-                            Wallet = existedCashier.KitchenCenter.Wallet,
-                            Status = (int)TransactionEnum.Status.SUCCESS,
-                        },
-                    }
-                };
-                moneyExchanges.Add(moneyExchangeKitchenCenter);
-                await this._unitOfWork.MoneyExchangeRepository.CreateRangeMoneyExchangeAsync(moneyExchanges);
-                #endregion
-
-                #region create cashier exchange and kitchen center exchange
-                // cashier exchange
+                // create cashier money exchange (sender)
                 CashierMoneyExchange cashierMoneyExchange = new CashierMoneyExchange()
                 {
                     Cashier = existedCashier,
-                    MoneyExchange = moneyExchangeCashier,
+                    MoneyExchange = new MoneyExchange()
+                    {
+                        Amount = existedCashier.Wallet.Balance,
+                        ExchangeType = MoneyExchangeEnum.ExchangeType.SEND.ToString(),
+                        Content = $"Transfer money to kitchen center[id:{existedCashier.KitchenCenter.KitchenCenterId} - name:{existedCashier.KitchenCenter.Name}] {StringUtil.GetContentAmountAndTime(existedCashier.Wallet.Balance)}",
+                        Status = (int)MoneyExchangeEnum.Status.SUCCESS,
+                        SenderId = existedCashier.AccountId,
+                        ReceiveId = existedCashier.KitchenCenter.KitchenCenterId,
+                        Transactions = new List<Transaction>()
+                        {
+                            new Transaction()
+                            {
+                                TransactionTime = DateTime.Now,
+                                Wallet = existedCashier.Wallet,
+                                Status = (int)TransactionEnum.Status.SUCCESS,
+                            },
+                        }
+                    }
                 };
                 await this._unitOfWork.CashierMoneyExchangeRepository.CreateCashierMoneyExchangeAsync(cashierMoneyExchange);
 
-                // kitchen center exchange
+                // create kitchen center money exchange (Receiver)
                 KitchenCenterMoneyExchange kitchenCenterMoneyExchange = new KitchenCenterMoneyExchange()
                 {
                     KitchenCenter = existedCashier.KitchenCenter,
-                    MoneyExchange = moneyExchangeKitchenCenter,
+                    MoneyExchange = new MoneyExchange()
+                    {
+                        Amount = existedCashier.Wallet.Balance,
+                        ExchangeType = MoneyExchangeEnum.ExchangeType.RECEIVE.ToString(),
+                        Content = $"Receive money from cashier[id:{existedCashier.AccountId} - name:{existedCashier.FullName}] {StringUtil.GetContentAmountAndTime(existedCashier.Wallet.Balance)}",
+                        Status = (int)MoneyExchangeEnum.Status.SUCCESS,
+                        SenderId = existedCashier.AccountId,
+                        ReceiveId = existedCashier.KitchenCenter.KitchenCenterId,
+                        Transactions = new List<Transaction>()
+                        {
+                            new Transaction()
+                            {
+                                TransactionTime = DateTime.Now,
+                                Wallet = existedCashier.KitchenCenter.Wallet,
+                                Status = (int)TransactionEnum.Status.SUCCESS,
+                            },
+                        }
+                    }
                 };
                 await this._unitOfWork.KitchenCenterMoneyExchangeRepository.CreateKitchenCenterMoneyExchangeAsync(kitchenCenterMoneyExchange);
                 #endregion
@@ -141,6 +132,136 @@ namespace MBKC.Service.Services.Implementations
                 string error = ErrorUtil.GetErrorString("Exception", ex.InnerException != null ? ex.InnerException.Message : ex.Message);
                 throw new Exception(error);
             }
+        }
+        #endregion
+
+        #region withdraw money for store
+        public async Task WithdrawMoneyAsync(IEnumerable<Claim> claims, WithdrawMoneyRequest withdrawMoneyRequest)
+        {
+            string folderName = "MoneyExchanges";
+            string imageId = "";
+            bool uploaded = false;
+            try
+            {
+                #region validation
+                string email = claims.First(x => x.Type == ClaimTypes.Email).Value;
+                var existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(email);
+                var existedStore = await this._unitOfWork.StoreRepository.GetStoreByIdAsync(withdrawMoneyRequest.StoreId);
+                if(existedStore == null)
+                {
+                    throw new NotFoundException(MessageConstant.CommonMessage.NotExistStoreId);
+                }
+
+                if(!existedKitchenCenter.Stores.Any(s => s.StoreId == existedStore.StoreId))
+                {
+                    throw new BadRequestException(MessageConstant.MoneyExchangeMessage.StoreIdNotBelogToKitchenCenter);
+                }
+
+                if(existedStore.Wallet.Balance <= 0)
+                {
+                    throw new BadRequestException(MessageConstant.MoneyExchangeMessage.BalanceIsInvalid);
+                }
+
+                if (existedStore.Wallet.Balance < withdrawMoneyRequest.Amount)
+                {
+                    throw new BadRequestException(MessageConstant.MoneyExchangeMessage.BalanceDoesNotEnough);
+                }
+                #endregion
+
+                #region operation
+
+                #region upload image
+                FileStream fileStream = FileUtil.ConvertFormFileToStream(withdrawMoneyRequest.Image);
+                imageId = Guid.NewGuid().ToString();
+                string urlImage = await this._unitOfWork.FirebaseStorageRepository.UploadImageAsync(fileStream, folderName, imageId);
+                if (urlImage != null)
+                {
+                    uploaded = true;
+                }
+                #endregion
+
+                #region create store exchange, money exchange and transaction
+                // create store money exchange
+                StoreMoneyExchange storeMoneyExchange = new StoreMoneyExchange()
+                {
+                    Store = existedStore,
+                    MoneyExchange = new MoneyExchange()
+                    {
+                        Amount = withdrawMoneyRequest.Amount,
+                        ExchangeType = MoneyExchangeEnum.ExchangeType.WITHDRAW.ToString(),
+                        Content = $"Withdraw money {StringUtil.GetContentAmountAndTime(withdrawMoneyRequest.Amount)}",
+                        Status = (int)MoneyExchangeEnum.Status.SUCCESS,
+                        SenderId = existedKitchenCenter.KitchenCenterId,
+                        ReceiveId = existedStore.StoreId,
+                        ExchangeImage = urlImage,
+                        Transactions = new List<Transaction>()
+                        {
+                            new Transaction()
+                            {
+                                TransactionTime = DateTime.Now,
+                                Wallet = existedStore.Wallet,
+                                Status = (int)TransactionEnum.Status.SUCCESS,
+                            },
+                        },
+                    },
+                };
+                await this._unitOfWork.StoreMoneyExchangeRepository.CreateStoreMoneyExchangeAsync(storeMoneyExchange);
+
+                // update wallet
+                existedStore.Wallet.Balance -= withdrawMoneyRequest.Amount;
+                this._unitOfWork.WalletRepository.UpdateWallet(existedStore.Wallet);
+                #endregion
+
+                await this._unitOfWork.CommitAsync();
+                #endregion
+            }
+            catch (NotFoundException ex)
+            {
+                string fieldName = "";
+                switch (ex.Message)
+                {
+                    case MessageConstant.CommonMessage.NotExistStoreId:
+                        fieldName = "StoreId";
+                        break;
+
+                    default:
+                        fieldName = "Exception";
+                        break;
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new BadRequestException(error);
+            }
+            catch (BadRequestException ex)
+            {
+                string fieldName = "";
+                switch (ex.Message)
+                {
+                    case MessageConstant.MoneyExchangeMessage.StoreIdNotBelogToKitchenCenter:
+                        fieldName = "StoreId";
+                        break;
+
+                    case MessageConstant.MoneyExchangeMessage.BalanceIsInvalid:
+                    case MessageConstant.MoneyExchangeMessage.BalanceDoesNotEnough:
+                        fieldName = "Balance";
+                        break;
+
+                    default:
+                        fieldName = "Exception";
+                        break;
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new BadRequestException(error);
+            }
+            catch (Exception ex)
+            {
+                if (uploaded)
+                {
+                    await this._unitOfWork.FirebaseStorageRepository.DeleteImageAsync(imageId, folderName);
+                }
+                string error = ErrorUtil.GetErrorString("Exception", ex.InnerException != null ? ex.InnerException.Message : ex.Message);
+                throw new Exception(error);
+            }
+
         }
         #endregion
 

@@ -180,55 +180,6 @@ namespace MBKC.API.Extentions
             return services;
         }
 
-        public static IServiceCollection AddValidators(this IServiceCollection services)
-        {
-            services.AddScoped<IValidator<AccountRequest>, AccountValidator>();
-            services.AddScoped<IValidator<AccountTokenRequest>, AccountTokenValidator>();
-            services.AddScoped<IValidator<EmailVerificationRequest>, EmailVerificationValidator>();
-            services.AddScoped<IValidator<OTPCodeVerificationRequest>, OTPCodeVerifycationValidator>();
-            services.AddScoped<IValidator<ResetPasswordRequest>, ResetPasswordValidator>();
-            services.AddScoped<IValidator<CreateKitchenCenterRequest>, CreateKitchenCenterValidator>();
-            services.AddScoped<IValidator<UpdateKitchenCenterRequest>, UpdateKitchenCenterValidator>();
-            services.AddScoped<IValidator<RegisterStoreRequest>, RegisterStoreValidator>();
-            services.AddScoped<IValidator<UpdateStoreRequest>, UpdateStoreValidator>();
-            services.AddScoped<IValidator<PostBrandRequest>, PostBrandValidator>();
-            services.AddScoped<IValidator<UpdateBrandRequest>, UpdateBrandValidator>();
-            services.AddScoped<IValidator<PostCategoryRequest>, PostCategoryValidator>();
-            services.AddScoped<IValidator<UpdateCategoryRequest>, UpdateCategoryValidator>();
-            services.AddScoped<IValidator<UpdateBrandStatusRequest>, UpdateBrandStatusValidator>();
-            services.AddScoped<IValidator<UpdateBrandProfileRequest>, UpdateBrandProfileValidator>();
-            services.AddScoped<IValidator<UpdateKitchenCenterStatusRequest>, UpdateKitchenCenterStatusValidator>();
-            services.AddScoped<IValidator<UpdateStoreStatusRequest>, UpdateStoreStatusValidator>();
-            services.AddScoped<IValidator<ConfirmStoreRegistrationRequest>, ConfirmStoreRegistrationValidator>();
-            services.AddScoped<IValidator<CreateBankingAccountRequest>, CreateBankingAccountValidator>();
-            services.AddScoped<IValidator<UpdateBankingAccountStatusRequest>, UpdateBankingAccountStatusValidator>();
-            services.AddScoped<IValidator<UpdateBankingAccountRequest>, UpdateBankingAccountValidator>();
-            services.AddScoped<IValidator<CreateProductRequest>, CreateProductValidator>();
-            services.AddScoped<IValidator<UpdateProductRequest>, UpdateProductValidator>();
-            services.AddScoped<IValidator<UpdateProductStatusRequest>, UpdateProductStatusValidator>();
-            services.AddScoped<IValidator<PostPartnerRequest>, CreatePartnerValidator>();
-            services.AddScoped<IValidator<UpdatePartnerRequest>, UpdatePartnerValidator>();
-            services.AddScoped<IValidator<CreateCashierRequest>, CreateCashierValidator>();
-            services.AddScoped<IValidator<UpdateCashierRequest>, UpdateCashierValidator>();
-            services.AddScoped<IValidator<UpdateCashierStatusRequest>, UpdateCashierStatusValidator>();
-            services.AddScoped<IValidator<GetCashiersRequest>, GetCashiersValidator>();
-            services.AddScoped<IValidator<CashierRequest>, GetCashierValidator>();
-            services.AddScoped<IValidator<AccountIdRequest>, AccountIdValidator>();
-            services.AddScoped<IValidator<UpdateAccountRequest>, UpdateAccountValidator>();
-
-            services.AddScoped<IValidator<PostStorePartnerRequest>, CreateStorePartnerValidator>();
-            services.AddScoped<IValidator<UpdateStorePartnerRequest>, UpdateStorePartnerValidator>();
-            services.AddScoped<IValidator<UpdateStorePartnerStatusRequest>, UpdateStorePartnerStatusValidator>();
-
-            services.AddScoped<IValidator<PostPartnerProductRequest>, CreatePartnerProductValidator>();
-            services.AddScoped<IValidator<UpdatePartnerProductRequest>, UpdatePartnerProductValidator>();
-            services.AddScoped<IValidator<UpdatePartnerProductStatusRequest>, UpdatePartnerProductStatusValidator>();
-            services.AddScoped<IValidator<GetPartnerProductRequest>, GetPartnerProductValidator>();
-
-            services.AddScoped<IValidator<ConfirmOrderToCompletedRequest>, ConfirmOrderToCompletedValidator>();
-            return services;
-        }
-
         public static IServiceCollection AddExceptionMiddleware(this IServiceCollection services)
         {
             services.AddTransient<ExceptionMiddleware>();

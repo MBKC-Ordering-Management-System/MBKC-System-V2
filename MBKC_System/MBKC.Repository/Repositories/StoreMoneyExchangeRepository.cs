@@ -16,6 +16,18 @@ namespace MBKC.Repository.Repositories
             this._dbContext = dbContext;
         }
 
+        public async Task CreateStoreMoneyExchangeAsync(StoreMoneyExchange storeMoneyExchange)
+        {
+            try
+            {
+                await this._dbContext.AddAsync(storeMoneyExchange);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task CreateRangeStoreMoneyExchangeAsync(IEnumerable<StoreMoneyExchange> storeMoneyExchanges)
         {
             try
