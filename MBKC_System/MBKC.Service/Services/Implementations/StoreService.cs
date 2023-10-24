@@ -144,17 +144,17 @@ namespace MBKC.Service.Services.Implementations
                 if (searchValue != null && StringUtil.IsUnicode(searchValue))
                 {
                     numberItems = await this._unitOfWork.StoreRepository.GetNumberStoresAsync(searchValue, null, brandId, kitchenCenterId, statusParam);
-                    stores = await this._unitOfWork.StoreRepository.GetStoresAsync(searchValue, null, itemsPerPage.Value, currentPage.Value, brandId, kitchenCenterId, statusParam);
+                    stores = await this._unitOfWork.StoreRepository.GetStoresAsync(searchValue, null, itemsPerPage, currentPage, brandId, kitchenCenterId, statusParam);
                 }
                 else if (searchValue != null && StringUtil.IsUnicode(searchValue) == false)
                 {
                     numberItems = await this._unitOfWork.StoreRepository.GetNumberStoresAsync(null, searchValue, brandId, kitchenCenterId, statusParam);
-                    stores = await this._unitOfWork.StoreRepository.GetStoresAsync(null, searchValue, itemsPerPage.Value, currentPage.Value, brandId, kitchenCenterId, statusParam);
+                    stores = await this._unitOfWork.StoreRepository.GetStoresAsync(null, searchValue, itemsPerPage, currentPage, brandId, kitchenCenterId, statusParam);
                 }
                 else if (searchValue == null)
                 {
                     numberItems = await this._unitOfWork.StoreRepository.GetNumberStoresAsync(null, null, brandId, kitchenCenterId, statusParam);
-                    stores = await this._unitOfWork.StoreRepository.GetStoresAsync(null, null, itemsPerPage.Value, currentPage.Value, brandId, kitchenCenterId, statusParam);
+                    stores = await this._unitOfWork.StoreRepository.GetStoresAsync(null, null, itemsPerPage, currentPage, brandId, kitchenCenterId, statusParam);
                 }
 
                 int totalPages = 0;
