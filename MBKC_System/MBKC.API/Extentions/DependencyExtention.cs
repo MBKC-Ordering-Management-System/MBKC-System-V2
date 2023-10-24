@@ -38,19 +38,6 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using System.Reflection;
 using System.Text;
-using MBKC.API.Middlewares;
-using MBKC.Service.DTOs.BankingAccounts;
-using MBKC.API.Validators.BankingAccounts;
-using MBKC.Service.DTOs.Partners;
-using MBKC.API.Validators.Partners;
-using MBKC.Service.DTOs.Products;
-using MBKC.API.Validators.Products;
-using MBKC.API.Validators.Cashiers;
-using MBKC.Service.DTOs.Cashiers.Requests;
-using MBKC.Service.DTOs.StorePartners;
-using MBKC.API.Validators.StorePartners;
-using MBKC.Service.DTOs.PartnerProducts;
-using MBKC.API.Validators.PartnerProducts;
 using MBKC.Service.DTOs.Orders;
 using MBKC.API.Validators.Orders;
 using Hangfire;
@@ -218,6 +205,19 @@ namespace MBKC.API.Extentions
 
         public static void AddBackgroundJob(this IApplicationBuilder _)
         {
+
+            #region money exchange to kitchen center
+            // auto execute at 22:00 daily
+            RecurringJob.AddOrUpdate(HangfireConstant.MoneyExchangeToKitchenCenter_ID,
+                                    (IHangfireService hangfireService) => hangfireService.MoneyExchangeKitchenCentersync(),
+                                    cronExpression: HangfireConstant.MoneyExchangeToKitchenCenter_CronExpression,
+                                    new RecurringJobOptions
+                                    {
+                                        // sync time(utc +7)
+                                        TimeZone = TimeZoneInfo.Local,
+                                    });
+            #endregion
+
             #region money exchange to store
             // auto execute at 23:00 daily
             RecurringJob.AddOrUpdate(HangfireConstant.MoneyExchangeToStore_ID, 
@@ -229,6 +229,7 @@ namespace MBKC.API.Extentions
                                         TimeZone = TimeZoneInfo.Local,
                                     });
             #endregion
+
         }
     }
 }

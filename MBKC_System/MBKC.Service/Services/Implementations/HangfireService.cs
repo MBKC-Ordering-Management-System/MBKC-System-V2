@@ -2,6 +2,8 @@
 using MBKC.Repository.Enums;
 using MBKC.Repository.Infrastructures;
 using MBKC.Repository.Models;
+using MBKC.Repository.SMTPs.Models;
+using MBKC.Service.Constants;
 using MBKC.Service.Services.Interfaces;
 using MBKC.Service.Utils;
 using System;
@@ -10,6 +12,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static MBKC.Service.Constants.EmailMessageConstant;
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -23,24 +26,132 @@ namespace MBKC.Service.Services.Implementations
             this._mapper = mapper;
         }
 
+        #region money exchange to kitchen center
+        public async Task MoneyExchangeKitchenCentersync()
+        {
+            try
+            {
+                var cashiers = await this._unitOfWork.CashierRepository.GetCashiersAsync();
+                if (!cashiers.Any())
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine(MessageConstant.CashierMessage.NoOneActive);
+                    return;
+                }
+
+                if (cashiers.FirstOrDefault(c => c.CashierMoneyExchanges.Any()) != null)
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine(MessageConstant.MoneyExchangeMessage.AlreadyTransferredToKitchenCenter);
+                    return;
+                }
+
+                #region transfer money to kitchen center
+                List<Wallet> wallets = new List<Wallet>();
+                List<CashierMoneyExchange> cashierMoneyExchanges = new List<CashierMoneyExchange>();
+                List<KitchenCenterMoneyExchange> kitchenCenterMoneyExchanges = new List<KitchenCenterMoneyExchange>();
+                foreach (var cashier in cashiers)
+                {
+
+                    // create cashier money exchange (sender)
+                    CashierMoneyExchange cashierMoneyExchange = new CashierMoneyExchange()
+                    {
+                        Cashier = cashier,
+                        MoneyExchange = new MoneyExchange()
+                        {
+                            Amount = cashier.Wallet.Balance,
+                            ExchangeType = MoneyExchangeEnum.ExchangeType.SEND.ToString(),
+                            Content = $"Transfer money to kitchen center[id:{cashier.KitchenCenter.KitchenCenterId} - name:{cashier.KitchenCenter.Name}] {StringUtil.GetContentAmountAndTime(cashier.Wallet.Balance)}",
+                            Status = (int)MoneyExchangeEnum.Status.SUCCESS,
+                            SenderId = cashier.AccountId,
+                            ReceiveId = cashier.KitchenCenter.KitchenCenterId,
+                            Transactions = new List<Transaction>()
+                            {
+                                new Transaction()
+                                {
+                                    TransactionTime = DateTime.Now,
+                                    Wallet = cashier.Wallet,
+                                    Status = (int)TransactionEnum.Status.SUCCESS,
+                                },
+                            }
+                        }
+                    };
+                    cashierMoneyExchanges.Add(cashierMoneyExchange);
+
+                    // create kitchen center money exchange (Receiver)
+                    KitchenCenterMoneyExchange kitchenCenterMoneyExchange = new KitchenCenterMoneyExchange()
+                    {
+                        KitchenCenter = cashier.KitchenCenter,
+                        MoneyExchange = new MoneyExchange()
+                        {
+                            Amount = cashier.Wallet.Balance,
+                            ExchangeType = MoneyExchangeEnum.ExchangeType.RECEIVE.ToString(),
+                            Content = $"Receive money from cashier[id:{cashier.AccountId} - name:{cashier.FullName}] {StringUtil.GetContentAmountAndTime(cashier.Wallet.Balance)}",
+                            Status = (int)MoneyExchangeEnum.Status.SUCCESS,
+                            SenderId = cashier.AccountId,
+                            ReceiveId = cashier.KitchenCenter.KitchenCenterId,
+                            Transactions = new List<Transaction>()
+                            {
+                                new Transaction()
+                                {
+                                    TransactionTime = DateTime.Now,
+                                    Wallet = cashier.KitchenCenter.Wallet,
+                                    Status = (int)TransactionEnum.Status.SUCCESS,
+                                },
+                            }
+                        }
+                    };
+                    kitchenCenterMoneyExchanges.Add(kitchenCenterMoneyExchange);
+
+                    // update balance of cashier and kitchen center wallet
+                    cashier.KitchenCenter.Wallet.Balance += cashier.Wallet.Balance;
+                    cashier.Wallet.Balance = 0;
+                    wallets.Add(cashier.Wallet);
+
+                    var existedWalletKitchenCenter = wallets.FirstOrDefault(w => w.WalletId == cashier.KitchenCenter.WalletId);
+                    if (existedWalletKitchenCenter != null)
+                    {
+                        wallets[wallets.IndexOf(existedWalletKitchenCenter)].Balance += cashier.Wallet.Balance; 
+                    }
+                    else
+                    {
+                        wallets.Add(cashier.Wallet);
+                    }
+                }
+                #endregion
+
+                await this._unitOfWork.CashierMoneyExchangeRepository.CreateRangeCashierMoneyExchangeAsync(cashierMoneyExchanges);
+                await this._unitOfWork.KitchenCenterMoneyExchangeRepository.CreateRangeKitchenCenterMoneyExchangeAsync(kitchenCenterMoneyExchanges);
+                this._unitOfWork.WalletRepository.UpdateRangeWallet(wallets);
+                await this._unitOfWork.CommitAsync();
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                Console.WriteLine(MessageConstant.MoneyExchangeMessage.TransferToKitchenCenterSuccessfully);
+            }
+            catch (Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.InnerException != null ? ex.InnerException.Message : ex.Message);
+                throw new Exception(error);
+            }
+        }
+        #endregion
+
         #region money exchange to store
         public async Task MoneyExchangeToStoreAsync()
         {
             try
             {
-                List<KitchenCenter> kitchenCenters = await this._unitOfWork.KitchenCenterRepository.GetKitchenCentersIncludeOrderAsync();
+                var kitchenCenters = await this._unitOfWork.KitchenCenterRepository.GetKitchenCentersIncludeOrderAsync();
                 if (!kitchenCenters.Any())
                 {
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine("There are currently no kitchen center.");
+                    Console.WriteLine(MessageConstant.KitchenCenterMessage.NoOneActive);
                     return;
                 }
 
-                var result = kitchenCenters.FirstOrDefault(f => f.KitchenCenterMoneyExchanges.Any());
-                if (result != null)
+                if (kitchenCenters.FirstOrDefault(f => f.KitchenCenterMoneyExchanges.Any()) != null)
                 {
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine("The money has been transferred to the store today.");
+                    Console.WriteLine(MessageConstant.MoneyExchangeMessage.AlreadyTransferredToStore);
                     return;
                 }
 
@@ -169,7 +280,8 @@ namespace MBKC.Service.Services.Implementations
                 await this._unitOfWork.StoreMoneyExchangeRepository.CreateRangeStoreMoneyExchangeAsync(storeMoneyExchanges);
                 this._unitOfWork.WalletRepository.UpdateRangeWallet(wallets);
                 await this._unitOfWork.CommitAsync();
-                Console.WriteLine("Transfer money to store successfully.");
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                Console.WriteLine(MessageConstant.MoneyExchangeMessage.TransferToStoreSuccessfully);
             }
             catch (Exception ex)
             {
@@ -178,5 +290,6 @@ namespace MBKC.Service.Services.Implementations
             }
         }
         #endregion
+
     }
 }

@@ -12,7 +12,6 @@ using MBKC.Service.Exceptions;
 using MBKC.Service.Constants;
 using MBKC.Repository.Models;
 using MBKC.Service.Utils;
-using MBKC.Repository.SMTPModels;
 using MBKC.Repository.Enums;
 
 namespace MBKC.Service.Services.Implementations

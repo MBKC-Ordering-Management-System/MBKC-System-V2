@@ -60,8 +60,8 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Consumes(MediaTypeConstant.Application_Json)]
-        [Produces(MediaTypeConstant.Application_Json)]
+        [Consumes(MediaTypeConstant.ApplicationJson)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.Cashier)]
         [HttpPut(APIEndPointConstant.Order.ConfirmOrderToCompletedEndpoint)]
         public async Task<IActionResult> ConfirmOrderToCompletedAsync([FromBody] ConfirmOrderToCompletedRequest confirmOrderToCompletedRequest)

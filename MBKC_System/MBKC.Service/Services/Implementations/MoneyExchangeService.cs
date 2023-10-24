@@ -13,7 +13,6 @@ using MBKC.Service.DTOs.Orders;
 using MBKC.Service.Exceptions;
 using MBKC.Service.Utils;
 using System.Security.Claims;
-using MBKC.Repository.SMTPModels;
 using MBKC.Service.DTOs.MoneyExchanges;
 using MBKC.Service.DTOs.Brands;
 using static MBKC.Service.Constants.EmailMessageConstant;
@@ -73,7 +72,7 @@ namespace MBKC.Service.Services.Implementations
                 };
                 await this._unitOfWork.CashierMoneyExchangeRepository.CreateCashierMoneyExchangeAsync(cashierMoneyExchange);
 
-                // create kitchen center money exchange (Receiver)
+                // create kitchen center money exchange (receiver)
                 KitchenCenterMoneyExchange kitchenCenterMoneyExchange = new KitchenCenterMoneyExchange()
                 {
                     KitchenCenter = existedCashier.KitchenCenter,

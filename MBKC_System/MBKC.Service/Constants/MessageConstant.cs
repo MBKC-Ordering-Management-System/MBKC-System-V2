@@ -79,6 +79,7 @@
             public const string ManagerEmailExisted = "Kitchen center manager email already existed in the system.";
             public const string ExistedActiveStores_Delete = "The kitchen center has active stores, so this kitchen center cannot be deleted.";
             public const string NotBelongToKitchenCenter = "Kitchen center id does not belong to your kitchen center.";
+            public const string NoOneActive = "Currently there are no active kitchen centers.";
 
         }
 
@@ -171,6 +172,7 @@
             public const string CashierIdNotBelogToCashier = "Cashier id is not suitable with your account.";
             public const string StatusIsRequiredWithKitchenCenterManager = "Status is not null";
             public const string StatusIsNotRequiredWithCashier = "Cashier does not allow to update Status property.";
+            public const string NoOneActive = "Currently there are no active cashier.";
         }
 
         public static class StorePartnerMessage
@@ -220,6 +222,10 @@
             public const string StoreIdNotBelogToKitchenCenter = "Store id does not belong to your kitchen center.";
             public const string BalanceIsInvalid = "This store balance is invalid.";
             public const string BalanceDoesNotEnough = "This store does not have enough balance to make a withdraw.";
+            public const string AlreadyTransferredToStore = "The money has been transferred to the store today.";
+            public const string AlreadyTransferredToKitchenCenter = "The money has been transferred to the kitchen center today.";
+            public const string TransferToStoreSuccessfully = "Transfer money to store successfully.";
+            public const string TransferToKitchenCenterSuccessfully = "Transfer money to kitchen center successfully.";
         }
 
     }

@@ -10,5 +10,7 @@ namespace MBKC.Service.Services.Interfaces
     public interface IHangfireService
     {
         public Task MoneyExchangeToStoreAsync();
+
+        public Task MoneyExchangeKitchenCentersync();
     }
 }

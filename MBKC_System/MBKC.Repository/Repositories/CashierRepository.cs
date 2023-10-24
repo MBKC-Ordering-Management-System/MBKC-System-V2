@@ -14,6 +14,25 @@ namespace MBKC.Repository.Repositories
             this._dbContext = dbContext;
         }
 
+        public async Task<List<Cashier>> GetCashiersAsync()
+        {
+            try
+            {
+                return await this._dbContext.Cashiers.Include(c => c.Wallet)
+                                                     .Include(c => c.KitchenCenter).ThenInclude(kc => kc.Wallet)
+                                                     .Include(c => c.CashierMoneyExchanges.Where(ce => ce.MoneyExchange.ExchangeType.ToUpper().Equals(MoneyExchangeEnum.ExchangeType.SEND.ToString())
+                                                                                              && ce.MoneyExchange.Transactions.Any(ts => ts.TransactionTime.Day == DateTime.Now.Day
+                                                                                                                                      && ts.TransactionTime.Month == DateTime.Now.Month
+                                                                                                                                      && ts.TransactionTime.Year == DateTime.Now.Year)))
+                                                     .Where(c => c.Account.Status == (int)AccountEnum.Status.ACTIVE 
+                                                              && c.Wallet.Balance > 0).ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task<List<Cashier>> GetCashiersAsync(string? searchValue, string? searchValueWithoutUnicode,
             int currentPage, int itemsPerPage, string? sortByASC, string? sortByDESC, int kitchenCenterId)
         {
@@ -254,5 +273,7 @@ namespace MBKC.Repository.Repositories
                 throw new Exception(ex.Message);
             }
         }
+
+
     }
 }
