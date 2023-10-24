@@ -5,7 +5,7 @@ namespace MBKC.Service.Services.Interfaces
 {
     public interface IStoreService
     {
-        public Task<GetStoresResponse> GetStoresAsync(string? searchValue, int? currentPage, int? itemsPerPage, int? brandId, int? kitchenCenterId, string? status, IEnumerable<Claim> claims);
+        public Task<GetStoresResponse> GetStoresAsync(string? searchValue, int? currentPage, int? itemsPerPage, int? brandId, int? kitchenCenterId, string? status, bool? isGetAll, IEnumerable<Claim> claims);
         public Task<GetStoreResponse> GetStoreAsync(int id, IEnumerable<Claim> claims);
         public Task CreateStoreAsync(RegisterStoreRequest registerStoreRequest, IEnumerable<Claim> claims);
         public Task UpdateStoreAsync(int storeId, UpdateStoreRequest updateStoreRequest, IEnumerable<Claim> claims);

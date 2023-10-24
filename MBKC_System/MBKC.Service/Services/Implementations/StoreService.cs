@@ -26,7 +26,7 @@ namespace MBKC.Service.Services.Implementations
             this._mapper = mapper;
         }
 
-        public async Task<GetStoresResponse> GetStoresAsync(string? searchValue, int? currentPage, int? itemsPerPage, int? brandId, int? kitchenCenterId, string? status, IEnumerable<Claim> claims)
+        public async Task<GetStoresResponse> GetStoresAsync(string? searchValue, int? currentPage, int? itemsPerPage, int? brandId, int? kitchenCenterId, string? status, bool? isGetAll, IEnumerable<Claim> claims)
         {
             try
             {
@@ -116,21 +116,28 @@ namespace MBKC.Service.Services.Implementations
                     }
                 }
 
-                if (itemsPerPage != null && itemsPerPage <= 0)
+                if (isGetAll != null && isGetAll.Value == true)
                 {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidItemsPerPage);
-                }
-                else if (itemsPerPage == null)
+                    itemsPerPage = null;
+                    currentPage = null;
+                } else
                 {
-                    itemsPerPage = 5;
-                }
-                if (currentPage != null && currentPage <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidCurrentPage);
-                }
-                else if (currentPage == null)
-                {
-                    currentPage = 1;
+                    if (itemsPerPage != null && itemsPerPage <= 0)
+                    {
+                        throw new BadRequestException(MessageConstant.CommonMessage.InvalidItemsPerPage);
+                    }
+                    else if (itemsPerPage == null)
+                    {
+                        itemsPerPage = 5;
+                    }
+                    if (currentPage != null && currentPage <= 0)
+                    {
+                        throw new BadRequestException(MessageConstant.CommonMessage.InvalidCurrentPage);
+                    }
+                    else if (currentPage == null)
+                    {
+                        currentPage = 1;
+                    }
                 }
                 int numberItems = 0;
                 List<Store> stores = null;
@@ -150,16 +157,21 @@ namespace MBKC.Service.Services.Implementations
                     stores = await this._unitOfWork.StoreRepository.GetStoresAsync(null, null, itemsPerPage.Value, currentPage.Value, brandId, kitchenCenterId, statusParam);
                 }
 
-                int totalPage = (int)((numberItems + itemsPerPage) / itemsPerPage);
+                int totalPages = 0;
+                if (numberItems > 0 && isGetAll == null || numberItems > 0 && isGetAll != null && isGetAll == false)
+                {
+                    totalPages = (int)((numberItems + itemsPerPage.Value) / itemsPerPage.Value);
+                }
+
                 if (numberItems == 0)
                 {
-                    totalPage = 0;
+                    totalPages = 0;
                 }
                 List<GetStoreResponse> getStoreResponses = this._mapper.Map<List<GetStoreResponse>>(stores);
                 GetStoresResponse getStores = new GetStoresResponse()
                 {
                     NumberItems = numberItems,
-                    TotalPages = totalPage,
+                    TotalPages = totalPages,
                     Stores = getStoreResponses
                 };
                 return getStores;
