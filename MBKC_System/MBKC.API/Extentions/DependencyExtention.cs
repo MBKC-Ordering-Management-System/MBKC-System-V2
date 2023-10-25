@@ -44,6 +44,7 @@ using Hangfire;
 using System.Security.Cryptography.Xml;
 using Hangfire.Storage.SQLite;
 using MBKC.API.Constants;
+using System.Linq.Expressions;
 
 namespace MBKC.API.Extentions
 {
@@ -198,38 +199,8 @@ namespace MBKC.API.Extentions
             app.ConfigureExceptionMiddleware();
             app.MapControllers();
             app.UseHangfireDashboard();
-            app.MapHangfireDashboard(pattern: HangfireConstant.DashboardEndpoint);
-            app.AddBackgroundJob();
+            BackgroundJob.Enqueue<IHangfireService>(hf => hf.StartAllBackgroundJob());
             return app;
-        }
-
-        public static void AddBackgroundJob(this IApplicationBuilder _)
-        {
-
-            #region money exchange to kitchen center
-            // auto execute at 22:00 daily
-            RecurringJob.AddOrUpdate(HangfireConstant.MoneyExchangeToKitchenCenter_ID,
-                                    (IHangfireService hangfireService) => hangfireService.MoneyExchangeKitchenCentersync(),
-                                    cronExpression: HangfireConstant.MoneyExchangeToKitchenCenter_CronExpression,
-                                    new RecurringJobOptions
-                                    {
-                                        // sync time(utc +7)
-                                        TimeZone = TimeZoneInfo.Local,
-                                    });
-            #endregion
-
-            #region money exchange to store
-            // auto execute at 23:00 daily
-            RecurringJob.AddOrUpdate(HangfireConstant.MoneyExchangeToStore_ID, 
-                                    (IHangfireService hangfireService) => hangfireService.MoneyExchangeToStoreAsync(), 
-                                    cronExpression: HangfireConstant.MoneyExchangeToStore_CronExpression, 
-                                    new RecurringJobOptions
-                                    {   
-                                        // sync time(utc +7)
-                                        TimeZone = TimeZoneInfo.Local,
-                                    });
-            #endregion
-
         }
     }
 }

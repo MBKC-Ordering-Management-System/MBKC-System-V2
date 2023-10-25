@@ -17,45 +17,30 @@ namespace MBKC.API.Controllers
     [ApiController]
     public class MoneyExchangeController : ControllerBase
     {
+        private IHangfireService _hangfireService;
         private IMoneyExchangeService _moneyExchangeService;
         private IValidator<WithdrawMoneyRequest> _withdrawMoneyRequest;
         public MoneyExchangeController
         (
+            IHangfireService hangfireService,
             IMoneyExchangeService moneyExchangeService,
             IValidator<WithdrawMoneyRequest> withdrawMoneyRequest
 
         )
-        {
+        {   
+            this._hangfireService = hangfireService;
             this._moneyExchangeService = moneyExchangeService;
             this._withdrawMoneyRequest = withdrawMoneyRequest;
         }
 
-        #region money exchange to kitchen center
-        /// <summary>
-        ///  Send money back to kitchen center.
-        /// </summary>
-        /// <returns>
-        /// A success message about sent money.
-        /// </returns>
-        /// <response code="200">Sent money successfully.</response>
-        /// <response code="400">Some Error about request data and logic data.</response>
-        /// <response code="500">Some Error about the system.</response>
-        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
-        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
-        /// <exception cref="Exception">Throw Error about the system.</exception>
-        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces(MediaTypeConstant.ApplicationJson)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.Cashier)]
-        [HttpPut(APIEndPointConstant.MoneyExchange.MoneyExchangeToKitchenCenter)]
-        public async Task<IActionResult> MoneyExchangeToKitchenCenterAsync()
+        #region test get cron from sqlite
+        [HttpPut("api/v1/money-exchanges/get-cron")]
+        public IActionResult MoneyExchangeToKitchenCenterAsync()
         {
-            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            await this._moneyExchangeService.MoneyExchangeToKitchenCenterAsync(claims);
+           var result =  this._hangfireService.GetCronByKey();
             return Ok(new
             {
-                Message = MessageConstant.MoneyExchangeMessage.MoneyExchangeToKitchenCenterSuccessfully
+                data = result,
             });
         }
         #endregion

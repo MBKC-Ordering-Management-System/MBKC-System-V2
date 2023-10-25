@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Hangfire;
 using MBKC.Repository.Enums;
 using MBKC.Repository.Infrastructures;
 using MBKC.Repository.Models;
@@ -24,7 +25,64 @@ namespace MBKC.Service.Services.Implementations
         {
             this._unitOfWork = (UnitOfWork)unitOfWork;
             this._mapper = mapper;
+        }   
+
+        #region get cron by key
+        public string GetCronByKey()
+        {
+            try
+            {
+                return this._unitOfWork.HangfireRepository.GetCronByKey(HangfireConstant.MoneyExchangeToStore_ID) ?? "not existed.";
+            }
+            catch (Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.InnerException != null ? ex.InnerException.Message : ex.Message);
+                throw new Exception(error);
+            }
         }
+        #endregion
+
+        #region update cron by key and field
+        public void UpdateCronAsync(string key, int hour, int minute)
+        {
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.InnerException != null ? ex.InnerException.Message : ex.Message);
+                throw new Exception(error);
+            }
+        }
+        #endregion
+
+        #region start all background job
+        public void StartAllBackgroundJob()
+        {
+            // cashier money exchange to kitchen center
+            RecurringJob.AddOrUpdate(HangfireConstant.MoneyExchangeToKitchenCenter_ID,
+                                  () => MoneyExchangeKitchenCentersync(),
+                                  cronExpression: this._unitOfWork.HangfireRepository
+                                 .GetCronByKey(HangfireConstant.MoneyExchangeToKitchenCenter_ID) ?? HangfireConstant.Default_MoneyExchangeToKitchenCenter_CronExpression,
+                                  new RecurringJobOptions
+                                  {
+                                      // sync time(utc +7)
+                                      TimeZone = TimeZoneInfo.Local,
+                                  });
+
+            // kitchen center money exchange to store
+            RecurringJob.AddOrUpdate(HangfireConstant.MoneyExchangeToStore_ID,
+                                  () => MoneyExchangeToStoreAsync(),
+                                  cronExpression: this._unitOfWork.HangfireRepository
+                                 .GetCronByKey(HangfireConstant.MoneyExchangeToStore_ID) ?? HangfireConstant.Default_MoneyExchangeToStore_CronExpression,
+                                  new RecurringJobOptions
+                                  {
+                                      // sync time(utc +7)
+                                      TimeZone = TimeZoneInfo.Local,
+                                  });
+        }
+        #endregion
 
         #region money exchange to kitchen center
         public async Task MoneyExchangeKitchenCentersync()
@@ -111,7 +169,7 @@ namespace MBKC.Service.Services.Implementations
                     var existedWalletKitchenCenter = wallets.FirstOrDefault(w => w.WalletId == cashier.KitchenCenter.WalletId);
                     if (existedWalletKitchenCenter != null)
                     {
-                        wallets[wallets.IndexOf(existedWalletKitchenCenter)].Balance += cashier.Wallet.Balance; 
+                        wallets[wallets.IndexOf(existedWalletKitchenCenter)].Balance += cashier.Wallet.Balance;
                     }
                     else
                     {

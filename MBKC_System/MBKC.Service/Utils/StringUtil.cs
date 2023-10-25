@@ -217,5 +217,10 @@ namespace MBKC.Service.Utils
         {
             return $"in the amount of: {amount}đ at {DateTime.Now.Hour}:{DateTime.Now.Minute} - {DateTime.Now.Day}/{DateTime.Now.Month}/{DateTime.Now.Year}";
         }
+
+        public static string GetCronByHourAndMinute(int hour, int minute)
+        {
+            return $"{minute} {hour} * * *";
+        }
     }
 }
