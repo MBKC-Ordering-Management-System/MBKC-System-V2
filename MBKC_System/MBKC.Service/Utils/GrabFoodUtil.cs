@@ -2,7 +2,7 @@
 using MBKC.Repository.GrabFood.Models;
 using MBKC.Repository.Models;
 using MBKC.Service.Constants;
-using MBKC.Service.GrabFoods;
+using MBKC.Service.DTOs.GrabFoods;
 using System;
 using System.Collections.Generic;
 using System.Linq;

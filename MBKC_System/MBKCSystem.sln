@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MBKC.Repository", "MBKC.Rep
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MBKC.Service", "MBKC.Service\MBKC.Service.csproj", "{D1227068-CBCA-47F4-BA9D-E674556A73CE}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MBKC.PrivateAPI", "MBKC.PrivateAPI\MBKC.PrivateAPI.csproj", "{D9A9C9CF-F746-41DF-B600-0441F0C08D33}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{D1227068-CBCA-47F4-BA9D-E674556A73CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D1227068-CBCA-47F4-BA9D-E674556A73CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D1227068-CBCA-47F4-BA9D-E674556A73CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9A9C9CF-F746-41DF-B600-0441F0C08D33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9A9C9CF-F746-41DF-B600-0441F0C08D33}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9A9C9CF-F746-41DF-B600-0441F0C08D33}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9A9C9CF-F746-41DF-B600-0441F0C08D33}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

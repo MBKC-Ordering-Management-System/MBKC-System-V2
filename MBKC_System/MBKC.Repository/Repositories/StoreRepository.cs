@@ -454,6 +454,20 @@ namespace MBKC.Repository.Repositories
                 throw new Exception(ex.Message);
             }
         }
+
+        public async Task<List<Store>> GetStoresAsync()
+        {
+            try
+            {
+                return await this._dbContext.Stores
+                                      .Include(x => x.StorePartners.Where(x => x.Status == (int)StorePartnerEnum.Status.ACTIVE))
+                                      .ThenInclude(x => x.PartnerProducts).ThenInclude(x => x.Product).ThenInclude(x => x.ChildrenProducts)
+                                      .Where(x => x.Status == (int)StoreEnum.Status.ACTIVE).ToListAsync();
+            } catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }
 

@@ -272,6 +272,25 @@ namespace MBKC.Repository.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("MBKC.Repository.Models.Configuration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<TimeSpan>("ScrawlingOrderEndTime")
+                        .HasColumnType("time");
+
+                    b.Property<TimeSpan>("ScrawlingOrderStartTime")
+                        .HasColumnType("time");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Configurations");
+                });
+
             modelBuilder.Entity("MBKC.Repository.Models.ExtraCategory", b =>
                 {
                     b.Property<int>("CategoryId")
@@ -884,8 +903,8 @@ namespace MBKC.Repository.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<decimal>("Commission")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<float>("Commission")
+                        .HasColumnType("real");
 
                     b.Property<string>("Password")
                         .IsRequired()

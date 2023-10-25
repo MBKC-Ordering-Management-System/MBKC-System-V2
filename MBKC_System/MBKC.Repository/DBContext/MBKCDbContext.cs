@@ -47,6 +47,7 @@ namespace MBKC.Repository.DBContext
         public DbSet<StorePartner> StorePartners { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<Wallet> Wallets { get; set; }
+        public DbSet<Configuration> Configurations { get; set; }
         #endregion
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -418,6 +419,15 @@ namespace MBKC.Repository.DBContext
            .HasOne(storeMoneyExchange => storeMoneyExchange.MoneyExchange)
            .WithOne()
            .HasForeignKey<StoreMoneyExchange>(storeMoneyExchange => storeMoneyExchange.ExchangeId);
+            #endregion
+
+
+            #region Configuration
+            modelBuilder.Entity<Configuration>(configuration =>
+            {
+                configuration.Property(x => x.ScrawlingOrderStartTime).HasColumnType("time").IsRequired(true);
+                configuration.Property(x => x.ScrawlingOrderEndTime).HasColumnType("time").IsRequired(true);
+            });
             #endregion
 
 
