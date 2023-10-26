@@ -23,12 +23,14 @@ namespace MBKC.API.Controllers
         private IValidator<UpdateBrandRequest> _updateBrandValidator;
         private IValidator<UpdateBrandStatusRequest> _updateBrandStatusValidator;
         private IValidator<UpdateBrandProfileRequest> _updateBrandProfileValidator;
-        private IValidator<GetBrandsRequest> _getBrandValidator;
+        private IValidator<GetBrandsRequest> _getBrandsValidator;
+        private IValidator<BrandRequest> _getBrandValidator;
         public BrandsController(IBrandService brandService,
             IValidator<PostBrandRequest> postBrandValidator,
             IValidator<UpdateBrandRequest> updateBrandValidator,
             IValidator<UpdateBrandStatusRequest> updateBrandStatusValidator,
-            IValidator<GetBrandsRequest> getBrandValidator,
+            IValidator<GetBrandsRequest> getBrandsValidator,
+            IValidator<BrandRequest> getBrandValidator,
             IValidator<UpdateBrandProfileRequest> updateBrandProfileValidator)
         {
             this._brandService = brandService;
@@ -36,6 +38,7 @@ namespace MBKC.API.Controllers
             this._updateBrandValidator = updateBrandValidator;
             this._updateBrandStatusValidator = updateBrandStatusValidator;
             this._updateBrandProfileValidator = updateBrandProfileValidator;
+            this._getBrandsValidator = getBrandsValidator;
             this._getBrandValidator = getBrandValidator;
         }
 
@@ -71,7 +74,7 @@ namespace MBKC.API.Controllers
         [HttpGet(APIEndPointConstant.Brand.BrandsEndpoint)]
         public async Task<IActionResult> GetBrandsAsync([FromQuery] GetBrandsRequest getBrandsRequest)
         {
-            ValidationResult validationResult = await this._getBrandValidator.ValidateAsync(getBrandsRequest);
+            ValidationResult validationResult = await this._getBrandsValidator.ValidateAsync(getBrandsRequest);
             if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
@@ -87,8 +90,8 @@ namespace MBKC.API.Controllers
         /// <summary>
         /// Get specific brand by brand id.
         /// </summary>
-        /// <param name="id">
-        ///  id of brand.
+        /// <param name="getBrandRequest">
+        /// An object include id of brand.
         /// </param>
         /// <returns>
         /// An object contains brand's information.
@@ -114,10 +117,16 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin, PermissionAuthorizeConstant.BrandManager)]
         [HttpGet(APIEndPointConstant.Brand.BrandEndpoint)]
-        public async Task<IActionResult> GetBrandByIdAsync([FromRoute] int id)
+        public async Task<IActionResult> GetBrandByIdAsync([FromRoute] BrandRequest getBrandRequest)
         {
+            ValidationResult validationResult = await this._getBrandValidator.ValidateAsync(getBrandRequest);
+            if (validationResult.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
+            }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            var data = await this._brandService.GetBrandByIdAsync(id, claims);
+            var data = await this._brandService.GetBrandByIdAsync(getBrandRequest.Id, claims);
             return Ok(data);
         }
         #endregion
@@ -197,20 +206,20 @@ namespace MBKC.API.Controllers
         /// <summary>
         ///  Update an existed brand information.
         /// </summary>
-        /// <param name="id">
-        /// Brand's id for update brand.
+        /// <param name="brandRequest">
+        /// An object include id of brand.
         /// </param>
         ///  <param name="updateBrandRequest">
-        /// A success message about updating brand information.
+        /// An object include information for update brand.
         ///  </param>
         /// <returns>
-        /// An object will return BrandId, Name, Address, Logo and Status.
+        /// A success message about updating brand.
         /// </returns>
         /// <remarks>
         ///     Sample request:
         ///     
         ///         PUT
-        ///         id = 3
+        ///         Id = 3
         ///         Name = MyBrand 
         ///         Address = 123 Main St
         ///         Status = INACTIVE | ACTIVE
@@ -231,15 +240,21 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin)]
         [HttpPut(APIEndPointConstant.Brand.BrandEndpoint)]
-        public async Task<IActionResult> UpdateBrandAsync([FromRoute] int id, [FromForm] UpdateBrandRequest updateBrandRequest)
+        public async Task<IActionResult> UpdateBrandAsync([FromRoute] BrandRequest brandRequest, [FromForm] UpdateBrandRequest updateBrandRequest)
         {
+            ValidationResult validationResultBrandId = await _getBrandValidator.ValidateAsync(brandRequest);
             ValidationResult validationResult = await _updateBrandValidator.ValidateAsync(updateBrandRequest);
             if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
-            await this._brandService.UpdateBrandAsync(id, updateBrandRequest);
+            if (validationResultBrandId.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResultBrandId);
+                throw new BadRequestException(errors);
+            }
+            await this._brandService.UpdateBrandAsync(brandRequest.Id, updateBrandRequest);
             return Ok(new
             {
                 Message = MessageConstant.BrandMessage.UpdatedBrandSuccessfully
@@ -251,8 +266,8 @@ namespace MBKC.API.Controllers
         /// <summary>
         ///  Update an existed brand status.
         /// </summary>
-        /// <param name="id">
-        /// Brand's id for update brand.
+        /// <param name="getBrandRequest">
+        /// An object includes id of brand for updating brand.
         /// </param>
         ///  <param name="updateBrandStatusRequest">
         /// An object includes status for updating brand.
@@ -285,15 +300,21 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin)]
         [HttpPut(APIEndPointConstant.Brand.UpdatingStatusBrand)]
-        public async Task<IActionResult> UpdateBrandStatusAsync([FromRoute] int id, [FromBody] UpdateBrandStatusRequest updateBrandStatusRequest)
+        public async Task<IActionResult> UpdateBrandStatusAsync([FromRoute] BrandRequest getBrandRequest, [FromBody] UpdateBrandStatusRequest updateBrandStatusRequest)
         {
             ValidationResult validationResult = await this._updateBrandStatusValidator.ValidateAsync(updateBrandStatusRequest);
+            ValidationResult validationResultBrandId = await this._getBrandValidator.ValidateAsync(getBrandRequest);
             if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
-            await this._brandService.UpdateBrandStatusAsync(id, updateBrandStatusRequest);
+            if (validationResultBrandId.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResultBrandId);
+                throw new BadRequestException(errors);
+            }
+            await this._brandService.UpdateBrandStatusAsync(getBrandRequest.Id, updateBrandStatusRequest);
             return Ok(new
             {
                 Message = MessageConstant.BrandMessage.UpdatedBrandStatusSuccessfully
@@ -305,11 +326,11 @@ namespace MBKC.API.Controllers
         /// <summary>
         ///  Update an existed brand profile.
         /// </summary>
-        /// <param name="id">
-        /// Brand's id for update brand.
+        /// <param name="getBrandRequest">
+        /// An object include id of brand.
         /// </param>
         ///  <param name="updateBrandProfileRequest">
-        /// A success message about updating brand profile.
+        /// An object include information about brand for update brand's profile.
         ///  </param>
         /// <returns>
         /// An success message about updating brand's profile
@@ -318,7 +339,7 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///     
         ///         PUT
-        ///         id = 3
+        ///         Id = 3
         ///         Name = MyBrand
         ///         Address = 123 Main St
         ///         Logo = [Image File]
@@ -338,16 +359,22 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
         [HttpPut(APIEndPointConstant.Brand.UpdatingProfileBrand)]
-        public async Task<IActionResult> UpdateBrandProfileAsync([FromRoute] int id, [FromForm] UpdateBrandProfileRequest updateBrandProfileRequest)
+        public async Task<IActionResult> UpdateBrandProfileAsync([FromRoute] BrandRequest getBrandRequest, [FromForm] UpdateBrandProfileRequest updateBrandProfileRequest)
         {
             ValidationResult validationResult = await this._updateBrandProfileValidator.ValidateAsync(updateBrandProfileRequest);
+            ValidationResult validationResultBrandId = await this._getBrandValidator.ValidateAsync(getBrandRequest);
             if (validationResult.IsValid == false)
             {
                 var errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
+            if (validationResultBrandId.IsValid == false)
+            {
+                var errors = ErrorUtil.GetErrorsString(validationResultBrandId);
+                throw new BadRequestException(errors);
+            }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            await this._brandService.UpdateBrandProfileAsync(id, updateBrandProfileRequest, claims);
+            await this._brandService.UpdateBrandProfileAsync(getBrandRequest.Id, updateBrandProfileRequest, claims);
             return Ok(new
             {
                 Message = MessageConstant.BrandMessage.UpdatedBrandProfileSuccessfully
@@ -359,8 +386,8 @@ namespace MBKC.API.Controllers
         /// <summary>
         /// Delete existed brand by id.
         /// </summary>
-        /// <param name="id">
-        ///  Id of brand.
+        /// <param name="getBrandRequest">
+        ///  An object include id of brand.
         /// </param>
         /// <returns>
         /// An object will return message "Deleted brand successfully".
@@ -368,7 +395,7 @@ namespace MBKC.API.Controllers
         /// <remarks>
         ///     Sample request:
         ///     
-        ///         DELETE
+        ///        DELETE
         ///         id  = 3
         /// </remarks>
         /// <response code="200">Delete brand successfully.</response>
@@ -385,9 +412,15 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin)]
         [HttpDelete(APIEndPointConstant.Brand.BrandEndpoint)]
-        public async Task<IActionResult> DeActiveBrandByIdAsync([FromRoute] int id)
+        public async Task<IActionResult> DeActiveBrandByIdAsync([FromRoute] BrandRequest getBrandRequest)
         {
-            await this._brandService.DeActiveBrandByIdAsync(id);
+            ValidationResult validationResultBrandId = await this._getBrandValidator.ValidateAsync(getBrandRequest);
+            if (validationResultBrandId.IsValid == false)
+            {
+                var errors = ErrorUtil.GetErrorsString(validationResultBrandId);
+                throw new BadRequestException(errors);
+            }
+            await this._brandService.DeActiveBrandByIdAsync(getBrandRequest.Id);
             return Ok(new
             {
                 Message = MessageConstant.BrandMessage.DeletedBrandSuccessfully

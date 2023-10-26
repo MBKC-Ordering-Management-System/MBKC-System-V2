@@ -1,28 +1,14 @@
 ﻿using FluentValidation;
-using MBKC.Repository.Enums;
-using MBKC.Service.Constants;
-using MBKC.Service.DTOs.Categories;
+using MBKC.Service.DTOs.StorePartners;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace MBKC.API.Validators.Categories
+namespace MBKC.API.Validators.StorePartners
 {
-    public class GetCategoriesValidator : AbstractValidator<GetCategoriesRequest>
+    public class GetStorePartnersValidator : AbstractValidator<GetStorePartnersRequest>
     {
-        public GetCategoriesValidator()
+        public GetStorePartnersValidator()
         {
-
-            #region Type
-            RuleFor(c => c.Type)
-                     .Cascade(CascadeMode.StopOnFirstFailure)
-                     .NotNull().WithMessage("{PropertyName} is not null.")
-                     .NotEmpty().WithMessage("{PropertyName} is not empty.")
-                     .Must(type => type.ToLower() == CategoryEnum.Type.EXTRA.ToString().ToLower() ||
-                           type.ToLower() == CategoryEnum.Type.NORMAL.ToString().ToLower())
-                     .WithMessage(MessageConstant.CategoryMessage.NotExistCategoryType);
-
-            #endregion
-
             RuleFor(x => x.CurrentPage)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .Custom((currentPage, context) =>
@@ -47,7 +33,7 @@ namespace MBKC.API.Validators.Categories
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .Custom((sortBy, context) =>
                 {
-                    PropertyInfo[] properties = typeof(GetCategoryResponse).GetProperties();
+                    PropertyInfo[] properties = typeof(GetStorePartnerResponse).GetProperties();
                     string strRegex = @"(^[a-zA-Z]*_(ASC|asc)$)|(^[a-zA-Z]*_(DESC|desc))";
                     Regex regex = new Regex(strRegex);
                     if (sortBy is not null)

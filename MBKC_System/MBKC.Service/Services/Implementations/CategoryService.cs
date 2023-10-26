@@ -381,7 +381,7 @@ namespace MBKC.Service.Services.Implementations
                 _mapper.Map(categories, categoryResponse);
 
                 int totalPages = 0;
-                    totalPages = (int)((numberItems + getCategoriesRequest.ItemsPerPage.Value) / getCategoriesRequest.ItemsPerPage.Value);
+                totalPages = (int)((numberItems + getCategoriesRequest.ItemsPerPage.Value) / getCategoriesRequest.ItemsPerPage.Value);
                 if (numberItems == 0)
                 {
                     totalPages = 0;
@@ -404,19 +404,6 @@ namespace MBKC.Service.Services.Implementations
                 {
                     fieldName = "Type";
                 }
-                else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidCurrentPage))
-                {
-                    fieldName = "Current page";
-                }
-
-                else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidItemsPerPage))
-                {
-                    fieldName = "Items per page";
-                }
-                else if (ex.Message.Equals(MessageConstant.CategoryMessage.KeySortNotExist))
-                {
-                    fieldName = "Key sort";
-                }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
             }
@@ -429,15 +416,10 @@ namespace MBKC.Service.Services.Implementations
         #endregion
 
         #region Get Extra Categories From Normal Category
-        public async Task<GetCategoriesResponse> GetExtraCategoriesByCategoryId(int categoryId, string? keySearchName, int? pageNumber, int? pageSize, HttpContext httpContext)
+        public async Task<GetCategoriesResponse> GetExtraCategoriesByCategoryId(int categoryId, GetExtraCategoriesRequest getExtraCategoriesRequest, HttpContext httpContext)
         {
             try
             {
-                if (categoryId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidCategoryId);
-                }
-
                 // Get Brand Id from JWT
                 JwtSecurityToken jwtSecurityToken = TokenUtil.ReadToken(httpContext);
                 string accountId = jwtSecurityToken.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Sid).Value;
@@ -454,23 +436,6 @@ namespace MBKC.Service.Services.Implementations
                 }
                 var categoryResponse = new List<GetCategoryResponse>();
                 var listExtraCategoriesInNormalCategory = new List<Category>();
-
-                if (pageNumber != null && pageNumber <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidCurrentPage);
-                }
-                else if (pageNumber == null)
-                {
-                    pageNumber = 1;
-                }
-                if (pageSize != null && pageSize <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidItemsPerPage);
-                }
-                else if (pageSize == null)
-                {
-                    pageSize = 5;
-                }
 
                 // Get list extra category id
                 var listExtraCategoryId = await this._unitOfWork.ExtraCategoryRepository.GetExtraCategoriesByCategoryIdAsync(categoryId);
@@ -490,26 +455,32 @@ namespace MBKC.Service.Services.Implementations
                 }
 
                 int numberItems = 0;
-                if (keySearchName != null && StringUtil.IsUnicode(keySearchName))
+                if (getExtraCategoriesRequest.SearchValue != null && StringUtil.IsUnicode(getExtraCategoriesRequest.SearchValue))
                 {
-                    numberItems = this._unitOfWork.CategoryRepository.GetNumberExtraCategories(listExtraCategoriesInNormalCategory, keySearchName, null, brandId);
-                    listExtraCategoriesInNormalCategory = this._unitOfWork.CategoryRepository.SearchAndPagingExtraCategory(listExtraCategoriesInNormalCategory, keySearchName, null, pageSize.Value, pageNumber.Value, brandId);
+                    numberItems = this._unitOfWork.CategoryRepository.GetNumberExtraCategories(listExtraCategoriesInNormalCategory, getExtraCategoriesRequest.SearchValue, null, brandId);
+                    listExtraCategoriesInNormalCategory = this._unitOfWork.CategoryRepository.SearchAndPagingExtraCategory(listExtraCategoriesInNormalCategory, getExtraCategoriesRequest.SearchValue, null, getExtraCategoriesRequest.CurrentPage.Value, getExtraCategoriesRequest.ItemsPerPage.Value,
+                                                                                                              getExtraCategoriesRequest.SortBy != null && getExtraCategoriesRequest.SortBy.ToLower().EndsWith("asc") ? getExtraCategoriesRequest.SortBy.Split("_")[0] : null,
+                                                                                                              getExtraCategoriesRequest.SortBy != null && getExtraCategoriesRequest.SortBy.ToLower().EndsWith("desc") ? getExtraCategoriesRequest.SortBy.Split("_")[0] : null, brandId);
                 }
-                else if (keySearchName != null && StringUtil.IsUnicode(keySearchName) == false)
+                else if (getExtraCategoriesRequest.SearchValue != null && StringUtil.IsUnicode(getExtraCategoriesRequest.SearchValue) == false)
                 {
-                    numberItems = this._unitOfWork.CategoryRepository.GetNumberExtraCategories(listExtraCategoriesInNormalCategory, null, keySearchName, brandId);
-                    listExtraCategoriesInNormalCategory = this._unitOfWork.CategoryRepository.SearchAndPagingExtraCategory(listExtraCategoriesInNormalCategory, null, keySearchName, pageSize.Value, pageNumber.Value, brandId);
+                    numberItems = this._unitOfWork.CategoryRepository.GetNumberExtraCategories(listExtraCategoriesInNormalCategory, null, getExtraCategoriesRequest.SearchValue, brandId);
+                    listExtraCategoriesInNormalCategory = this._unitOfWork.CategoryRepository.SearchAndPagingExtraCategory(listExtraCategoriesInNormalCategory, null, getExtraCategoriesRequest.SearchValue, getExtraCategoriesRequest.CurrentPage.Value, getExtraCategoriesRequest.ItemsPerPage.Value,
+                                                                                                              getExtraCategoriesRequest.SortBy != null && getExtraCategoriesRequest.SortBy.ToLower().EndsWith("asc") ? getExtraCategoriesRequest.SortBy.Split("_")[0] : null,
+                                                                                                              getExtraCategoriesRequest.SortBy != null && getExtraCategoriesRequest.SortBy.ToLower().EndsWith("desc") ? getExtraCategoriesRequest.SortBy.Split("_")[0] : null, brandId);
                 }
-                else if (keySearchName == null)
+                else if (getExtraCategoriesRequest.SearchValue == null)
                 {
                     numberItems = this._unitOfWork.CategoryRepository.GetNumberExtraCategories(listExtraCategoriesInNormalCategory, null, null, brandId);
-                    listExtraCategoriesInNormalCategory = this._unitOfWork.CategoryRepository.SearchAndPagingExtraCategory(listExtraCategoriesInNormalCategory, null, null, pageSize.Value, pageNumber.Value, brandId);
+                    listExtraCategoriesInNormalCategory = this._unitOfWork.CategoryRepository.SearchAndPagingExtraCategory(listExtraCategoriesInNormalCategory, null, null, getExtraCategoriesRequest.CurrentPage.Value, getExtraCategoriesRequest.ItemsPerPage.Value,
+                                                                                                              getExtraCategoriesRequest.SortBy != null && getExtraCategoriesRequest.SortBy.ToLower().EndsWith("asc") ? getExtraCategoriesRequest.SortBy.Split("_")[0] : null,
+                                                                                                              getExtraCategoriesRequest.SortBy != null && getExtraCategoriesRequest.SortBy.ToLower().EndsWith("desc") ? getExtraCategoriesRequest.SortBy.Split("_")[0] : null, brandId);
                 }
 
 
                 _mapper.Map(listExtraCategoriesInNormalCategory, categoryResponse);
 
-                int totalPages = (int)((numberItems + pageSize) / pageSize);
+                int totalPages = (int)((numberItems + getExtraCategoriesRequest.ItemsPerPage) / getExtraCategoriesRequest.ItemsPerPage);
                 if (numberItems == 0)
                 {
                     totalPages = 0;
@@ -525,25 +496,13 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidCategoryId))
-                {
-                    fieldName = "Category id";
-                }
-                else if (ex.Message.Equals(MessageConstant.CommonMessage.CategoryIdNotBelongToBrand))
+                if (ex.Message.Equals(MessageConstant.CommonMessage.CategoryIdNotBelongToBrand))
                 {
                     fieldName = "Category id";
                 }
                 else if (ex.Message.Equals(MessageConstant.CategoryMessage.CategoryMustBeNormal))
                 {
                     fieldName = "Category id";
-                }
-                else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidCurrentPage))
-                {
-                    fieldName = "Current page";
-                }
-                else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidItemsPerPage))
-                {
-                    fieldName = "Items per page";
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);

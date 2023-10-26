@@ -1,37 +1,24 @@
 ﻿using FluentValidation;
-using MBKC.Repository.Enums;
-using MBKC.Service.Constants;
-using MBKC.Service.DTOs.Categories;
+using MBKC.Service.DTOs.Partners;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace MBKC.API.Validators.Categories
+namespace MBKC.API.Validators.Partners
 {
-    public class GetCategoriesValidator : AbstractValidator<GetCategoriesRequest>
+    public class GetPartnersValidator : AbstractValidator<GetPartnersRequest>
     {
-        public GetCategoriesValidator()
+
+        public GetPartnersValidator()
         {
-
-            #region Type
-            RuleFor(c => c.Type)
-                     .Cascade(CascadeMode.StopOnFirstFailure)
-                     .NotNull().WithMessage("{PropertyName} is not null.")
-                     .NotEmpty().WithMessage("{PropertyName} is not empty.")
-                     .Must(type => type.ToLower() == CategoryEnum.Type.EXTRA.ToString().ToLower() ||
-                           type.ToLower() == CategoryEnum.Type.NORMAL.ToString().ToLower())
-                     .WithMessage(MessageConstant.CategoryMessage.NotExistCategoryType);
-
-            #endregion
-
             RuleFor(x => x.CurrentPage)
-                .Cascade(CascadeMode.StopOnFirstFailure)
-                .Custom((currentPage, context) =>
-                {
-                    if (currentPage is not null && currentPage <= 0)
-                    {
-                        context.AddFailure("CurrentPage", "Current page number is required more than 0.");
-                    }
-                });
+                            .Cascade(CascadeMode.StopOnFirstFailure)
+                            .Custom((currentPage, context) =>
+                            {
+                                if (currentPage is not null && currentPage <= 0)
+                                {
+                                    context.AddFailure("CurrentPage", "Current page number is required more than 0.");
+                                }
+                            });
 
             RuleFor(x => x.ItemsPerPage)
                 .Cascade(CascadeMode.StopOnFirstFailure)
@@ -47,7 +34,7 @@ namespace MBKC.API.Validators.Categories
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .Custom((sortBy, context) =>
                 {
-                    PropertyInfo[] properties = typeof(GetCategoryResponse).GetProperties();
+                    PropertyInfo[] properties = typeof(GetPartnerResponse).GetProperties();
                     string strRegex = @"(^[a-zA-Z]*_(ASC|asc)$)|(^[a-zA-Z]*_(DESC|desc))";
                     Regex regex = new Regex(strRegex);
                     if (sortBy is not null)

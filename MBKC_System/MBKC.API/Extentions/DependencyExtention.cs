@@ -206,13 +206,22 @@ namespace MBKC.API.Extentions
             services.AddScoped<IValidator<PostStorePartnerRequest>, CreateStorePartnerValidator>();
             services.AddScoped<IValidator<UpdateStorePartnerRequest>, UpdateStorePartnerValidator>();
             services.AddScoped<IValidator<UpdateStorePartnerStatusRequest>, UpdateStorePartnerStatusValidator>();
-
             services.AddScoped<IValidator<PostPartnerProductRequest>, CreatePartnerProductValidator>();
             services.AddScoped<IValidator<UpdatePartnerProductRequest>, UpdatePartnerProductValidator>();
             services.AddScoped<IValidator<UpdatePartnerProductStatusRequest>, UpdatePartnerProductStatusValidator>();
-            services.AddScoped<IValidator<GetPartnerProductRequest>, GetPartnerProductValidator>();
+            services.AddScoped<IValidator<GetPartnerProductsRequest>, GetPartnerProductsValidator>();
             services.AddScoped<IValidator<GetBrandsRequest>, GetBrandsValidator>();
             services.AddScoped<IValidator<GetCategoriesRequest>, GetCategoriesValidator>();
+            services.AddScoped<IValidator<GetStorePartnersRequest>, GetStorePartnersValidator>();
+            services.AddScoped<IValidator<GetPartnersRequest>, GetPartnersValidator>();
+            services.AddScoped<IValidator<BrandRequest>, GetBrandValidator>();
+            services.AddScoped<IValidator<CategoryRequest>, GetCategoryValidator>();
+            services.AddScoped<IValidator<GetExtraCategoriesRequest>, GetExtraCategoriesValidator>();
+            services.AddScoped<IValidator<PartnerProductRequest>, GetPartnerProductValidator>();
+            services.AddScoped<IValidator<StorePartnerRequest>, GetStorePartnerValidator>();
+            services.AddScoped<IValidator<StoreRequest>, GetStoreValidator>();
+            services.AddScoped<IValidator<GetPartnerInformationRequest>, GetPartnerInformationValidator>();
+
             return services;
         }
 

@@ -1,28 +1,14 @@
 ﻿using FluentValidation;
-using MBKC.Repository.Enums;
-using MBKC.Service.Constants;
 using MBKC.Service.DTOs.Categories;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace MBKC.API.Validators.Categories
 {
-    public class GetCategoriesValidator : AbstractValidator<GetCategoriesRequest>
+    public class GetExtraCategoriesValidator : AbstractValidator<GetExtraCategoriesRequest>
     {
-        public GetCategoriesValidator()
+        public GetExtraCategoriesValidator()
         {
-
-            #region Type
-            RuleFor(c => c.Type)
-                     .Cascade(CascadeMode.StopOnFirstFailure)
-                     .NotNull().WithMessage("{PropertyName} is not null.")
-                     .NotEmpty().WithMessage("{PropertyName} is not empty.")
-                     .Must(type => type.ToLower() == CategoryEnum.Type.EXTRA.ToString().ToLower() ||
-                           type.ToLower() == CategoryEnum.Type.NORMAL.ToString().ToLower())
-                     .WithMessage(MessageConstant.CategoryMessage.NotExistCategoryType);
-
-            #endregion
-
             RuleFor(x => x.CurrentPage)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .Custom((currentPage, context) =>

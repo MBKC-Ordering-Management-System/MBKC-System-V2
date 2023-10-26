@@ -12,7 +12,7 @@ namespace MBKC.Service.Services.Interfaces
         public Task<GetCategoriesResponse> GetCategoriesAsync(GetCategoriesRequest getCategoriesRequest, HttpContext httpContext);
         public Task<GetCategoryResponse> GetCategoryByIdAsync(int id, HttpContext httpContext);
         public Task DeActiveCategoryByIdAsync(int id, HttpContext httpContext);
-        public Task<GetCategoriesResponse> GetExtraCategoriesByCategoryId(int categoryId, string? keySearchName, int? pageNumber, int? pageSize, HttpContext httpContext);
+        public Task<GetCategoriesResponse> GetExtraCategoriesByCategoryId(int categoryId, GetExtraCategoriesRequest getExtraCategoriesRequest, HttpContext httpContext);
         public Task AddExtraCategoriesToNormalCategory(int categoryId, ExtraCategoryRequest extraCategoryRequest, HttpContext httpContext);
     }
 }

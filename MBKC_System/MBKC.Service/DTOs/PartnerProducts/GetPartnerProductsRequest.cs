@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MBKC.Service.DTOs.PartnerProducts
 {
-    public class GetPartnerProductRequest
+    public class GetPartnerProductsRequest
     {
         public string? SearchValue { get; set; }
         public int? ItemsPerPage { get; set; } = 5;

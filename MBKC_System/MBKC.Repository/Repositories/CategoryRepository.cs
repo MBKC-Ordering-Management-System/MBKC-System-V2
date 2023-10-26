@@ -101,8 +101,6 @@ namespace MBKC.Repository.Repositories
                                    then => then.OrderBy(x => x.Name))
                           .If(sortByASC != null && sortByASC.ToLower().Equals("code"),
                                    then => then.OrderBy(x => x.Code))
-                          .If(sortByASC != null && sortByASC.ToLower().Equals("type"),
-                                   then => then.OrderBy(x => x.Type))
                           .If(sortByASC != null && sortByASC.ToLower().Equals("displayorder"),
                                    then => then.OrderBy(x => x.DisplayOrder))
                           .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
@@ -121,35 +119,20 @@ namespace MBKC.Repository.Repositories
                                 return false;
                             }
                         }).Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
-                         .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
-                         .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
-                                  then => then.OrderBy(x => x.Name))
-                         .If(sortByASC != null && sortByASC.ToLower().Equals("code"),
-                                  then => then.OrderBy(x => x.Code))
-                         .If(sortByASC != null && sortByASC.ToLower().Equals("type"),
-                                  then => then.OrderBy(x => x.Type))
-                         .If(sortByASC != null && sortByASC.ToLower().Equals("displayorder"),
-                                  then => then.OrderBy(x => x.DisplayOrder))
-                         .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
-                               then => then.OrderBy(x => x.Status).Reverse())
-                         .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage)
-                         .ToList(); 
-                }
-                else if (searchValue != null && searchValueWithoutUnicode == null)
-                {
-                    return await this._dbContext.Categories
-                        .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
-                        .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
-                        .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage)
-                        .ToListAsync();
+                          .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                          .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
+                                   then => then.OrderByDescending(x => x.Name))
+                          .If(sortByDESC != null && sortByDESC.ToLower().Equals("code"),
+                                   then => then.OrderByDescending(x => x.Code))
+                          .If(sortByDESC != null && sortByDESC.ToLower().Equals("type"),
+                                   then => then.OrderByDescending(x => x.Type))
+                          .If(sortByDESC != null && sortByDESC.ToLower().Equals("displayorder"),
+                                   then => then.OrderByDescending(x => x.DisplayOrder))
+                          .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
+                                then => then.OrderByDescending(x => x.Status).Reverse())
+                          .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage)
+                          .ToList();
 
-                }
-                return await this._dbContext.Categories.Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
-                    .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
-                    .ToListAsync();
-
-                if (searchValue is not null && searchValueWithoutUnicode != null)
-                {
                     return this._dbContext.Categories.Where(delegate (Category category)
                     {
                         if (StringUtil.RemoveSign4VietnameseString(category.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
@@ -161,26 +144,91 @@ namespace MBKC.Repository.Repositories
                             return false;
                         }
                     }).Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
-                      .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
-                      .Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToList();
+                          .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                          .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage)
+                          .ToList();
                 }
-                else if (keySearchNameUniCode != null && keySearchNameNotUniCode == null)
+                else if (searchValue != null && searchValueWithoutUnicode == null)
                 {
-                    return await this._dbContext.Categories
-                        .Where(c => c.Name.ToLower().Contains(keySearchNameUniCode.ToLower()) && c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
+                    if (sortByASC is not null)
+                        return this._dbContext.Categories
+                        .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
                         .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
-                        .Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
+                        .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
+                                   then => then.OrderBy(x => x.Name))
+                        .If(sortByASC != null && sortByASC.ToLower().Equals("code"),
+                                 then => then.OrderBy(x => x.Code))
+                        .If(sortByASC != null && sortByASC.ToLower().Equals("type"),
+                                 then => then.OrderBy(x => x.Type))
+                        .If(sortByASC != null && sortByASC.ToLower().Equals("displayorder"),
+                                 then => then.OrderBy(x => x.DisplayOrder))
+                        .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
+                                then => then.OrderBy(x => x.Status).Reverse())
+                        .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage)
+                        .ToList();
+
+                    else if (sortByDESC is not null)
+                        return this._dbContext.Categories
+                        .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
+                        .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                        .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
+                                   then => then.OrderByDescending(x => x.Name))
+                        .If(sortByDESC != null && sortByDESC.ToLower().Equals("code"),
+                                 then => then.OrderByDescending(x => x.Code))
+                        .If(sortByDESC != null && sortByDESC.ToLower().Equals("type"),
+                                 then => then.OrderByDescending(x => x.Type))
+                        .If(sortByDESC != null && sortByDESC.ToLower().Equals("displayorder"),
+                                 then => then.OrderByDescending(x => x.DisplayOrder))
+                        .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
+                                then => then.OrderByDescending(x => x.Status).Reverse())
+                        .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage)
+                        .ToList();
+
+                    return this._dbContext.Categories
+                        .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
+                        .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                        .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage)
+                        .ToList();
                 }
+
+                if (sortByASC is not null)
+                    return this._dbContext.Categories.Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                    .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                    .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
+                                   then => then.OrderBy(x => x.Name))
+                        .If(sortByASC != null && sortByASC.ToLower().Equals("code"),
+                                 then => then.OrderBy(x => x.Code))
+                        .If(sortByASC != null && sortByASC.ToLower().Equals("type"),
+                                 then => then.OrderBy(x => x.Type))
+                        .If(sortByASC != null && sortByASC.ToLower().Equals("displayorder"),
+                                 then => then.OrderBy(x => x.DisplayOrder))
+                        .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
+                                then => then.OrderBy(x => x.Status).Reverse())
+                    .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+
+                else if (sortByDESC is not null)
+                    return this._dbContext.Categories.Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                    .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                   .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
+                            then => then.OrderByDescending(x => x.Name))
+                   .If(sortByDESC != null && sortByDESC.ToLower().Equals("code"),
+                            then => then.OrderByDescending(x => x.Code))
+                   .If(sortByDESC != null && sortByDESC.ToLower().Equals("type"),
+                            then => then.OrderByDescending(x => x.Type))
+                   .If(sortByDESC != null && sortByDESC.ToLower().Equals("displayorder"),
+                            then => then.OrderByDescending(x => x.DisplayOrder))
+                   .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
+                                then => then.OrderByDescending(x => x.Status).Reverse())
+                    .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+
                 return await this._dbContext.Categories.Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
                     .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
-                    .Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
+                    .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
-            var category = new List<Category>();
-            return category;
         }
         #endregion
 
@@ -245,15 +293,63 @@ namespace MBKC.Repository.Repositories
         #endregion
 
         #region Search and Paging extra category
-        public List<Category> SearchAndPagingExtraCategory(List<Category> categories, string? keySearchNameUniCode, string? keySearchNameNotUniCode, int itemsPerPage, int currentPage, int brandId)
+        public List<Category> SearchAndPagingExtraCategory(List<Category> categories, string? searchValue, string? searchValueWithoutUnicode,
+            int currentPage, int itemsPerPage, string? sortByASC, string? sortByDESC, int brandId)
         {
             try
             {
-                if (keySearchNameUniCode == null && keySearchNameNotUniCode != null)
+                if (searchValue == null && searchValueWithoutUnicode is not null)
                 {
+                    if (sortByASC is not null)
+                        return categories.Where(delegate (Category category)
+                        {
+                            if (StringUtil.RemoveSign4VietnameseString(category.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
+                            {
+                                return true;
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                        }).Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                          .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                          .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
+                                   then => then.OrderBy(x => x.Name))
+                          .If(sortByASC != null && sortByASC.ToLower().Equals("code"),
+                                   then => then.OrderBy(x => x.Code))
+                          .If(sortByASC != null && sortByASC.ToLower().Equals("displayorder"),
+                                   then => then.OrderBy(x => x.DisplayOrder))
+                          .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
+                                then => then.OrderBy(x => x.Status).Reverse())
+                          .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage)
+                          .ToList();
+                    else if (sortByDESC is not null)
+                        return categories.Where(delegate (Category category)
+                        {
+                            if (StringUtil.RemoveSign4VietnameseString(category.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
+                            {
+                                return true;
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                        }).Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                          .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                          .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
+                                   then => then.OrderByDescending(x => x.Name))
+                          .If(sortByDESC != null && sortByDESC.ToLower().Equals("code"),
+                                   then => then.OrderByDescending(x => x.Code))
+                          .If(sortByDESC != null && sortByDESC.ToLower().Equals("displayorder"),
+                                   then => then.OrderByDescending(x => x.DisplayOrder))
+                          .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
+                                then => then.OrderByDescending(x => x.Status).Reverse())
+                          .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage)
+                          .ToList();
+
                     return categories.Where(delegate (Category category)
                     {
-                        if (StringUtil.RemoveSign4VietnameseString(category.Name.ToLower()).Contains(keySearchNameNotUniCode.ToLower()))
+                        if (StringUtil.RemoveSign4VietnameseString(category.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
                         {
                             return true;
                         }
@@ -261,16 +357,78 @@ namespace MBKC.Repository.Repositories
                         {
                             return false;
                         }
-                    }).Where(c => c.Status != (int)CategoryEnum.Status.DEACTIVE && c.Brand.BrandId == brandId).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+                    }).Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                          .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                          .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage)
+                          .ToList();
                 }
-                else if (keySearchNameUniCode != null && keySearchNameNotUniCode == null)
+                else if (searchValue != null && searchValueWithoutUnicode == null)
                 {
+                    if (sortByASC is not null)
+                        return categories
+                        .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
+                        .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                        .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
+                                   then => then.OrderBy(x => x.Name))
+                        .If(sortByASC != null && sortByASC.ToLower().Equals("code"),
+                                 then => then.OrderBy(x => x.Code))
+                        .If(sortByASC != null && sortByASC.ToLower().Equals("displayorder"),
+                                 then => then.OrderBy(x => x.DisplayOrder))
+                        .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
+                                then => then.OrderBy(x => x.Status).Reverse())
+                        .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage)
+                        .ToList();
+
+                    else if (sortByDESC is not null)
+                        return categories
+                        .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
+                        .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                        .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
+                                   then => then.OrderByDescending(x => x.Name))
+                        .If(sortByDESC != null && sortByDESC.ToLower().Equals("code"),
+                                 then => then.OrderByDescending(x => x.Code))
+                        .If(sortByDESC != null && sortByDESC.ToLower().Equals("displayorder"),
+                                 then => then.OrderByDescending(x => x.DisplayOrder))
+                        .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
+                                then => then.OrderByDescending(x => x.Status).Reverse())
+                        .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage)
+                        .ToList();
+
                     return categories
-                        .Where(c => c.Name.ToLower().Contains(keySearchNameUniCode.ToLower()) && c.Status != (int)CategoryEnum.Status.DEACTIVE && c.Brand.BrandId == brandId)
-                        .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+                        .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
+                        .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                        .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage)
+                        .ToList();
                 }
-                return categories
-                    .Where(c => c.Status != (int)CategoryEnum.Status.DEACTIVE && c.Brand.BrandId == brandId)
+
+                if (sortByASC is not null)
+                    return categories.Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                    .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                    .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
+                                   then => then.OrderBy(x => x.Name))
+                        .If(sortByASC != null && sortByASC.ToLower().Equals("code"),
+                                 then => then.OrderBy(x => x.Code))
+                        .If(sortByASC != null && sortByASC.ToLower().Equals("displayorder"),
+                                 then => then.OrderBy(x => x.DisplayOrder))
+                        .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
+                                then => then.OrderBy(x => x.Status).Reverse())
+                    .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+
+                else if (sortByDESC is not null)
+                    return categories.Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                    .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                   .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
+                            then => then.OrderByDescending(x => x.Name))
+                   .If(sortByDESC != null && sortByDESC.ToLower().Equals("code"),
+                            then => then.OrderByDescending(x => x.Code))
+                   .If(sortByDESC != null && sortByDESC.ToLower().Equals("displayorder"),
+                            then => then.OrderByDescending(x => x.DisplayOrder))
+                   .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
+                                then => then.OrderByDescending(x => x.Status).Reverse())
+                    .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+
+                return categories.Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                    .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
             }
             catch (Exception ex)

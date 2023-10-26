@@ -89,10 +89,6 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
-                if (id <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidBrandId);
-                }
                 var existedBrand = await _unitOfWork.BrandRepository.GetBrandByIdAsync(id);
                 if (existedBrand == null)
                 {
@@ -117,8 +113,7 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidBrandId) ||
-                    ex.Message.Equals(MessageConstant.BrandMessage.NotBelongToBrand))
+                if (ex.Message.Equals(MessageConstant.BrandMessage.NotBelongToBrand))
                 {
                     fieldName = "Brand id";
                 }
@@ -236,10 +231,6 @@ namespace MBKC.Service.Services.Implementations
             bool isNewManager = false;
             try
             {
-                if (brandId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidBrandId);
-                }
                 var brand = await _unitOfWork.BrandRepository.GetBrandByIdAsync(brandId);
                 if (brand == null)
                 {
@@ -348,11 +339,7 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidBrandId))
-                {
-                    fieldName = "Brand id";
-                }
-                else if (ex.Message.Equals(MessageConstant.BrandMessage.DeactiveBrand_Update))
+                if (ex.Message.Equals(MessageConstant.BrandMessage.DeactiveBrand_Update))
                 {
                     fieldName = "Updated brand failed";
                 }
@@ -493,10 +480,6 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
-                if (brandId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidBrandId);
-                }
                 var brand = await _unitOfWork.BrandRepository.GetBrandByIdAsync(brandId);
                 if (brand == null)
                 {
@@ -525,8 +508,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     fieldName = "Updated brand failed";
                 }
-                else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidBrandId) ||
-                    ex.Message.Equals(MessageConstant.BrandMessage.NotBelongToBrand))
+                else if (ex.Message.Equals(MessageConstant.BrandMessage.NotBelongToBrand))
                 {
                     fieldName = "Brand id";
                 }
@@ -555,10 +537,6 @@ namespace MBKC.Service.Services.Implementations
             bool isDeleted = false;
             try
             {
-                if (brandId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidBrandId);
-                }
                 var existedBrand = await _unitOfWork.BrandRepository.GetBrandByIdAsync(brandId);
                 if (existedBrand == null)
                 {
@@ -607,8 +585,7 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidBrandId) ||
-                    ex.Message.Equals(MessageConstant.BrandMessage.NotBelongToBrand))
+                if (ex.Message.Equals(MessageConstant.BrandMessage.NotBelongToBrand))
                 {
                     fieldName = "Brand id";
                 }

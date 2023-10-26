@@ -95,8 +95,6 @@ namespace MBKC.Repository.Repositories
                                                                     then => then.OrderBy(x => x.Name))
                                                        .If(sortByASC != null && sortByASC.ToLower().Equals("address"),
                                                                 then => then.OrderBy(x => x.Address))
-                                                       .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
-                                                                then => then.OrderBy(x => x.Status))
                                                        .If(sortByASC != null && sortByASC.ToLower().Equals("brandmanageremail"),
                                                                 then => then.OrderBy(x => x.BrandManagerEmail))
                                                        .If(sortByASC != null && sortByASC.ToLower().Equals("status"),

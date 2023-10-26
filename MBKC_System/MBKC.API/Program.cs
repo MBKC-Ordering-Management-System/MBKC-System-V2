@@ -21,6 +21,7 @@ using MBKC.Service.DTOs.Verifications;
 using MBKC.Service.DTOs.JWTs;
 using MBKC.Repository.FirebaseStorages.Models;
 using MBKC.Service.Utils;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,7 +41,8 @@ builder.Services.AddDbFactory();
 builder.Services.AddUnitOfWork();
 builder.Services.AddServices();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-builder.Services.AddValidators();
+/*builder.Services.AddValidators();*/
+builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 builder.Services.AddExceptionMiddleware();
 //Middlewares
 builder.Services.AddTransient<ExceptionMiddleware>();
