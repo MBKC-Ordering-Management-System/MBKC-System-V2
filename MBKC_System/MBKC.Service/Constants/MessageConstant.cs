@@ -104,6 +104,7 @@
             public const string NotConfirmingStore = "Store is not a new store to confirm to become an ACTIVE store.";
             public const string NotRejectedResonForNewStore = "Rejected store registration is required a reason.";
             public const string StoreIdNotBelongToStore = "Store id does not belong to your store.";
+            public const string StoresWithStatusNameParam = "Status is required some type such as: Active, Inactive, Rejected, Be comfirming.";
         }
 
         public static class CategoryMessage
@@ -156,6 +157,8 @@
             public const string DeactivePartner_Delete = "Partner cannot delete because that was deleted before.";
             public const string DeactivePartner_Get = "Partner cannot get because that was deleted before.";
             public const string KeySortNotExist = "Key sort are ASC or DESC";
+            public const string PartnerHasPartnerStoreActive_Update = "Partner can not update status because active stores is using this partner.";
+            public const string PartnerHasPartnerStoreActive_Delete = "Partner can not delete status because active stores is using this partner.";
 
 
         }

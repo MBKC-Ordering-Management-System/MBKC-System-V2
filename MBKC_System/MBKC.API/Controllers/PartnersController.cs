@@ -32,6 +32,100 @@ namespace MBKC.API.Controllers
             this._getPartnersValidator = getPartnersValidator;
             this._getPartnerValidator = getPartnerValidator;
         }
+
+        #region Get Partners
+        /// <summary>
+        ///  Get a list of partners from the system with condition paging, searchByName, sortByName, sortByStatus.
+        /// </summary>
+        /// <param name="keySearchName">
+        ///  The brand name that the user wants to search.
+        /// </param>
+        /// <param name="keySortName">
+        ///  Keywords when the user wants to sort by name ascending or descending(ASC or DESC).
+        /// </param>
+        /// <param name="keySortStatus">
+        ///  Keywords when the user wants to sort by stasus ascending or descending(ASC or DESC).
+        /// </param>
+        /// <param name="currentPage">
+        /// The current page the user wants to get next items.
+        /// </param>
+        /// <param name="itemsPerPage">
+        /// number of elements on a page.
+        /// </param>
+        /// <param name="isGetAll">
+        /// Input TRUE if you want to get all partners, ignoring pageNumber and pageSize, otherwise Input FALSE
+        /// </param>
+        /// <returns>
+        /// A list of partners contains NumberItems, TotalPages, Partners' information
+        /// </returns>
+        /// <remarks>
+        ///     Sample request:
+        ///     
+        ///         GET
+        ///         keySearchName = Shoppe Food
+        ///         keySortName = ASC | DESC
+        ///         keySortStatus = ASC | DESC
+        ///         currentPage = 1
+        ///         itemsPerPage = 5
+        ///         isGetAll = true
+        /// </remarks>
+        /// <response code="200">Get brands Successfully.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(GetPartnersResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin, PermissionAuthorizeConstant.BrandManager)]
+        [HttpGet(APIEndPointConstant.Partner.PartnersEndpoint)]
+        public async Task<IActionResult> GetPartnersAsync([FromQuery] string? keySearchName, [FromQuery] string? keySortName, [FromQuery] string? keySortStatus, [FromQuery] int? currentPage, [FromQuery] int? itemsPerPage, [FromQuery] bool? isGetAll)
+        {
+            var data = await this._partnerService.GetPartnersAsync(keySearchName, keySortName, keySortStatus, currentPage, itemsPerPage, isGetAll);
+
+            return Ok(data);
+        }
+        #endregion
+
+        #region Get Partner By Id
+        /// <summary>
+        /// Get specific partner by partner id.
+        /// </summary>
+        /// <param name="id">
+        ///  Id of parner.
+        /// </param>
+        /// <returns>
+        /// An Object contains partner's information.
+        /// </returns>
+        /// <remarks>
+        ///     Sample request:
+        ///     
+        ///         GET
+        ///         id = 3
+        ///         
+        /// </remarks>
+        /// <response code="200">Get partner Successfully.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
+        /// <response code="404">Some Error about request data not found.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
+        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(GetPartnerResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin)]
+        [HttpGet(APIEndPointConstant.Partner.PartnerEndpoint)]
+        public async Task<IActionResult> GetPartnerByIdAsync([FromRoute] int id)
+        {
+            var data = await this._partnerService.GetPartnerByIdAsync(id);
+            return Ok(data);
+        }
+        #endregion
+
         /*#region Create Partner
         /// <summary>
         ///  Create new partner.
@@ -236,13 +330,15 @@ namespace MBKC.API.Controllers
         ///  An object include partner id.
         /// </param>
         /// <returns>
-        /// An object will return message "Deleted Partner Successfully".
+        /// A success message about deleting existed partner.
         /// </returns>
         /// <remarks>
         ///     Sample request:
         ///     
         ///         DELETE
         ///             id = 3
+        ///             "id": 3
+        ///         }
         /// </remarks>
         /// <response code="200">Delete partner successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>

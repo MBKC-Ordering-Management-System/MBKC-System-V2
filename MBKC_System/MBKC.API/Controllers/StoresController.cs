@@ -53,6 +53,7 @@ namespace MBKC.API.Controllers
         ///         searchValue = KFC Bình Thạnh
         ///         idBrand = 1
         ///         idKitchenCenter = 1
+        ///         status = ACTIVE | INACTIVE | 
         /// </remarks>
         /// <response code="200">Get a list of stores Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
@@ -66,10 +67,10 @@ namespace MBKC.API.Controllers
         [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin, PermissionAuthorizeConstant.BrandManager, PermissionAuthorizeConstant.KitchenCenterManager)]
         [HttpGet(APIEndPointConstant.Store.StoresEndpoint)]
         public async Task<IActionResult> GetStoresAync([FromQuery] int? itemsPerPage, [FromQuery] int? currentPage, [FromQuery] string? searchValue,
-            [FromQuery] int? idBrand, [FromQuery] int? idKitchenCenter)
+            [FromQuery] int? idBrand, [FromQuery] int? idKitchenCenter, [FromQuery] string? status, [FromQuery] bool? isGetAll)
         {
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            GetStoresResponse stores = await this._storeService.GetStoresAsync(searchValue, currentPage, itemsPerPage, idBrand, idKitchenCenter, claims);
+            GetStoresResponse stores = await this._storeService.GetStoresAsync(searchValue, currentPage, itemsPerPage, idBrand, idKitchenCenter, status, isGetAll, claims);
             return Ok(stores);
         }
         #endregion
