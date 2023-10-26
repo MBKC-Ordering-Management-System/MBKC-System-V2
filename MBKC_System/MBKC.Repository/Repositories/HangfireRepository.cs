@@ -43,26 +43,5 @@ namespace MBKC.Repository.Repositories
         }
         #endregion
 
-        #region update cron
-        public int UpdateCron(string key, string newCron)
-        {
-            try
-            {
-                int numberOfRowsAffected;
-                using (var sqlite_conn = new SQLiteConnection(CONNECTION_STRING))
-                {
-                    sqlite_conn.Open();
-                    SQLiteCommand sqlite_cmd = sqlite_conn.CreateCommand();
-                    sqlite_cmd.CommandText = $"UPDATE Hash SET Value='{newCron}' WHERE Key='{PREFIX_ID}{key}' AND Field='Cron'";
-                    numberOfRowsAffected = sqlite_cmd.ExecuteNonQuery();
-                }
-                return numberOfRowsAffected;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-        #endregion
     }
 }

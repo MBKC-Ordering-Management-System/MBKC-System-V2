@@ -18,15 +18,15 @@ namespace MBKC.API.Controllers
     public class OrdersController : ControllerBase
     {
         private IOrderService _orderService;
-        private IValidator<ConfirmOrderToCompletedRequest> _confirmOrderToCompletedRequest;
+        private IValidator<ConfirmOrderToCompletedRequest> _confirmOrderToCompletedValidator;
         public OrdersController
         (
             IOrderService orderService, 
-            IValidator<ConfirmOrderToCompletedRequest> confirmOrderToCompletedRequest
+            IValidator<ConfirmOrderToCompletedRequest> confirmOrderToCompletedValidator
         )
         {
             this._orderService = orderService;
-            this._confirmOrderToCompletedRequest = confirmOrderToCompletedRequest;
+            this._confirmOrderToCompletedValidator = confirmOrderToCompletedValidator;
         }
 
         #region confirm order to completed
@@ -66,7 +66,7 @@ namespace MBKC.API.Controllers
         [HttpPut(APIEndPointConstant.Order.ConfirmOrderToCompletedEndpoint)]
         public async Task<IActionResult> ConfirmOrderToCompletedAsync([FromBody] ConfirmOrderToCompletedRequest confirmOrderToCompletedRequest)
         {
-            ValidationResult validationResult = await this._confirmOrderToCompletedRequest.ValidateAsync(confirmOrderToCompletedRequest);
+            ValidationResult validationResult = await this._confirmOrderToCompletedValidator.ValidateAsync(confirmOrderToCompletedRequest);
             if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);

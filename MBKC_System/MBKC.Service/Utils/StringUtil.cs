@@ -218,9 +218,17 @@ namespace MBKC.Service.Utils
             return $"in the amount of: {amount}đ at {DateTime.Now.Hour}:{DateTime.Now.Minute} - {DateTime.Now.Day}/{DateTime.Now.Month}/{DateTime.Now.Year}";
         }
 
-        public static string GetCronByHourAndMinute(int hour, int minute)
+        public static string ConvertTimeToCron(int hour, int minute)
         {
             return $"{minute} {hour} * * *";
+        }
+
+        public static (int hour, int minute) ConvertCronToTime(string cron)
+        {
+            var cronFields = Regex.Split(cron, @"\s+");
+            int hour = int.Parse(cronFields[1]);
+            int minutes = int.Parse(cronFields[0]);
+            return (hour, minutes);
         }
     }
 }

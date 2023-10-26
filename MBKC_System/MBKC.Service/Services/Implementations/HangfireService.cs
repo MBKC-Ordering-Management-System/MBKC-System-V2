@@ -1,16 +1,22 @@
 ﻿using AutoMapper;
 using Hangfire;
+using Hangfire.Server;
 using MBKC.Repository.Enums;
 using MBKC.Repository.Infrastructures;
 using MBKC.Repository.Models;
 using MBKC.Repository.SMTPs.Models;
 using MBKC.Service.Constants;
+using MBKC.Service.DTOs.MoneyExchanges;
+using MBKC.Service.Exceptions;
 using MBKC.Service.Services.Interfaces;
 using MBKC.Service.Utils;
+using Microsoft.Extensions.Logging;
+using Redis.OM.Searching.Query;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using static MBKC.Service.Constants.EmailMessageConstant;
@@ -20,42 +26,13 @@ namespace MBKC.Service.Services.Implementations
     public class HangfireService : IHangfireService
     {
         private UnitOfWork _unitOfWork;
-        private IMapper _mapper;
-        public HangfireService(IUnitOfWork unitOfWork, IMapper mapper)
+        private readonly ILogger<HangfireService> _logger;
+
+        public HangfireService(IUnitOfWork unitOfWork, ILogger<HangfireService> logger)
         {
             this._unitOfWork = (UnitOfWork)unitOfWork;
-            this._mapper = mapper;
-        }   
-
-        #region get cron by key
-        public string GetCronByKey()
-        {
-            try
-            {
-                return this._unitOfWork.HangfireRepository.GetCronByKey(HangfireConstant.MoneyExchangeToStore_ID) ?? "not existed.";
-            }
-            catch (Exception ex)
-            {
-                string error = ErrorUtil.GetErrorString("Exception", ex.InnerException != null ? ex.InnerException.Message : ex.Message);
-                throw new Exception(error);
-            }
+            this._logger = logger;
         }
-        #endregion
-
-        #region update cron by key and field
-        public void UpdateCronAsync(string key, int hour, int minute)
-        {
-            try
-            {
-
-            }
-            catch (Exception ex)
-            {
-                string error = ErrorUtil.GetErrorString("Exception", ex.InnerException != null ? ex.InnerException.Message : ex.Message);
-                throw new Exception(error);
-            }
-        }
-        #endregion
 
         #region start all background job
         public void StartAllBackgroundJob()
@@ -84,6 +61,70 @@ namespace MBKC.Service.Services.Implementations
         }
         #endregion
 
+        #region update cron by key
+        public async Task UpdateCronAsync(UpdateCronJobRequest updateCronJobRequest)
+        {
+            try
+            {
+                var existedCron = await Task.FromResult(this._unitOfWork.HangfireRepository.GetCronByKey(updateCronJobRequest.JobId));
+                if (existedCron == null)
+                {
+                    throw new NotFoundException(MessageConstant.MoneyExchangeMessage.NotExistJobId);
+                }
+
+                if (updateCronJobRequest.JobId.Equals(HangfireConstant.MoneyExchangeToKitchenCenter_ID))
+                {
+                    DateTime timeUpdate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 3, 5, 0);
+                    (int hour, int minute) timeExitsToStore = StringUtil.ConvertCronToTime(this._unitOfWork.HangfireRepository.GetCronByKey(HangfireConstant.MoneyExchangeToStore_ID)!);
+
+                }
+
+                Expression<Func<Task>> methodCall = () => Task.CompletedTask;
+                switch (updateCronJobRequest.JobId)
+                {
+                    case HangfireConstant.MoneyExchangeToKitchenCenter_ID:
+                        methodCall = () => MoneyExchangeKitchenCentersync();
+                        break;
+
+                    case HangfireConstant.MoneyExchangeToStore_ID:
+                        methodCall = () => MoneyExchangeToStoreAsync();
+                        break;
+                }
+
+                RecurringJob.AddOrUpdate(updateCronJobRequest.JobId,
+                                methodCall: methodCall,
+                                cronExpression: StringUtil.ConvertTimeToCron(updateCronJobRequest.hour, updateCronJobRequest.minute),
+                                new RecurringJobOptions
+                                {
+                                    // sync time(utc +7)
+                                    TimeZone = TimeZoneInfo.Local,
+                                });
+
+            }
+            catch (NotFoundException ex)
+            {
+                string fieldName = "";
+                switch (ex.Message)
+                {
+                    case MessageConstant.MoneyExchangeMessage.NotExistJobId:
+                        fieldName = "Job id";
+                        break;
+
+                    default:
+                        fieldName = "Exception";
+                        break;
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new NotFoundException(error);
+            }
+            catch (Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.InnerException != null ? ex.InnerException.Message : ex.Message);
+                throw new Exception(error);
+            }
+        }
+        #endregion
+
         #region money exchange to kitchen center
         public async Task MoneyExchangeKitchenCentersync()
         {
@@ -92,15 +133,13 @@ namespace MBKC.Service.Services.Implementations
                 var cashiers = await this._unitOfWork.CashierRepository.GetCashiersAsync();
                 if (!cashiers.Any())
                 {
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine(MessageConstant.CashierMessage.NoOneActive);
+                    this._logger.LogWarning($"{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second} - " + MessageConstant.CashierMessage.NoOneActive);
                     return;
                 }
 
                 if (cashiers.FirstOrDefault(c => c.CashierMoneyExchanges.Any()) != null)
                 {
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine(MessageConstant.MoneyExchangeMessage.AlreadyTransferredToKitchenCenter);
+                    this._logger.LogWarning($"{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second} - " + MessageConstant.MoneyExchangeMessage.AlreadyTransferredToKitchenCenter);
                     return;
                 }
 
@@ -182,8 +221,8 @@ namespace MBKC.Service.Services.Implementations
                 await this._unitOfWork.KitchenCenterMoneyExchangeRepository.CreateRangeKitchenCenterMoneyExchangeAsync(kitchenCenterMoneyExchanges);
                 this._unitOfWork.WalletRepository.UpdateRangeWallet(wallets);
                 await this._unitOfWork.CommitAsync();
-                Console.ForegroundColor = ConsoleColor.DarkGreen;
-                Console.WriteLine(MessageConstant.MoneyExchangeMessage.TransferToKitchenCenterSuccessfully);
+
+                this._logger.LogInformation($"{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second} - " + MessageConstant.MoneyExchangeMessage.TransferToKitchenCenterSuccessfully);
             }
             catch (Exception ex)
             {
@@ -201,15 +240,13 @@ namespace MBKC.Service.Services.Implementations
                 var kitchenCenters = await this._unitOfWork.KitchenCenterRepository.GetKitchenCentersIncludeOrderAsync();
                 if (!kitchenCenters.Any())
                 {
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine(MessageConstant.KitchenCenterMessage.NoOneActive);
+                    this._logger.LogWarning($"{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second} - " + MessageConstant.KitchenCenterMessage.NoOneActive);
                     return;
                 }
 
                 if (kitchenCenters.FirstOrDefault(f => f.KitchenCenterMoneyExchanges.Any()) != null)
                 {
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine(MessageConstant.MoneyExchangeMessage.AlreadyTransferredToStore);
+                    this._logger.LogWarning($"{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second} - " + MessageConstant.MoneyExchangeMessage.AlreadyTransferredToStore);
                     return;
                 }
 
@@ -338,8 +375,8 @@ namespace MBKC.Service.Services.Implementations
                 await this._unitOfWork.StoreMoneyExchangeRepository.CreateRangeStoreMoneyExchangeAsync(storeMoneyExchanges);
                 this._unitOfWork.WalletRepository.UpdateRangeWallet(wallets);
                 await this._unitOfWork.CommitAsync();
-                Console.ForegroundColor = ConsoleColor.DarkGreen;
-                Console.WriteLine(MessageConstant.MoneyExchangeMessage.TransferToStoreSuccessfully);
+
+                this._logger.LogInformation($"{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second} - " + MessageConstant.MoneyExchangeMessage.TransferToStoreSuccessfully);
             }
             catch (Exception ex)
             {

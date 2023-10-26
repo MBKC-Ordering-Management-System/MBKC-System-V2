@@ -111,6 +111,7 @@
         {
             public const string MoneyExchangeToKitchenCenterSuccessfully = "Sent Money To Kitchen Center Successfully.";
             public const string WithdrawMoneySuccessfully = "Withdraw Money To Store Successfully.";
+            public const string UpdateSchedulingTimeJob = "Change The Time To Automatically Transfer Money Successfully.";
         }
     }
 }

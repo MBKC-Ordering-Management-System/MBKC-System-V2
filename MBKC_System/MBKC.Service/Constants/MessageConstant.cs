@@ -227,6 +227,7 @@
             public const string AlreadyTransferredToKitchenCenter = "The money has been transferred to the kitchen center today.";
             public const string TransferToStoreSuccessfully = "Transfer money to store successfully.";
             public const string TransferToKitchenCenterSuccessfully = "Transfer money to kitchen center successfully.";
+            public const string NotExistJobId = "Job id is not existed in the MBKC System.";
         }
 
     }
