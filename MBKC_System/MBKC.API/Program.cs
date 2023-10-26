@@ -41,7 +41,6 @@ builder.Services.AddDbFactory();
 builder.Services.AddUnitOfWork();
 builder.Services.AddServices();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-/*builder.Services.AddValidators();*/
 builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 builder.Services.AddExceptionMiddleware();
 //Middlewares

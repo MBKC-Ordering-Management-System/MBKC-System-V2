@@ -20,10 +20,12 @@ namespace MBKC.API.Controllers
         private IValidator<UpdatePartnerRequest> _updatePartnerValidator;
         private IValidator<GetPartnersRequest> _getPartnersValidator;
         private IValidator<PartnerRequest> _getPartnerValidator;
+        private IValidator<UpdatePartnerStatusRequest> _updatePartnerStatusValidator;
         public PartnersController(IPartnerService partnerService, 
             IValidator<PostPartnerRequest> postPartnerValidator, 
             IValidator<UpdatePartnerRequest> updatePartnerValidator,
             IValidator<PartnerRequest> getPartnerValidator,
+            IValidator<UpdatePartnerStatusRequest> updatePartnerStatusValidator,
             IValidator<GetPartnersRequest> getPartnersValidator)
         {
             this._partnerService = partnerService;
@@ -31,100 +33,8 @@ namespace MBKC.API.Controllers
             this._updatePartnerValidator = updatePartnerValidator;
             this._getPartnersValidator = getPartnersValidator;
             this._getPartnerValidator = getPartnerValidator;
+            this._updatePartnerStatusValidator = updatePartnerStatusValidator;
         }
-
-        #region Get Partners
-        /// <summary>
-        ///  Get a list of partners from the system with condition paging, searchByName, sortByName, sortByStatus.
-        /// </summary>
-        /// <param name="keySearchName">
-        ///  The brand name that the user wants to search.
-        /// </param>
-        /// <param name="keySortName">
-        ///  Keywords when the user wants to sort by name ascending or descending(ASC or DESC).
-        /// </param>
-        /// <param name="keySortStatus">
-        ///  Keywords when the user wants to sort by stasus ascending or descending(ASC or DESC).
-        /// </param>
-        /// <param name="currentPage">
-        /// The current page the user wants to get next items.
-        /// </param>
-        /// <param name="itemsPerPage">
-        /// number of elements on a page.
-        /// </param>
-        /// <param name="isGetAll">
-        /// Input TRUE if you want to get all partners, ignoring pageNumber and pageSize, otherwise Input FALSE
-        /// </param>
-        /// <returns>
-        /// A list of partners contains NumberItems, TotalPages, Partners' information
-        /// </returns>
-        /// <remarks>
-        ///     Sample request:
-        ///     
-        ///         GET
-        ///         keySearchName = Shoppe Food
-        ///         keySortName = ASC | DESC
-        ///         keySortStatus = ASC | DESC
-        ///         currentPage = 1
-        ///         itemsPerPage = 5
-        ///         isGetAll = true
-        /// </remarks>
-        /// <response code="200">Get brands Successfully.</response>
-        /// <response code="400">Some Error about request data and logic data.</response>
-        /// <response code="500">Some Error about the system.</response>
-        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
-        /// <exception cref="Exception">Throw Error about the system.</exception>
-        [ProducesResponseType(typeof(GetPartnersResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces(MediaTypeConstant.ApplicationJson)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin, PermissionAuthorizeConstant.BrandManager)]
-        [HttpGet(APIEndPointConstant.Partner.PartnersEndpoint)]
-        public async Task<IActionResult> GetPartnersAsync([FromQuery] string? keySearchName, [FromQuery] string? keySortName, [FromQuery] string? keySortStatus, [FromQuery] int? currentPage, [FromQuery] int? itemsPerPage, [FromQuery] bool? isGetAll)
-        {
-            var data = await this._partnerService.GetPartnersAsync(keySearchName, keySortName, keySortStatus, currentPage, itemsPerPage, isGetAll);
-
-            return Ok(data);
-        }
-        #endregion
-
-        #region Get Partner By Id
-        /// <summary>
-        /// Get specific partner by partner id.
-        /// </summary>
-        /// <param name="id">
-        ///  Id of parner.
-        /// </param>
-        /// <returns>
-        /// An Object contains partner's information.
-        /// </returns>
-        /// <remarks>
-        ///     Sample request:
-        ///     
-        ///         GET
-        ///         id = 3
-        ///         
-        /// </remarks>
-        /// <response code="200">Get partner Successfully.</response>
-        /// <response code="400">Some Error about request data and logic data.</response>
-        /// <response code="404">Some Error about request data not found.</response>
-        /// <response code="500">Some Error about the system.</response>
-        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
-        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
-        /// <exception cref="Exception">Throw Error about the system.</exception>
-        [ProducesResponseType(typeof(GetPartnerResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces(MediaTypeConstant.ApplicationJson)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin)]
-        [HttpGet(APIEndPointConstant.Partner.PartnerEndpoint)]
-        public async Task<IActionResult> GetPartnerByIdAsync([FromRoute] int id)
-        {
-            var data = await this._partnerService.GetPartnerByIdAsync(id);
-            return Ok(data);
-        }
-        #endregion
 
         /*#region Create Partner
         /// <summary>
@@ -175,7 +85,7 @@ namespace MBKC.API.Controllers
 
         #region Get Partners
         /// <summary>
-        ///  Get a list of partners from the system with condition paging, searchByName, sortByName, sortByStatus.
+        ///  Get a list of partners from the system with search, sort, paging.
         /// </summary>
         /// <param name="getPartnersRequest">
         ///  An object include SearchValue, ItemsPerPage, CurrentPage, SortBy for search, sort, paging.
@@ -225,7 +135,7 @@ namespace MBKC.API.Controllers
         ///  An object include partner id.
         /// </param>
         /// <returns>
-        /// An Object contains partner's information.
+        /// An object contains partner's information.
         /// </returns>
         /// <remarks>
         ///     Sample request:
@@ -248,9 +158,8 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin)]
         [HttpGet(APIEndPointConstant.Partner.PartnerEndpoint)]
-        public async Task<IActionResult> GetPartnerByIdAsync([FromQuery] PartnerRequest getPartnerRequest)
+        public async Task<IActionResult> GetPartnerByIdAsync([FromRoute] PartnerRequest getPartnerRequest)
         {
-
             ValidationResult validationResult = await _getPartnerValidator.ValidateAsync(getPartnerRequest);
             if (validationResult.IsValid == false)
             {
@@ -322,6 +231,65 @@ namespace MBKC.API.Controllers
         }
         #endregion
 
+        #region Update Existed Partner's status
+        /// <summary>
+        ///  Update an existed partner's status.
+        /// </summary>
+        /// <param name="getPartnerRequest">
+        /// An object include id of partner.
+        /// </param>
+        ///  <param name="updatePartnerStatusRequest">
+        /// An request object contains partner's status
+        ///  </param>
+        /// <returns>
+        /// A success message about updating partner's status.
+        /// </returns>
+        /// <remarks>
+        ///     Sample request:
+        ///     
+        ///         PUT
+        ///         id = 3
+        ///         {
+        ///             "status": "ACTIVE | INACTIVE"
+        ///         }
+        /// </remarks>
+        /// <response code="200">Updated Existed Partner's Status Successfully.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
+        /// <response code="404">Some Error about request data not found.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
+        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Consumes(MediaTypeConstant.ApplicationJson)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin)]
+        [HttpPut(APIEndPointConstant.Partner.UpdatingPartnerStatusEndpoint)]
+        public async Task<IActionResult> UpdatePartnerStatusAsync([FromRoute]PartnerRequest getPartnerRequest, [FromBody] UpdatePartnerStatusRequest updatePartnerStatusRequest)
+        {
+            ValidationResult validationResult = await this._updatePartnerStatusValidator.ValidateAsync(updatePartnerStatusRequest);
+            ValidationResult validationResultPartnerId = await this._getPartnerValidator.ValidateAsync(getPartnerRequest);
+            if (validationResult.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
+            }
+            if (validationResultPartnerId.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResultPartnerId);
+                throw new BadRequestException(errors);
+            }
+            await this._partnerService.UpdatePartnerStatusAsync(getPartnerRequest.Id, updatePartnerStatusRequest);
+            return Ok(new
+            {
+                Message = MessageConstant.PartnerMessage.UpdatedPartnerStatusSuccessfully
+            });
+        }
+        #endregion
+
         #region Delete existed Partner By Id
         /// <summary>
         /// Delete existed partner by id.
@@ -337,8 +305,6 @@ namespace MBKC.API.Controllers
         ///     
         ///         DELETE
         ///             id = 3
-        ///             "id": 3
-        ///         }
         /// </remarks>
         /// <response code="200">Delete partner successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>

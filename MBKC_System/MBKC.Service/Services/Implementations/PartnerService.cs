@@ -110,10 +110,6 @@ namespace MBKC.Service.Services.Implementations
             bool isDeleted = false;
             try
             {
-                if (partnerId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidPartnerId);
-                }
                 var partner = await _unitOfWork.PartnerRepository.GetPartnerByIdAsync(partnerId);
                 if (partner == null)
                 {
@@ -175,14 +171,10 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidPartnerId))
-                {
-                    fieldName = "Partner id";
-                }
-                else if (ex.Message.Equals(MessageConstant.PartnerMessage.DeactivePartner_Update))
+                if (ex.Message.Equals(MessageConstant.PartnerMessage.DeactivePartner_Update))
                 {
                     fieldName = "Updated partner failed";
-                } 
+                }
                 else if (ex.Message.Equals(MessageConstant.PartnerMessage.PartnerHasPartnerStoreActive_Update))
                 {
                     fieldName = "Updated partner failed";
@@ -272,10 +264,6 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
-                if (id <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidPartnerId);
-                }
                 var existedPartner = await _unitOfWork.PartnerRepository.GetPartnerByIdAsync(id);
                 if (existedPartner == null)
                 {
@@ -294,8 +282,7 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidPartnerId)
-                    || ex.Message.Equals(MessageConstant.PartnerMessage.DeactivePartner_Get))
+                if (ex.Message.Equals(MessageConstant.PartnerMessage.DeactivePartner_Get))
                 {
                     fieldName = "partner id";
                 }
@@ -358,7 +345,8 @@ namespace MBKC.Service.Services.Implementations
                 else if (ex.Message.Equals(MessageConstant.PartnerMessage.DeactivePartner_Delete))
                 {
                     fieldName = "Delete partner failed";
-                } else if (ex.Message.Equals(MessageConstant.PartnerMessage.PartnerHasPartnerStoreActive_Delete))
+                }
+                else if (ex.Message.Equals(MessageConstant.PartnerMessage.PartnerHasPartnerStoreActive_Delete))
                 {
                     fieldName = "Delete partner failed";
                 }
@@ -386,10 +374,6 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
-                if (partnerId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidPartnerId);
-                }
                 var partner = await _unitOfWork.PartnerRepository.GetPartnerByIdAsync(partnerId);
 
                 if (partner == null)
@@ -408,7 +392,7 @@ namespace MBKC.Service.Services.Implementations
                 }
                 else if (updatePartnerStatusRequest.Status.ToLower().Equals(PartnerEnum.Status.INACTIVE.ToString().ToLower()))
                 {
-                    if(partner.StorePartners.Any(x => x.Status == (int)StorePartnerEnum.Status.ACTIVE))
+                    if (partner.StorePartners.Any(x => x.Status == (int)StorePartnerEnum.Status.ACTIVE))
                     {
                         throw new BadRequestException(MessageConstant.PartnerMessage.PartnerHasPartnerStoreActive_Update);
                     }
@@ -420,14 +404,11 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidPartnerId))
-                {
-                    fieldName = "Partner id";
-                }
-                else if (ex.Message.Equals(MessageConstant.PartnerMessage.DeactivePartner_Delete))
+                if (ex.Message.Equals(MessageConstant.PartnerMessage.DeactivePartner_Delete))
                 {
                     fieldName = "Update partner failed";
-                } else if (ex.Message.Equals(MessageConstant.PartnerMessage.PartnerHasPartnerStoreActive_Update))
+                }
+                else if (ex.Message.Equals(MessageConstant.PartnerMessage.PartnerHasPartnerStoreActive_Update))
                 {
                     fieldName = "Update partner failed";
                 }
