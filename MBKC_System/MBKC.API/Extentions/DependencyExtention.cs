@@ -1,33 +1,7 @@
-﻿using FluentValidation;
+﻿
 using MBKC.API.Middlewares;
-using MBKC.API.validators.Verifications;
-using MBKC.API.Validators;
-using MBKC.API.Validators.Accounts;
-using MBKC.API.Validators.Authentications;
-using MBKC.API.Validators.BankingAccounts;
-using MBKC.API.Validators.Brands;
-using MBKC.API.Validators.Cashiers;
-using MBKC.API.Validators.Categories;
-using MBKC.API.Validators.KitchenCenters;
-using MBKC.API.Validators.PartnerProducts;
-using MBKC.API.Validators.Partners;
-using MBKC.API.Validators.Products;
-using MBKC.API.Validators.StorePartners;
-using MBKC.API.Validators.Stores;
+
 using MBKC.Repository.Infrastructures;
-using MBKC.Service.DTOs.Accounts;
-using MBKC.Service.DTOs.AccountTokens;
-using MBKC.Service.DTOs.BankingAccounts;
-using MBKC.Service.DTOs.Brands;
-using MBKC.Service.DTOs.Cashiers.Requests;
-using MBKC.Service.DTOs.Categories;
-using MBKC.Service.DTOs.KitchenCenters;
-using MBKC.Service.DTOs.PartnerProducts;
-using MBKC.Service.DTOs.Partners;
-using MBKC.Service.DTOs.Products;
-using MBKC.Service.DTOs.StorePartners;
-using MBKC.Service.DTOs.Stores;
-using MBKC.Service.DTOs.Verifications;
 using MBKC.Service.Errors;
 using MBKC.Service.Services.Implementations;
 using MBKC.Service.Services.Interfaces;

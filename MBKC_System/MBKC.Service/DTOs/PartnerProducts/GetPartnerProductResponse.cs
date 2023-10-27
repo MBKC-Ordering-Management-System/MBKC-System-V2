@@ -16,5 +16,8 @@ namespace MBKC.Service.DTOs.PartnerProducts
         public string StoreName { get; set; }
         public string ProductCode { get; set; }
         public string Status { get; set; }
+        public decimal Price { get; set; }
+        public DateTime MappedDate { get; set; }
+        public DateTime UpdatedDate { get; set; }
     }
 }

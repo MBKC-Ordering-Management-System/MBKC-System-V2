@@ -189,6 +189,7 @@
             public const string GrabFoodAccountMustBeStoreManager = "GrabFood Account must be Store Manager Role.";
             public const string ItemOnGrabfoodCanNotMapping = "The item on GrabFood cannot be mapped to any product in the MBKC System.";
             public const string ModifierGroupOnGrabfoodCanNotMapping = "The modifier group on GrabFood cannot be mapped to any product in the MBKC System.";
+            public const string BrandHasNoActiveProduct = "Brand has no active products";
         }
 
         public static class PartnerProductMessage
@@ -197,7 +198,7 @@
             public const string DeactiveProduct_Create_Update = "This product is Deactive.";
             public const string InactiveProduct_Create_Update = "This product is Inactive.";
             public const string InactiveStore_Update = "This store has been inactive.";
-            public const string StatusInValid = "Status is ACTIVE or INACTIVE";
+            public const string StatusInValid = "Status is AVAILABLE, OUT_OF_STOCK_TODAY or OUT_OF_STOCK_INDENTIFINITELY.";
             public const string KeySortNotExist = "Key sort are ASC or DESC";
         }
 

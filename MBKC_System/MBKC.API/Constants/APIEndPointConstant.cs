@@ -92,15 +92,15 @@
         public static class StorePartner
         {
             public const string StorePartnersEndpoint = ApiEndpoint + "/store-partners";
-            public const string StorePartnerEndpoint = StorePartnersEndpoint + "/{storeId}/{partnerId}";
+            public const string StorePartnerEndpoint = StorePartnersEndpoint + "/stores/{storeId}/partners/{partnerId}";
             public const string UpdatingStatusStorePartnerEndpoint = StorePartnerEndpoint + "/updating-status";
-            public const string PartnerInformationEndpoint = StorePartnersEndpoint + "/{storeId}";
+            public const string PartnerInformationEndpoint = StorePartnersEndpoint + "/stores/{storeId}";
         }
 
         public static class PartnerProduct
         {
             public const string PartnerProductsEndpoint = ApiEndpoint + "/partner-products";
-            public const string PartnerProductEndpoint = PartnerProductsEndpoint + "/{productId}/{partnerId}/{storeId}";
+            public const string PartnerProductEndpoint = PartnerProductsEndpoint + "/products/{productId}/partners/{partnerId}/stores/{storeId}";
             public const string UpdatingStatusPartnerProductEndpoint = PartnerProductEndpoint + "/updating-status";
 
         }

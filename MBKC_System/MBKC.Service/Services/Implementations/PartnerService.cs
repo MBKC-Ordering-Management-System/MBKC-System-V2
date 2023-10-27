@@ -110,10 +110,6 @@ namespace MBKC.Service.Services.Implementations
             bool isDeleted = false;
             try
             {
-                if (partnerId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidPartnerId);
-                }
                 var partner = await _unitOfWork.PartnerRepository.GetPartnerByIdAsync(partnerId);
                 if (partner == null)
                 {
@@ -175,14 +171,10 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidPartnerId))
-                {
-                    fieldName = "Partner id";
-                }
-                else if (ex.Message.Equals(MessageConstant.PartnerMessage.DeactivePartner_Update))
+                if (ex.Message.Equals(MessageConstant.PartnerMessage.DeactivePartner_Update))
                 {
                     fieldName = "Updated partner failed";
-                } 
+                }
                 else if (ex.Message.Equals(MessageConstant.PartnerMessage.PartnerHasPartnerStoreActive_Update))
                 {
                     fieldName = "Updated partner failed";
@@ -211,89 +203,44 @@ namespace MBKC.Service.Services.Implementations
             }
         }
 
-        public async Task<GetPartnersResponse> GetPartnersAsync(string? keySearchName, string? keySortName, string? keySortStatus, int? pageNumber, int? pageSize, bool? isGetAll)
+        public async Task<GetPartnersResponse> GetPartnersAsync(GetPartnersRequest getPartnersRequest)
         {
             try
             {
                 var partners = new List<Partner>();
                 var partnerResponse = new List<GetPartnerResponse>();
-                if (pageNumber != null && pageNumber <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidCurrentPage);
-                }
-                else if (pageNumber == null)
-                {
-                    pageNumber = 1;
-                }
-                if (pageSize != null && pageSize <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidItemsPerPage);
-                }
-                else if (pageSize == null)
-                {
-                    pageSize = 5;
-                }
-
-                if (keySortName != null && keySortName != "")
-                {
-                    if (!keySortName.ToUpper().Equals(PartnerEnum.KeySort.ASC.ToString())
-                    && !keySortName.ToUpper().Equals(PartnerEnum.KeySort.DESC.ToString()))
-                    {
-                        throw new BadRequestException(MessageConstant.PartnerMessage.KeySortNotExist);
-                    }
-                }
-
-                if (keySortStatus != null && keySortStatus != "")
-                {
-                    if (!keySortStatus.ToUpper().Equals(PartnerEnum.KeySort.ASC.ToString())
-                   && !keySortStatus.ToUpper().Equals(PartnerEnum.KeySort.DESC.ToString()))
-                    {
-                        throw new BadRequestException(MessageConstant.PartnerMessage.KeySortNotExist);
-                    }
-                }
 
                 int numberItems = 0;
-                if (keySearchName != null && StringUtil.IsUnicode(keySearchName))
+                if (getPartnersRequest.SearchValue != null && StringUtil.IsUnicode(getPartnersRequest.SearchValue))
                 {
-                    numberItems = await this._unitOfWork.PartnerRepository.GetNumberPartnersAsync(keySearchName, null);
-                    partners = await this._unitOfWork.PartnerRepository.GetPartnersAsync(keySearchName, null, pageSize.Value, pageNumber.Value);
+                    numberItems = await this._unitOfWork.PartnerRepository.GetNumberPartnersAsync(getPartnersRequest.SearchValue, null);
+                    partners = await this._unitOfWork.PartnerRepository.GetPartnersAsync(getPartnersRequest.SearchValue, null, getPartnersRequest.CurrentPage.Value, getPartnersRequest.ItemsPerPage.Value,
+                                                                                                              getPartnersRequest.SortBy != null && getPartnersRequest.SortBy.ToLower().EndsWith("asc") ? getPartnersRequest.SortBy.Split("_")[0] : null,
+                                                                                                              getPartnersRequest.SortBy != null && getPartnersRequest.SortBy.ToLower().EndsWith("desc") ? getPartnersRequest.SortBy.Split("_")[0] : null);
                 }
-                else if (keySearchName != null && StringUtil.IsUnicode(keySearchName) == false)
+                else if (getPartnersRequest.SearchValue != null && StringUtil.IsUnicode(getPartnersRequest.SearchValue) == false)
                 {
-                    numberItems = await this._unitOfWork.PartnerRepository.GetNumberPartnersAsync(null, keySearchName);
-                    partners = await this._unitOfWork.PartnerRepository.GetPartnersAsync(null, keySearchName, pageSize.Value, pageNumber.Value);
+                    numberItems = await this._unitOfWork.PartnerRepository.GetNumberPartnersAsync(null, getPartnersRequest.SearchValue);
+                    partners = await this._unitOfWork.PartnerRepository.GetPartnersAsync(null, getPartnersRequest.SearchValue, getPartnersRequest.CurrentPage.Value, getPartnersRequest.ItemsPerPage.Value,
+                                                                                                              getPartnersRequest.SortBy != null && getPartnersRequest.SortBy.ToLower().EndsWith("asc") ? getPartnersRequest.SortBy.Split("_")[0] : null,
+                                                                                                              getPartnersRequest.SortBy != null && getPartnersRequest.SortBy.ToLower().EndsWith("desc") ? getPartnersRequest.SortBy.Split("_")[0] : null);
                 }
-                else if (keySearchName == null)
+                else if (getPartnersRequest.SearchValue == null)
                 {
                     numberItems = await this._unitOfWork.PartnerRepository.GetNumberPartnersAsync(null, null);
-                    partners = await this._unitOfWork.PartnerRepository.GetPartnersAsync(null, null, pageSize.Value, pageNumber.Value);
+                    partners = await this._unitOfWork.PartnerRepository.GetPartnersAsync(null, null, getPartnersRequest.CurrentPage.Value, getPartnersRequest.ItemsPerPage.Value,
+                                                                                                              getPartnersRequest.SortBy != null && getPartnersRequest.SortBy.ToLower().EndsWith("asc") ? getPartnersRequest.SortBy.Split("_")[0] : null,
+                                                                                                              getPartnersRequest.SortBy != null && getPartnersRequest.SortBy.ToLower().EndsWith("desc") ? getPartnersRequest.SortBy.Split("_")[0] : null);
                 }
                 this._mapper.Map(partners, partnerResponse);
 
 
                 // sort by name or status
-                if (keySortName != null && keySortName != "" && keySortName.ToUpper().Equals(PartnerEnum.KeySort.ASC.ToString()))
-                {
-                    partnerResponse = partnerResponse.OrderBy(x => x.Name).ToList();
-                }
-                else if (keySortName != null && keySortName != "" && keySortName.ToUpper().Equals(PartnerEnum.KeySort.DESC.ToString()))
-                {
-                    partnerResponse = partnerResponse.OrderByDescending(x => x.Name).ToList();
-                }
-                else if (keySortStatus != null && keySortStatus != "" && keySortStatus.ToUpper().Equals(PartnerEnum.KeySort.ASC.ToString()))
-                {
-                    partnerResponse = partnerResponse.OrderBy(x => x.Status).ToList();
-                }
-                else if (keySortStatus != null && keySortStatus != "" && keySortStatus.ToUpper().Equals(PartnerEnum.KeySort.DESC.ToString()))
-                {
-                    partnerResponse = partnerResponse.OrderByDescending(x => x.Status).ToList();
-                }
 
                 int totalPages = 0;
-                if (numberItems > 0 && isGetAll == null || numberItems > 0 && isGetAll != null && isGetAll == false)
-                {
-                    totalPages = (int)((numberItems + pageSize.Value) / pageSize.Value);
-                }
+
+                totalPages = (int)((numberItems + getPartnersRequest.ItemsPerPage) / getPartnersRequest.ItemsPerPage);
+
 
                 if (numberItems == 0)
                 {
@@ -306,25 +253,6 @@ namespace MBKC.Service.Services.Implementations
                     TotalPages = totalPages
                 };
             }
-            catch (BadRequestException ex)
-            {
-                string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidItemsPerPage))
-                {
-                    fieldName = "Page size";
-                }
-
-                else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidCurrentPage))
-                {
-                    fieldName = "Page number";
-                }
-                else if (ex.Message.Equals(MessageConstant.PartnerMessage.KeySortNotExist))
-                {
-                    fieldName = "Key sort";
-                }
-                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
-                throw new NotFoundException(error);
-            }
             catch (Exception ex)
             {
                 string error = ErrorUtil.GetErrorString("Exception", ex.Message);
@@ -336,10 +264,6 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
-                if (id <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidPartnerId);
-                }
                 var existedPartner = await _unitOfWork.PartnerRepository.GetPartnerByIdAsync(id);
                 if (existedPartner == null)
                 {
@@ -358,8 +282,7 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidPartnerId)
-                    || ex.Message.Equals(MessageConstant.PartnerMessage.DeactivePartner_Get))
+                if (ex.Message.Equals(MessageConstant.PartnerMessage.DeactivePartner_Get))
                 {
                     fieldName = "partner id";
                 }
@@ -422,7 +345,8 @@ namespace MBKC.Service.Services.Implementations
                 else if (ex.Message.Equals(MessageConstant.PartnerMessage.DeactivePartner_Delete))
                 {
                     fieldName = "Delete partner failed";
-                } else if (ex.Message.Equals(MessageConstant.PartnerMessage.PartnerHasPartnerStoreActive_Delete))
+                }
+                else if (ex.Message.Equals(MessageConstant.PartnerMessage.PartnerHasPartnerStoreActive_Delete))
                 {
                     fieldName = "Delete partner failed";
                 }
@@ -450,10 +374,6 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
-                if (partnerId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidPartnerId);
-                }
                 var partner = await _unitOfWork.PartnerRepository.GetPartnerByIdAsync(partnerId);
 
                 if (partner == null)
@@ -472,7 +392,7 @@ namespace MBKC.Service.Services.Implementations
                 }
                 else if (updatePartnerStatusRequest.Status.ToLower().Equals(PartnerEnum.Status.INACTIVE.ToString().ToLower()))
                 {
-                    if(partner.StorePartners.Any(x => x.Status == (int)StorePartnerEnum.Status.ACTIVE))
+                    if (partner.StorePartners.Any(x => x.Status == (int)StorePartnerEnum.Status.ACTIVE))
                     {
                         throw new BadRequestException(MessageConstant.PartnerMessage.PartnerHasPartnerStoreActive_Update);
                     }
@@ -484,14 +404,11 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidPartnerId))
-                {
-                    fieldName = "Partner id";
-                }
-                else if (ex.Message.Equals(MessageConstant.PartnerMessage.DeactivePartner_Delete))
+                if (ex.Message.Equals(MessageConstant.PartnerMessage.DeactivePartner_Delete))
                 {
                     fieldName = "Update partner failed";
-                } else if (ex.Message.Equals(MessageConstant.PartnerMessage.PartnerHasPartnerStoreActive_Update))
+                }
+                else if (ex.Message.Equals(MessageConstant.PartnerMessage.PartnerHasPartnerStoreActive_Update))
                 {
                     fieldName = "Update partner failed";
                 }

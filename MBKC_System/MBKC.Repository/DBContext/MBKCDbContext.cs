@@ -180,7 +180,7 @@ namespace MBKC.Repository.DBContext
                 partnerProduct.Property(prop => prop.Status).IsRequired(true);
                 partnerProduct.Property(prop => prop.Price).HasColumnType("decimal(9,2)").IsRequired(true);
                 partnerProduct.Property(prop => prop.MappedDate).HasColumnType("datetime2").IsRequired(true);
-                partnerProduct.Property(prop => prop.UpdatedDate).HasColumnType("datetime2").IsRequired(true);
+                partnerProduct.Property(prop => prop.UpdatedDate).HasColumnType("datetime2").IsRequired(false);
             });
             #endregion
 
