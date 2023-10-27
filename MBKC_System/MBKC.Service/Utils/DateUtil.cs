@@ -15,17 +15,17 @@ namespace MBKC.Service.Utils
             return dateTimeInterval;
         }
 
-        public static bool IsTimeUpdateEarlierThanTimeExitsToStoreByAtLeastOneMinute(DateTime timeUpdate, DateTime timeCheck)
+        public static bool IsTimeUpdateValid(DateTime timeLater, DateTime timeEarlier, int condition)
         {
             // Convert the two times to TimeSpan objects.
-            TimeSpan timeUpdateSpan = new TimeSpan(timeUpdate.Ticks);
-            TimeSpan timeExitsToStoreSpan = new TimeSpan(timeCheck.Ticks);
+            TimeSpan timeLaterSpan = new TimeSpan(timeLater.Ticks);
+            TimeSpan timeEarlierSpan = new TimeSpan(timeEarlier.Ticks);
 
             // Subtract the two TimeSpan objects to get the difference.
-            TimeSpan difference = timeExitsToStoreSpan.Subtract(timeUpdateSpan);
+            TimeSpan difference = timeLaterSpan.Subtract(timeEarlierSpan);
 
-            // Check if the difference is at least 1 minute.
-            return difference.TotalMinutes >= 1;
+            // Check if the difference is at least condition minute.
+            return difference.TotalMinutes >= condition;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using MBKC.Repository.Enums;
+using MBKC.Service.DTOs.MoneyExchanges;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -220,15 +221,24 @@ namespace MBKC.Service.Utils
 
         public static string ConvertTimeToCron(int hour, int minute)
         {
+            if(minute == 0)
+            {
+                return $"* {hour} * * *";
+            }
+
             return $"{minute} {hour} * * *";
         }
 
-        public static (int hour, int minute) ConvertCronToTime(string cron)
+        public static DateTime ConvertCronToTime(string cron)
         {
             var cronFields = Regex.Split(cron, @"\s+");
             int hour = int.Parse(cronFields[1]);
-            int minutes = int.Parse(cronFields[0]);
-            return (hour, minutes);
+            int minute = 0;
+            if (!cronFields[0].Equals("*"))
+            {
+                minute = int.Parse(cronFields[0]);
+            }
+            return new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, hour, minute, 0);
         }
     }
 }

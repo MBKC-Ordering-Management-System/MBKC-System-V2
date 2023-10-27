@@ -51,7 +51,7 @@ namespace MBKC.API.Controllers
         ///     
         ///         PUT
         ///         {
-        ///           "jobId": "job_money_exchange_to_kitchen_center",
+        ///           "jobId": "job_money_exchange_to_kitchen_center || job_money_exchange_to_store",
         ///           "hour": 22,
         ///           "minute": 0
         ///         }
@@ -69,7 +69,7 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Consumes(MediaTypeConstant.ApplicationJson)]
         [Produces(MediaTypeConstant.ApplicationJson)]
-        //[PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin)]
         [HttpPut(APIEndPointConstant.MoneyExchange.UpdateSchedulingTimeJob)]
         public async Task<IActionResult> UpdateCronBackgroundJob([FromBody] UpdateCronJobRequest updateCronJobRequest)
         {

@@ -66,19 +66,37 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
+                #region validation
                 var existedCron = await Task.FromResult(this._unitOfWork.HangfireRepository.GetCronByKey(updateCronJobRequest.JobId));
                 if (existedCron == null)
                 {
                     throw new NotFoundException(MessageConstant.MoneyExchangeMessage.NotExistJobId);
                 }
 
+                // check time job money exchange to kitchen center
                 if (updateCronJobRequest.JobId.Equals(HangfireConstant.MoneyExchangeToKitchenCenter_ID))
                 {
-                    DateTime timeUpdate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 3, 5, 0);
-                    (int hour, int minute) timeExitsToStore = StringUtil.ConvertCronToTime(this._unitOfWork.HangfireRepository.GetCronByKey(HangfireConstant.MoneyExchangeToStore_ID)!);
-
+                    DateTime timeUpdate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, updateCronJobRequest.hour, updateCronJobRequest.minute, 0);
+                    DateTime timeExistedToStore = StringUtil.ConvertCronToTime(this._unitOfWork.HangfireRepository.GetCronByKey(HangfireConstant.MoneyExchangeToStore_ID)!);
+                    if (DateUtil.IsTimeUpdateValid(timeExistedToStore, timeUpdate, 1) == false)
+                    {
+                        throw new NotFoundException(MessageConstant.MoneyExchangeMessage.TimeKitchenCenterMustEarlier);
+                    }
                 }
 
+                // check time job money exchange to store
+                if (updateCronJobRequest.JobId.Equals(HangfireConstant.MoneyExchangeToStore_ID))
+                {
+                    DateTime timeUpdate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, updateCronJobRequest.hour, updateCronJobRequest.minute, 0);
+                    DateTime timeExistedToKitchenCenter = StringUtil.ConvertCronToTime(this._unitOfWork.HangfireRepository.GetCronByKey(HangfireConstant.MoneyExchangeToKitchenCenter_ID)!);
+                    if (DateUtil.IsTimeUpdateValid(timeUpdate, timeExistedToKitchenCenter, 1) == false)
+                    {
+                        throw new NotFoundException(MessageConstant.MoneyExchangeMessage.TimeStoreMustLater);
+                    }
+                }
+                #endregion
+
+                #region operation
                 Expression<Func<Task>> methodCall = () => Task.CompletedTask;
                 switch (updateCronJobRequest.JobId)
                 {
@@ -99,6 +117,7 @@ namespace MBKC.Service.Services.Implementations
                                     // sync time(utc +7)
                                     TimeZone = TimeZoneInfo.Local,
                                 });
+                #endregion
 
             }
             catch (NotFoundException ex)
@@ -116,6 +135,23 @@ namespace MBKC.Service.Services.Implementations
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new NotFoundException(error);
+            }
+            catch (BadRequestException ex)
+            {
+                string fieldName = "";
+                switch (ex.Message)
+                {
+                    case MessageConstant.MoneyExchangeMessage.TimeKitchenCenterMustEarlier:
+                    case MessageConstant.MoneyExchangeMessage.TimeStoreMustLater:
+                        fieldName = "Scheduling time";
+                        break;
+
+                    default:
+                        fieldName = "Exception";
+                        break;
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new BadRequestException(error);
             }
             catch (Exception ex)
             {
