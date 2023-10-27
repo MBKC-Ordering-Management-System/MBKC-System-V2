@@ -37,10 +37,15 @@ namespace MBKC.Service.Services.Implementations
             {
                 #region validation
                 string email = claims.First(x => x.Type == ClaimTypes.Email).Value;
-                var existedCashier = await this._unitOfWork.CashierRepository.GetCashierAsync(email);
+                var existedCashier = await this._unitOfWork.CashierRepository.GetCashiersIncludeMoneyExchangeAsync(email);
                 if (existedCashier.Wallet.Balance <= 0)
                 {
                     throw new BadRequestException(MessageConstant.WalletMessage.BalanceIsInvalid);
+                }
+
+                if (existedCashier.CashierMoneyExchanges.Any())
+                {
+                    throw new BadRequestException(MessageConstant.MoneyExchangeMessage.AlreadyTransferredToKitchenCenter);
                 }
                 #endregion
 

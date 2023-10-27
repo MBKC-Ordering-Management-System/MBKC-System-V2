@@ -33,6 +33,25 @@ namespace MBKC.Repository.Repositories
             }
         }
 
+        public async Task<Cashier> GetCashiersIncludeMoneyExchangeAsync(string email)
+        {
+            try
+            {
+                return await this._dbContext.Cashiers.Include(c => c.Wallet)
+                                                     .Include(c => c.KitchenCenter).ThenInclude(kc => kc.Wallet)
+                                                     .Include(c => c.CashierMoneyExchanges.Where(ce => ce.MoneyExchange.ExchangeType.ToUpper().Equals(MoneyExchangeEnum.ExchangeType.SEND.ToString())
+                                                                                              && ce.MoneyExchange.Transactions.Any(ts => ts.TransactionTime.Day == DateTime.Now.Day
+                                                                                                                                      && ts.TransactionTime.Month == DateTime.Now.Month
+                                                                                                                                      && ts.TransactionTime.Year == DateTime.Now.Year)))
+                                                     .SingleOrDefaultAsync(c => c.Account.Email.Equals(email)
+                                                                             && c.Account.Status == (int)AccountEnum.Status.ACTIVE);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task<List<Cashier>> GetCashiersAsync(string? searchValue, string? searchValueWithoutUnicode,
             int currentPage, int itemsPerPage, string? sortByASC, string? sortByDESC, int kitchenCenterId)
         {
@@ -215,6 +234,7 @@ namespace MBKC.Repository.Repositories
             try
             {
                 return await this._dbContext.Cashiers.Include(x => x.Account)
+                                                     .Include(x => x.Wallet)
                                                      .Include(x => x.Wallet)
                                                      .Include(x => x.KitchenCenter).ThenInclude(kc => kc.Manager)
                                                      .Include(x => x.KitchenCenter).ThenInclude(kc => kc.Stores)
