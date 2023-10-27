@@ -222,6 +222,7 @@ namespace MBKC.API.Controllers
         ///         Address = 123 Main St
         ///         Status = INACTIVE | ACTIVE
         ///         Logo = [Image File]
+        ///         BrandManagerEmail = example@gmail.com
         /// </remarks>
         /// <response code="200">Updated Existed Brand Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>

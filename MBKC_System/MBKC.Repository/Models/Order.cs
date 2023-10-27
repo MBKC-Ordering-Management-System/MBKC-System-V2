@@ -28,7 +28,9 @@ namespace MBKC.Repository.Models
         public string Status { get; set; }
         public int PartnerId { get; set; }
         public int StoreId { get; set; }
-        public string OrderCode { get; set; }
+        public string DisplayId { get; set; }
+        public string Address { get; set; }
+        public int? Cutlery { get; set; }
 
         [ForeignKey("StoreId")]
         public virtual Store Store { get; set; }

@@ -47,11 +47,12 @@ namespace MBKC.API.Controllers
         ///         POST
         ///         {
         ///             "storeId": 1,
-        ///             "partnerAccountRequests":[
+        ///             "partnerAccounts":[
         ///                 {
         ///                     "PartnerId": 1,
         ///                     "UserName": "example",
-        ///                     "Password": "********"
+        ///                     "Password": "********",
+        ///                     "Commission": 0-100
         ///                 }
         ///             ],
         ///             "isMappingProducts": true|false
