@@ -17,6 +17,8 @@ namespace MBKC.Service.Profiles.Partners
         {
             CreateMap<Partner, GetPartnerResponse>().ForMember(dept => dept.Status, opt => opt.MapFrom(src => StatusUtil.ChangePartnerStatus(src.Status)))
                 .ReverseMap();
+
+            CreateMap<Partner, GetPartnerForPrivateAPI>();
         }
     }
 }

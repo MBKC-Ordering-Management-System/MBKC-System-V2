@@ -461,6 +461,8 @@ namespace MBKC.Repository.Repositories
             {
                 return await this._dbContext.Stores
                                       .Include(x => x.StorePartners.Where(x => x.Status == (int)StorePartnerEnum.Status.ACTIVE))
+                                      .ThenInclude(x => x.Partner)
+                                      .Include(x => x.StorePartners.Where(x => x.Status == (int)StorePartnerEnum.Status.ACTIVE))
                                       .ThenInclude(x => x.PartnerProducts).ThenInclude(x => x.Product).ThenInclude(x => x.ChildrenProducts)
                                       .Where(x => x.Status == (int)StoreEnum.Status.ACTIVE).ToListAsync();
             } catch(Exception ex)

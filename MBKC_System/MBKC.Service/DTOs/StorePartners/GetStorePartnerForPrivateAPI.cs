@@ -1,4 +1,5 @@
 ﻿using MBKC.Service.DTOs.PartnerProducts;
+using MBKC.Service.DTOs.Partners;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,7 @@ namespace MBKC.Service.DTOs.StorePartners
         public DateTime CreatedDate { get; set; }
         public string UserName { get; set; }
         public string Password { get; set; }
+        public GetPartnerForPrivateAPI Partner { get; set; }
         public List<GetPartnerProductForPrivateAPI> PartnerProducts { get; set; }
     }
 }
