@@ -15,6 +15,12 @@ using MBKC.Service.Constants;
 using MBKC.Repository.Enums;
 using Microsoft.Extensions.Logging.Abstractions;
 using MBKC.Service.DTOs.Stores;
+using Microsoft.AspNetCore.Http;
+using OfficeOpenXml;
+using Excel = Microsoft.Office.Interop.Excel;
+using OfficeOpenXml.Drawing;
+using System.Drawing;
+ 
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -270,7 +276,7 @@ namespace MBKC.Service.Services.Implementations
                     throw new BadRequestException(MessageConstant.CommonMessage.InvalidProductId);
                 }
                 Product existedProduct = await this._unitOfWork.ProductRepository.GetProductAsync(idProduct);
-                if(existedProduct == null)
+                if (existedProduct == null)
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistProductId);
                 }
@@ -295,17 +301,17 @@ namespace MBKC.Service.Services.Implementations
                     existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(email);
                 }
 
-                if(existedBrand != null && existedBrand.Products.SingleOrDefault(x => x.ProductId == idProduct) == null)
+                if (existedBrand != null && existedBrand.Products.SingleOrDefault(x => x.ProductId == idProduct) == null)
                 {
                     throw new BadRequestException(MessageConstant.ProductMessage.ProductNotBelongToBrand);
                 }
 
-                if(existedStore != null && existedStore.Brand.Products.SingleOrDefault(x => x.ProductId == idProduct) == null)
+                if (existedStore != null && existedStore.Brand.Products.SingleOrDefault(x => x.ProductId == idProduct) == null)
                 {
                     throw new BadRequestException(MessageConstant.ProductMessage.ProductNotBelongToStore);
                 }
 
-                if(existedKitchenCenter != null && existedKitchenCenter.Stores.Any(x => x.Brand.Products.SingleOrDefault(x => x.ProductId == idProduct) != null) == false)
+                if (existedKitchenCenter != null && existedKitchenCenter.Stores.Any(x => x.Brand.Products.SingleOrDefault(x => x.ProductId == idProduct) != null) == false)
                 {
                     throw new BadRequestException(MessageConstant.ProductMessage.ProductNotSpendToStore);
                 }
@@ -313,7 +319,7 @@ namespace MBKC.Service.Services.Implementations
                 GetProductResponse getProductResponse = this._mapper.Map<GetProductResponse>(existedProduct);
                 return getProductResponse;
             }
-            catch(BadRequestException ex)
+            catch (BadRequestException ex)
             {
                 string fieldName = "";
                 if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidProductId) ||
@@ -326,7 +332,7 @@ namespace MBKC.Service.Services.Implementations
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
             }
-            catch(NotFoundException ex)
+            catch (NotFoundException ex)
             {
                 string error = ErrorUtil.GetErrorString("Product id", ex.Message);
                 throw new NotFoundException(error);
@@ -408,7 +414,7 @@ namespace MBKC.Service.Services.Implementations
                 else if (createProductRequest.CategoryId == null && createProductRequest.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))
                 {
                     existedCategory = existedParentProduct.Category;
-                    if(createProductRequest.Name.Trim().ToLower().Equals($"{existedParentProduct.Name.ToLower()} - size {createProductRequest.Size.ToLower()}") == false)
+                    if (createProductRequest.Name.Trim().ToLower().Equals($"{existedParentProduct.Name.ToLower()} - size {createProductRequest.Size.ToLower()}") == false)
                     {
                         throw new BadRequestException(MessageConstant.ProductMessage.ProductNameNotFollowingFormat);
                     }
@@ -462,7 +468,8 @@ namespace MBKC.Service.Services.Implementations
                     ex.Message.Equals(MessageConstant.ProductMessage.CategoryNotSuitableForEXTRAProductType))
                 {
                     fieldName = "Category id";
-                } else if (ex.Message.Equals(MessageConstant.ProductMessage.ProductNameNotFollowingFormat))
+                }
+                else if (ex.Message.Equals(MessageConstant.ProductMessage.ProductNameNotFollowingFormat))
                 {
                     fieldName = "Name";
                 }
@@ -518,7 +525,8 @@ namespace MBKC.Service.Services.Implementations
                 if (updateProductStatusRequest.Status.Trim().ToLower().Equals(ProductEnum.Status.ACTIVE.ToString().ToLower()))
                 {
                     existedProduct.Status = (int)ProductEnum.Status.ACTIVE;
-                } else if (updateProductStatusRequest.Status.Trim().ToLower().Equals(ProductEnum.Status.INACTIVE.ToString().ToLower()))
+                }
+                else if (updateProductStatusRequest.Status.Trim().ToLower().Equals(ProductEnum.Status.INACTIVE.ToString().ToLower()))
                 {
                     existedProduct.Status = (int)ProductEnum.Status.INACTIVE;
                 }
@@ -566,17 +574,17 @@ namespace MBKC.Service.Services.Implementations
                 this._unitOfWork.ProductRepository.UpdateProduct(existedProduct);
                 await this._unitOfWork.CommitAsync();
             }
-            catch(NotFoundException ex)
+            catch (NotFoundException ex)
             {
                 string error = ErrorUtil.GetErrorString("Product id", ex.Message);
                 throw new NotFoundException(error);
             }
-            catch(BadRequestException ex)
+            catch (BadRequestException ex)
             {
                 string error = ErrorUtil.GetErrorString("Product id", ex.Message);
                 throw new BadRequestException(error);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 string error = ErrorUtil.GetErrorString("Exception", ex.Message);
                 throw new Exception(error);
@@ -614,7 +622,7 @@ namespace MBKC.Service.Services.Implementations
                     throw new BadRequestException(MessageConstant.ProductMessage.ProductNameTypeChildNotAllowUpdate);
                 }
 
-                if(updateProductRequest.Name != null)
+                if (updateProductRequest.Name != null)
                 {
                     existedProduct.Name = updateProductRequest.Name;
                 }
@@ -727,10 +735,12 @@ namespace MBKC.Service.Services.Implementations
                 if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistCategoryId))
                 {
                     fieldName = "Category id";
-                } else if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistProductId))
+                }
+                else if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistProductId))
                 {
                     fieldName = "Product id";
-                } else if (ex.Message.Equals(MessageConstant.ProductMessage.ParentProductIdNotExist))
+                }
+                else if (ex.Message.Equals(MessageConstant.ProductMessage.ParentProductIdNotExist))
                 {
                     fieldName = "Parent product id";
                 }
@@ -745,15 +755,18 @@ namespace MBKC.Service.Services.Implementations
                     ex.Message.Equals(MessageConstant.ProductMessage.ProductIdNotParentType))
                 {
                     fieldName = "Product id";
-                } else if (ex.Message.Equals(MessageConstant.ProductMessage.ProductNameTypeChildNotAllowUpdate))
+                }
+                else if (ex.Message.Equals(MessageConstant.ProductMessage.ProductNameTypeChildNotAllowUpdate))
                 {
                     fieldName = "Name";
-                } else if (ex.Message.Equals(MessageConstant.ProductMessage.ParentProductIdNotBelongToBrand))
+                }
+                else if (ex.Message.Equals(MessageConstant.ProductMessage.ParentProductIdNotBelongToBrand))
                 {
                     fieldName = "Parent product id";
-                } else if (ex.Message.Equals(MessageConstant.CommonMessage.CategoryIdNotBelongToBrand) || 
-                    ex.Message.Equals(MessageConstant.ProductMessage.CategoryNotSuitableForSingleOrParentProductType) ||
-                    ex.Message.Equals(MessageConstant.ProductMessage.CategoryNotSuitableForEXTRAProductType))
+                }
+                else if (ex.Message.Equals(MessageConstant.CommonMessage.CategoryIdNotBelongToBrand) ||
+                  ex.Message.Equals(MessageConstant.ProductMessage.CategoryNotSuitableForSingleOrParentProductType) ||
+                  ex.Message.Equals(MessageConstant.ProductMessage.CategoryNotSuitableForEXTRAProductType))
                 {
                     fieldName = "Category id";
                 }
@@ -766,6 +779,61 @@ namespace MBKC.Service.Services.Implementations
                 {
                     await this._unitOfWork.FirebaseStorageRepository.DeleteImageAsync(logoId, folderName);
                 }
+                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                throw new Exception(error);
+            }
+        }
+
+        public async Task UploadExelFile(IFormFile file, IEnumerable<Claim> claims)
+        {
+            try
+            {
+                if (file == null || file.Length == 0)
+                {
+
+                }
+              
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                using (var package = new ExcelPackage(file.OpenReadStream()))
+                {
+                    var worksheet = package.Workbook.Worksheets[0];
+                    var rowCount = worksheet.Dimension.Rows;
+
+                    for (int row = 2; row <= rowCount; row++)
+                    {
+                        var Code = worksheet.Cells[row, 1].Value.ToString();
+                        var Name = worksheet.Cells[row, 2].Value.ToString();
+                        var Description = worksheet.Cells[row, 3].Value.ToString();
+                        var SellingPrice = decimal.Parse(worksheet.Cells[row, 4].Value.ToString());
+                        var DiscountPrice = decimal.Parse(worksheet.Cells[row, 5].Value.ToString());
+                        var HistoricalPrice = decimal.Parse(worksheet.Cells[row, 6].Value.ToString());
+                        var Size = worksheet.Cells[row, 7].Value?.ToString();
+                        var Type = worksheet.Cells[row, 8].Value.ToString();
+                        var image = worksheet.Cells[row, 9].Value;
+                        var DisplayOrder = int.Parse(worksheet.Cells[row, 10].Value?.ToString());
+                        int? ParentProductId = worksheet.Cells[row, 11].Value != null ? int.Parse(worksheet.Cells[row, 11].Value.ToString()) : null;
+                        var CategoryId = int.Parse(worksheet.Cells[row, 12].Value?.ToString());
+                        var product = new CreateProductRequest
+                        {
+                            Code = worksheet.Cells[row, 1].Value.ToString(),
+                            Name = worksheet.Cells[row, 2].Value.ToString(),
+                            Description = worksheet.Cells[row, 3].Value.ToString(),
+                            SellingPrice = decimal.Parse(worksheet.Cells[row, 4].Value.ToString()),
+                            DiscountPrice = decimal.Parse(worksheet.Cells[row, 5].Value.ToString()),
+                            HistoricalPrice = decimal.Parse(worksheet.Cells[row, 6].Value.ToString()),
+                            Size = worksheet.Cells[row, 7].Value?.ToString(),
+                            Type = worksheet.Cells[row, 8].Value?.ToString(),
+                            Image = (IFormFile)worksheet.GetValue(row, 9),
+                            DisplayOrder = int.Parse(worksheet.Cells[row, 10].Value?.ToString()),
+                            ParentProductId = int.Parse(worksheet.Cells[row, 11].Value?.ToString()),
+                            CategoryId = int.Parse(worksheet.Cells[row, 12].Value?.ToString()),
+                        };
+                        await CreateProductAsync(product, claims);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
                 string error = ErrorUtil.GetErrorString("Exception", ex.Message);
                 throw new Exception(error);
             }

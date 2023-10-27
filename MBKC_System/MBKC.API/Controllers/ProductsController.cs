@@ -318,5 +318,62 @@ namespace MBKC.API.Controllers
             });
         }
         #endregion
+
+        #region Create new product
+        /// <summary>
+        /// Import excel file for create new products.
+        /// </summary>
+        /// <param name="createProductRequest">The object contains created product information.</param>
+        /// <returns>
+        /// A success message about creating new product.
+        /// </returns>
+        /// <remarks>
+        ///     Sample request:
+        ///
+        ///         POST 
+        ///         Code = BDMT0001
+        ///         Name = Bún đậu mắm tôm
+        ///         Description = Bún đậu mắm tôm thơn ngon
+        ///         SellingPrice = 50000
+        ///         DiscountPrice = 0
+        ///         HistoricalPrice = 0
+        ///         Size = S | M | L
+        ///         Type = SINGLE | PARENT | CHILD | EXTRA
+        ///         Image = [File Image]
+        ///         DisplayOrder = 1
+        ///         ParentProductId = 1
+        ///         CategoryId = 1
+        /// </remarks>
+        /// <response code="200">Created new product successfully.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
+        /// <response code="404">Some Error about request data not found.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
+        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Consumes(MediaTypeConstant.MultipartFormData)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
+        [HttpPost(APIEndPointConstant.Product.ImportFileEndpoint)]
+        public async Task<IActionResult> ImportFileExcel([FromForm] ImportFileRequest importFileRequest)
+        {
+            /*ValidationResult validationResult = await this._createProductValidator.ValidateAsync(createProductRequest);
+            if (validationResult.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
+            }*/
+            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
+            await this._productService.UploadExelFile(importFileRequest.file, claims);
+            return Ok(new
+            {
+                Message = MessageConstant.ProductMessage.CreatedNewProductSuccessfully
+            });
+        }
+        #endregion
     }
 }
