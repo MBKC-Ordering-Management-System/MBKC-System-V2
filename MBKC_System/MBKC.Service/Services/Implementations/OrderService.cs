@@ -80,9 +80,9 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new BadRequestException(MessageConstant.OrderMessage.OrderIsPreparing);
                 }
-                if (existedOrder.Status.Equals(OrderEnum.Status.READY.ToString()))
+                if (existedOrder.Status.Equals(OrderEnum.Status.UPCOMING.ToString()))
                 {
-                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsReady);
+                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsUpcoming);
                 }
                 if (existedOrder.Status.Equals(OrderEnum.Status.COMPLETED.ToString()))
                 {
@@ -104,7 +104,8 @@ namespace MBKC.Service.Services.Implementations
                 #region shipper payment and transaction and wallet (Cash only)
                 if (existedOrder.PaymentMethod.ToUpper().Equals(OrderEnum.PaymentMethod.CASH.ToString()))
                 {
-                    decimal finalPrice = existedOrder.FinalTotalPrice - (existedOrder.FinalTotalPrice * existedOrder.Commission / 100);
+                    decimal finalToTalPriceSubstractDeliveryFee = existedOrder.FinalTotalPrice - existedOrder.DeliveryFee;
+                    decimal finalPrice = finalToTalPriceSubstractDeliveryFee - (finalToTalPriceSubstractDeliveryFee * existedOrder.Commission / 100);
                     ShipperPayment shipperPayment = new ShipperPayment()
                     {
                         Status = (int)ShipperPaymentEnum.Status.SUCCESS,
