@@ -3,6 +3,7 @@ using FluentValidation.Results;
 using MBKC.API.Constants;
 using MBKC.Service.Authorization;
 using MBKC.Service.DTOs.StorePartners;
+using MBKC.Service.DTOs.Stores;
 using MBKC.Service.Errors;
 using MBKC.Service.Exceptions;
 using MBKC.Service.Services.Interfaces;
@@ -179,7 +180,7 @@ namespace MBKC.API.Controllers
                 throw new BadRequestException(error);
             }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            var getStorePartnerResponse = await this._storePartnerService.GetPartnerInformationAsync(getStoreRequest.StoreId, getPartnerInformationRequest, claims);
+            var getStorePartnerResponse = await this._storePartnerService.GetPartnerInformationAsync(getStoreRequest.Id, getPartnerInformationRequest, claims);
             return Ok(getStorePartnerResponse);
         }
         #endregion
@@ -200,11 +201,12 @@ namespace MBKC.API.Controllers
         ///         POST
         ///         {
         ///             "storeId": 1,
-        ///             "partnerAccountRequests":[
+        ///             "partnerAccounts":[
         ///                 {
         ///                     "PartnerId": 1,
         ///                     "UserName": "example",
-        ///                     "Password": "********"
+        ///                     "Password": "********",
+        ///                     "Commission": 0-100
         ///                 }
         ///             ],
         ///             "isMappingProducts": true|false

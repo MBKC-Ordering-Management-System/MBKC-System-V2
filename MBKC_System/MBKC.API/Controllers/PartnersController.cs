@@ -101,6 +101,7 @@ namespace MBKC.API.Controllers
         ///         currentPage = 1
         ///         itemsPerPage = 5
         ///         sortBy = "propertyName_asc | propertyName_ASC | propertyName_desc | propertyName_DESC"
+        ///         isGetAll = True | False
         /// </remarks>
         /// <response code="200">Get brands Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>

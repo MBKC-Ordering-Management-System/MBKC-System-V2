@@ -2,6 +2,7 @@
 using MBKC.Repository.Models;
 using MBKC.Service.DTOs.Partners;
 using MBKC.Service.DTOs.StorePartners;
+using MBKC.Service.DTOs.Stores;
 using MBKC.Service.Utils;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,8 @@ namespace MBKC.Service.Profiles.Partners
         {
             CreateMap<Partner, GetPartnerResponse>().ForMember(dept => dept.Status, opt => opt.MapFrom(src => StatusUtil.ChangePartnerStatus(src.Status)))
                 .ReverseMap();
+
+            CreateMap<Partner, GetPartnerForPrivateAPI>();
         }
     }
 }

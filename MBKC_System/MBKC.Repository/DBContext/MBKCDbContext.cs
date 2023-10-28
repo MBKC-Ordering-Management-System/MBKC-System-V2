@@ -47,6 +47,7 @@ namespace MBKC.Repository.DBContext
         public DbSet<StorePartner> StorePartners { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<Wallet> Wallets { get; set; }
+        public DbSet<Configuration> Configurations { get; set; }
         #endregion
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -211,7 +212,9 @@ namespace MBKC.Repository.DBContext
                 order.Property(prop => prop.Commission).HasColumnType("decimal(9,2)").IsRequired(true);
                 order.Property(prop => prop.Tax).HasColumnType("decimal(9,2)").IsRequired(true);
                 order.Property(prop => prop.Status).IsUnicode(false).HasMaxLength(20).IsRequired(false);
-                order.Property(prop => prop.OrderCode).IsUnicode(false).HasMaxLength(36).IsRequired(false);
+                order.Property(prop => prop.DisplayId).IsUnicode(false).HasMaxLength(100).IsRequired(false);
+                order.Property(prop => prop.Address).IsUnicode(true).HasMaxLength(250).IsRequired(false);
+                order.Property(prop => prop.Cutlery).IsRequired(false);
             });
             #endregion
 
@@ -219,7 +222,6 @@ namespace MBKC.Repository.DBContext
             modelBuilder.Entity<OrderDetail>(orderDetail =>
             {
                 orderDetail.Property(prop => prop.SellingPrice).HasColumnType("decimal(9,2)").IsRequired(true);
-                orderDetail.Property(prop => prop.DiscountAmount).HasColumnType("decimal(9,2)").IsRequired(true);
                 orderDetail.Property(prop => prop.Note).IsUnicode(false).HasMaxLength(200).IsRequired(true);
                 orderDetail.Property(prop => prop.MasterOrderDetailId).IsRequired(false);
             });
@@ -420,6 +422,15 @@ namespace MBKC.Repository.DBContext
            .HasOne(storeMoneyExchange => storeMoneyExchange.MoneyExchange)
            .WithOne()
            .HasForeignKey<StoreMoneyExchange>(storeMoneyExchange => storeMoneyExchange.ExchangeId);
+            #endregion
+
+
+            #region Configuration
+            modelBuilder.Entity<Configuration>(configuration =>
+            {
+                configuration.Property(x => x.ScrawlingOrderStartTime).HasColumnType("time").IsRequired(true);
+                configuration.Property(x => x.ScrawlingOrderEndTime).HasColumnType("time").IsRequired(true);
+            });
             #endregion
 
 

@@ -1,5 +1,5 @@
 ﻿using MBKC.Repository.GrabFood.Models;
-using MBKC.Service.GrabFoods;
+using MBKC.Service.DTOs.GrabFoods;
 using System;
 using System.Collections.Generic;
 using System.Data;

@@ -1,5 +1,7 @@
 ﻿using MBKC.Service.DTOs.Brands;
 using MBKC.Service.DTOs.KitchenCenters;
+using MBKC.Service.DTOs.Partners;
+using MBKC.Service.DTOs.StorePartners;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,5 +20,6 @@ namespace MBKC.Service.DTOs.Stores
         public string? RejectedReason { get; set; }
         public GetKitchenCenterResponse KitchenCenter { get; set; }
         public GetBrandResponse Brand { get; set; }
+        public List<GetStorePartnerWithPartnerOnlyResponse> StorePartners { get; set; }
     }
 }

@@ -355,7 +355,7 @@ namespace MBKC.Service.Services.Implementations
                 Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandAsync(email);
 
                 Product existedProduct = await this._unitOfWork.ProductRepository.GetProductAsync(createProductRequest.Code);
-                if (existedProduct != null)
+                if (existedProduct != null && existedProduct.Status != (int)ProductEnum.Status.DEACTIVE)
                 {
                     throw new BadRequestException(MessageConstant.ProductMessage.ProductCodeExisted);
                 }

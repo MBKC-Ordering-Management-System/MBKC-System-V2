@@ -13,5 +13,6 @@ namespace MBKC.Service.Services.Interfaces
         public Task UpdateStoreStatusAsync(int storeId, UpdateStoreStatusRequest updateStoreStatusRequest, IEnumerable<Claim> claims);
         public Task ConfirmStoreRegistrationAsync(int storeId, ConfirmStoreRegistrationRequest confirmStoreRegistrationRequest);
         public Task<GetStoreResponse> GetStoreAsync(IEnumerable<Claim> claims);
+        public Task<List<GetStoreResponseForPrivateAPI>> GetStoresAsync();
     }
 }

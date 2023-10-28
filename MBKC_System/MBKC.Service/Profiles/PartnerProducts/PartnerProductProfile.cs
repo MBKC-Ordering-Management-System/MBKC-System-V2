@@ -20,6 +20,8 @@ namespace MBKC.Service.Profiles.PartnerProducts
                 .ForMember(dept => dept.PartnerName, opt => opt.MapFrom(src => src.StorePartner.Partner.Name))
                 .ForMember(dept => dept.Status, opt => opt.MapFrom(src => StatusUtil.ChangePartnerProductStatus(src.Status)))
                 .ReverseMap();
+
+            CreateMap<PartnerProduct, GetPartnerProductForPrivateAPI>();
         }
     }
 }
