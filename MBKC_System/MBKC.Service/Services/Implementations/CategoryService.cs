@@ -40,7 +40,7 @@ namespace MBKC.Service.Services.Implementations
                 var brand = brandAccount.Brand;
 
                 var existedCategoryCode = await _unitOfWork.CategoryRepository.GetCategoryByCodeAsync(postCategoryRequest.Code);
-                if (existedCategoryCode != null)
+                if (existedCategoryCode != null && existedCategoryCode.Status != (int)CategoryEnum.Status.DEACTIVE)
                 {
                     throw new BadRequestException(MessageConstant.CategoryMessage.CategoryCodeExisted);
                 }

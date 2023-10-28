@@ -200,6 +200,9 @@
             public const string InactiveStore_Update = "This store has been inactive.";
             public const string StatusInValid = "Status is AVAILABLE, OUT_OF_STOCK_TODAY or OUT_OF_STOCK_INDENTIFINITELY.";
             public const string KeySortNotExist = "Key sort are ASC or DESC";
+            public const string ProductCodeNotExistInGrabFoodSystem = "Product code does not exist in the GrabFood System.";
+            public const string PriceNotMatchWithProductInGrabFoodSystem = "Price does not match with product in the GrabFood System.";
+            public const string StatusNotMatchWithProductInGrabFoodSystem = "Status does not match with product status in the GrabFood System.";
         }
 
         public static class OrderMessage
