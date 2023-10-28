@@ -272,6 +272,25 @@ namespace MBKC.Repository.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("MBKC.Repository.Models.Configuration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<TimeSpan>("ScrawlingOrderEndTime")
+                        .HasColumnType("time");
+
+                    b.Property<TimeSpan>("ScrawlingOrderStartTime")
+                        .HasColumnType("time");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Configurations");
+                });
+
             modelBuilder.Entity("MBKC.Repository.Models.ExtraCategory", b =>
                 {
                     b.Property<int>("CategoryId")
@@ -600,7 +619,7 @@ namespace MBKC.Repository.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("UpdatedDate")
+                    b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime2");
 
                     b.HasKey("ProductId", "PartnerId", "StoreId", "CreatedDate");

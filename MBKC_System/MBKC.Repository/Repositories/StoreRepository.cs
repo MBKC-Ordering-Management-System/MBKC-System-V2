@@ -412,7 +412,21 @@ namespace MBKC.Repository.Repositories
                                                    .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                    .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                    .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                   .Include(x => x.Wallet)
                                                    .FirstOrDefaultAsync(x => x.StoreId == id && x.Status != (int)StoreEnum.Status.DEACTIVE);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<Store> GetStoreByIdAsync(int id)
+        {
+            try
+            {
+                return await this._dbContext.Stores.Include(x => x.Wallet)
+                                                   .FirstOrDefaultAsync(x => x.StoreId == id && x.Status == (int)StoreEnum.Status.ACTIVE);
             }
             catch (Exception ex)
             {
@@ -449,6 +463,22 @@ namespace MBKC.Repository.Repositories
             try
             {
                 return await this._dbContext.Stores.Include(x => x.Brand).ThenInclude(x => x.Categories).Include(x => x.KitchenCenter).ThenInclude(x => x.Manager).SingleOrDefaultAsync(x => x.StoreManagerEmail.Equals(managerEmail));
+            } catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<List<Store>> GetStoresAsync()
+        {
+            try
+            {
+                return await this._dbContext.Stores
+                                      .Include(x => x.StorePartners.Where(x => x.Status == (int)StorePartnerEnum.Status.ACTIVE))
+                                      .ThenInclude(x => x.Partner)
+                                      .Include(x => x.StorePartners.Where(x => x.Status == (int)StorePartnerEnum.Status.ACTIVE))
+                                      .ThenInclude(x => x.PartnerProducts).ThenInclude(x => x.Product).ThenInclude(x => x.ChildrenProducts)
+                                      .Where(x => x.Status == (int)StoreEnum.Status.ACTIVE).ToListAsync();
             } catch(Exception ex)
             {
                 throw new Exception(ex.Message);

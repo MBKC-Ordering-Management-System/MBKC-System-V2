@@ -21,6 +21,8 @@ using MBKC.Service.DTOs.Verifications;
 using MBKC.Service.DTOs.JWTs;
 using MBKC.Repository.FirebaseStorages.Models;
 using MBKC.Service.Utils;
+using Hangfire;
+using Microsoft.AspNetCore.Identity;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -56,21 +58,5 @@ builder.Services.AddCors(cors => cors.AddPolicy(
                         ));
 //Middlewares
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-
-app.UseSwagger();
-app.UseSwaggerUI();
-
-app.UseCors(CorsConstant.PolicyName);
-
-app.UseAuthentication();
-
-app.UseAuthorization();
-
-//Add middleware extentions
-app.ConfigureExceptionMiddleware();
-
-app.MapControllers();
-
+app.AddApplicationConfig();
 app.Run();

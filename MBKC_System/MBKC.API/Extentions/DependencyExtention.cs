@@ -12,6 +12,13 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using System.Reflection;
 using System.Text;
+using MBKC.Service.DTOs.Orders;
+using MBKC.API.Validators.Orders;
+using Hangfire;
+using System.Security.Cryptography.Xml;
+using Hangfire.Storage.SQLite;
+using MBKC.API.Constants;
+using System.Linq.Expressions;
 
 namespace MBKC.API.Extentions
 {
@@ -57,6 +64,13 @@ namespace MBKC.API.Extentions
             services.AddScoped<IStorePartnerService, StorePartnerService>();
             services.AddScoped<ITransactionService, TransactionService>();
             services.AddScoped<IWalletService, WalletService>();
+            services.AddScoped<IHangfireService, HangfireService>();
+            services.AddHangfire(config => config
+                                .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                                .UseSimpleAssemblyNameTypeSerializer()
+                                .UseRecommendedSerializerSettings()
+                                .UseSQLiteStorage(HangfireConstant.DatabaseName));
+            services.AddHangfireServer();
             return services;
         }
 
@@ -145,6 +159,22 @@ namespace MBKC.API.Extentions
         {
             services.AddTransient<ExceptionMiddleware>();
             return services;
+        }
+
+        public static WebApplication AddApplicationConfig(this WebApplication app)
+        {
+            // Configure the HTTP request pipeline.
+            app.UseSwagger();
+            app.UseSwaggerUI();
+            app.UseCors(CorsConstant.PolicyName);
+            app.UseAuthentication();
+            app.UseAuthorization();
+            //Add middleware extentions
+            app.ConfigureExceptionMiddleware();
+            app.MapControllers();
+            app.UseHangfireDashboard();
+            BackgroundJob.Enqueue<IHangfireService>(hf => hf.StartAllBackgroundJob());
+            return app;
         }
     }
 }

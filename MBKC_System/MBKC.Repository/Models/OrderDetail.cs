@@ -13,7 +13,6 @@ namespace MBKC.Repository.Models
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int OrderDetailId { get; set; }
         public decimal SellingPrice { get; set; }
-        public decimal DiscountAmount { get; set; }
         public int Quantity { get; set; }
         public string Note { get; set; }
         public int? MasterOrderDetailId { get; set; }
@@ -22,7 +21,9 @@ namespace MBKC.Repository.Models
         public virtual Order Order { get; set; }
         [ForeignKey("ProductId")]
         public virtual Product Product { get; set; }
-        public virtual OrderDetail MasterOrderDetail { get; set; }
+
+        [ForeignKey("MasterOrderDetailId")]
+        public virtual OrderDetail? MasterOrderDetail { get; set; }
         public virtual IEnumerable<OrderDetail> ExtraOrderDetails { get; set; }
     }
 }

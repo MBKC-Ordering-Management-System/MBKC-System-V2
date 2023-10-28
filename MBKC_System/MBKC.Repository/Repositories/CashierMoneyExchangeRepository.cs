@@ -1,4 +1,5 @@
 ﻿using MBKC.Repository.DBContext;
+using MBKC.Repository.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,30 @@ namespace MBKC.Repository.Repositories
         public CashierMoneyExchangeRepository(MBKCDbContext dbContext)
         {
             this._dbContext = dbContext;
+        }
+
+        public async Task CreateCashierMoneyExchangeAsync(CashierMoneyExchange cashierMoneyExchange)
+        {
+            try
+            {
+                await this._dbContext.AddAsync(cashierMoneyExchange);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task CreateRangeCashierMoneyExchangeAsync(IEnumerable<CashierMoneyExchange> cashierMoneyExchanges)
+        {
+            try
+            {
+                await this._dbContext.CashierMoneyExchanges.AddRangeAsync(cashierMoneyExchanges);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }

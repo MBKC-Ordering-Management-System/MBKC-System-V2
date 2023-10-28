@@ -7,7 +7,7 @@ using MBKC.Repository.Models;
 using MBKC.Service.Constants;
 using MBKC.Service.DTOs.StorePartners;
 using MBKC.Service.Exceptions;
-using MBKC.Service.GrabFoods;
+using MBKC.Service.DTOs.GrabFoods;
 using MBKC.Service.Services.Interfaces;
 using MBKC.Service.Utils;
 using OfficeOpenXml;

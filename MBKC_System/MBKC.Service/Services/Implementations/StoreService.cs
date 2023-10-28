@@ -825,5 +825,18 @@ namespace MBKC.Service.Services.Implementations
                 throw new Exception(error);
             }
         }
+
+        public async Task<List<GetStoreResponseForPrivateAPI>> GetStoresAsync()
+        {
+            try
+            {
+                List<Store> stores = await this._unitOfWork.StoreRepository.GetStoresAsync();
+                return this._mapper.Map<List<GetStoreResponseForPrivateAPI>>(stores);
+            } catch(Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                throw new Exception(error);
+            }
+        }
     }
 }

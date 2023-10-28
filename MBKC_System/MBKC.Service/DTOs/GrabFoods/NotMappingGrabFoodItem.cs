@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MBKC.Service.GrabFoods
+namespace MBKC.Service.DTOs.GrabFoods
 {
     public class NotMappingGrabFoodItem
     {

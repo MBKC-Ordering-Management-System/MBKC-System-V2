@@ -104,5 +104,19 @@
             public const string UpdatingStatusPartnerProductEndpoint = PartnerProductEndpoint + "/updating-status";
 
         }
+
+        public static class Order
+        {
+            public const string OrderEndpoint = ApiEndpoint + "/orders";
+            public const string ConfirmOrderToCompletedEndpoint = OrderEndpoint + "/confirm-order-to-completed";
+        }
+
+        public static class MoneyExchange
+        {
+            public const string MoneyExchangeEndpoint = ApiEndpoint + "/money-exchanges";
+            public const string MoneyExchangeToKitchenCenter = MoneyExchangeEndpoint + "/money-exchange-to-kitchen-center";
+            public const string WithdrawMoneyToStore = MoneyExchangeEndpoint + "/withdraw-money-to-store";
+            public const string UpdateSchedulingTimeJob = MoneyExchangeEndpoint + "/update-scheduling-time-job";
+        }
     }
 }

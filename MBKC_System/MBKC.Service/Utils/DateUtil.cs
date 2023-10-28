@@ -14,5 +14,18 @@ namespace MBKC.Service.Utils
             dateTimeInterval = dateTimeInterval.AddSeconds(utcExpiredDate).ToUniversalTime();
             return dateTimeInterval;
         }
+
+        public static bool IsTimeUpdateValid(DateTime timeLater, DateTime timeEarlier, int condition)
+        {
+            // Convert the two times to TimeSpan objects.
+            TimeSpan timeLaterSpan = new TimeSpan(timeLater.Ticks);
+            TimeSpan timeEarlierSpan = new TimeSpan(timeEarlier.Ticks);
+
+            // Subtract the two TimeSpan objects to get the difference.
+            TimeSpan difference = timeLaterSpan.Subtract(timeEarlierSpan);
+
+            // Check if the difference is at least condition minute.
+            return difference.TotalMinutes >= condition;
+        }
     }
 }

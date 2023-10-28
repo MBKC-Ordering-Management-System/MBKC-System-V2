@@ -15,11 +15,16 @@ namespace MBKC.Repository.Models
         public DateTime TransactionTime { get; set; }
         public int Status { get; set; }
         public int? ExchangeId { get; set; }
+
         [ForeignKey("ExchangeId")]
         public virtual MoneyExchange? MoneyExchange { get; set; }
+
         [ForeignKey("WalletId")]
         public virtual Wallet Wallet { get; set; }
+
+        public int? PaymentId { get; set; }
+
         [ForeignKey("PaymentId")]
-        public virtual ShipperPayment ShipperPayment { get; set; }
+        public virtual ShipperPayment? ShipperPayment { get; set; }
     }
 }

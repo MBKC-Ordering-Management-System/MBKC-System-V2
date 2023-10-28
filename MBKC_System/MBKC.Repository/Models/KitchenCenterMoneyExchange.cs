@@ -10,11 +10,12 @@ namespace MBKC.Repository.Models
 {
     public class KitchenCenterMoneyExchange
     {
-        [Key]
         public int ExchangeId { get; set; }
-        [ForeignKey("KitchenCenterId")]
         public int KitchenCenterId { get; set; }
+
+        [ForeignKey("KitchenCenterId")]
         public KitchenCenter KitchenCenter { get; set; }
+
         [ForeignKey("ExchangeId")]
         public virtual MoneyExchange MoneyExchange { get; set; }
     }
