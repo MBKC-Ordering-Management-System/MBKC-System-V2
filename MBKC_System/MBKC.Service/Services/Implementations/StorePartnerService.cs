@@ -87,7 +87,7 @@ namespace MBKC.Service.Services.Implementations
                             throw new BadRequestException(MessageConstant.StorePartnerMessage.GrabFoodAccountMustBeStoreManager);
                         }*/
                     }
-                    if(namePartners.Where(x => x.Key.ToLower().Equals(partner.Name.ToLower())).Count() == 0)
+                    if (namePartners.Where(x => x.Key.ToLower().Equals(partner.Name.ToLower())).Count() == 0)
                     {
                         namePartners.Add(partner.Name, partner.PartnerId);
                     }
@@ -150,18 +150,18 @@ namespace MBKC.Service.Services.Implementations
                                 GrabFoodMenu grabFoodMenu = await this._unitOfWork.GrabFoodRepository.GetGrabFoodMenuAsync(grabFoodAuthenticationResponse);
                                 List<Category> storeCategoires = await this._unitOfWork.CategoryRepository.GetCategories(storePartner.StoreId);
                                 PartnerProductsFromGrabFood partnerProductsFromGrabFood = GrabFoodUtil.GetPartnerProductsFromGrabFood(grabFoodMenu, storeCategoires, storePartner.StoreId, storePartner.PartnerId, storePartner.CreatedDate);
-                                if(partnerProductsFromGrabFood.NewPartnerProducts is not null && partnerProductsFromGrabFood.NewPartnerProducts.Count() > 0)
+                                if (partnerProductsFromGrabFood.NewPartnerProducts is not null && partnerProductsFromGrabFood.NewPartnerProducts.Count() > 0)
                                 {
                                     newPartnerProducts = partnerProductsFromGrabFood.NewPartnerProducts;
                                     await this._unitOfWork.PartnerProductRepository.CreateRangePartnerProductsAsync(newPartnerProducts);
                                 }
 
-                                if(partnerProductsFromGrabFood.OldPartnerProducts is not null && partnerProductsFromGrabFood.OldPartnerProducts.Count() > 0)
+                                if (partnerProductsFromGrabFood.OldPartnerProducts is not null && partnerProductsFromGrabFood.OldPartnerProducts.Count() > 0)
                                 {
                                     oldPartnerProducts = partnerProductsFromGrabFood.OldPartnerProducts;
                                     this._unitOfWork.PartnerProductRepository.UpdateRangePartnerProductsAsync(oldPartnerProducts);
                                 }
-                                if(partnerProductsFromGrabFood.NotMappingFromGrabFood is not null)
+                                if (partnerProductsFromGrabFood.NotMappingFromGrabFood is not null)
                                 {
                                     // send email notification
                                     ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -172,7 +172,7 @@ namespace MBKC.Service.Services.Implementations
                                     {
                                         ExcelWorksheet grabFoodItemsWorksheet = package.Workbook.Worksheets.Add("GrabFood Items");
                                         grabFoodItemsWorksheet.Cells.LoadFromDataTable(noneMappingGrabFoodItemData, true);
-                                        
+
                                         ExcelWorksheet grabFoodModifierGroupWorksheet = package.Workbook.Worksheets.Add("GrabFood Modifier Groups");
                                         grabFoodModifierGroupWorksheet.Cells.LoadFromDataTable(noneMappingGrabFoodModifierGroupData, true);
 
@@ -190,7 +190,7 @@ namespace MBKC.Service.Services.Implementations
                         }
                     }
                 }
-                
+
                 await this._unitOfWork.StorePartnerRepository.InsertRangeAsync(listStorePartnerInsert);
                 await this._unitOfWork.CommitAsync();
             }
@@ -233,7 +233,7 @@ namespace MBKC.Service.Services.Implementations
             catch (Exception ex)
             {
                 string error = "";
-                if(ex.Message.Contains("for GrabFood Partner."))
+                if (ex.Message.Contains("for GrabFood Partner."))
                 {
                     error = ErrorUtil.GetErrorString("GrabFood Account", ex.Message);
                     throw new BadRequestException(error);
@@ -248,16 +248,6 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
-
-                if (storeId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidStoreId);
-                }
-                if (partnerId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidPartnerId);
-                }
-
                 // Get brandId from claim
                 Claim accountId = claims.First(x => x.Type.ToLower().Equals("sid"));
                 var brandAccount = await this._unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId.Value));
@@ -319,15 +309,7 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidStoreId))
-                {
-                    fieldName = "Store id";
-                }
-                else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidPartnerId))
-                {
-                    fieldName = "Partner id";
-                }
-                else if (ex.Message.Equals(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand))
+                if (ex.Message.Equals(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand))
                 {
                     fieldName = "Store id";
                 }
@@ -350,15 +332,6 @@ namespace MBKC.Service.Services.Implementations
 
             try
             {
-
-                if (storeId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidStoreId);
-                }
-                if (partnerId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidPartnerId);
-                }
 
                 // Get brandId from claim
                 Claim accountId = claims.First(x => x.Type.ToLower().Equals("sid"));
@@ -412,15 +385,7 @@ namespace MBKC.Service.Services.Implementations
             {
                 string fieldName = "";
 
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidStoreId))
-                {
-                    fieldName = "Store id";
-                }
-                else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidPartnerId))
-                {
-                    fieldName = "Partner id";
-                }
-                else if (ex.Message.Equals(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand))
+                if (ex.Message.Equals(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand))
                 {
                     fieldName = "Store id";
                 }
@@ -438,33 +403,10 @@ namespace MBKC.Service.Services.Implementations
             }
         }
 
-        public async Task<GetStorePartnerInformationResponse> GetPartnerInformationAsync(int storeId, string? keySortName, string? keySortStatus, IEnumerable<Claim> claims)
+        public async Task<GetStorePartnerInformationResponse> GetPartnerInformationAsync(int storeId, GetPartnerInformationRequest getPartnerInformationRequest, IEnumerable<Claim> claims)
         {
             try
             {
-                if (storeId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidStoreId);
-                }
-
-                if (keySortName != null && keySortName != "")
-                {
-                    if (!keySortName.ToUpper().Equals(StorePartnerEnum.KeySort.ASC.ToString())
-                    && !keySortName.ToUpper().Equals(StorePartnerEnum.KeySort.DESC.ToString()))
-                    {
-                        throw new BadRequestException(MessageConstant.StorePartnerMessage.KeySortNotExist);
-                    }
-                }
-
-                if (keySortStatus != null && keySortStatus != "")
-                {
-                    if (!keySortStatus.ToUpper().Equals(StorePartnerEnum.KeySort.ASC.ToString())
-                    && !keySortStatus.ToUpper().Equals(StorePartnerEnum.KeySort.DESC.ToString()))
-                    {
-                        throw new BadRequestException(MessageConstant.StorePartnerMessage.KeySortNotExist);
-                    }
-                }
-
                 // Get brandId from claim
                 Claim accountId = claims.First(x => x.Type.ToLower().Equals("sid"));
                 var brandAccount = await this._unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId.Value));
@@ -497,24 +439,42 @@ namespace MBKC.Service.Services.Implementations
                     partner.Commission = p.Commission;
                     partnersInformation.Add(partner);
                 }
-                if (keySortName != null && keySortName.ToUpper().Equals(StorePartnerEnum.KeySort.ASC.ToString()))
+                if (getPartnerInformationRequest.keySortName != null && getPartnerInformationRequest.keySortName.ToUpper().Equals(StorePartnerEnum.KeySort.ASC.ToString()))
                 {
                     partnersInformation = partnersInformation.OrderBy(x => x.PartnerName).ToList();
                 }
-                else if (keySortName != null && keySortName.ToUpper().Equals(StorePartnerEnum.KeySort.DESC.ToString()))
+                else if (getPartnerInformationRequest.keySortName != null && getPartnerInformationRequest.keySortName.ToUpper().Equals(StorePartnerEnum.KeySort.DESC.ToString()))
                 {
                     partnersInformation = partnersInformation.OrderByDescending(x => x.PartnerName).ToList();
                 }
 
-                if (keySortStatus != null && keySortStatus.ToUpper().Equals(StorePartnerEnum.KeySort.ASC.ToString()))
+                if (getPartnerInformationRequest.keySortStatus != null && getPartnerInformationRequest.keySortStatus.ToUpper().Equals(StorePartnerEnum.KeySort.ASC.ToString()))
                 {
                     partnersInformation = partnersInformation.OrderBy(x => x.Status).ToList();
                 }
-                else if (keySortStatus != null && keySortStatus.ToUpper().Equals(StorePartnerEnum.KeySort.DESC.ToString()))
+                else if (getPartnerInformationRequest.keySortStatus != null && getPartnerInformationRequest.keySortStatus.ToUpper().Equals(StorePartnerEnum.KeySort.DESC.ToString()))
                 {
                     partnersInformation = partnersInformation.OrderByDescending(x => x.Status).ToList();
                 }
 
+                if (getPartnerInformationRequest.keySortCommission != null && getPartnerInformationRequest.keySortCommission.ToUpper().Equals(StorePartnerEnum.KeySort.ASC.ToString()))
+                {
+                    partnersInformation = partnersInformation.OrderBy(x => x.Commission).ToList();
+                }
+                else if (getPartnerInformationRequest.keySortCommission != null && getPartnerInformationRequest.keySortCommission.ToUpper().Equals(StorePartnerEnum.KeySort.DESC.ToString()))
+                {
+                    partnersInformation = partnersInformation.OrderByDescending(x => x.Commission).ToList();
+                }
+                if(storePartner.Count == 0)
+                {
+                    return new GetStorePartnerInformationResponse()
+                    {
+                        KitchenCenterName = store.KitchenCenter.Name,
+                        StoreId = store.StoreId,
+                        StoreName = store.Name,
+                        StorePartners = partnersInformation
+                    };
+                }
                 return new GetStorePartnerInformationResponse()
                 {
                     KitchenCenterName = storePartner.Select(x => x.Store.KitchenCenter.Name).FirstOrDefault(),
@@ -537,11 +497,10 @@ namespace MBKC.Service.Services.Implementations
             {
                 string fieldName = "";
 
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidStoreId))
+                if (ex.Message.Equals(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand))
                 {
                     fieldName = "Store id";
                 }
-
                 else if (ex.Message.Equals(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand))
                 {
                     fieldName = "Store id";
@@ -560,53 +519,41 @@ namespace MBKC.Service.Services.Implementations
             }
         }
 
-        public async Task<GetStorePartnersResponse> GetStorePartnersAsync(string? searchValue, int? currentPage, int? itemsPerPage, IEnumerable<Claim> claims)
+        public async Task<GetStorePartnersResponse> GetStorePartnersAsync(GetStorePartnersRequest getStorePartnersRequest, IEnumerable<Claim> claims)
         {
             try
             {
-
                 // Get brandId from claim
                 Claim accountId = claims.First(x => x.Type.ToLower().Equals("sid"));
                 var brandAccount = await this._unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId.Value));
                 var brandId = brandAccount.Brand.BrandId;
                 var getStorePartnersResponse = new List<GetStorePartnerResponse>();
-                if (currentPage != null && currentPage <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidCurrentPage);
-                }
-                else if (currentPage == null)
-                {
-                    currentPage = 1;
-                }
-
-                if (itemsPerPage != null && itemsPerPage <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidItemsPerPage);
-                }
-                else if (itemsPerPage == null)
-                {
-                    itemsPerPage = 5;
-                }
 
                 int numberItems = 0;
                 List<StorePartner> storePartners = null;
-                if (searchValue != null && StringUtil.IsUnicode(searchValue) == false)
+                if (getStorePartnersRequest.SearchValue != null && StringUtil.IsUnicode(getStorePartnersRequest.SearchValue) == false)
                 {
-                    numberItems = await this._unitOfWork.StorePartnerRepository.GetNumberStorePartnersAsync(searchValue, null, brandId);
-                    storePartners = await this._unitOfWork.StorePartnerRepository.GetStorePartnersAsync(searchValue, null, brandId, currentPage, itemsPerPage);
+                    numberItems = await this._unitOfWork.StorePartnerRepository.GetNumberStorePartnersAsync(getStorePartnersRequest.SearchValue, null, brandId);
+                    storePartners = await this._unitOfWork.StorePartnerRepository.GetStorePartnersAsync(getStorePartnersRequest.SearchValue, null, getStorePartnersRequest.CurrentPage.Value, getStorePartnersRequest.ItemsPerPage.Value,
+                                                                                                        getStorePartnersRequest.SortBy != null && getStorePartnersRequest.SortBy.ToLower().EndsWith("asc") ? getStorePartnersRequest.SortBy.Split("_")[0] : null,
+                                                                                                        getStorePartnersRequest.SortBy != null && getStorePartnersRequest.SortBy.ToLower().EndsWith("desc") ? getStorePartnersRequest.SortBy.Split("_")[0] : null, brandId);
                 }
-                else if (searchValue != null && StringUtil.IsUnicode(searchValue))
+                else if (getStorePartnersRequest.SearchValue != null && StringUtil.IsUnicode(getStorePartnersRequest.SearchValue))
                 {
-                    numberItems = await this._unitOfWork.StorePartnerRepository.GetNumberStorePartnersAsync(null, searchValue, brandId);
-                    storePartners = await this._unitOfWork.StorePartnerRepository.GetStorePartnersAsync(searchValue, searchValue, brandId, currentPage, itemsPerPage);
+                    numberItems = await this._unitOfWork.StorePartnerRepository.GetNumberStorePartnersAsync(null, getStorePartnersRequest.SearchValue, brandId);
+                    storePartners = await this._unitOfWork.StorePartnerRepository.GetStorePartnersAsync(null, getStorePartnersRequest.SearchValue, getStorePartnersRequest.CurrentPage.Value, getStorePartnersRequest.ItemsPerPage.Value,
+                                                                                                        getStorePartnersRequest.SortBy != null && getStorePartnersRequest.SortBy.ToLower().EndsWith("asc") ? getStorePartnersRequest.SortBy.Split("_")[0] : null,
+                                                                                                        getStorePartnersRequest.SortBy != null && getStorePartnersRequest.SortBy.ToLower().EndsWith("desc") ? getStorePartnersRequest.SortBy.Split("_")[0] : null, brandId);
                 }
-                else if (searchValue == null)
+                else if (getStorePartnersRequest.SearchValue == null)
                 {
                     numberItems = await this._unitOfWork.StorePartnerRepository.GetNumberStorePartnersAsync(null, null, brandId);
-                    storePartners = await this._unitOfWork.StorePartnerRepository.GetStorePartnersAsync(null, null, brandId, currentPage, itemsPerPage);
+                    storePartners = await this._unitOfWork.StorePartnerRepository.GetStorePartnersAsync(null, null, getStorePartnersRequest.CurrentPage.Value, getStorePartnersRequest.ItemsPerPage.Value,
+                                                                                                        getStorePartnersRequest.SortBy != null && getStorePartnersRequest.SortBy.ToLower().EndsWith("asc") ? getStorePartnersRequest.SortBy.Split("_")[0] : null,
+                                                                                                        getStorePartnersRequest.SortBy != null && getStorePartnersRequest.SortBy.ToLower().EndsWith("desc") ? getStorePartnersRequest.SortBy.Split("_")[0] : null, brandId);
                 }
 
-                int totalPages = (int)((numberItems + itemsPerPage) / itemsPerPage);
+                int totalPages = (int)((numberItems + getStorePartnersRequest.ItemsPerPage) / getStorePartnersRequest.ItemsPerPage);
                 if (numberItems == 0)
                 {
                     totalPages = 0;
@@ -640,20 +587,10 @@ namespace MBKC.Service.Services.Implementations
             }
         }
 
-        public async Task UpdateStorePartnerRequestAsync(int storeId, int partnerId, UpdateStorePartnerRequest updateStorePartnerRequest, IEnumerable<Claim> claims) 
+        public async Task UpdateStorePartnerRequestAsync(int storeId, int partnerId, UpdateStorePartnerRequest updateStorePartnerRequest, IEnumerable<Claim> claims)
         {
             try
             {
-
-                if (storeId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidStoreId);
-                }
-                if (partnerId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidPartnerId);
-                }
-
                 // Get brandId from claim
                 Claim accountId = claims.First(x => x.Type.ToLower().Equals("sid"));
                 var brandAccount = await this._unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId.Value));
@@ -727,15 +664,7 @@ namespace MBKC.Service.Services.Implementations
             {
                 string fieldName = "";
 
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidStoreId))
-                {
-                    fieldName = "Store id";
-                }
-                else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidPartnerId))
-                {
-                    fieldName = "Partner id";
-                }
-                else if (ex.Message.Equals(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand))
+                if (ex.Message.Equals(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand))
                 {
                     fieldName = "Store id";
                 }
@@ -761,15 +690,6 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
-                if (storeId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidStoreId);
-                }
-                if (partnerId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidPartnerId);
-                }
-
                 // Get brandId from claim
                 Claim accountId = claims.First(x => x.Type.ToLower().Equals("sid"));
                 var brandAccount = await this._unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId.Value));
@@ -836,15 +756,7 @@ namespace MBKC.Service.Services.Implementations
             {
                 string fieldName = "";
 
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidStoreId))
-                {
-                    fieldName = "Store id";
-                }
-                else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidPartnerId))
-                {
-                    fieldName = "Partner id";
-                }
-                else if (ex.Message.Equals(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand))
+                if (ex.Message.Equals(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand))
                 {
                     fieldName = "Store id";
                 }

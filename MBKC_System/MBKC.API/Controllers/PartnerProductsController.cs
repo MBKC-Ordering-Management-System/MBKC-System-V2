@@ -17,29 +17,32 @@ namespace MBKC.API.Controllers
     [ApiController]
     public class PartnerProductsController : ControllerBase
     {
-        
+
         private IPartnerProductService _partnerProductService;
         private IValidator<PostPartnerProductRequest> _createPartnerProductValidator;
         private IValidator<UpdatePartnerProductRequest> _updatePartnerProductValidator;
         private IValidator<UpdatePartnerProductStatusRequest> _updatePartnerProductStatusValidator;
-        private IValidator<GetPartnerProductRequest> _getPartnerProductStatusValidator;
+        private IValidator<GetPartnerProductsRequest> _getPartnerProductsValidator;
+        private IValidator<PartnerProductRequest> _getPartnerProductValidator;
         public PartnerProductsController(IPartnerProductService partnerProductService,
             IValidator<UpdatePartnerProductRequest> updatePartnerProductValidator,
             IValidator<UpdatePartnerProductStatusRequest> updatePartnerProductStatusValidator,
-            IValidator<GetPartnerProductRequest> getPartnerProductStatusValidator,
+            IValidator<GetPartnerProductsRequest> getPartnerProductsValidator,
+            IValidator<PartnerProductRequest> getPartnerProductValidator,
             IValidator<PostPartnerProductRequest> createPartnerProductValidator)
         {
             this._partnerProductService = partnerProductService;
             this._createPartnerProductValidator = createPartnerProductValidator;
             this._updatePartnerProductValidator = updatePartnerProductValidator;
             this._updatePartnerProductStatusValidator = updatePartnerProductStatusValidator;
-            this._getPartnerProductStatusValidator= getPartnerProductStatusValidator;
+            this._getPartnerProductsValidator = getPartnerProductsValidator;
+            this._getPartnerProductValidator = getPartnerProductValidator;
         }
         #region Get Partner Products
         /// <summary>
         /// Get partner products in the system.
         /// </summary>
-        /// <param name="getPartnerProductRequest">An object include SearchValue, ItemsPerPage, CurrentPage, SortBy for search, sort, paging.</param>
+        /// <param name="getPartnerProductsRequest">An object include SearchValue, ItemsPerPage, CurrentPage, SortBy for search, sort, paging.</param>
         /// <returns>
         /// A list of partner products with requested conditions.
         /// </returns>
@@ -66,16 +69,16 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
         [HttpGet(APIEndPointConstant.PartnerProduct.PartnerProductsEndpoint)]
-        public async Task<IActionResult> GetPartnerProductsAsync([FromQuery] GetPartnerProductRequest getPartnerProductRequest)
+        public async Task<IActionResult> GetPartnerProductsAsync([FromQuery] GetPartnerProductsRequest getPartnerProductsRequest)
         {
-            ValidationResult validationResult = await this._getPartnerProductStatusValidator.ValidateAsync(getPartnerProductRequest);
+            ValidationResult validationResult = await this._getPartnerProductsValidator.ValidateAsync(getPartnerProductsRequest);
             if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            GetPartnerProductsResponse getPartnerProductsResponse = await this._partnerProductService.GetPartnerProductsAsync(getPartnerProductRequest, claims);
+            GetPartnerProductsResponse getPartnerProductsResponse = await this._partnerProductService.GetPartnerProductsAsync(getPartnerProductsRequest, claims);
             return Ok(getPartnerProductsResponse);
         }
         #endregion
@@ -84,9 +87,7 @@ namespace MBKC.API.Controllers
         /// <summary>
         /// Get a specific partner product by storeId, partnerId, productId.
         /// </summary>
-        /// <param name="storeId">The store's id.</param>
-        /// <param name="partnerId">The partner's id.</param>
-        ///  <param name="productId">The product's id.</param>
+        /// <param name="getPartnerProductRequest">An object include product id, partner id, store id</param>
         /// <returns>
         /// An object contains the partner product information.
         /// </returns>
@@ -112,10 +113,16 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
         [HttpGet(APIEndPointConstant.PartnerProduct.PartnerProductEndpoint)]
-        public async Task<IActionResult> GetPartnerProductAsync([FromRoute] int productId, [FromRoute] int partnerId, [FromRoute] int storeId)
+        public async Task<IActionResult> GetPartnerProductAsync([FromRoute] PartnerProductRequest getPartnerProductRequest)
         {
+            ValidationResult validationResult = await this._getPartnerProductValidator.ValidateAsync(getPartnerProductRequest);
+            if (validationResult.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
+            }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            var getPartnerProductResponse = await this._partnerProductService.GetPartnerProductAsync(productId, partnerId, storeId, claims);
+            var getPartnerProductResponse = await this._partnerProductService.GetPartnerProductAsync(getPartnerProductRequest.ProductId, getPartnerProductRequest.PartnertId, getPartnerProductRequest.StoreId, claims);
             return Ok(getPartnerProductResponse);
         }
         #endregion
@@ -133,10 +140,12 @@ namespace MBKC.API.Controllers
         ///
         ///         POST 
         ///         {
-        ///             "ProductId": "1"
-        ///             "PartnerId": "2"
-        ///             "StoreId": "2"
-        ///             "ProductCode": "CT001"
+        ///             "productId": "1",
+        ///             "partnerId": "2",
+        ///             "storeId": "2",
+        ///             "productCode": "CT001",
+        ///             "status": "AVAILABLE",
+        ///             "price": 25000
         ///         }
         /// </remarks>
         /// <response code="200">Created new partner product successfully.</response>
@@ -174,9 +183,7 @@ namespace MBKC.API.Controllers
         /// <summary>
         /// Update existed partner product.
         /// </summary>
-        /// <param name="storeId">The store's id.</param>
-        /// <param name="partnerId">The partner's id.</param>
-        /// <param name="productId">The product's id.</param>
+        /// <param name="partnerProductRequest">An object include product id, partner id, store id.</param>
         /// <param name="updatePartnerProductRequest">Information to update partner product.</param>
         /// <returns>
         /// A success message about updating partner product information.  
@@ -189,8 +196,9 @@ namespace MBKC.API.Controllers
         ///         partnerId = 1
         ///         productId = 1
         ///           {
-        ///             "productCode": "ST001"
-        ///             "status" : "INACTIVE"
+        ///             "productCode": "ST001",
+        ///             "status": "AVAILABLE",
+        ///             "price": 30000
         ///           }
         /// </remarks>
         /// <response code="200">Updated partner product information successfully.</response>
@@ -207,16 +215,22 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
         [HttpPut(APIEndPointConstant.PartnerProduct.PartnerProductEndpoint)]
-        public async Task<IActionResult> PutUpdatePartnerProductAsync([FromRoute] int productId, [FromRoute] int partnerId, [FromRoute] int storeId, [FromBody] UpdatePartnerProductRequest updatePartnerProductRequest)
+        public async Task<IActionResult> PutUpdatePartnerProductAsync([FromRoute] PartnerProductRequest partnerProductRequest, [FromBody] UpdatePartnerProductRequest updatePartnerProductRequest)
         {
             ValidationResult validationResult = await this._updatePartnerProductValidator.ValidateAsync(updatePartnerProductRequest);
+            ValidationResult validationResultPartnerProductId = await this._getPartnerProductValidator.ValidateAsync(partnerProductRequest);
             if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
+            if (validationResultPartnerProductId.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResultPartnerProductId);
+                throw new BadRequestException(errors);
+            }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            await this._partnerProductService.UpdatePartnerProductAsync(productId, partnerId, storeId, updatePartnerProductRequest, claims);
+            await this._partnerProductService.UpdatePartnerProductAsync(partnerProductRequest.ProductId, partnerProductRequest.PartnertId, partnerProductRequest.StoreId, updatePartnerProductRequest, claims);
             return Ok(new
             {
                 Message = MessageConstant.PartnerProductMessage.UpdatedPartnerProductSuccessfully
@@ -228,9 +242,7 @@ namespace MBKC.API.Controllers
         /// <summary>
         /// Update status of existed partner product.
         /// </summary>
-        /// <param name="storeId">The store's id.</param>
-        /// <param name="partnerId">The partner's id.</param>
-        /// <param name="productId">The product's id.</param>
+        /// <param name="partnerProductRequest">An object include product id, partner id, store id.</param>
         /// <param name="updatePartnerProductStatusRequest">An object include status to update partner product.</param>
         /// <returns>
         /// A success message about updating partner product status.  
@@ -239,11 +251,11 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///
         ///         PUT 
-        ///         storeId = 1
-        ///         partnerId = 1
         ///         productId = 1
+        ///         partnerId = 1
+        ///         storeId = 1
         ///           {
-        ///             "status" : "INACTIVE"
+        ///             "status" : "AVAILABLE"
         ///           }
         /// </remarks>
         /// <response code="200">Updated partner product status successfully.</response>
@@ -260,7 +272,7 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
         [HttpPut(APIEndPointConstant.PartnerProduct.UpdatingStatusPartnerProductEndpoint)]
-        public async Task<IActionResult> PutUpdatePartnerProductStatusAsync([FromRoute] int productId, [FromRoute] int partnerId, [FromRoute] int storeId, [FromBody] UpdatePartnerProductStatusRequest updatePartnerProductStatusRequest)
+        public async Task<IActionResult> PutUpdatePartnerProductStatusAsync([FromRoute] PartnerProductRequest partnerProductRequest, [FromBody] UpdatePartnerProductStatusRequest updatePartnerProductStatusRequest)
         {
             ValidationResult validationResult = await this._updatePartnerProductStatusValidator.ValidateAsync(updatePartnerProductStatusRequest);
             if (validationResult.IsValid == false)
@@ -269,7 +281,7 @@ namespace MBKC.API.Controllers
                 throw new BadRequestException(errors);
             }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            await this._partnerProductService.UpdatePartnerProductStatusAsync(productId, partnerId, storeId, updatePartnerProductStatusRequest, claims);
+            await this._partnerProductService.UpdatePartnerProductStatusAsync(partnerProductRequest.ProductId, partnerProductRequest.PartnertId, partnerProductRequest.StoreId, updatePartnerProductStatusRequest, claims);
             return Ok(new
             {
                 Message = MessageConstant.PartnerProductMessage.UpdatedPartnerProductStatusSuccessfully
@@ -281,9 +293,7 @@ namespace MBKC.API.Controllers
         /// <summary>
         /// Delete existed partner product by id.
         /// </summary>
-        /// <param name="productId"> Id of product.</param>
-        /// <param name="partnerId"> Id of partner.</param>
-        /// <param name="storeId"> Id of store.</param>
+        /// <param name="partnerProductRequest"> An object include product id, partner id, store id.</param>
         /// <returns>
         /// A success message about deleting partner product.
         /// </returns>
@@ -309,10 +319,10 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
         [HttpDelete(APIEndPointConstant.PartnerProduct.PartnerProductEndpoint)]
-        public async Task<IActionResult> DeletePartnerProductByIdAsync([FromRoute] int productId, [FromRoute] int partnerId, [FromRoute] int storeId)
+        public async Task<IActionResult> DeletePartnerProductByIdAsync([FromRoute] PartnerProductRequest partnerProductRequest)
         {
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            await this._partnerProductService.DeletePartnerProductByIdAsync(productId, partnerId, storeId, claims);
+            await this._partnerProductService.DeletePartnerProductByIdAsync(partnerProductRequest.ProductId, partnerProductRequest.PartnertId, partnerProductRequest.StoreId, claims);
             return Ok(new
             {
                 Message = MessageConstant.PartnerProductMessage.DeletedPartnerProductSuccessfully

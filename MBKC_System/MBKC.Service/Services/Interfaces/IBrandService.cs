@@ -8,7 +8,7 @@ namespace MBKC.Service.Services.Interfaces
     {
         public Task CreateBrandAsync(PostBrandRequest postBrandRequest);
         public Task UpdateBrandAsync( int brandId, UpdateBrandRequest updateBrandRequest);
-        public Task<GetBrandsResponse> GetBrandsAsync(string? keySearchName, string? keyStatusFilter, string? keySortName, int? pageNumber, int? pageSize, bool? isGetAll);
+        public Task<GetBrandsResponse> GetBrandsAsync(GetBrandsRequest getBrandsRequest);
         public Task<GetBrandResponse> GetBrandByIdAsync(int id, IEnumerable<Claim> claims);
         public Task DeActiveBrandByIdAsync(int id);
         public Task UpdateBrandStatusAsync(int brandId, UpdateBrandStatusRequest updateBrandStatusRequest);

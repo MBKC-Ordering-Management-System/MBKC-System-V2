@@ -12,8 +12,13 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MBKC.Repository.Migrations
 {
     [DbContext(typeof(MBKCDbContext))]
+<<<<<<<< HEAD:MBKC_System/MBKC.Repository/Migrations/20231024070801_Create Configuration Table.Designer.cs
     [Migration("20231024070801_Create Configuration Table")]
     partial class CreateConfigurationTable
+========
+    [Migration("20231027092110_Update database")]
+    partial class Updatedatabase
+>>>>>>>> main:MBKC_System/MBKC.Repository/Migrations/20231027092110_Update database.Designer.cs
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -207,12 +212,9 @@ namespace MBKC.Repository.Migrations
                     b.Property<int>("CashierId")
                         .HasColumnType("int");
 
-                    b.Property<int>("AccountId")
-                        .HasColumnType("int");
-
                     b.HasKey("ExchangeId", "CashierId");
 
-                    b.HasIndex("AccountId");
+                    b.HasIndex("CashierId");
 
                     b.HasIndex("ExchangeId")
                         .IsUnique();
@@ -396,9 +398,14 @@ namespace MBKC.Repository.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasMaxLength(100)
+                        .HasMaxLength(300)
                         .IsUnicode(true)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("ExchangeImage")
+                        .HasMaxLength(2147483647)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(max)");
 
                     b.Property<string>("ExchangeType")
                         .IsRequired()
@@ -621,7 +628,7 @@ namespace MBKC.Repository.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("UpdatedDate")
+                    b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("datetime2");
 
                     b.HasKey("ProductId", "PartnerId", "StoreId", "CreatedDate");
@@ -766,14 +773,11 @@ namespace MBKC.Repository.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("BankingAccountId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasMaxLength(100)
+                        .HasMaxLength(300)
                         .IsUnicode(true)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(300)");
 
                     b.Property<int>("CreateBy")
                         .HasColumnType("int");
@@ -798,7 +802,7 @@ namespace MBKC.Repository.Migrations
 
                     b.HasKey("PaymentId");
 
-                    b.HasIndex("BankingAccountId");
+                    b.HasIndex("KCBankingAccountId");
 
                     b.HasIndex("OrderId");
 
@@ -905,8 +909,8 @@ namespace MBKC.Repository.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<float>("Commission")
-                        .HasColumnType("real");
+                    b.Property<decimal>("Commission")
+                        .HasColumnType("decimal(9,2)");
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -941,7 +945,7 @@ namespace MBKC.Repository.Migrations
                     b.Property<int?>("ExchangeId")
                         .HasColumnType("int");
 
-                    b.Property<int>("PaymentId")
+                    b.Property<int?>("PaymentId")
                         .HasColumnType("int");
 
                     b.Property<int>("Status")
@@ -1052,7 +1056,7 @@ namespace MBKC.Repository.Migrations
                 {
                     b.HasOne("MBKC.Repository.Models.Cashier", "Cashier")
                         .WithMany("CashierMoneyExchanges")
-                        .HasForeignKey("AccountId")
+                        .HasForeignKey("CashierId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1165,8 +1169,7 @@ namespace MBKC.Repository.Migrations
                     b.HasOne("MBKC.Repository.Models.OrderDetail", "MasterOrderDetail")
                         .WithMany("ExtraOrderDetails")
                         .HasForeignKey("MasterOrderDetailId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("MBKC.Repository.Models.Product", "Product")
                         .WithMany("OrderDetails")
@@ -1230,9 +1233,7 @@ namespace MBKC.Repository.Migrations
                 {
                     b.HasOne("MBKC.Repository.Models.BankingAccount", "BankingAccount")
                         .WithMany("ShipperPayments")
-                        .HasForeignKey("BankingAccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("KCBankingAccountId");
 
                     b.HasOne("MBKC.Repository.Models.Order", "Order")
                         .WithMany("ShipperPayments")
@@ -1339,8 +1340,7 @@ namespace MBKC.Repository.Migrations
                     b.HasOne("MBKC.Repository.Models.ShipperPayment", "ShipperPayment")
                         .WithMany("Transactions")
                         .HasForeignKey("PaymentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("MBKC.Repository.Models.Wallet", "Wallet")
                         .WithMany("Transactions")

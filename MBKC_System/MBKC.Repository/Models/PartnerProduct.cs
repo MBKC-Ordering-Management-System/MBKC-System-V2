@@ -18,7 +18,7 @@ namespace MBKC.Repository.Models
         public int Status { get; set; }
         public decimal Price { get; set; }
         public DateTime MappedDate { get; set; }
-        public DateTime UpdatedDate { get; set; }
+        public DateTime? UpdatedDate { get; set; }
         [ForeignKey("ProductId")]
         public virtual Product Product { get; set; }
         [ForeignKey("StoreId,PartnerId,CreatedDate")]

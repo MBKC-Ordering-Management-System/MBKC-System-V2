@@ -92,17 +92,31 @@
         public static class StorePartner
         {
             public const string StorePartnersEndpoint = ApiEndpoint + "/store-partners";
-            public const string StorePartnerEndpoint = StorePartnersEndpoint + "/{storeId}/{partnerId}";
+            public const string StorePartnerEndpoint = StorePartnersEndpoint + "/stores/{storeId}/partners/{partnerId}";
             public const string UpdatingStatusStorePartnerEndpoint = StorePartnerEndpoint + "/updating-status";
-            public const string PartnerInformationEndpoint = StorePartnersEndpoint + "/{storeId}";
+            public const string PartnerInformationEndpoint = StorePartnersEndpoint + "/stores/{storeId}";
         }
 
         public static class PartnerProduct
         {
             public const string PartnerProductsEndpoint = ApiEndpoint + "/partner-products";
-            public const string PartnerProductEndpoint = PartnerProductsEndpoint + "/{productId}/{partnerId}/{storeId}";
+            public const string PartnerProductEndpoint = PartnerProductsEndpoint + "/products/{productId}/partners/{partnerId}/stores/{storeId}";
             public const string UpdatingStatusPartnerProductEndpoint = PartnerProductEndpoint + "/updating-status";
 
+        }
+
+        public static class Order
+        {
+            public const string OrderEndpoint = ApiEndpoint + "/orders";
+            public const string ConfirmOrderToCompletedEndpoint = OrderEndpoint + "/confirm-order-to-completed";
+        }
+
+        public static class MoneyExchange
+        {
+            public const string MoneyExchangeEndpoint = ApiEndpoint + "/money-exchanges";
+            public const string MoneyExchangeToKitchenCenter = MoneyExchangeEndpoint + "/money-exchange-to-kitchen-center";
+            public const string WithdrawMoneyToStore = MoneyExchangeEndpoint + "/withdraw-money-to-store";
+            public const string UpdateSchedulingTimeJob = MoneyExchangeEndpoint + "/update-scheduling-time-job";
         }
     }
 }

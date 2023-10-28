@@ -412,7 +412,21 @@ namespace MBKC.Repository.Repositories
                                                    .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                    .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                    .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                   .Include(x => x.Wallet)
                                                    .FirstOrDefaultAsync(x => x.StoreId == id && x.Status != (int)StoreEnum.Status.DEACTIVE);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<Store> GetStoreByIdAsync(int id)
+        {
+            try
+            {
+                return await this._dbContext.Stores.Include(x => x.Wallet)
+                                                   .FirstOrDefaultAsync(x => x.StoreId == id && x.Status == (int)StoreEnum.Status.ACTIVE);
             }
             catch (Exception ex)
             {

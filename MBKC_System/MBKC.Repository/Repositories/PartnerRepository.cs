@@ -93,15 +93,53 @@ namespace MBKC.Repository.Repositories
         #endregion
 
         #region Get Partners
-        public async Task<List<Partner>> GetPartnersAsync(string? keySearchNameUniCode, string? keySearchNameNotUniCode, int itemsPerPage, int currentPage)
+        public async Task<List<Partner>> GetPartnersAsync(string? searchValue, string? searchValueWithoutUnicode,
+            int currentPage, int itemsPerPage, string? sortByASC, string? sortByDESC)
         {
             try
             {
-                if (keySearchNameUniCode == null && keySearchNameNotUniCode != null)
+
+                if (searchValue == null && searchValueWithoutUnicode != null)
                 {
+                    if (sortByASC is not null)
+                        return this._dbContext.Partners.Where(delegate (Partner partner)
+                        {
+                            if (StringUtil.RemoveSign4VietnameseString(partner.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
+                            {
+                                return true;
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                        }).Where(c => !(c.Status == (int)PartnerEnum.Status.DEACTIVE))
+                                                           .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
+                                                                        then => then.OrderBy(x => x.Name))
+                                                           .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
+                                                                      then => then.OrderBy(x => x.Status).Reverse())
+                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
+
+                    else if (sortByDESC is not null)
+                        return this._dbContext.Partners.Where(delegate (Partner partner)
+                        {
+                            if (StringUtil.RemoveSign4VietnameseString(partner.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
+                            {
+                                return true;
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                        }).Where(c => !(c.Status == (int)PartnerEnum.Status.DEACTIVE))
+                                                           .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
+                                                                        then => then.OrderByDescending(x => x.Name))
+                                                           .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
+                                                                      then => then.OrderByDescending(x => x.Status).Reverse())
+                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
+
                     return this._dbContext.Partners.Where(delegate (Partner partner)
                     {
-                        if (StringUtil.RemoveSign4VietnameseString(partner.Name.ToLower()).Contains(keySearchNameNotUniCode.ToLower()))
+                        if (StringUtil.RemoveSign4VietnameseString(partner.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
                         {
                             return true;
                         }
@@ -109,17 +147,54 @@ namespace MBKC.Repository.Repositories
                         {
                             return false;
                         }
-                    }).Where(c => !(c.Status == (int)PartnerEnum.Status.DEACTIVE))
-                                                 .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
+                    }).Where(c => !(c.Status == (int)PartnerEnum.Status.DEACTIVE)).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
+
+
+
                 }
-                else if (keySearchNameUniCode != null && keySearchNameNotUniCode == null)
+                else if (searchValue != null && searchValueWithoutUnicode == null)
                 {
-                    return await this._dbContext.Partners
-                        .Where(c => c.Name.ToLower().Contains(keySearchNameUniCode.ToLower()) && !(c.Status == (int)PartnerEnum.Status.DEACTIVE))
-                        .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
+                    if (sortByASC is not null)
+                        return this._dbContext.Partners
+                        .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && !(c.Status == (int)PartnerEnum.Status.DEACTIVE))
+                        .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
+                                 then => then.OrderBy(x => x.Name))
+                        .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
+                                 then => then.OrderBy(x => x.Status).Reverse())
+                        .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+
+                    else if (sortByDESC is not null)
+                        return this._dbContext.Partners
+                        .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && !(c.Status == (int)PartnerEnum.Status.DEACTIVE))
+                        .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
+                                 then => then.OrderByDescending(x => x.Name))
+                        .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
+                                 then => then.OrderByDescending(x => x.Status).Reverse())
+                        .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+
+                    return this._dbContext.Partners
+                        .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && !(c.Status == (int)PartnerEnum.Status.DEACTIVE))
+                        .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
                 }
+
+                if (sortByASC is not null)
+                    return this._dbContext.Partners.Where(c => !(c.Status == (int)PartnerEnum.Status.DEACTIVE))
+                        .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
+                                 then => then.OrderBy(x => x.Name))
+                        .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
+                                 then => then.OrderBy(x => x.Status).Reverse())
+                        .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+
+                else if (sortByDESC is not null)
+                    return this._dbContext.Partners.Where(c => !(c.Status == (int)PartnerEnum.Status.DEACTIVE))
+                       .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
+                                 then => then.OrderByDescending(x => x.Name))
+                       .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
+                                 then => then.OrderByDescending(x => x.Status).Reverse())
+                       .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+
                 return await this._dbContext.Partners.Where(c => !(c.Status == (int)PartnerEnum.Status.DEACTIVE))
-                    .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
+                                               .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
             }
             catch (Exception ex)
             {
