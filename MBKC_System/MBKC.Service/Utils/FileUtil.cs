@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Web;
+using Spire.Xls;
 
 namespace MBKC.Service.Utils
 {
@@ -26,10 +27,43 @@ namespace MBKC.Service.Utils
         }
         #endregion
 
+        #region Convert Excel Picture to FileStream
+        public static FileStream ConvertExcelPictureToStream(ExcelPicture file)
+        {
+            // Create a unique temporary file path
+            string tempFilePath = Path.GetTempFileName();
+
+            // Open a FileStream to write the file
+            using (FileStream stream = new FileStream(tempFilePath, FileMode.Create))
+            {
+                // Copy the contents of the IFormFile to the FileStream
+                file.SaveToImage(stream);
+            }
+
+            // Open the temporary file in read mode and return the FileStream
+            FileStream fileStream = new FileStream(tempFilePath, FileMode.Open, FileAccess.Read);
+
+            return fileStream;
+        }
+        #endregion
+
         #region HaveSupportedFileType
         public static bool HaveSupportedFileType(string fileName)
         {
-            string[] validFileTypes = { ".png", ".jpg", ".jpeg" , ".webp" };
+            string[] validFileTypes = { ".png", ".jpg", ".jpeg", ".webp" };
+            string extensionFile = Path.GetExtension(fileName);
+            if (validFileTypes.Contains(extensionFile))
+            {
+                return true;
+            }
+            return false;
+        }
+        #endregion
+
+        #region HaveSupportedFileTypeExcel
+        public static bool HaveSupportedFileTypeExcel(string fileName)
+        {
+            string[] validFileTypes = { ".xlsx" };
             string extensionFile = Path.GetExtension(fileName);
             if (validFileTypes.Contains(extensionFile))
             {

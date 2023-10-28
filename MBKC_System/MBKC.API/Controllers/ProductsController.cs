@@ -21,13 +21,16 @@ namespace MBKC.API.Controllers
         private IValidator<CreateProductRequest> _createProductValidator;
         private IValidator<UpdateProductRequest> _updateProductValidator;
         private IValidator<UpdateProductStatusRequest> _updateProductStatusValidator;
+        private IValidator<ImportFileRequest> _importFileValidator;
         public ProductsController(IProductService productService, IValidator<UpdateProductRequest> updateProductValidator,
-            IValidator<CreateProductRequest> createProductValidator, IValidator<UpdateProductStatusRequest> updateProductStatusValidator)
+            IValidator<CreateProductRequest> createProductValidator, IValidator<UpdateProductStatusRequest> updateProductStatusValidator, 
+            IValidator<ImportFileRequest> importFileValidator)
         {
             this._productService = productService;
             this._updateProductValidator = updateProductValidator;
             this._createProductValidator = createProductValidator;
             _updateProductStatusValidator = updateProductStatusValidator;
+            _importFileValidator = importFileValidator;
         }
 
         #region Get Products
@@ -68,10 +71,10 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces(MediaTypeConstant.ApplicationJson)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager, PermissionAuthorizeConstant.StoreManager, 
+        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager, PermissionAuthorizeConstant.StoreManager,
                              PermissionAuthorizeConstant.KitchenCenterManager, PermissionAuthorizeConstant.MBKCAdmin)]
         [HttpGet(APIEndPointConstant.Product.ProductsEndpoint)]
-        public async Task<IActionResult> GetProductsAsync([FromQuery]string? searchName, [FromQuery] int? currentPage, 
+        public async Task<IActionResult> GetProductsAsync([FromQuery] string? searchName, [FromQuery] int? currentPage,
             [FromQuery] int? itemsPerPage, [FromQuery] string? productType, [FromQuery] bool? isGetAll, [FromQuery] int? idCategory,
             [FromQuery] int? idStore)
         {
@@ -107,7 +110,7 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces(MediaTypeConstant.ApplicationJson)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager, PermissionAuthorizeConstant.StoreManager, 
+        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager, PermissionAuthorizeConstant.StoreManager,
                              PermissionAuthorizeConstant.KitchenCenterManager, PermissionAuthorizeConstant.MBKCAdmin)]
         [HttpGet(APIEndPointConstant.Product.ProductEndpoint)]
         public async Task<IActionResult> GetProductAsync([FromRoute] int id)
@@ -158,10 +161,10 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
         [HttpPost(APIEndPointConstant.Product.ProductsEndpoint)]
-        public async Task<IActionResult> PostCreatNewProduct([FromForm]CreateProductRequest createProductRequest)
+        public async Task<IActionResult> PostCreatNewProduct([FromForm] CreateProductRequest createProductRequest)
         {
             ValidationResult validationResult = await this._createProductValidator.ValidateAsync(createProductRequest);
-            if(validationResult.IsValid == false)
+            if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
@@ -273,7 +276,7 @@ namespace MBKC.API.Controllers
             }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
             await this._productService.UpdateProductStatusAsync(id, updateProductStatusRequest, claims);
-            return Ok( new
+            return Ok(new
             {
                 Message = MessageConstant.ProductMessage.UpdatedProductStatusSuccessfully
             });
@@ -319,11 +322,11 @@ namespace MBKC.API.Controllers
         }
         #endregion
 
-        #region Create new product
+        #region Create new product by excel
         /// <summary>
         /// Import excel file for create new products.
         /// </summary>
-        /// <param name="createProductRequest">The object contains created product information.</param>
+        /// <param name="importFileRequest">The file contains created product information.</param>
         /// <returns>
         /// A success message about creating new product.
         /// </returns>
@@ -331,18 +334,7 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///
         ///         POST 
-        ///         Code = BDMT0001
-        ///         Name = Bún đậu mắm tôm
-        ///         Description = Bún đậu mắm tôm thơn ngon
-        ///         SellingPrice = 50000
-        ///         DiscountPrice = 0
-        ///         HistoricalPrice = 0
-        ///         Size = S | M | L
-        ///         Type = SINGLE | PARENT | CHILD | EXTRA
-        ///         Image = [File Image]
-        ///         DisplayOrder = 1
-        ///         ParentProductId = 1
-        ///         CategoryId = 1
+        ///         File: file_excel.xlsx
         /// </remarks>
         /// <response code="200">Created new product successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
@@ -361,12 +353,13 @@ namespace MBKC.API.Controllers
         [HttpPost(APIEndPointConstant.Product.ImportFileEndpoint)]
         public async Task<IActionResult> ImportFileExcel([FromForm] ImportFileRequest importFileRequest)
         {
-            /*ValidationResult validationResult = await this._createProductValidator.ValidateAsync(createProductRequest);
+            ValidationResult validationResult = await this._importFileValidator.ValidateAsync(importFileRequest);
             if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
-            }*/
+            }
+
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
             await this._productService.UploadExelFile(importFileRequest.file, claims);
             return Ok(new

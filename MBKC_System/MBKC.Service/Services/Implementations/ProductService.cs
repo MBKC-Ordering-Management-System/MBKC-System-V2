@@ -16,11 +16,9 @@ using MBKC.Repository.Enums;
 using Microsoft.Extensions.Logging.Abstractions;
 using MBKC.Service.DTOs.Stores;
 using Microsoft.AspNetCore.Http;
-using OfficeOpenXml;
-using Excel = Microsoft.Office.Interop.Excel;
-using OfficeOpenXml.Drawing;
-using System.Drawing;
- 
+using Spire.Xls;
+using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
+using ExcelPicture = Spire.Xls.ExcelPicture;
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -784,53 +782,93 @@ namespace MBKC.Service.Services.Implementations
             }
         }
 
+        #region upload file excel
         public async Task UploadExelFile(IFormFile file, IEnumerable<Claim> claims)
         {
+            string folderName = "Products";
+            string logoId = "";
+            bool isUploaded = false;
+
             try
             {
-                if (file == null || file.Length == 0)
-                {
+                #region validation
+                List<Product> productsToAdd = new List<Product>();
+                Claim registeredEmailClaim = claims.First(x => x.Type == ClaimTypes.Email);
+                string email = registeredEmailClaim.Value;
+                Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandAsync(email);
 
-                }
-              
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                using (var package = new ExcelPackage(file.OpenReadStream()))
+                // reading excel file
+                using (var stream = new MemoryStream())
                 {
-                    var worksheet = package.Workbook.Worksheets[0];
-                    var rowCount = worksheet.Dimension.Rows;
+                    file.CopyTo(stream);
+                    Workbook workbook = new Workbook();
+                    workbook.LoadFromStream(stream);
+                    Worksheet worksheet = workbook.Worksheets[0];
+                    int rowCount = worksheet.Rows.Length;
 
                     for (int row = 2; row <= rowCount; row++)
                     {
-                        var Code = worksheet.Cells[row, 1].Value.ToString();
-                        var Name = worksheet.Cells[row, 2].Value.ToString();
-                        var Description = worksheet.Cells[row, 3].Value.ToString();
-                        var SellingPrice = decimal.Parse(worksheet.Cells[row, 4].Value.ToString());
-                        var DiscountPrice = decimal.Parse(worksheet.Cells[row, 5].Value.ToString());
-                        var HistoricalPrice = decimal.Parse(worksheet.Cells[row, 6].Value.ToString());
-                        var Size = worksheet.Cells[row, 7].Value?.ToString();
-                        var Type = worksheet.Cells[row, 8].Value.ToString();
-                        var image = worksheet.Cells[row, 9].Value;
-                        var DisplayOrder = int.Parse(worksheet.Cells[row, 10].Value?.ToString());
-                        int? ParentProductId = worksheet.Cells[row, 11].Value != null ? int.Parse(worksheet.Cells[row, 11].Value.ToString()) : null;
-                        var CategoryId = int.Parse(worksheet.Cells[row, 12].Value?.ToString());
-                        var product = new CreateProductRequest
-                        {
-                            Code = worksheet.Cells[row, 1].Value.ToString(),
-                            Name = worksheet.Cells[row, 2].Value.ToString(),
-                            Description = worksheet.Cells[row, 3].Value.ToString(),
-                            SellingPrice = decimal.Parse(worksheet.Cells[row, 4].Value.ToString()),
-                            DiscountPrice = decimal.Parse(worksheet.Cells[row, 5].Value.ToString()),
-                            HistoricalPrice = decimal.Parse(worksheet.Cells[row, 6].Value.ToString()),
-                            Size = worksheet.Cells[row, 7].Value?.ToString(),
-                            Type = worksheet.Cells[row, 8].Value?.ToString(),
-                            Image = (IFormFile)worksheet.GetValue(row, 9),
-                            DisplayOrder = int.Parse(worksheet.Cells[row, 10].Value?.ToString()),
-                            ParentProductId = int.Parse(worksheet.Cells[row, 11].Value?.ToString()),
-                            CategoryId = int.Parse(worksheet.Cells[row, 12].Value?.ToString()),
-                        };
-                        await CreateProductAsync(product, claims);
+                        var Code = worksheet.Range[row, 1].Value.ToString();
+                        var Name = worksheet.Range[row, 2].Value.ToString();
+                        ExcelPicture picture = worksheet.Pictures[row - 2];
+
+                        FileStream fileStream = FileUtil.ConvertExcelPictureToStream(picture);
+                        var imageId = Guid.NewGuid().ToString();
+                        string urlImage = await this._unitOfWork.FirebaseStorageRepository.UploadImageAsync(fileStream, "LOLLLLLL", imageId);
+
+                        //var Code = worksheet.Cells[row, 1].Value.ToString();
+                        //var Name = worksheet.Cells[row, 2].Value.ToString();
+                        //var Description = worksheet.Cells[row, 3].Value.ToString();
+                        //var SellingPrice = decimal.Parse(worksheet.Cells[row, 4].Value.ToString());
+                        //var DiscountPrice = decimal.Parse(worksheet.Cells[row, 5].Value.ToString());
+                        //var HistoricalPrice = decimal.Parse(worksheet.Cells[row, 6].Value.ToString());
+                        //var Size = worksheet.Cells[row, 7].Value?.ToString();
+                        //var Type = worksheet.Cells[row, 8].Value.ToString();
+                        //var image = worksheet.Cells[row, 9].Value;
+                        //var DisplayOrder = int.Parse(worksheet.Cells[row, 10].Value?.ToString());
+                        //int? ParentProductId = worksheet.Cells[row, 11].Value != null ? int.Parse(worksheet.Cells[row, 11].Value.ToString()) : null;
+                        //var CategoryId = int.Parse(worksheet.Cells[row, 12].Value?.ToString());
+                        //var product = new CreateProductRequest
+                        //{
+                        //    Code = worksheet.Cells[row, 1].Value.ToString(),
+                        //    Name = worksheet.Cells[row, 2].Value.ToString(),
+                        //    Description = worksheet.Cells[row, 3].Value.ToString(),
+                        //    SellingPrice = decimal.Parse(worksheet.Cells[row, 4].Value.ToString()),
+                        //    DiscountPrice = decimal.Parse(worksheet.Cells[row, 5].Value.ToString()),
+                        //    HistoricalPrice = decimal.Parse(worksheet.Cells[row, 6].Value.ToString()),
+                        //    Size = worksheet.Cells[row, 7].Value?.ToString(),
+                        //    Type = worksheet.Cells[row, 8].Value?.ToString(),
+                        //    Image = (IFormFile)worksheet.GetValue(row, 9),
+                        //    DisplayOrder = int.Parse(worksheet.Cells[row, 10].Value?.ToString()),
+                        //    ParentProductId = int.Parse(worksheet.Cells[row, 11].Value?.ToString()),
+                        //    CategoryId = int.Parse(worksheet.Cells[row, 12].Value?.ToString()),
+                        //};
+                        //await CreateProductAsync(product, claims);
                     }
                 }
+                #endregion
+
+                #region operation
+                using (var stream = new MemoryStream())
+                {
+                    file.CopyTo(stream);
+                    Workbook workbook = new Workbook();
+                    workbook.LoadFromStream(stream);
+                    Worksheet worksheet = workbook.Worksheets[0]; 
+                    int rowCount = worksheet.Rows.Length;
+
+                    for (int row = 2; row <= rowCount; row++)
+                    { 
+                        var Code = worksheet.Range[row, 1].Value.ToString();
+                        var Name = worksheet.Range[row, 2].Value.ToString();
+                        ExcelPicture picture = worksheet.Pictures[row - 2];
+
+                        FileStream fileStream = FileUtil.ConvertExcelPictureToStream(picture);
+                        var imageId = Guid.NewGuid().ToString();
+                        string urlImage = await this._unitOfWork.FirebaseStorageRepository.UploadImageAsync(fileStream, "LOLLLLLL", imageId);
+                    }
+                }
+                #endregion
             }
             catch (Exception ex)
             {
@@ -838,5 +876,6 @@ namespace MBKC.Service.Services.Implementations
                 throw new Exception(error);
             }
         }
+        #endregion
     }
 }

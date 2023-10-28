@@ -16,6 +16,7 @@
     <PackageReference Include="Hangfire.Core" Version="1.8.6" />
     <PackageReference Include="Magick.NET.Core" Version="13.4.0" />
     <PackageReference Include="Microsoft.Office.Interop.Excel" Version="15.0.4795.1001" />
+    <PackageReference Include="Spire.XLS" Version="13.10.1" />
   </ItemGroup>
 
   <ItemGroup>
