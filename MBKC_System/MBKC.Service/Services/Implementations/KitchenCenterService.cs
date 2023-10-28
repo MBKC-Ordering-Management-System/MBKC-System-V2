@@ -22,55 +22,40 @@ namespace MBKC.Service.Services.Implementations
             this._mapper = mapper;
         }
 
-        public async Task<GetKitchenCentersResponse> GetKitchenCentersAsync(int? itemsPerPage, int? currentPage, string? searchValue, bool? isGetAll)
+        public async Task<GetKitchenCentersResponse> GetKitchenCentersAsync(GetKitchenCentersRequest getKitchenCentersRequest)
         {
             try
             {
-                if (isGetAll != null && isGetAll.Value == true)
-                {
-                    itemsPerPage = null;
-                    currentPage = null;
-                }
-                else
-                {
-                    if (itemsPerPage != null && itemsPerPage <= 0)
-                    {
-                        throw new BadRequestException(MessageConstant.CommonMessage.InvalidItemsPerPage);
-                    }
-                    else if (itemsPerPage == null)
-                    {
-                        itemsPerPage = 5;
-                    }
-                    if (currentPage != null && currentPage <= 0)
-                    {
-                        throw new BadRequestException(MessageConstant.CommonMessage.InvalidCurrentPage);
-                    }
-                    else if (currentPage == null)
-                    {
-                        currentPage = 1;
-                    }
-                }
                 int numberItems = 0;
                 List<KitchenCenter> kitchenCenters = null;
-                if (searchValue != null && StringUtil.IsUnicode(searchValue))
+                if (getKitchenCentersRequest.SearchValue != null && StringUtil.IsUnicode(getKitchenCentersRequest.SearchValue))
                 {
-                    numberItems = await this._unitOfWork.KitchenCenterRepository.GetNumberKitchenCentersAsync(searchValue, null);
-                    kitchenCenters = await this._unitOfWork.KitchenCenterRepository.GetKitchenCentersAsync(searchValue, null, itemsPerPage, currentPage);
+                    numberItems = await this._unitOfWork.KitchenCenterRepository.GetNumberKitchenCentersAsync(getKitchenCentersRequest.SearchValue, null);
+                    kitchenCenters = await this._unitOfWork.KitchenCenterRepository.GetKitchenCentersAsync(getKitchenCentersRequest.SearchValue, null, getKitchenCentersRequest.CurrentPage, getKitchenCentersRequest.ItemsPerPage,
+                                                                                                              getKitchenCentersRequest.SortBy != null && getKitchenCentersRequest.SortBy.ToLower().EndsWith("asc") ? getKitchenCentersRequest.SortBy.Split("_")[0] : null,
+                                                                                                              getKitchenCentersRequest.SortBy != null && getKitchenCentersRequest.SortBy.ToLower().EndsWith("desc") ? getKitchenCentersRequest.SortBy.Split("_")[0] : null,
+                                                                                                              getKitchenCentersRequest.IsGetAll);
                 }
-                else if (searchValue != null && StringUtil.IsUnicode(searchValue) == false)
+                else if (getKitchenCentersRequest.SearchValue != null && StringUtil.IsUnicode(getKitchenCentersRequest.SearchValue) == false)
                 {
-                    numberItems = await this._unitOfWork.KitchenCenterRepository.GetNumberKitchenCentersAsync(null, searchValue);
-                    kitchenCenters = await this._unitOfWork.KitchenCenterRepository.GetKitchenCentersAsync(null, searchValue, itemsPerPage, currentPage);
+                    numberItems = await this._unitOfWork.KitchenCenterRepository.GetNumberKitchenCentersAsync(null, getKitchenCentersRequest.SearchValue);
+                    kitchenCenters = await this._unitOfWork.KitchenCenterRepository.GetKitchenCentersAsync(null, getKitchenCentersRequest.SearchValue, getKitchenCentersRequest.CurrentPage, getKitchenCentersRequest.ItemsPerPage,
+                                                                                                              getKitchenCentersRequest.SortBy != null && getKitchenCentersRequest.SortBy.ToLower().EndsWith("asc") ? getKitchenCentersRequest.SortBy.Split("_")[0] : null,
+                                                                                                              getKitchenCentersRequest.SortBy != null && getKitchenCentersRequest.SortBy.ToLower().EndsWith("desc") ? getKitchenCentersRequest.SortBy.Split("_")[0] : null,
+                                                                                                              getKitchenCentersRequest.IsGetAll);
                 }
-                else if (searchValue == null)
+                else if (getKitchenCentersRequest.SearchValue == null)
                 {
                     numberItems = await this._unitOfWork.KitchenCenterRepository.GetNumberKitchenCentersAsync(null, null);
-                    kitchenCenters = await this._unitOfWork.KitchenCenterRepository.GetKitchenCentersAsync(null, null, itemsPerPage, currentPage);
+                    kitchenCenters = await this._unitOfWork.KitchenCenterRepository.GetKitchenCentersAsync(null, null, getKitchenCentersRequest.CurrentPage, getKitchenCentersRequest.ItemsPerPage,
+                                                                                                              getKitchenCentersRequest.SortBy != null && getKitchenCentersRequest.SortBy.ToLower().EndsWith("asc") ? getKitchenCentersRequest.SortBy.Split("_")[0] : null,
+                                                                                                              getKitchenCentersRequest.SortBy != null && getKitchenCentersRequest.SortBy.ToLower().EndsWith("desc") ? getKitchenCentersRequest.SortBy.Split("_")[0] : null,
+                                                                                                              getKitchenCentersRequest.IsGetAll);
                 }
                 int totalPages = 0;
-                if (numberItems > 0 && isGetAll == null || numberItems > 0 && isGetAll != null && isGetAll == false)
+                if (numberItems > 0 && getKitchenCentersRequest.IsGetAll == null || numberItems > 0 && getKitchenCentersRequest.IsGetAll != null && getKitchenCentersRequest.IsGetAll == false)
                 {
-                    totalPages = (int)((numberItems + itemsPerPage.Value) / itemsPerPage.Value);
+                    totalPages = (int)((numberItems + getKitchenCentersRequest.ItemsPerPage) / getKitchenCentersRequest.ItemsPerPage);
                 }
 
                 if (numberItems == 0)
@@ -86,20 +71,6 @@ namespace MBKC.Service.Services.Implementations
                 };
                 return getKitchenCenters;
             }
-            catch (BadRequestException ex)
-            {
-                string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidItemsPerPage))
-                {
-                    fieldName = "Items Per Page";
-                }
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidCurrentPage))
-                {
-                    fieldName = "Current Page";
-                }
-                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
-                throw new BadRequestException(error);
-            }
             catch (Exception ex)
             {
                 string error = ErrorUtil.GetErrorString("Exception", ex.Message);
@@ -111,10 +82,6 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
-                if (kitchenCenterId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidKitchenCenterId);
-                }
                 KitchenCenter kitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(kitchenCenterId);
                 if (kitchenCenter == null)
                 {
@@ -122,11 +89,6 @@ namespace MBKC.Service.Services.Implementations
                 }
                 GetKitchenCenterResponse getKitchenCenterResponse = this._mapper.Map<GetKitchenCenterResponse>(kitchenCenter);
                 return getKitchenCenterResponse;
-            }
-            catch (BadRequestException ex)
-            {
-                string error = ErrorUtil.GetErrorString("Kitchen center id", ex.Message);
-                throw new BadRequestException(error);
             }
             catch (NotFoundException ex)
             {
@@ -210,22 +172,18 @@ namespace MBKC.Service.Services.Implementations
         {
             string folderName = "KitchenCenters";
             bool isUploaded = false;
-            bool isDeleted = false; 
+            bool isDeleted = false;
             string logoId = "";
             bool isNewManager = false;
             try
             {
-                if (kitchenCenterId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidKitchenCenterId);
-                }
                 KitchenCenter existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(kitchenCenterId);
                 if (existedKitchenCenter == null)
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistKitchenCenterId);
                 }
-                
-                if(existedKitchenCenter.Status == (int)KitchenCenterEnum.Status.DEACTIVE)
+
+                if (existedKitchenCenter.Status == (int)KitchenCenterEnum.Status.DEACTIVE)
                 {
                     throw new BadRequestException(MessageConstant.KitchenCenterMessage.DeactiveKitchenCenter_Update);
                 }
@@ -234,14 +192,14 @@ namespace MBKC.Service.Services.Implementations
                 if (existedKitchenCenter.Manager.Email.Equals(updatedKitchenCenter.ManagerEmail) == false)
                 {
                     Account existedAccount = await this._unitOfWork.AccountRepository.GetAccountAsync(updatedKitchenCenter.ManagerEmail);
-                    if(existedAccount != null)
+                    if (existedAccount != null)
                     {
                         throw new BadRequestException(MessageConstant.KitchenCenterMessage.ManagerEmailExisted);
                     }
-                    
+
                     existedKitchenCenter.Manager.Status = (int)AccountEnum.Status.DEACTIVE;
                     this._unitOfWork.AccountRepository.UpdateAccount(existedKitchenCenter.Manager);
-                    
+
                     Role kitchenCenterManagerRole = await this._unitOfWork.RoleRepository.GetRoleAsync((int)RoleEnum.Role.KITCHEN_CENTER_MANAGER);
                     password = RandomPasswordUtil.CreateRandomPassword();
                     Account newManagerAccount = new Account()
@@ -277,7 +235,8 @@ namespace MBKC.Service.Services.Implementations
                 if (updatedKitchenCenter.Status.ToLower().Equals(KitchenCenterEnum.Status.ACTIVE.ToString().ToLower()))
                 {
                     existedKitchenCenter.Status = (int)KitchenCenterEnum.Status.ACTIVE;
-                } else if (updatedKitchenCenter.Status.ToLower().Equals(KitchenCenterEnum.Status.INACTIVE.ToString().ToLower()))
+                }
+                else if (updatedKitchenCenter.Status.ToLower().Equals(KitchenCenterEnum.Status.INACTIVE.ToString().ToLower()))
                 {
                     existedKitchenCenter.Status = (int)KitchenCenterEnum.Status.INACTIVE;
                 }
@@ -291,21 +250,19 @@ namespace MBKC.Service.Services.Implementations
                     await this._unitOfWork.EmailRepository.SendEmailAndPasswordToEmail(updatedKitchenCenter.ManagerEmail, message);
                 }
             }
-            catch(NotFoundException ex)
+            catch (NotFoundException ex)
             {
                 string error = ErrorUtil.GetErrorString("Kitchen Center Id", ex.Message);
                 throw new NotFoundException(error);
             }
-            catch(BadRequestException ex)
+            catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if(ex.Message.Equals(MessageConstant.KitchenCenterMessage.ManagerEmailExisted))
+                if (ex.Message.Equals(MessageConstant.KitchenCenterMessage.ManagerEmailExisted))
                 {
                     fieldName = "Manager email";
-                } else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidKitchenCenterId))
-                {
-                    fieldName = "Kitchen center id";
-                } else if (ex.Message.Equals(MessageConstant.KitchenCenterMessage.DeactiveKitchenCenter_Update))
+                }
+                else if (ex.Message.Equals(MessageConstant.KitchenCenterMessage.DeactiveKitchenCenter_Update))
                 {
                     fieldName = "Updated kitchen center failed";
                 }
@@ -327,10 +284,6 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
-                if (kitchenCenterId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidKitchenCenterId);
-                }
                 KitchenCenter existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(kitchenCenterId);
                 if (existedKitchenCenter == null)
                 {
@@ -352,25 +305,22 @@ namespace MBKC.Service.Services.Implementations
                 await this._unitOfWork.CommitAsync();
 
             }
-            catch(BadRequestException ex)
+            catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidKitchenCenterId))
-                {
-                    fieldName = "Kitchen center id";
-                } else if (ex.Message.Equals(MessageConstant.KitchenCenterMessage.DeactiveKitchenCenter_Update))
+                if (ex.Message.Equals(MessageConstant.KitchenCenterMessage.DeactiveKitchenCenter_Update))
                 {
                     fieldName = "Updated kitchen center failed";
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
             }
-            catch(NotFoundException ex)
+            catch (NotFoundException ex)
             {
                 string error = ErrorUtil.GetErrorString("Kitchen center id", ex.Message);
                 throw new NotFoundException(error);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 string error = ErrorUtil.GetErrorString("Exception", ex.Message);
                 throw new Exception(error);
@@ -381,22 +331,18 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
-                if (kitchenCenterId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidKitchenCenterId);
-                }
                 KitchenCenter existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(kitchenCenterId);
-                if(existedKitchenCenter == null)
+                if (existedKitchenCenter == null)
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistKitchenCenterId);
-                } 
-                
-                if(existedKitchenCenter.Status == (int)KitchenCenterEnum.Status.DEACTIVE)
+                }
+
+                if (existedKitchenCenter.Status == (int)KitchenCenterEnum.Status.DEACTIVE)
                 {
                     throw new BadRequestException(MessageConstant.KitchenCenterMessage.DeactiveKitchenCenter_Delete);
                 }
-                
-                if(existedKitchenCenter.Stores != null && existedKitchenCenter.Stores.Count() > 0 && existedKitchenCenter.Stores.Any(x => x.Status == (int)StoreEnum.Status.ACTIVE) == false)
+
+                if (existedKitchenCenter.Stores != null && existedKitchenCenter.Stores.Count() > 0 && existedKitchenCenter.Stores.Any(x => x.Status == (int)StoreEnum.Status.ACTIVE) == false)
                 {
                     throw new BadRequestException(MessageConstant.KitchenCenterMessage.ExistedActiveStores_Delete);
                 }
@@ -404,26 +350,23 @@ namespace MBKC.Service.Services.Implementations
                 this._unitOfWork.KitchenCenterRepository.UpdateKitchenCenter(existedKitchenCenter);
                 await this._unitOfWork.CommitAsync();
             }
-            catch(BadRequestException ex)
+            catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidKitchenCenterId))
-                {
-                    fieldName = "Kitchen center id";
-                } else if(ex.Message.Equals(MessageConstant.KitchenCenterMessage.DeactiveKitchenCenter_Delete) ||
-                    ex.Message.Equals(MessageConstant.KitchenCenterMessage.ExistedActiveStores_Delete))
+                if (ex.Message.Equals(MessageConstant.KitchenCenterMessage.DeactiveKitchenCenter_Delete) ||
+                 ex.Message.Equals(MessageConstant.KitchenCenterMessage.ExistedActiveStores_Delete))
                 {
                     fieldName = "Deleted kitchen center failed";
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
             }
-            catch(NotFoundException ex)
+            catch (NotFoundException ex)
             {
                 string error = ErrorUtil.GetErrorString("Kitchen center id", ex.Message);
                 throw new BadRequestException(error);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 string error = ErrorUtil.GetErrorString("Exception", ex.Message);
                 throw new Exception(error);
@@ -440,7 +383,8 @@ namespace MBKC.Service.Services.Implementations
                 KitchenCenter kitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(email);
                 GetKitchenCenterResponse getKitchenCenterResponse = this._mapper.Map<GetKitchenCenterResponse>(kitchenCenter);
                 return getKitchenCenterResponse;
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 string error = ErrorUtil.GetErrorString("Exception", ex.Message);
                 throw new Exception(error);
