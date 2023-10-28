@@ -21,6 +21,7 @@ namespace MBKC.Service.Profiles.StorePartners
                .ReverseMap();
 
             CreateMap<StorePartner, GetStorePartnerForPrivateAPI>();
+            CreateMap<StorePartner, GetStorePartnerWithPartnerOnlyResponse>();
         }
     }
 }

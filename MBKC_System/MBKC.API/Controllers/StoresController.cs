@@ -79,7 +79,7 @@ namespace MBKC.API.Controllers
         /// <summary>
         /// Get a specific store by store id.
         /// </summary>
-        /// <param name="id">The store's id.</param>
+        /// <param name="getStoreRequest">An object include store id.</param>
         /// <returns>
         /// An object contains the store's information.
         /// </returns>
@@ -103,10 +103,10 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin, PermissionAuthorizeConstant.KitchenCenterManager, PermissionAuthorizeConstant.BrandManager)]
         [HttpGet(APIEndPointConstant.Store.StoreEndpoint)]
-        public async Task<IActionResult> GetStoreAsync([FromRoute]int id)
+        public async Task<IActionResult> GetStoreAsync( [FromRoute] StoreRequest getStoreRequest)
         {
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            GetStoreResponse store = await this._storeService.GetStoreAsync(id, claims);
+            GetStoreResponse store = await this._storeService.GetStoreAsync(getStoreRequest.Id, claims);
             return Ok(store);
         }
         #endregion

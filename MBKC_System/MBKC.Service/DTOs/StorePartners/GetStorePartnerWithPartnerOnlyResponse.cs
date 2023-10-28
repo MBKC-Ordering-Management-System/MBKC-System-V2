@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MBKC.Service.DTOs.Partners;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,9 +7,8 @@ using System.Threading.Tasks;
 
 namespace MBKC.Service.DTOs.StorePartners
 {
-    public class StoreRequest
+    public class GetStorePartnerWithPartnerOnlyResponse
     {
-        [FromRoute(Name = "storeId")]
-        public int StoreId { get; set; }
+        public GetPartnerResponse Partner { get; set; }
     }
 }

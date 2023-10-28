@@ -94,7 +94,7 @@
             public const string StorePartnersEndpoint = ApiEndpoint + "/store-partners";
             public const string StorePartnerEndpoint = StorePartnersEndpoint + "/stores/{storeId}/partners/{partnerId}";
             public const string UpdatingStatusStorePartnerEndpoint = StorePartnerEndpoint + "/updating-status";
-            public const string PartnerInformationEndpoint = StorePartnersEndpoint + "/stores/{storeId}";
+            public const string PartnerInformationEndpoint = StorePartnersEndpoint + "/stores/{id}";
         }
 
         public static class PartnerProduct

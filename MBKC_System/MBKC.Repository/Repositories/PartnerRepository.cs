@@ -94,11 +94,14 @@ namespace MBKC.Repository.Repositories
 
         #region Get Partners
         public async Task<List<Partner>> GetPartnersAsync(string? searchValue, string? searchValueWithoutUnicode,
-            int currentPage, int itemsPerPage, string? sortByASC, string? sortByDESC)
+            int currentPage, int itemsPerPage, string? sortByASC, string? sortByDESC, bool? isGetAll)
         {
             try
             {
-
+                if (isGetAll != null && isGetAll == true)
+                {
+                    return await this._dbContext.Partners.Where(c => !(c.Status == (int)PartnerEnum.Status.DEACTIVE)).ToListAsync();
+                }
                 if (searchValue == null && searchValueWithoutUnicode != null)
                 {
                     if (sortByASC is not null)
