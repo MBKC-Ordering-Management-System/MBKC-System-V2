@@ -460,32 +460,34 @@ namespace MBKC.Service.Services.Implementations
                     numberItems = this._unitOfWork.CategoryRepository.GetNumberExtraCategories(listExtraCategoriesInNormalCategory, getExtraCategoriesRequest.SearchValue, null, brandId);
                     listExtraCategoriesInNormalCategory = this._unitOfWork.CategoryRepository.SearchAndPagingExtraCategory(listExtraCategoriesInNormalCategory, getExtraCategoriesRequest.SearchValue, null, getExtraCategoriesRequest.CurrentPage, getExtraCategoriesRequest.ItemsPerPage,
                                                                                                               getExtraCategoriesRequest.SortBy != null && getExtraCategoriesRequest.SortBy.ToLower().EndsWith("asc") ? getExtraCategoriesRequest.SortBy.Split("_")[0] : null,
-                                                                                                              getExtraCategoriesRequest.SortBy != null && getExtraCategoriesRequest.SortBy.ToLower().EndsWith("desc") ? getExtraCategoriesRequest.SortBy.Split("_")[0] : null, brandId);
+                                                                                                              getExtraCategoriesRequest.SortBy != null && getExtraCategoriesRequest.SortBy.ToLower().EndsWith("desc") ? getExtraCategoriesRequest.SortBy.Split("_")[0] : null, brandId, getExtraCategoriesRequest.isGetAll);
                 }
                 else if (getExtraCategoriesRequest.SearchValue != null && StringUtil.IsUnicode(getExtraCategoriesRequest.SearchValue) == false)
                 {
                     numberItems = this._unitOfWork.CategoryRepository.GetNumberExtraCategories(listExtraCategoriesInNormalCategory, null, getExtraCategoriesRequest.SearchValue, brandId);
                     listExtraCategoriesInNormalCategory = this._unitOfWork.CategoryRepository.SearchAndPagingExtraCategory(listExtraCategoriesInNormalCategory, null, getExtraCategoriesRequest.SearchValue, getExtraCategoriesRequest.CurrentPage, getExtraCategoriesRequest.ItemsPerPage,
                                                                                                               getExtraCategoriesRequest.SortBy != null && getExtraCategoriesRequest.SortBy.ToLower().EndsWith("asc") ? getExtraCategoriesRequest.SortBy.Split("_")[0] : null,
-                                                                                                              getExtraCategoriesRequest.SortBy != null && getExtraCategoriesRequest.SortBy.ToLower().EndsWith("desc") ? getExtraCategoriesRequest.SortBy.Split("_")[0] : null, brandId);
+                                                                                                              getExtraCategoriesRequest.SortBy != null && getExtraCategoriesRequest.SortBy.ToLower().EndsWith("desc") ? getExtraCategoriesRequest.SortBy.Split("_")[0] : null, brandId, getExtraCategoriesRequest.isGetAll);
                 }
                 else if (getExtraCategoriesRequest.SearchValue == null)
                 {
                     numberItems = this._unitOfWork.CategoryRepository.GetNumberExtraCategories(listExtraCategoriesInNormalCategory, null, null, brandId);
                     listExtraCategoriesInNormalCategory = this._unitOfWork.CategoryRepository.SearchAndPagingExtraCategory(listExtraCategoriesInNormalCategory, null, null, getExtraCategoriesRequest.CurrentPage, getExtraCategoriesRequest.ItemsPerPage,
                                                                                                               getExtraCategoriesRequest.SortBy != null && getExtraCategoriesRequest.SortBy.ToLower().EndsWith("asc") ? getExtraCategoriesRequest.SortBy.Split("_")[0] : null,
-                                                                                                              getExtraCategoriesRequest.SortBy != null && getExtraCategoriesRequest.SortBy.ToLower().EndsWith("desc") ? getExtraCategoriesRequest.SortBy.Split("_")[0] : null, brandId);
+                                                                                                              getExtraCategoriesRequest.SortBy != null && getExtraCategoriesRequest.SortBy.ToLower().EndsWith("desc") ? getExtraCategoriesRequest.SortBy.Split("_")[0] : null, brandId, getExtraCategoriesRequest.isGetAll);
                 }
 
 
                 _mapper.Map(listExtraCategoriesInNormalCategory, categoryResponse);
-
-                int totalPages = (int)((numberItems + getExtraCategoriesRequest.ItemsPerPage) / getExtraCategoriesRequest.ItemsPerPage);
+                int totalPages = 0;
+                if (numberItems > 0 && getExtraCategoriesRequest.isGetAll == null || numberItems > 0 && getExtraCategoriesRequest.isGetAll != null && getExtraCategoriesRequest.isGetAll == false)
+                {
+                    totalPages = (int)((numberItems + getExtraCategoriesRequest.ItemsPerPage) / getExtraCategoriesRequest.ItemsPerPage);
+                }
                 if (numberItems == 0)
                 {
                     totalPages = 0;
                 }
-
                 return new GetCategoriesResponse()
                 {
                     Categories = categoryResponse,

@@ -2,6 +2,7 @@
 using MBKC.Repository.Models;
 using MBKC.Service.DTOs.Partners;
 using MBKC.Service.DTOs.StorePartners;
+using MBKC.Service.DTOs.Stores;
 using MBKC.Service.Utils;
 using System;
 using System.Collections.Generic;

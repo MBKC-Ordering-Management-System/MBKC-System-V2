@@ -19,6 +19,7 @@ namespace MBKC.Service.Profiles.StorePartners
                .ForMember(dept => dept.PartnerName, opt => opt.MapFrom(src => src.Partner.Name))
                .ForMember(dept => dept.PartnerLogo, opt => opt.MapFrom(src => src.Partner.Logo))
                .ReverseMap();
+            CreateMap<StorePartner, GetStorePartnerWithPartnerOnlyResponse>();
         }
     }
 }

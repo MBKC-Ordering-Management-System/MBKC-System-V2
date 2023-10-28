@@ -294,10 +294,15 @@ namespace MBKC.Repository.Repositories
 
         #region Search and Paging extra category
         public List<Category> SearchAndPagingExtraCategory(List<Category> categories, string? searchValue, string? searchValueWithoutUnicode,
-            int currentPage, int itemsPerPage, string? sortByASC, string? sortByDESC, int brandId)
+            int currentPage, int itemsPerPage, string? sortByASC, string? sortByDESC, int brandId, bool? isGetAll)
         {
             try
             {
+                if(isGetAll != null && isGetAll == true)
+                {
+                    return categories.Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                    .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name).ToList();
+                }
                 if (searchValue == null && searchValueWithoutUnicode is not null)
                 {
                     if (sortByASC is not null)
