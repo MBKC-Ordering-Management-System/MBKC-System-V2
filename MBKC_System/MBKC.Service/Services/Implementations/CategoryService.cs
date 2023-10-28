@@ -356,7 +356,7 @@ namespace MBKC.Service.Services.Implementations
                 if (getCategoriesRequest.SearchValue != null && StringUtil.IsUnicode(getCategoriesRequest.SearchValue))
                 {
                     numberItems = await this._unitOfWork.CategoryRepository.GetNumberCategoriesAsync(getCategoriesRequest.SearchValue, null, getCategoriesRequest.Type, brandId.Value);
-                    categories = await this._unitOfWork.CategoryRepository.GetCategoriesAsync(getCategoriesRequest.SearchValue, null, getCategoriesRequest.CurrentPage.Value, getCategoriesRequest.ItemsPerPage.Value,
+                    categories = await this._unitOfWork.CategoryRepository.GetCategoriesAsync(getCategoriesRequest.SearchValue, null, getCategoriesRequest.CurrentPage, getCategoriesRequest.ItemsPerPage,
                                                                                                               getCategoriesRequest.SortBy != null && getCategoriesRequest.SortBy.ToLower().EndsWith("asc") ? getCategoriesRequest.SortBy.Split("_")[0] : null,
                                                                                                               getCategoriesRequest.SortBy != null && getCategoriesRequest.SortBy.ToLower().EndsWith("desc") ? getCategoriesRequest.SortBy.Split("_")[0] : null,
                                                                                                               getCategoriesRequest.Type, brandId.Value);
@@ -364,7 +364,7 @@ namespace MBKC.Service.Services.Implementations
                 else if (getCategoriesRequest.SearchValue != null && StringUtil.IsUnicode(getCategoriesRequest.SearchValue) == false)
                 {
                     numberItems = await this._unitOfWork.CategoryRepository.GetNumberCategoriesAsync(null, getCategoriesRequest.SearchValue, getCategoriesRequest.Type, brandId.Value);
-                    categories = await this._unitOfWork.CategoryRepository.GetCategoriesAsync(null, getCategoriesRequest.SearchValue, getCategoriesRequest.CurrentPage.Value, getCategoriesRequest.ItemsPerPage.Value,
+                    categories = await this._unitOfWork.CategoryRepository.GetCategoriesAsync(null, getCategoriesRequest.SearchValue, getCategoriesRequest.CurrentPage, getCategoriesRequest.ItemsPerPage,
                                                                                                               getCategoriesRequest.SortBy != null && getCategoriesRequest.SortBy.ToLower().EndsWith("asc") ? getCategoriesRequest.SortBy.Split("_")[0] : null,
                                                                                                               getCategoriesRequest.SortBy != null && getCategoriesRequest.SortBy.ToLower().EndsWith("desc") ? getCategoriesRequest.SortBy.Split("_")[0] : null,
                                                                                                               getCategoriesRequest.Type, brandId.Value);
@@ -372,7 +372,7 @@ namespace MBKC.Service.Services.Implementations
                 else if (getCategoriesRequest.SearchValue == null)
                 {
                     numberItems = await this._unitOfWork.CategoryRepository.GetNumberCategoriesAsync(null, null, getCategoriesRequest.Type, brandId.Value);
-                    categories = await this._unitOfWork.CategoryRepository.GetCategoriesAsync(null, null, getCategoriesRequest.CurrentPage.Value, getCategoriesRequest.ItemsPerPage.Value,
+                    categories = await this._unitOfWork.CategoryRepository.GetCategoriesAsync(null, null, getCategoriesRequest.CurrentPage, getCategoriesRequest.ItemsPerPage,
                                                                                                               getCategoriesRequest.SortBy != null && getCategoriesRequest.SortBy.ToLower().EndsWith("asc") ? getCategoriesRequest.SortBy.Split("_")[0] : null,
                                                                                                               getCategoriesRequest.SortBy != null && getCategoriesRequest.SortBy.ToLower().EndsWith("desc") ? getCategoriesRequest.SortBy.Split("_")[0] : null,
                                                                                                               getCategoriesRequest.Type, brandId.Value);
@@ -381,7 +381,7 @@ namespace MBKC.Service.Services.Implementations
                 _mapper.Map(categories, categoryResponse);
 
                 int totalPages = 0;
-                totalPages = (int)((numberItems + getCategoriesRequest.ItemsPerPage.Value) / getCategoriesRequest.ItemsPerPage.Value);
+                totalPages = (int)((numberItems + getCategoriesRequest.ItemsPerPage) / getCategoriesRequest.ItemsPerPage);
                 if (numberItems == 0)
                 {
                     totalPages = 0;
@@ -458,21 +458,21 @@ namespace MBKC.Service.Services.Implementations
                 if (getExtraCategoriesRequest.SearchValue != null && StringUtil.IsUnicode(getExtraCategoriesRequest.SearchValue))
                 {
                     numberItems = this._unitOfWork.CategoryRepository.GetNumberExtraCategories(listExtraCategoriesInNormalCategory, getExtraCategoriesRequest.SearchValue, null, brandId);
-                    listExtraCategoriesInNormalCategory = this._unitOfWork.CategoryRepository.SearchAndPagingExtraCategory(listExtraCategoriesInNormalCategory, getExtraCategoriesRequest.SearchValue, null, getExtraCategoriesRequest.CurrentPage.Value, getExtraCategoriesRequest.ItemsPerPage.Value,
+                    listExtraCategoriesInNormalCategory = this._unitOfWork.CategoryRepository.SearchAndPagingExtraCategory(listExtraCategoriesInNormalCategory, getExtraCategoriesRequest.SearchValue, null, getExtraCategoriesRequest.CurrentPage, getExtraCategoriesRequest.ItemsPerPage,
                                                                                                               getExtraCategoriesRequest.SortBy != null && getExtraCategoriesRequest.SortBy.ToLower().EndsWith("asc") ? getExtraCategoriesRequest.SortBy.Split("_")[0] : null,
                                                                                                               getExtraCategoriesRequest.SortBy != null && getExtraCategoriesRequest.SortBy.ToLower().EndsWith("desc") ? getExtraCategoriesRequest.SortBy.Split("_")[0] : null, brandId);
                 }
                 else if (getExtraCategoriesRequest.SearchValue != null && StringUtil.IsUnicode(getExtraCategoriesRequest.SearchValue) == false)
                 {
                     numberItems = this._unitOfWork.CategoryRepository.GetNumberExtraCategories(listExtraCategoriesInNormalCategory, null, getExtraCategoriesRequest.SearchValue, brandId);
-                    listExtraCategoriesInNormalCategory = this._unitOfWork.CategoryRepository.SearchAndPagingExtraCategory(listExtraCategoriesInNormalCategory, null, getExtraCategoriesRequest.SearchValue, getExtraCategoriesRequest.CurrentPage.Value, getExtraCategoriesRequest.ItemsPerPage.Value,
+                    listExtraCategoriesInNormalCategory = this._unitOfWork.CategoryRepository.SearchAndPagingExtraCategory(listExtraCategoriesInNormalCategory, null, getExtraCategoriesRequest.SearchValue, getExtraCategoriesRequest.CurrentPage, getExtraCategoriesRequest.ItemsPerPage,
                                                                                                               getExtraCategoriesRequest.SortBy != null && getExtraCategoriesRequest.SortBy.ToLower().EndsWith("asc") ? getExtraCategoriesRequest.SortBy.Split("_")[0] : null,
                                                                                                               getExtraCategoriesRequest.SortBy != null && getExtraCategoriesRequest.SortBy.ToLower().EndsWith("desc") ? getExtraCategoriesRequest.SortBy.Split("_")[0] : null, brandId);
                 }
                 else if (getExtraCategoriesRequest.SearchValue == null)
                 {
                     numberItems = this._unitOfWork.CategoryRepository.GetNumberExtraCategories(listExtraCategoriesInNormalCategory, null, null, brandId);
-                    listExtraCategoriesInNormalCategory = this._unitOfWork.CategoryRepository.SearchAndPagingExtraCategory(listExtraCategoriesInNormalCategory, null, null, getExtraCategoriesRequest.CurrentPage.Value, getExtraCategoriesRequest.ItemsPerPage.Value,
+                    listExtraCategoriesInNormalCategory = this._unitOfWork.CategoryRepository.SearchAndPagingExtraCategory(listExtraCategoriesInNormalCategory, null, null, getExtraCategoriesRequest.CurrentPage, getExtraCategoriesRequest.ItemsPerPage,
                                                                                                               getExtraCategoriesRequest.SortBy != null && getExtraCategoriesRequest.SortBy.ToLower().EndsWith("asc") ? getExtraCategoriesRequest.SortBy.Split("_")[0] : null,
                                                                                                               getExtraCategoriesRequest.SortBy != null && getExtraCategoriesRequest.SortBy.ToLower().EndsWith("desc") ? getExtraCategoriesRequest.SortBy.Split("_")[0] : null, brandId);
                 }

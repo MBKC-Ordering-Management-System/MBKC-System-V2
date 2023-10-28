@@ -13,7 +13,7 @@ namespace MBKC.API.Validators.Brands
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .Custom((currentPage, context) =>
                 {
-                    if (currentPage is not null && currentPage <= 0)
+                    if (currentPage <= 0)
                     {
                         context.AddFailure("CurrentPage", "Current page number is required more than 0.");
                     }
@@ -23,7 +23,7 @@ namespace MBKC.API.Validators.Brands
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .Custom((itemsPerPage, context) =>
                 {
-                    if (itemsPerPage is not null && itemsPerPage <= 0)
+                    if (itemsPerPage <= 0)
                     {
                         context.AddFailure("ItemsPerPage", "Items per page number is required more than 0.");
                     }

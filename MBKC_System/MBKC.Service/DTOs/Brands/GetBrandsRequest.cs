@@ -9,8 +9,8 @@ namespace MBKC.Service.DTOs.Brands
     public class GetBrandsRequest
     {
         public string? SearchValue { get; set; }
-        public int? ItemsPerPage { get; set; } = 5;
-        public int? CurrentPage { get; set; } = 1;
+        public int ItemsPerPage { get; set; } = 5;
+        public int CurrentPage { get; set; } = 1;
         public string? SortBy { get; set; }
     }
 }
