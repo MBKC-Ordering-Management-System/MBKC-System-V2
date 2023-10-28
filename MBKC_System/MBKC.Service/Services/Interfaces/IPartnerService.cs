@@ -11,7 +11,7 @@ namespace MBKC.Service.Services.Interfaces
     {
         public Task CreatePartner(PostPartnerRequest postPartnerRequest);
         public Task UpdatePartnerAsync(int partnerId, UpdatePartnerRequest updatePartnerRequest);
-        public Task<GetPartnersResponse> GetPartnersAsync(string? keySearchName, string? keySortName, string? keySortStatus, int? pageNumber, int? pageSize, bool? isGetAll);
+        public Task<GetPartnersResponse> GetPartnersAsync(GetPartnersRequest getPartnersRequest);
         public Task<GetPartnerResponse> GetPartnerByIdAsync(int id);
         public Task DeActivePartnerByIdAsync(int id);
         public Task UpdatePartnerStatusAsync(int partnerId, UpdatePartnerStatusRequest updatePartnerStatusRequest);

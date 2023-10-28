@@ -23,6 +23,7 @@
             public const string NotExistCategoryId = "Category id does not exist in the system.";
             public const string NotExistBankingAccountId = "Banking account id does not exist in the system.";
             public const string NotExistProductId = "Product id does not exist in the system.";
+            public const string NotExistOrderPartnerId = "Order parnter id does not exist in the system.";
             public const string NotExistCashierId = "Cashier id does not exist in the system.";
             public const string InvalidItemsPerPage = "Items per page number is required more than 0.";
             public const string InvalidCurrentPage = "Current page number is required more than 0.";
@@ -45,6 +46,7 @@
         public static class AccountMessage
         {
             public const string AccountIdNotBelongYourAccount = "Account id does not belong to your account.";
+            public const string AccountNoLongerActive = "Your account is no longer active.";
         }
 
         public static class VerificationMessage
@@ -77,6 +79,7 @@
             public const string ManagerEmailExisted = "Kitchen center manager email already existed in the system.";
             public const string ExistedActiveStores_Delete = "The kitchen center has active stores, so this kitchen center cannot be deleted.";
             public const string NotBelongToKitchenCenter = "Kitchen center id does not belong to your kitchen center.";
+            public const string NoOneActive = "Currently there are no active kitchen centers.";
 
         }
 
@@ -87,7 +90,7 @@
             public const string DeactiveBrand_Delete = "Brand cannot delete because that was deleted before.";
             public const string DeactiveBrand_Update = "Brand was deleted before, so this brand cannot update.";
             public const string ManagerEmailExisted = "Brand manager email already existed in the system.";
-            public const string RoleNotSuitable = "Role is not suitable"; 
+            public const string RoleNotSuitable = "Role is not suitable";
             public const string ProductNotBelongToBrand = "This product not belong to brand.";
             public const string KeySortNotExist = "Key sort are ASC or DESC";
         }
@@ -127,8 +130,9 @@
 
         public static class BankingAccountMessage
         {
-            public const string BankingAccountNotBelongToKitchenCenter = "Your kitchen center does not have this banking account id.";
+            public const string BankingAccountNotBelongToKitchenCenter = "Banking account id does not belong to your kitchen center.";
             public const string NumberAccountExisted = "Number account already existed in the system.";
+            public const string BankingAccountIsInactive = "Banking account is no longer active.";
         }
 
         public static class ProductMessage
@@ -169,6 +173,7 @@
             public const string CashierIdNotBelogToCashier = "Cashier id is not suitable with your account.";
             public const string StatusIsRequiredWithKitchenCenterManager = "Status is not null";
             public const string StatusIsNotRequiredWithCashier = "Cashier does not allow to update Status property.";
+            public const string NoOneActive = "Currently there are no active cashier.";
         }
 
         public static class StorePartnerMessage
@@ -184,6 +189,7 @@
             public const string GrabFoodAccountMustBeStoreManager = "GrabFood Account must be Store Manager Role.";
             public const string ItemOnGrabfoodCanNotMapping = "The item on GrabFood cannot be mapped to any product in the MBKC System.";
             public const string ModifierGroupOnGrabfoodCanNotMapping = "The modifier group on GrabFood cannot be mapped to any product in the MBKC System.";
+            public const string BrandHasNoActiveProduct = "Brand has no active products";
         }
 
         public static class PartnerProductMessage
@@ -192,8 +198,40 @@
             public const string DeactiveProduct_Create_Update = "This product is Deactive.";
             public const string InactiveProduct_Create_Update = "This product is Inactive.";
             public const string InactiveStore_Update = "This store has been inactive.";
-            public const string StatusInValid = "Status is ACTIVE or INACTIVE";
+            public const string StatusInValid = "Status is AVAILABLE, OUT_OF_STOCK_TODAY or OUT_OF_STOCK_INDENTIFINITELY.";
             public const string KeySortNotExist = "Key sort are ASC or DESC";
         }
+
+        public static class OrderMessage
+        {
+            public const string OrderNotBelongToKitchenCenter = "Order partner id does not belong to your kitchen center.";
+            public const string OrderShipperPhoneNotMatch = "Shipper phone does not match with shipper phone in order.";
+            public const string OrderIsPreparing = "This order is PREPARING status, so You can not confirm completed order.";
+            public const string OrderIsReady = "This order is READY status, so You can not confirm completed order.";
+            public const string OrderIsUpcoming = "This order is UPCOMING status, so You can not confirm completed order.";
+            public const string OrderIsCompleted = "This order is already COMPLETED status, so You can not confirm completed order..";
+            public const string OrderIsCancelled = "This order has been CANCELLED status, so You can not confirm completed order.";
+            public const string OrderAlreadyPaid = "This order has been paid, so You can not confirm completed order.";
+        }
+
+        public static class WalletMessage
+        {
+            public const string BalanceIsInvalid = "Your balance is not enough to transfer money.";
+        }
+
+        public static class MoneyExchangeMessage
+        {
+            public const string StoreIdNotBelogToKitchenCenter = "Store id does not belong to your kitchen center.";
+            public const string BalanceIsInvalid = "This store balance is invalid.";
+            public const string BalanceDoesNotEnough = "This store does not have enough balance to make a withdraw.";
+            public const string AlreadyTransferredToStore = "The money has been transferred to the store today.";
+            public const string AlreadyTransferredToKitchenCenter = "The money has been transferred to the kitchen center today.";
+            public const string TransferToStoreSuccessfully = "Transfer money to store successfully.";
+            public const string TransferToKitchenCenterSuccessfully = "Transfer money to kitchen center successfully.";
+            public const string NotExistJobId = "Job id is not existed in the MBKC System.";
+            public const string TimeKitchenCenterMustEarlier = "The scheduling time of money transfer to the kitchen center must be at least 1 minute earlier than the money transfer time to the store.";
+            public const string TimeStoreMustLater = "The scheduling time of money transfer to the store must be at least 1 minute later than the money transfer time to the kitchen center.";
+        }
+
     }
 }

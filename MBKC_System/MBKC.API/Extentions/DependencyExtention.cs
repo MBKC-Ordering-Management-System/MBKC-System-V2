@@ -1,33 +1,7 @@
-﻿using FluentValidation;
+﻿
 using MBKC.API.Middlewares;
-using MBKC.API.validators.Verifications;
-using MBKC.API.Validators;
-using MBKC.API.Validators.Accounts;
-using MBKC.API.Validators.Authentications;
-using MBKC.API.Validators.BankingAccounts;
-using MBKC.API.Validators.Brands;
-using MBKC.API.Validators.Cashiers;
-using MBKC.API.Validators.Categories;
-using MBKC.API.Validators.KitchenCenters;
-using MBKC.API.Validators.PartnerProducts;
-using MBKC.API.Validators.Partners;
-using MBKC.API.Validators.Products;
-using MBKC.API.Validators.StorePartners;
-using MBKC.API.Validators.Stores;
+
 using MBKC.Repository.Infrastructures;
-using MBKC.Service.DTOs.Accounts;
-using MBKC.Service.DTOs.AccountTokens;
-using MBKC.Service.DTOs.BankingAccounts;
-using MBKC.Service.DTOs.Brands;
-using MBKC.Service.DTOs.Cashiers.Requests;
-using MBKC.Service.DTOs.Categories;
-using MBKC.Service.DTOs.KitchenCenters;
-using MBKC.Service.DTOs.PartnerProducts;
-using MBKC.Service.DTOs.Partners;
-using MBKC.Service.DTOs.Products;
-using MBKC.Service.DTOs.StorePartners;
-using MBKC.Service.DTOs.Stores;
-using MBKC.Service.DTOs.Verifications;
 using MBKC.Service.Errors;
 using MBKC.Service.Services.Implementations;
 using MBKC.Service.Services.Interfaces;
@@ -38,6 +12,13 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using System.Reflection;
 using System.Text;
+using MBKC.Service.DTOs.Orders;
+using MBKC.API.Validators.Orders;
+using Hangfire;
+using System.Security.Cryptography.Xml;
+using Hangfire.Storage.SQLite;
+using MBKC.API.Constants;
+using System.Linq.Expressions;
 
 namespace MBKC.API.Extentions
 {
@@ -83,6 +64,13 @@ namespace MBKC.API.Extentions
             services.AddScoped<IStorePartnerService, StorePartnerService>();
             services.AddScoped<ITransactionService, TransactionService>();
             services.AddScoped<IWalletService, WalletService>();
+            services.AddScoped<IHangfireService, HangfireService>();
+            services.AddHangfire(config => config
+                                .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                                .UseSimpleAssemblyNameTypeSerializer()
+                                .UseRecommendedSerializerSettings()
+                                .UseSQLiteStorage(HangfireConstant.DatabaseName));
+            services.AddHangfireServer();
             return services;
         }
 
@@ -167,56 +155,26 @@ namespace MBKC.API.Extentions
             return services;
         }
 
-        public static IServiceCollection AddValidators(this IServiceCollection services)
-        {
-            services.AddScoped<IValidator<AccountRequest>, AccountValidator>();
-            services.AddScoped<IValidator<AccountTokenRequest>, AccountTokenValidator>();
-            services.AddScoped<IValidator<EmailVerificationRequest>, EmailVerificationValidator>();
-            services.AddScoped<IValidator<OTPCodeVerificationRequest>, OTPCodeVerifycationValidator>();
-            services.AddScoped<IValidator<ResetPasswordRequest>, ResetPasswordValidator>();
-            services.AddScoped<IValidator<CreateKitchenCenterRequest>, CreateKitchenCenterValidator>();
-            services.AddScoped<IValidator<UpdateKitchenCenterRequest>, UpdateKitchenCenterValidator>();
-            services.AddScoped<IValidator<RegisterStoreRequest>, RegisterStoreValidator>();
-            services.AddScoped<IValidator<UpdateStoreRequest>, UpdateStoreValidator>();
-            services.AddScoped<IValidator<PostBrandRequest>, PostBrandValidator>();
-            services.AddScoped<IValidator<UpdateBrandRequest>, UpdateBrandValidator>();
-            services.AddScoped<IValidator<PostCategoryRequest>, PostCategoryValidator>();
-            services.AddScoped<IValidator<UpdateCategoryRequest>, UpdateCategoryValidator>();
-            services.AddScoped<IValidator<UpdateBrandStatusRequest>, UpdateBrandStatusValidator>();
-            services.AddScoped<IValidator<UpdateBrandProfileRequest>, UpdateBrandProfileValidator>();
-            services.AddScoped<IValidator<UpdateKitchenCenterStatusRequest>, UpdateKitchenCenterStatusValidator>();
-            services.AddScoped<IValidator<UpdateStoreStatusRequest>, UpdateStoreStatusValidator>();
-            services.AddScoped<IValidator<ConfirmStoreRegistrationRequest>, ConfirmStoreRegistrationValidator>();
-            services.AddScoped<IValidator<CreateBankingAccountRequest>, CreateBankingAccountValidator>();
-            services.AddScoped<IValidator<UpdateBankingAccountStatusRequest>, UpdateBankingAccountStatusValidator>();
-            services.AddScoped<IValidator<UpdateBankingAccountRequest>, UpdateBankingAccountValidator>();
-            services.AddScoped<IValidator<CreateProductRequest>, CreateProductValidator>();
-            services.AddScoped<IValidator<UpdateProductRequest>, UpdateProductValidator>();
-            services.AddScoped<IValidator<UpdateProductStatusRequest>, UpdateProductStatusValidator>();
-            services.AddScoped<IValidator<PostPartnerRequest>, CreatePartnerValidator>();
-            services.AddScoped<IValidator<UpdatePartnerRequest>, UpdatePartnerValidator>();
-            services.AddScoped<IValidator<CreateCashierRequest>, CreateCashierValidator>();
-            services.AddScoped<IValidator<UpdateCashierRequest>, UpdateCashierValidator>();
-            services.AddScoped<IValidator<UpdateCashierStatusRequest>, UpdateCashierStatusValidator>();
-            services.AddScoped<IValidator<GetCashiersRequest>, GetCashiersValidator>();
-            services.AddScoped<IValidator<CashierRequest>, GetCashierValidator>();
-            services.AddScoped<IValidator<AccountIdRequest>, AccountIdValidator>();
-            services.AddScoped<IValidator<UpdateAccountRequest>, UpdateAccountValidator>();
-            services.AddScoped<IValidator<PostStorePartnerRequest>, CreateStorePartnerValidator>();
-            services.AddScoped<IValidator<UpdateStorePartnerRequest>, UpdateStorePartnerValidator>();
-            services.AddScoped<IValidator<UpdateStorePartnerStatusRequest>, UpdateStorePartnerStatusValidator>();
-            services.AddScoped<IValidator<PostPartnerProductRequest>, CreatePartnerProductValidator>();
-            services.AddScoped<IValidator<UpdatePartnerProductRequest>, UpdatePartnerProductValidator>();
-            services.AddScoped<IValidator<UpdatePartnerProductStatusRequest>, UpdatePartnerProductStatusValidator>();
-            services.AddScoped<IValidator<GetPartnerProductRequest>, GetPartnerProductValidator>();
-            services.AddScoped<IValidator<UpdatePartnerStatusRequest>, UpdatePartnerStatusValidator>();
-            return services;
-        }
-
         public static IServiceCollection AddExceptionMiddleware(this IServiceCollection services)
         {
             services.AddTransient<ExceptionMiddleware>();
             return services;
+        }
+
+        public static WebApplication AddApplicationConfig(this WebApplication app)
+        {
+            // Configure the HTTP request pipeline.
+            app.UseSwagger();
+            app.UseSwaggerUI();
+            app.UseCors(CorsConstant.PolicyName);
+            app.UseAuthentication();
+            app.UseAuthorization();
+            //Add middleware extentions
+            app.ConfigureExceptionMiddleware();
+            app.MapControllers();
+            app.UseHangfireDashboard();
+            BackgroundJob.Enqueue<IHangfireService>(hf => hf.StartAllBackgroundJob());
+            return app;
         }
     }
 }

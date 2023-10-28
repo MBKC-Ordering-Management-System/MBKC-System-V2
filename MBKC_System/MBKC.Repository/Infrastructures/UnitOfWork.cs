@@ -47,6 +47,7 @@ namespace MBKC.Repository.Infrastructures
         private FirebaseStorageRepository _firebaseStorageRepository;
         private EmailRepository _emailRepository;
         private GrabFoodRepository _grabFoodRepository;
+        private HangfireRepository _hangfireRepository;
 
 
         public UnitOfWork(IDbFactory dbFactory)
@@ -411,6 +412,18 @@ namespace MBKC.Repository.Infrastructures
                     this._grabFoodRepository = new GrabFoodRepository();
                 }
                 return this._grabFoodRepository;
+            }
+        }
+
+        public HangfireRepository HangfireRepository
+        {
+            get
+            {
+                if (this._hangfireRepository == null)
+                {
+                    this._hangfireRepository = new HangfireRepository();
+                }
+                return this._hangfireRepository;
             }
         }
 

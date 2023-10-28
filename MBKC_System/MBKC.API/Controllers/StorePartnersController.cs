@@ -17,19 +17,172 @@ namespace MBKC.API.Controllers
     public class StorePartnersController : ControllerBase
     {
         private IStorePartnerService _storePartnerService;
-        private IValidator<PostStorePartnerRequest> _postStorePartnerRequest;
-        private IValidator<UpdateStorePartnerRequest> _updateStorePartnerRequest;
-        private IValidator<UpdateStorePartnerStatusRequest> _updateStorePartnerStatusRequest;
+        private IValidator<PostStorePartnerRequest> _postStorePartnerValidator;
+        private IValidator<UpdateStorePartnerRequest> _updateStorePartnerValidator;
+        private IValidator<UpdateStorePartnerStatusRequest> _updateStorePartnerStatusValidator;
+        private IValidator<GetStorePartnersRequest> _getStorePartnersValidator;
+        private IValidator<StorePartnerRequest> _getStorePartnerValidator;
+        private IValidator<StoreRequest> _getStoreValidator;
+        private IValidator<GetPartnerInformationRequest> _getPartnerInformationsValidator;
         public StorePartnersController(IStorePartnerService storePartnerService,
-             IValidator<UpdateStorePartnerRequest> updateStorePartnerRequest,
-             IValidator<UpdateStorePartnerStatusRequest> updateStorePartnerStatusRequest,
-            IValidator<PostStorePartnerRequest> postStorePartnerRequest)
+             IValidator<UpdateStorePartnerRequest> updateStorePartnerValidator,
+             IValidator<UpdateStorePartnerStatusRequest> updateStorePartnerStatusValidator,
+             IValidator<GetStorePartnersRequest> getStorePartnersValidator,
+             IValidator<StorePartnerRequest> getStorePartnerValidator,
+             IValidator<StoreRequest> getStoreValidator,
+             IValidator<GetPartnerInformationRequest> getPartnerInformationsValidator,
+             IValidator<PostStorePartnerRequest> postStorePartnerValidator)
         {
             this._storePartnerService = storePartnerService;
-            this._postStorePartnerRequest = postStorePartnerRequest;
-            this._updateStorePartnerRequest = updateStorePartnerRequest;
-            this._updateStorePartnerStatusRequest = updateStorePartnerStatusRequest;
+            this._postStorePartnerValidator = postStorePartnerValidator;
+            this._updateStorePartnerValidator = updateStorePartnerValidator;
+            this._updateStorePartnerStatusValidator = updateStorePartnerStatusValidator;
+            this._getStorePartnersValidator = getStorePartnersValidator;
+            this._getStorePartnerValidator = getStorePartnerValidator;
+            this._getStoreValidator = getStoreValidator;
+            this._getPartnerInformationsValidator = getPartnerInformationsValidator;
         }
+        #region Get store partners
+        /// <summary>
+        /// Get StorePartners in the system.
+        /// </summary>
+        /// <param name="getStorePartnersRequest">An object incluce SearchValue, ItemsPerpage, CurrentPage, SortBy for search, sort and paging.</param>
+        /// <returns>
+        /// A list of store partners.
+        /// </returns>
+        /// <remarks>
+        ///     Sample request:
+        ///
+        ///         GET 
+        ///         SearchValue = Grab Food
+        ///         ItemsPerPage = 1
+        ///         CurrentPage = 5
+        ///         SortBy = "propertyName_asc | propertyName_ASC | propertyName_desc | propertyName_DESC"
+        /// </remarks>
+        /// <response code="200">Get list of store partners successfully.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
+        /// <response code="404">Some Error about request data not found.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
+        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(GetStorePartnersResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
+        [HttpGet(APIEndPointConstant.StorePartner.StorePartnersEndpoint)]
+        public async Task<IActionResult> GetStorePartnersAsync([FromQuery] GetStorePartnersRequest getStorePartnersRequest)
+        {
+            ValidationResult validationResult = await this._getStorePartnersValidator.ValidateAsync(getStorePartnersRequest);
+            if (!validationResult.IsValid)
+            {
+                string error = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(error);
+            }
+            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
+            GetStorePartnersResponse getStorePartnersResponse = await this._storePartnerService.GetStorePartnersAsync(getStorePartnersRequest, claims);
+            return Ok(getStorePartnersResponse);
+        }
+        #endregion
+
+        #region Get a specific store partner
+        /// <summary>
+        /// Get a specific store partner by id.
+        /// </summary>
+        /// <param name="getStorePartnerRequest">An object include store id and partner id.</param>
+
+        /// <returns>
+        /// An object contains the store partner information.
+        /// </returns>
+        /// <remarks>
+        ///     Sample request:
+        ///
+        ///         GET 
+        ///         storeId = 1
+        ///         partnerId = 2
+        /// </remarks>
+        /// <response code="200">Get a specific store partner successfully.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
+        /// <response code="404">Some Error about request data not found.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
+        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(GetStorePartnerResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
+        [HttpGet(APIEndPointConstant.StorePartner.StorePartnerEndpoint)]
+        public async Task<IActionResult> GetStorePartnerAsync([FromRoute] StorePartnerRequest getStorePartnerRequest)
+        {
+            ValidationResult validationResult = await this._getStorePartnerValidator.ValidateAsync(getStorePartnerRequest);
+            if (!validationResult.IsValid)
+            {
+                string error = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(error);
+            }
+            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
+            GetStorePartnerResponse getStorePartnerResponse = await this._storePartnerService.GetStorePartnerAsync(getStorePartnerRequest.StoreId, getStorePartnerRequest.PartnerId, claims);
+            return Ok(getStorePartnerResponse);
+        }
+        #endregion
+
+        #region Get store partner information by store Id
+        /// <summary>
+        /// Get a store partner information by store Id, sortByName, sortByStatus.
+        /// </summary>
+        /// <param name="getStoreRequest">An object include store id.</param>
+        /// <param name="getPartnerInformationRequest">An object incluce KeySortName, KeySortStatus, KeySortCommission.</param>
+        /// <returns>
+        /// An object contains the store partner, partner, kitchen center information.
+        /// </returns>
+        /// <remarks>
+        ///     Sample request:
+        ///
+        ///         GET 
+        ///         storeId = 1
+        ///         keySortName = ASC | DESC
+        ///         keySortStatus = ASC | DESC
+        ///         keySortCommission = ASC | DESC
+        /// </remarks>
+        /// <response code="200">Get store partner by store Id successfully.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
+        /// <response code="404">Some Error about request data not found.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
+        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(GetStorePartnerInformationResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
+        [HttpGet(APIEndPointConstant.StorePartner.PartnerInformationEndpoint)]
+        public async Task<IActionResult> GetStorePartnerInformationByIdAsync([FromRoute] StoreRequest getStoreRequest, [FromQuery] GetPartnerInformationRequest getPartnerInformationRequest)
+        {
+            ValidationResult validationResultStoreId = await this._getStoreValidator.ValidateAsync(getStoreRequest);
+            ValidationResult validationResult = await this._getPartnerInformationsValidator.ValidateAsync(getPartnerInformationRequest);
+            if (!validationResultStoreId.IsValid)
+            {
+                string error = ErrorUtil.GetErrorsString(validationResultStoreId);
+                throw new BadRequestException(error);
+            }
+
+            if (!validationResult.IsValid)
+            {
+                string error = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(error);
+            }
+            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
+            var getStorePartnerResponse = await this._storePartnerService.GetPartnerInformationAsync(getStoreRequest.StoreId, getPartnerInformationRequest, claims);
+            return Ok(getStorePartnerResponse);
+        }
+        #endregion
 
         #region Create store partner
         /// <summary>
@@ -71,12 +224,12 @@ namespace MBKC.API.Controllers
         [HttpPost(APIEndPointConstant.StorePartner.StorePartnersEndpoint)]
         public async Task<IActionResult> CreateStorePartnerAsync([FromBody] PostStorePartnerRequest postStorePartnerRequest)
         {
-            if(postStorePartnerRequest == null)
+            if (postStorePartnerRequest == null)
             {
                 string error = ErrorUtil.GetErrorString("Exception", "Request message body is not null.");
                 throw new BadRequestException(error);
             }
-            ValidationResult validationResult = await _postStorePartnerRequest.ValidateAsync(postStorePartnerRequest);
+            ValidationResult validationResult = await _postStorePartnerValidator.ValidateAsync(postStorePartnerRequest);
             if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
@@ -91,92 +244,11 @@ namespace MBKC.API.Controllers
         }
         #endregion
 
-        #region Get store partners
-        /// <summary>
-        /// Get StorePartners in the system.
-        /// </summary>
-        /// <param name="searchName">The name of product that user wants to find out.</param>
-        /// <param name="currentPage">The number of page</param>
-        /// <param name="itemsPerPage">The number of records that user wants to get.</param>
-        /// <returns>
-        /// A list of store partners with requested conditions.
-        /// </returns>
-        /// <remarks>
-        ///     Sample request:
-        ///
-        ///         GET 
-        ///         searchName = Beamin
-        ///         currentPage = 1
-        ///         itemsPerPage = 5
-        /// </remarks>
-        /// <response code="200">Get list of store partners successfully.</response>
-        /// <response code="400">Some Error about request data and logic data.</response>
-        /// <response code="404">Some Error about request data not found.</response>
-        /// <response code="500">Some Error about the system.</response>
-        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
-        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
-        /// <exception cref="Exception">Throw Error about the system.</exception>
-        [ProducesResponseType(typeof(GetStorePartnersResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces(MediaTypeConstant.ApplicationJson)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
-        [HttpGet(APIEndPointConstant.StorePartner.StorePartnersEndpoint)]
-        public async Task<IActionResult> GetProductsAsync([FromQuery] string? searchName, [FromQuery] int? currentPage, [FromQuery] int? itemsPerPage)
-
-        {
-            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            GetStorePartnersResponse getStorePartnersResponse = await this._storePartnerService.GetStorePartnersAsync(searchName, currentPage, itemsPerPage, claims);
-            return Ok(getStorePartnersResponse);
-        }
-        #endregion
-
-        #region Get a specific store partner
-        /// <summary>
-        /// Get a specific store partner by id.
-        /// </summary>
-        /// <param name="storeId">The store partner's id.</param>
-        /// <param name="partnerId">The store partner's id.</param>
-        /// <returns>
-        /// An object contains the store partner information.
-        /// </returns>
-        /// <remarks>
-        ///     Sample request:
-        ///
-        ///         GET 
-        ///         storeId = 1
-        ///         partnerId = 2
-        /// </remarks>
-        /// <response code="200">Get a specific store partner successfully.</response>
-        /// <response code="400">Some Error about request data and logic data.</response>
-        /// <response code="404">Some Error about request data not found.</response>
-        /// <response code="500">Some Error about the system.</response>
-        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
-        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
-        /// <exception cref="Exception">Throw Error about the system.</exception>
-        [ProducesResponseType(typeof(GetStorePartnerResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces(MediaTypeConstant.ApplicationJson)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
-        [HttpGet(APIEndPointConstant.StorePartner.StorePartnerEndpoint)]
-        public async Task<IActionResult> GetStorePartnerAsync([FromRoute] int storeId, [FromRoute] int partnerId)
-        {
-            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            GetStorePartnerResponse getStorePartnerResponse = await this._storePartnerService.GetStorePartnerAsync(storeId, partnerId, claims);
-            return Ok(getStorePartnerResponse);
-        }
-        #endregion
-
         #region Update store partner information
         /// <summary>
         /// Update a specific store partner information.
         /// </summary>
-        /// <param name="storeId">The store partner's id.</param>
-        /// <param name="partnerId">The store partner's id.</param>
-        /// <param name="updateStorePartnerRequest">The object contains updating store partner information.</param>
+        /// <param name="getStorePartnerRequest">An object include partner id and store id.</param>
         /// <returns>
         /// A success message about updating specific  store partner information.
         /// </returns>
@@ -207,16 +279,24 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
         [HttpPut(APIEndPointConstant.StorePartner.StorePartnerEndpoint)]
-        public async Task<IActionResult> PutUpdateStorePartnerAsync([FromRoute] int storeId, [FromRoute] int partnerId, [FromBody] UpdateStorePartnerRequest updateStorePartnerRequest)
+        public async Task<IActionResult> PutUpdateStorePartnerAsync([FromRoute] StorePartnerRequest getStorePartnerRequest, [FromBody] UpdateStorePartnerRequest updateStorePartnerRequest)
         {
-            ValidationResult validationResult = await this._updateStorePartnerRequest.ValidateAsync(updateStorePartnerRequest);
+
+            ValidationResult validationResultStorePartnerId = await this._getStorePartnerValidator.ValidateAsync(getStorePartnerRequest);
+            ValidationResult validationResult = await this._updateStorePartnerValidator.ValidateAsync(updateStorePartnerRequest);
             if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
+
+            if (!validationResultStorePartnerId.IsValid)
+            {
+                string error = ErrorUtil.GetErrorsString(validationResultStorePartnerId);
+                throw new BadRequestException(error);
+            }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            await this._storePartnerService.UpdateStorePartnerRequestAsync(storeId, partnerId, updateStorePartnerRequest, claims);
+            await this._storePartnerService.UpdateStorePartnerRequestAsync(getStorePartnerRequest.StoreId, getStorePartnerRequest.PartnerId, updateStorePartnerRequest, claims);
             return Ok(new
             {
                 Message = MessageConstant.StorePartnerMessage.UpdatedStorePartnerSuccessfully
@@ -228,8 +308,7 @@ namespace MBKC.API.Controllers
         /// <summary>
         /// Update stasus of store partner
         /// </summary>
-        /// <param name="storeId">The store partner's id.</param>
-        /// <param name="partnerId">The store partner's id.</param>
+        /// <param name="getStorePartnerRequest">An object include partner id and store id.</param>
         /// <param name="updateStorePartnerStatusRequest">The store partner's status.</param>
         /// <returns>
         /// A success message about updating specific  store partner information.
@@ -238,7 +317,11 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///
         ///         PUT 
-        ///         Status = ACTIVE | INACTIVE
+        ///         storeId = 1
+        ///         partnerId = 1
+        ///         {
+        ///             status = ACTIVE | INACTIVE
+        ///         }
         /// </remarks>
         /// <response code="200">Updated store partner status successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
@@ -255,16 +338,23 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
         [HttpPut(APIEndPointConstant.StorePartner.UpdatingStatusStorePartnerEndpoint)]
-        public async Task<IActionResult> PutUpdateStorePartnerStatusAsync([FromRoute] int storeId, [FromRoute] int partnerId, [FromBody] UpdateStorePartnerStatusRequest updateStorePartnerStatusRequest)
+        public async Task<IActionResult> PutUpdateStorePartnerStatusAsync([FromRoute] StorePartnerRequest getStorePartnerRequest, [FromBody] UpdateStorePartnerStatusRequest updateStorePartnerStatusRequest)
         {
-            ValidationResult validationResult = await this._updateStorePartnerStatusRequest.ValidateAsync(updateStorePartnerStatusRequest);
+            ValidationResult validationResultStorePartnerId = await this._getStorePartnerValidator.ValidateAsync(getStorePartnerRequest);
+            ValidationResult validationResult = await this._updateStorePartnerStatusValidator.ValidateAsync(updateStorePartnerStatusRequest);
             if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
+
+            if (!validationResultStorePartnerId.IsValid)
+            {
+                string error = ErrorUtil.GetErrorsString(validationResultStorePartnerId);
+                throw new BadRequestException(error);
+            }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            await this._storePartnerService.UpdateStatusStorePartnerAsync(storeId, partnerId, updateStorePartnerStatusRequest, claims);
+            await this._storePartnerService.UpdateStatusStorePartnerAsync(getStorePartnerRequest.StoreId, getStorePartnerRequest.PartnerId, updateStorePartnerStatusRequest, claims);
             return Ok(new
             {
                 Message = MessageConstant.StorePartnerMessage.UpdatedStatusStorePartnerSuccessfully
@@ -276,8 +366,7 @@ namespace MBKC.API.Controllers
         /// <summary>
         /// Delete a specific store partner.
         /// </summary>
-        /// <param name="storeId">The store partner's id.</param>
-        /// <param name="partnerId">The store partner's id.</param>
+        /// <param name="getStorePartnerRequest">An object include store id and partner id.</param>
         /// <returns>
         /// A success message about deleting specific store partner.
         /// </returns>
@@ -302,54 +391,20 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
         [HttpDelete(APIEndPointConstant.StorePartner.StorePartnerEndpoint)]
-        public async Task<IActionResult> DeleteStorePartnerAsync([FromRoute] int storeId, [FromRoute] int partnerId)
+        public async Task<IActionResult> DeleteStorePartnerAsync([FromRoute] StorePartnerRequest getStorePartnerRequest)
         {
+            ValidationResult validationResult = await this._getStorePartnerValidator.ValidateAsync(getStorePartnerRequest);
+            if (!validationResult.IsValid)
+            {
+                string error = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(error);
+            }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            await this._storePartnerService.DeleteStorePartnerAsync(storeId, partnerId, claims);
+            await this._storePartnerService.DeleteStorePartnerAsync(getStorePartnerRequest.StoreId, getStorePartnerRequest.PartnerId, claims);
             return Ok(new
             {
                 Message = MessageConstant.StorePartnerMessage.DeletedStorePartnerSuccessfully
             });
-        }
-        #endregion
-
-        #region Get store partner information by store Id
-        /// <summary>
-        /// Get a store partner information by store Id, sortByName, sortByStatus.
-        /// </summary>
-        /// <param name="storeId">The store's id.</param>
-        /// <param name="keySortName">Keywords when the user wants to sort by name ascending or descending(ASC or DESC).</param>
-        /// <param name="keySortStatus">Keywords when the user wants to sort by status ascending or descending(ASC or DESC).</param>
-        /// <returns>
-        /// An object contains the store partner, partner, kitchen center information.
-        /// </returns>
-        /// <remarks>
-        ///     Sample request:
-        ///
-        ///         GET 
-        ///         storeId = 1
-        ///         keySortName = ASC | DESC
-        ///         keySortStatus = ASC | DESC
-        /// </remarks>
-        /// <response code="200">Get store partner by store Id successfully.</response>
-        /// <response code="400">Some Error about request data and logic data.</response>
-        /// <response code="404">Some Error about request data not found.</response>
-        /// <response code="500">Some Error about the system.</response>
-        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
-        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
-        /// <exception cref="Exception">Throw Error about the system.</exception>
-        [ProducesResponseType(typeof(GetStorePartnerInformationResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces(MediaTypeConstant.ApplicationJson)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
-        [HttpGet(APIEndPointConstant.StorePartner.PartnerInformationEndpoint)]
-        public async Task<IActionResult> GetStorePartnerInformationByIdAsync([FromRoute] int storeId, [FromQuery] string keySortName, [FromQuery] string keySortStatus)
-        {
-            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            var getStorePartnerResponse = await this._storePartnerService.GetPartnerInformationAsync(storeId, keySortName, keySortStatus, claims);
-            return Ok(getStorePartnerResponse);
         }
         #endregion
     }

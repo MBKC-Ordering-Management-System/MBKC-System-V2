@@ -1,4 +1,5 @@
 ﻿using MBKC.Repository.Enums;
+using MBKC.Service.DTOs.MoneyExchanges;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -211,6 +212,33 @@ namespace MBKC.Service.Utils
                 return true;
             }
             return false;
+        }
+
+        public static string GetContentAmountAndTime(decimal amount)
+        {
+            return $"in the amount of: {amount}đ at {DateTime.Now.Hour}:{DateTime.Now.Minute} - {DateTime.Now.Day}/{DateTime.Now.Month}/{DateTime.Now.Year}";
+        }
+
+        public static string ConvertTimeToCron(int hour, int minute)
+        {
+            if(minute == 0)
+            {
+                return $"* {hour} * * *";
+            }
+
+            return $"{minute} {hour} * * *";
+        }
+
+        public static DateTime ConvertCronToTime(string cron)
+        {
+            var cronFields = Regex.Split(cron, @"\s+");
+            int hour = int.Parse(cronFields[1]);
+            int minute = 0;
+            if (!cronFields[0].Equals("*"))
+            {
+                minute = int.Parse(cronFields[0]);
+            }
+            return new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, hour, minute, 0);
         }
     }
 }

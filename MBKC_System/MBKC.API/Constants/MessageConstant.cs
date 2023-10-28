@@ -101,5 +101,17 @@
             public const string DeletedPartnerProductSuccessfully = "Deleted Partner Product Successfully.";
             public const string UpdatedPartnerProductStatusSuccessfully = "Updated Partner Product Status Successfully.";
         }
+
+        public static class OrderMessage
+        {
+            public const string UpdateOrderSuccessfully = "Update Order Successfully.";
+        }
+
+        public static class MoneyExchangeMessage
+        {
+            public const string MoneyExchangeToKitchenCenterSuccessfully = "Sent Money To Kitchen Center Successfully.";
+            public const string WithdrawMoneySuccessfully = "Withdraw Money To Store Successfully.";
+            public const string UpdateSchedulingTimeJob = "Change The Time To Automatically Transfer Money Successfully.";
+        }
     }
 }

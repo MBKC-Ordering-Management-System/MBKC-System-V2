@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MBKC.Service.DTOs.PartnerProducts
+namespace MBKC.Service.DTOs.Categories
 {
-    public class GetPartnerProductRequest
+    public class GetCategoriesRequest
     {
+        public string Type { get; set; }
         public string? SearchValue { get; set; }
         public int? ItemsPerPage { get; set; } = 5;
         public int? CurrentPage { get; set; } = 1;
