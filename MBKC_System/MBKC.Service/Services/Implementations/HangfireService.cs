@@ -72,6 +72,8 @@ namespace MBKC.Service.Services.Implementations
         #region update cron by key
         public async Task UpdateCronAsync(UpdateCronJobRequest updateCronJobRequest)
         {
+            var oldCron = "";
+            Expression<Func<Task>> methodCall = () => Task.CompletedTask;
             try
             {
                 #region validation
@@ -112,18 +114,21 @@ namespace MBKC.Service.Services.Implementations
 
                 #region operation
                 // update for sql lite
-                Expression<Func<Task>> methodCall = () => Task.CompletedTask;
                 switch (updateCronJobRequest.JobId)
                 {
                     case HangfireConstant.MoneyExchangeToKitchenCenter_ID:
                         methodCall = () => MoneyExchangeKitchenCentersync();
                         configs[0].TimeMoneyExchangeToKitcenCenter = StringUtil.ConvertTimeToCron(updateCronJobRequest.hour, updateCronJobRequest.minute);
+                        oldCron = configs[0].TimeMoneyExchangeToKitcenCenter;
                         break;
 
                     case HangfireConstant.MoneyExchangeToStore_ID:
                         methodCall = () => MoneyExchangeToStoreAsync();
                         configs[0].TimeMoneyExchangeToStore = StringUtil.ConvertTimeToCron(updateCronJobRequest.hour, updateCronJobRequest.minute);
+                        oldCron = configs[0].TimeMoneyExchangeToStore;
                         break;
+
+                    default: throw new NotImplementedException();
                 }
 
                 RecurringJob.AddOrUpdate(updateCronJobRequest.JobId,
@@ -139,7 +144,6 @@ namespace MBKC.Service.Services.Implementations
                 this._unitOfWork.ConfigurationRepository.UpdateConfiguration(configs[0]);
                 await this._unitOfWork.CommitAsync();
                 #endregion
-
             }
             catch (NotFoundException ex)
             {
@@ -176,6 +180,18 @@ namespace MBKC.Service.Services.Implementations
             }
             catch (Exception ex)
             {
+                if (!string.IsNullOrEmpty(oldCron))
+                {
+                    RecurringJob.AddOrUpdate(updateCronJobRequest.JobId,
+                               methodCall: methodCall,
+                               cronExpression: oldCron,
+                               new RecurringJobOptions
+                               {
+                                   // sync time(utc +7)
+                                   TimeZone = TimeZoneInfo.Local,
+                               });
+                }
+               
                 string error = ErrorUtil.GetErrorString("Exception", ex.InnerException != null ? ex.InnerException.Message : ex.Message);
                 throw new Exception(error);
             }
