@@ -209,7 +209,7 @@ namespace MBKC.Repository.DBContext
                 order.Property(prop => prop.SubTotalPrice).HasColumnType("decimal(9,2)").IsRequired(true);
                 order.Property(prop => prop.TotalDiscount).HasColumnType("decimal(9,2)").IsRequired(true);
                 order.Property(prop => prop.FinalTotalPrice).HasColumnType("decimal(9,2)").IsRequired(true);
-                order.Property(prop => prop.Commission).HasColumnType("decimal(9,2)").IsRequired(true);
+                order.Property(prop => prop.Commission).IsRequired(true);
                 order.Property(prop => prop.Tax).HasColumnType("decimal(9,2)").IsRequired(true);
                 order.Property(prop => prop.Status).IsUnicode(false).HasMaxLength(20).IsRequired(false);
                 order.Property(prop => prop.DisplayId).IsUnicode(false).HasMaxLength(100).IsRequired(false);
@@ -328,7 +328,7 @@ namespace MBKC.Repository.DBContext
                 storePartner.Property(prop => prop.UserName).IsUnicode(false).HasMaxLength(100).IsRequired(true);
                 storePartner.Property(prop => prop.Password).IsUnicode(false).HasMaxLength(50).IsRequired(true);
                 storePartner.Property(prop => prop.Status).IsRequired(true);
-                storePartner.Property(prop => prop.Commission).HasColumnType("decimal(9,2)").IsRequired(true);
+                storePartner.Property(prop => prop.Commission).IsRequired(true);
             });
             #endregion
 

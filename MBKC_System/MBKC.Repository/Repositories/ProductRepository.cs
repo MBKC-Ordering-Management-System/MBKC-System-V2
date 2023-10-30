@@ -120,15 +120,37 @@ namespace MBKC.Repository.Repositories
             }
         }
 
-        public async Task<List<Product>> GetProductsAsync(string? searchName, string? searchValueWithoutUnicode, string? productType,
-            int? idCategory, int? storeId, int? brandId, int? kitchenCenterId, int? currentPage, int? itemsPerPage)
+        public async Task<List<Product>> GetProductsAsync(string? searchValue, string? searchValueWithoutUnicode,
+            int currentPage, int itemsPerPage, string? sortByASC, string? sortByDESC, string? productType, int? idCategory, int? storeId, int? brandId, int? kitchenCenterId, bool? isGetAll)
         {
             try
             {
-                if (currentPage != null && itemsPerPage != null)
+                if (isGetAll != null && isGetAll == true)
                 {
-                    if (searchName == null && searchValueWithoutUnicode != null)
-                    {
+                    return await this._dbContext.Products.Include(x => x.Category)
+                                                         .Include(x => x.Brand).ThenInclude(x => x.Stores).ThenInclude(x => x.KitchenCenter)
+                                                         .Include(x => x.ParentProduct)
+                                                         .Include(x => x.ChildrenProducts)
+                                                         .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
+                                                                     (productType != null
+                                                                     ? x.Type.ToLower().Equals(productType.ToLower())
+                                                                     : true) &&
+                                                                     (idCategory != null
+                                                                     ? x.Category.CategoryId == idCategory
+                                                                     : true) &&
+                                                                     (storeId != null
+                                                                     ? x.Brand.Stores.Any(store => store.StoreId == storeId)
+                                                                     : true) &&
+                                                                     (brandId != null
+                                                                     ? x.Brand.BrandId == brandId
+                                                                     : true) &&
+                                                                     (kitchenCenterId != null
+                                                                     ? x.Brand.Stores.Any(store => store.KitchenCenter.KitchenCenterId == kitchenCenterId)
+                                                                     : true)).OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name).ToListAsync();
+                }
+                if (searchValue == null && searchValueWithoutUnicode != null)
+                {
+                    if (sortByASC is not null)
                         return this._dbContext.Products.Include(x => x.Category)
                                                              .Include(x => x.Brand).ThenInclude(x => x.Stores).ThenInclude(x => x.KitchenCenter)
                                                              .Include(x => x.ParentProduct)
@@ -156,33 +178,25 @@ namespace MBKC.Repository.Repositories
                                                                      return true;
                                                                  }
                                                                  return false;
-                                                             }).OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name).Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).AsQueryable().ToList();
-                    }
-                    else if (searchName != null && searchValueWithoutUnicode == null)
-                    {
-                        return await this._dbContext.Products.Include(x => x.Category)
-                                                             .Include(x => x.Brand).ThenInclude(x => x.Stores).ThenInclude(x => x.KitchenCenter)
-                                                             .Include(x => x.ParentProduct)
-                                                             .Include(x => x.ChildrenProducts)
-                                                             .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
-                                                                         x.Name.ToLower().Contains(searchName.ToLower()) &&
-                                                                         (productType != null
-                                                                         ? x.Type.ToLower().Equals(productType.ToLower())
-                                                                         : true) &&
-                                                                         (idCategory != null
-                                                                         ? x.Category.CategoryId == idCategory
-                                                                         : true) &&
-                                                                         (storeId != null
-                                                                         ? x.Brand.Stores.Any(store => store.StoreId == storeId)
-                                                                         : true) &&
-                                                                         (brandId != null
-                                                                         ? x.Brand.BrandId == brandId
-                                                                         : true) &&
-                                                                         (kitchenCenterId != null
-                                                                         ? x.Brand.Stores.Any(store => store.KitchenCenter.KitchenCenterId == kitchenCenterId)
-                                                                         : true)).OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name).Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
-                    }
-                    return await this._dbContext.Products.Include(x => x.Category)
+                                                             }).OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                                                              .If(sortByASC != null && sortByASC.ToLower().Equals("code"),
+                                                                  then => then.OrderBy(x => x.Code))
+                                                              .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
+                                                                 then => then.OrderBy(x => x.Name))
+                                                              .If(sortByASC != null && sortByASC.ToLower().Equals("sellingprice"),
+                                                                         then => then.OrderBy(x => x.SellingPrice))
+                                                              .If(sortByASC != null && sortByASC.ToLower().Equals("discountprice"),
+                                                                         then => then.OrderBy(x => x.DiscountPrice))
+                                                              .If(sortByASC != null && sortByASC.ToLower().Equals("displayorder"),
+                                                                         then => then.OrderBy(x => x.DisplayOrder))
+                                                              .If(sortByASC != null && sortByASC.ToLower().Equals("historicalprice"),
+                                                                         then => then.OrderBy(x => x.HistoricalPrice))
+                                                              .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
+                                                                         then => then.OrderBy(x => x.Status).Reverse())
+                                                              .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
+
+                    else if (sortByDESC is not null)
+                        return this._dbContext.Products.Include(x => x.Category)
                                                              .Include(x => x.Brand).ThenInclude(x => x.Stores).ThenInclude(x => x.KitchenCenter)
                                                              .Include(x => x.ParentProduct)
                                                              .Include(x => x.ChildrenProducts)
@@ -201,15 +215,145 @@ namespace MBKC.Repository.Repositories
                                                                          : true) &&
                                                                          (kitchenCenterId != null
                                                                          ? x.Brand.Stores.Any(store => store.KitchenCenter.KitchenCenterId == kitchenCenterId)
-                                                                         : true)).OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name).Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
+                                                                         : true))
+                                                             .Where(delegate (Product product)
+                                                             {
+                                                                 if (StringUtil.RemoveSign4VietnameseString(product.Name).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
+                                                                 {
+                                                                     return true;
+                                                                 }
+                                                                 return false;
+                                                             }).OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                                                              .If(sortByDESC != null && sortByDESC.ToLower().Equals("code"),
+                                                                        then => then.OrderByDescending(x => x.Code))
+                                                              .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
+                                                                         then => then.OrderByDescending(x => x.Name))
+                                                              .If(sortByDESC != null && sortByDESC.ToLower().Equals("sellingprice"),
+                                                                         then => then.OrderByDescending(x => x.SellingPrice))
+                                                              .If(sortByDESC != null && sortByDESC.ToLower().Equals("discountprice"),
+                                                                         then => then.OrderByDescending(x => x.DiscountPrice))
+                                                              .If(sortByDESC != null && sortByDESC.ToLower().Equals("displayorder"),
+                                                                         then => then.OrderByDescending(x => x.DisplayOrder))
+                                                              .If(sortByDESC != null && sortByDESC.ToLower().Equals("historicalprice"),
+                                                                         then => then.OrderByDescending(x => x.HistoricalPrice))
+                                                              .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
+                                                                         then => then.OrderByDescending(x => x.Status).Reverse())
+                                                              .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
+
+                    return this._dbContext.Products.Include(x => x.Category)
+                                                   .Include(x => x.Brand).ThenInclude(x => x.Stores).ThenInclude(x => x.KitchenCenter)
+                                                   .Include(x => x.ParentProduct)
+                                                   .Include(x => x.ChildrenProducts)
+                                                   .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
+                                                               (productType != null
+                                                               ? x.Type.ToLower().Equals(productType.ToLower())
+                                                               : true) &&
+                                                               (idCategory != null
+                                                               ? x.Category.CategoryId == idCategory
+                                                               : true) &&
+                                                               (storeId != null
+                                                               ? x.Brand.Stores.Any(store => store.StoreId == storeId)
+                                                               : true) &&
+                                                               (brandId != null
+                                                               ? x.Brand.BrandId == brandId
+                                                               : true) &&
+                                                               (kitchenCenterId != null
+                                                               ? x.Brand.Stores.Any(store => store.KitchenCenter.KitchenCenterId == kitchenCenterId)
+                                                               : true))
+                                                   .Where(delegate (Product product)
+                                                   {
+                                                       if (StringUtil.RemoveSign4VietnameseString(product.Name).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
+                                                       {
+                                                           return true;
+                                                       }
+                                                       return false;
+                                                   }).OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
                 }
-                if (searchName == null && searchValueWithoutUnicode != null)
+                else if (searchValue != null && searchValueWithoutUnicode == null)
                 {
+                    if (sortByASC is not null)
+                        return this._dbContext.Products.Include(x => x.Category)
+                                                             .Include(x => x.Brand).ThenInclude(x => x.Stores).ThenInclude(x => x.KitchenCenter)
+                                                             .Include(x => x.ParentProduct)
+                                                             .Include(x => x.ChildrenProducts)
+                                                             .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
+                                                                         x.Name.ToLower().Contains(searchValue.ToLower()) &&
+                                                                         (productType != null
+                                                                         ? x.Type.ToLower().Equals(productType.ToLower())
+                                                                         : true) &&
+                                                                         (idCategory != null
+                                                                         ? x.Category.CategoryId == idCategory
+                                                                         : true) &&
+                                                                         (storeId != null
+                                                                         ? x.Brand.Stores.Any(store => store.StoreId == storeId)
+                                                                         : true) &&
+                                                                         (brandId != null
+                                                                         ? x.Brand.BrandId == brandId
+                                                                         : true) &&
+                                                                         (kitchenCenterId != null
+                                                                         ? x.Brand.Stores.Any(store => store.KitchenCenter.KitchenCenterId == kitchenCenterId)
+                                                                         : true)).OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                                                                        .If(sortByASC != null && sortByASC.ToLower().Equals("code"),
+                                                                                   then => then.OrderBy(x => x.Code))
+                                                                        .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
+                                                                                   then => then.OrderBy(x => x.Name))
+                                                                        .If(sortByASC != null && sortByASC.ToLower().Equals("sellingprice"),
+                                                                                   then => then.OrderBy(x => x.SellingPrice))
+                                                                        .If(sortByASC != null && sortByASC.ToLower().Equals("discountprice"),
+                                                                                   then => then.OrderBy(x => x.DiscountPrice))
+                                                                        .If(sortByASC != null && sortByASC.ToLower().Equals("displayorder"),
+                                                                                   then => then.OrderBy(x => x.DisplayOrder))
+                                                                        .If(sortByASC != null && sortByASC.ToLower().Equals("historicalprice"),
+                                                                                   then => then.OrderBy(x => x.HistoricalPrice))
+                                                                        .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
+                                                                                   then => then.OrderBy(x => x.Status).Reverse())
+                                                                         .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+
+                    else if (sortByDESC is not null)
+                        return this._dbContext.Products.Include(x => x.Category)
+                                                         .Include(x => x.Brand).ThenInclude(x => x.Stores).ThenInclude(x => x.KitchenCenter)
+                                                         .Include(x => x.ParentProduct)
+                                                         .Include(x => x.ChildrenProducts)
+                                                         .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
+                                                                     x.Name.ToLower().Contains(searchValue.ToLower()) &&
+                                                                     (productType != null
+                                                                     ? x.Type.ToLower().Equals(productType.ToLower())
+                                                                     : true) &&
+                                                                     (idCategory != null
+                                                                     ? x.Category.CategoryId == idCategory
+                                                                     : true) &&
+                                                                     (storeId != null
+                                                                     ? x.Brand.Stores.Any(store => store.StoreId == storeId)
+                                                                     : true) &&
+                                                                     (brandId != null
+                                                                     ? x.Brand.BrandId == brandId
+                                                                     : true) &&
+                                                                     (kitchenCenterId != null
+                                                                     ? x.Brand.Stores.Any(store => store.KitchenCenter.KitchenCenterId == kitchenCenterId)
+                                                                     : true)).OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                                                                    .If(sortByDESC != null && sortByDESC.ToLower().Equals("code"),
+                                                                               then => then.OrderByDescending(x => x.Code))
+                                                                    .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
+                                                                               then => then.OrderByDescending(x => x.Name))
+                                                                    .If(sortByDESC != null && sortByDESC.ToLower().Equals("sellingprice"),
+                                                                               then => then.OrderByDescending(x => x.SellingPrice))
+                                                                    .If(sortByDESC != null && sortByDESC.ToLower().Equals("discountprice"),
+                                                                               then => then.OrderByDescending(x => x.DiscountPrice))
+                                                                    .If(sortByDESC != null && sortByDESC.ToLower().Equals("displayorder"),
+                                                                               then => then.OrderByDescending(x => x.DisplayOrder))
+                                                                    .If(sortByDESC != null && sortByDESC.ToLower().Equals("historicalprice"),
+                                                                               then => then.OrderByDescending(x => x.HistoricalPrice))
+                                                                    .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
+                                                                               then => then.OrderByDescending(x => x.Status).Reverse())
+                                                                    .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+
                     return this._dbContext.Products.Include(x => x.Category)
                                                          .Include(x => x.Brand).ThenInclude(x => x.Stores).ThenInclude(x => x.KitchenCenter)
                                                          .Include(x => x.ParentProduct)
                                                          .Include(x => x.ChildrenProducts)
                                                          .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
+                                                                     x.Name.ToLower().Contains(searchValue.ToLower()) &&
                                                                      (productType != null
                                                                      ? x.Type.ToLower().Equals(productType.ToLower())
                                                                      : true) &&
@@ -224,58 +368,108 @@ namespace MBKC.Repository.Repositories
                                                                      : true) &&
                                                                      (kitchenCenterId != null
                                                                      ? x.Brand.Stores.Any(store => store.KitchenCenter.KitchenCenterId == kitchenCenterId)
-                                                                     : true))
-                                                         .Where(delegate (Product product)
-                                                         {
-                                                             if (StringUtil.RemoveSign4VietnameseString(product.Name).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
-                                                             {
-                                                                 return true;
-                                                             }
-                                                             return false;
-                                                         }).OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name).AsQueryable().ToList();
+                                                                     : true)).OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                                                                    .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+
                 }
-                else if (searchName != null && searchValueWithoutUnicode == null)
-                {
-                    return await this._dbContext.Products.Include(x => x.Category)
-                                                         .Include(x => x.Brand).ThenInclude(x => x.Stores).ThenInclude(x => x.KitchenCenter)
-                                                         .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
-                                                                     x.Name.ToLower().Contains(searchName.ToLower()) &&
-                                                                     (productType != null
-                                                                     ? x.Type.ToLower().Equals(productType.ToLower())
-                                                                     : true) &&
-                                                                     (idCategory != null
-                                                                     ? x.Category.CategoryId == idCategory
-                                                                     : true) &&
-                                                                     (storeId != null
-                                                                     ? x.Brand.Stores.Any(store => store.StoreId == storeId)
-                                                                     : true) &&
-                                                                     (brandId != null
-                                                                     ? x.Brand.BrandId == brandId
-                                                                     : true) &&
-                                                                     (kitchenCenterId != null
-                                                                     ? x.Brand.Stores.Any(store => store.KitchenCenter.KitchenCenterId == kitchenCenterId)
-                                                                     : true)).ToListAsync();
-                }
-                return await this._dbContext.Products.Include(x => x.Category)
-                                                         .Include(x => x.Brand).ThenInclude(x => x.Stores).ThenInclude(x => x.KitchenCenter)
-                                                         .Include(x => x.ParentProduct)
-                                                         .Include(x => x.ChildrenProducts)
-                                                         .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
-                                                                     (productType != null
-                                                                     ? x.Type.ToLower().Equals(productType.ToLower())
-                                                                     : true) &&
-                                                                     (idCategory != null
-                                                                     ? x.Category.CategoryId == idCategory
-                                                                     : true) &&
-                                                                     (storeId != null
-                                                                     ? x.Brand.Stores.Any(store => store.StoreId == storeId)
-                                                                     : true) &&
-                                                                     (brandId != null
-                                                                     ? x.Brand.BrandId == brandId
-                                                                     : true) &&
-                                                                     (kitchenCenterId != null
-                                                                     ? x.Brand.Stores.Any(store => store.KitchenCenter.KitchenCenterId == kitchenCenterId)
-                                                                     : true)).OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name).ToListAsync();
+
+                if (sortByASC is not null)
+                    return this._dbContext.Products.Include(x => x.Category)
+                                                             .Include(x => x.Brand).ThenInclude(x => x.Stores).ThenInclude(x => x.KitchenCenter)
+                                                             .Include(x => x.ParentProduct)
+                                                             .Include(x => x.ChildrenProducts)
+                                                             .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
+                                                                         (productType != null
+                                                                         ? x.Type.ToLower().Equals(productType.ToLower())
+                                                                         : true) &&
+                                                                         (idCategory != null
+                                                                         ? x.Category.CategoryId == idCategory
+                                                                         : true) &&
+                                                                         (storeId != null
+                                                                         ? x.Brand.Stores.Any(store => store.StoreId == storeId)
+                                                                         : true) &&
+                                                                         (brandId != null
+                                                                         ? x.Brand.BrandId == brandId
+                                                                         : true) &&
+                                                                         (kitchenCenterId != null
+                                                                         ? x.Brand.Stores.Any(store => store.KitchenCenter.KitchenCenterId == kitchenCenterId)
+                                                                         : true)).OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                                                                         .If(sortByASC != null && sortByASC.ToLower().Equals("code"),
+                                                                                   then => then.OrderBy(x => x.Code))
+                                                                         .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
+                                                                                    then => then.OrderBy(x => x.Name))
+                                                                         .If(sortByASC != null && sortByASC.ToLower().Equals("sellingprice"),
+                                                                                    then => then.OrderBy(x => x.SellingPrice))
+                                                                         .If(sortByASC != null && sortByASC.ToLower().Equals("discountprice"),
+                                                                                    then => then.OrderBy(x => x.DiscountPrice))
+                                                                         .If(sortByASC != null && sortByASC.ToLower().Equals("displayorder"),
+                                                                                    then => then.OrderBy(x => x.DisplayOrder))
+                                                                         .If(sortByASC != null && sortByASC.ToLower().Equals("historicalprice"),
+                                                                                    then => then.OrderBy(x => x.HistoricalPrice))
+                                                                         .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
+                                                                                    then => then.OrderBy(x => x.Status).Reverse())
+                                                                         .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+
+                else if (sortByDESC is not null)
+                    return this._dbContext.Products.Include(x => x.Category)
+                                                             .Include(x => x.Brand).ThenInclude(x => x.Stores).ThenInclude(x => x.KitchenCenter)
+                                                             .Include(x => x.ParentProduct)
+                                                             .Include(x => x.ChildrenProducts)
+                                                             .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
+                                                                         (productType != null
+                                                                         ? x.Type.ToLower().Equals(productType.ToLower())
+                                                                         : true) &&
+                                                                         (idCategory != null
+                                                                         ? x.Category.CategoryId == idCategory
+                                                                         : true) &&
+                                                                         (storeId != null
+                                                                         ? x.Brand.Stores.Any(store => store.StoreId == storeId)
+                                                                         : true) &&
+                                                                         (brandId != null
+                                                                         ? x.Brand.BrandId == brandId
+                                                                         : true) &&
+                                                                         (kitchenCenterId != null
+                                                                         ? x.Brand.Stores.Any(store => store.KitchenCenter.KitchenCenterId == kitchenCenterId)
+                                                                         : true)).OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                                                                         .If(sortByDESC != null && sortByDESC.ToLower().Equals("code"),
+                                                                                    then => then.OrderByDescending(x => x.Code))
+                                                                         .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
+                                                                                    then => then.OrderByDescending(x => x.Name))
+                                                                         .If(sortByDESC != null && sortByDESC.ToLower().Equals("sellingprice"),
+                                                                                    then => then.OrderByDescending(x => x.SellingPrice))
+                                                                         .If(sortByDESC != null && sortByDESC.ToLower().Equals("discountprice"),
+                                                                                    then => then.OrderByDescending(x => x.DiscountPrice))
+                                                                         .If(sortByDESC != null && sortByDESC.ToLower().Equals("displayorder"),
+                                                                                    then => then.OrderByDescending(x => x.DisplayOrder))
+                                                                         .If(sortByDESC != null && sortByDESC.ToLower().Equals("historicalprice"),
+                                                                                    then => then.OrderByDescending(x => x.HistoricalPrice))
+                                                                         .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
+                                                                                    then => then.OrderByDescending(x => x.Status).Reverse())
+                                                                         .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+
+                return this._dbContext.Products.Include(x => x.Category)
+                                                             .Include(x => x.Brand).ThenInclude(x => x.Stores).ThenInclude(x => x.KitchenCenter)
+                                                             .Include(x => x.ParentProduct)
+                                                             .Include(x => x.ChildrenProducts)
+                                                             .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
+                                                                         (productType != null
+                                                                         ? x.Type.ToLower().Equals(productType.ToLower())
+                                                                         : true) &&
+                                                                         (idCategory != null
+                                                                         ? x.Category.CategoryId == idCategory
+                                                                         : true) &&
+                                                                         (storeId != null
+                                                                         ? x.Brand.Stores.Any(store => store.StoreId == storeId)
+                                                                         : true) &&
+                                                                         (brandId != null
+                                                                         ? x.Brand.BrandId == brandId
+                                                                         : true) &&
+                                                                         (kitchenCenterId != null
+                                                                         ? x.Brand.Stores.Any(store => store.KitchenCenter.KitchenCenterId == kitchenCenterId)
+                                                                         : true)).OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                                                                         .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+
+
             }
             catch (Exception ex)
             {
@@ -304,7 +498,8 @@ namespace MBKC.Repository.Repositories
             try
             {
                 this._dbContext.Products.Update(product);
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
