@@ -209,38 +209,36 @@ namespace MBKC.Service.Services.Implementations
             {
                 var partners = new List<Partner>();
                 var partnerResponse = new List<GetPartnerResponse>();
-
+                
                 int numberItems = 0;
                 if (getPartnersRequest.SearchValue != null && StringUtil.IsUnicode(getPartnersRequest.SearchValue))
                 {
                     numberItems = await this._unitOfWork.PartnerRepository.GetNumberPartnersAsync(getPartnersRequest.SearchValue, null);
-                    partners = await this._unitOfWork.PartnerRepository.GetPartnersAsync(getPartnersRequest.SearchValue, null, getPartnersRequest.CurrentPage.Value, getPartnersRequest.ItemsPerPage.Value,
+                    partners = await this._unitOfWork.PartnerRepository.GetPartnersAsync(getPartnersRequest.SearchValue, null, getPartnersRequest.CurrentPage, getPartnersRequest.ItemsPerPage,
                                                                                                               getPartnersRequest.SortBy != null && getPartnersRequest.SortBy.ToLower().EndsWith("asc") ? getPartnersRequest.SortBy.Split("_")[0] : null,
-                                                                                                              getPartnersRequest.SortBy != null && getPartnersRequest.SortBy.ToLower().EndsWith("desc") ? getPartnersRequest.SortBy.Split("_")[0] : null);
+                                                                                                              getPartnersRequest.SortBy != null && getPartnersRequest.SortBy.ToLower().EndsWith("desc") ? getPartnersRequest.SortBy.Split("_")[0] : null, getPartnersRequest.isGetAll);
                 }
                 else if (getPartnersRequest.SearchValue != null && StringUtil.IsUnicode(getPartnersRequest.SearchValue) == false)
                 {
                     numberItems = await this._unitOfWork.PartnerRepository.GetNumberPartnersAsync(null, getPartnersRequest.SearchValue);
-                    partners = await this._unitOfWork.PartnerRepository.GetPartnersAsync(null, getPartnersRequest.SearchValue, getPartnersRequest.CurrentPage.Value, getPartnersRequest.ItemsPerPage.Value,
+                    partners = await this._unitOfWork.PartnerRepository.GetPartnersAsync(null, getPartnersRequest.SearchValue, getPartnersRequest.CurrentPage, getPartnersRequest.ItemsPerPage,
                                                                                                               getPartnersRequest.SortBy != null && getPartnersRequest.SortBy.ToLower().EndsWith("asc") ? getPartnersRequest.SortBy.Split("_")[0] : null,
-                                                                                                              getPartnersRequest.SortBy != null && getPartnersRequest.SortBy.ToLower().EndsWith("desc") ? getPartnersRequest.SortBy.Split("_")[0] : null);
+                                                                                                              getPartnersRequest.SortBy != null && getPartnersRequest.SortBy.ToLower().EndsWith("desc") ? getPartnersRequest.SortBy.Split("_")[0] : null, getPartnersRequest.isGetAll);
                 }
                 else if (getPartnersRequest.SearchValue == null)
                 {
                     numberItems = await this._unitOfWork.PartnerRepository.GetNumberPartnersAsync(null, null);
-                    partners = await this._unitOfWork.PartnerRepository.GetPartnersAsync(null, null, getPartnersRequest.CurrentPage.Value, getPartnersRequest.ItemsPerPage.Value,
+                    partners = await this._unitOfWork.PartnerRepository.GetPartnersAsync(null, null, getPartnersRequest.CurrentPage, getPartnersRequest.ItemsPerPage,
                                                                                                               getPartnersRequest.SortBy != null && getPartnersRequest.SortBy.ToLower().EndsWith("asc") ? getPartnersRequest.SortBy.Split("_")[0] : null,
-                                                                                                              getPartnersRequest.SortBy != null && getPartnersRequest.SortBy.ToLower().EndsWith("desc") ? getPartnersRequest.SortBy.Split("_")[0] : null);
+                                                                                                              getPartnersRequest.SortBy != null && getPartnersRequest.SortBy.ToLower().EndsWith("desc") ? getPartnersRequest.SortBy.Split("_")[0] : null, getPartnersRequest.isGetAll);
                 }
                 this._mapper.Map(partners, partnerResponse);
 
-
-                // sort by name or status
-
                 int totalPages = 0;
-
-                totalPages = (int)((numberItems + getPartnersRequest.ItemsPerPage) / getPartnersRequest.ItemsPerPage);
-
+                if (numberItems > 0 && getPartnersRequest.isGetAll == null || numberItems > 0 && getPartnersRequest.isGetAll != null && getPartnersRequest.isGetAll == false)
+                {
+                    totalPages = (int)((numberItems + getPartnersRequest.ItemsPerPage) / getPartnersRequest.ItemsPerPage);
+                }
 
                 if (numberItems == 0)
                 {

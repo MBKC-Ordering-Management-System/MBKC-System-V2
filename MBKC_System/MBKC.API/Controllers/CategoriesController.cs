@@ -146,6 +146,7 @@ namespace MBKC.API.Controllers
         ///         ItemsPerPage = 1
         ///         CurrentPage = 5
         ///         SortBy = "propertyName_asc | propertyName_ASC | propertyName_desc | propertyName_DESC"
+        ///         isGetAll = True | False
         ///        
         /// </remarks>
         /// <response code="200">Get Extra categories Successfully.</response>

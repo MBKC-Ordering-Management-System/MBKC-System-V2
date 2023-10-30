@@ -42,7 +42,7 @@ namespace MBKC.Service.Services.Implementations
                 int? statusParam = null;
                 if (string.IsNullOrWhiteSpace(status) == false)
                 {
-                    if(StringUtil.CheckStoreStatusNameParam(status) == false)
+                    if (StringUtil.CheckStoreStatusNameParam(status) == false)
                     {
                         throw new BadRequestException(MessageConstant.StoreMessage.StoresWithStatusNameParam);
                     }
@@ -85,7 +85,8 @@ namespace MBKC.Service.Services.Implementations
                             throw new BadRequestException(MessageConstant.StoreMessage.BrandNotJoinKitchenCenter);
                         }
                     }
-                } else if(claims != null && brandId == null)
+                }
+                else if (claims != null && brandId == null)
                 {
                     if (role.ToLower().Equals(RoleConstant.Brand_Manager.ToLower()))
                     {
@@ -107,7 +108,8 @@ namespace MBKC.Service.Services.Implementations
                             throw new BadRequestException(MessageConstant.StoreMessage.KitchenCenterNotHaveBrand);
                         }
                     }
-                } else if (claims != null && kitchenCenterId == null)
+                }
+                else if (claims != null && kitchenCenterId == null)
                 {
                     if (role.ToLower().Equals(RoleConstant.Kitchen_Center_Manager.ToLower()))
                     {
@@ -120,7 +122,8 @@ namespace MBKC.Service.Services.Implementations
                 {
                     itemsPerPage = null;
                     currentPage = null;
-                } else
+                }
+                else
                 {
                     if (itemsPerPage != null && itemsPerPage <= 0)
                     {
@@ -212,7 +215,8 @@ namespace MBKC.Service.Services.Implementations
                     ex.Message.Equals(MessageConstant.CommonMessage.InvalidKitchenCenterId))
                 {
                     fieldName = "Kitchen center id";
-                } else if (ex.Message.Equals(MessageConstant.StoreMessage.StoresWithStatusNameParam))
+                }
+                else if (ex.Message.Equals(MessageConstant.StoreMessage.StoresWithStatusNameParam))
                 {
                     fieldName = "Status";
                 }
@@ -234,11 +238,6 @@ namespace MBKC.Service.Services.Implementations
                 Claim registeredRoleClaim = claims.First(x => x.Type.ToLower().Equals("role"));
                 string email = registeredEmailClaim.Value;
                 string role = registeredRoleClaim.Value;
-
-                if (id <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidStoreId);
-                }
 
                 Store existedStore = await this._unitOfWork.StoreRepository.GetStoreAsync(id);
                 if (existedStore == null)
@@ -279,11 +278,7 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidStoreId))
-                {
-                    fieldName = "Store id";
-                }
-                else if (ex.Message.Equals(MessageConstant.StoreMessage.BrandNotHaveStore))
+                if (ex.Message.Equals(MessageConstant.StoreMessage.BrandNotHaveStore))
                 {
                     fieldName = "Get Store failed";
                 }
@@ -312,7 +307,8 @@ namespace MBKC.Service.Services.Implementations
 
                 GetStoreResponse getStoreResponse = this._mapper.Map<GetStoreResponse>(existedStore);
                 return getStoreResponse;
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 string error = ErrorUtil.GetErrorString("Exception", ex.Message);
                 throw new Exception(error);
@@ -509,7 +505,7 @@ namespace MBKC.Service.Services.Implementations
                     };
 
                     await this._unitOfWork.StoreAccountRepository.AddStoreAccountAsync(newStoreAccount);
-                    
+
                     isNewManager = true;
                     existedStore.StoreManagerEmail = updateStoreRequest.StoreManagerEmail;
                 }
@@ -826,6 +822,19 @@ namespace MBKC.Service.Services.Implementations
             catch (Exception ex)
             {
                 string error = ErrorUtil.GetErrorString("Eception", ex.Message);
+                throw new Exception(error);
+            }
+        }
+
+        public async Task<List<GetStoreResponseForPrivateAPI>> GetStoresAsync()
+        {
+            try
+            {
+                List<Store> stores = await this._unitOfWork.StoreRepository.GetStoresAsync();
+                return this._mapper.Map<List<GetStoreResponseForPrivateAPI>>(stores);
+            } catch(Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
                 throw new Exception(error);
             }
         }

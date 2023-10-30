@@ -205,9 +205,12 @@ namespace MBKC.Repository.Migrations
                     b.Property<int>("CashierId")
                         .HasColumnType("int");
 
+                    b.Property<int>("AccountId")
+                        .HasColumnType("int");
+
                     b.HasKey("ExchangeId", "CashierId");
 
-                    b.HasIndex("CashierId");
+                    b.HasIndex("AccountId");
 
                     b.HasIndex("ExchangeId")
                         .IsUnique();
@@ -267,6 +270,25 @@ namespace MBKC.Repository.Migrations
                     b.HasIndex("BrandId");
 
                     b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("MBKC.Repository.Models.Configuration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<TimeSpan>("ScrawlingOrderEndTime")
+                        .HasColumnType("time");
+
+                    b.Property<TimeSpan>("ScrawlingOrderStartTime")
+                        .HasColumnType("time");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Configurations");
                 });
 
             modelBuilder.Entity("MBKC.Repository.Models.ExtraCategory", b =>
@@ -372,14 +394,9 @@ namespace MBKC.Repository.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasMaxLength(300)
+                        .HasMaxLength(100)
                         .IsUnicode(true)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.Property<string>("ExchangeImage")
-                        .HasMaxLength(2147483647)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(max)");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("ExchangeType")
                         .IsRequired()
@@ -602,7 +619,7 @@ namespace MBKC.Repository.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("UpdatedDate")
+                    b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime2");
 
                     b.HasKey("ProductId", "PartnerId", "StoreId", "CreatedDate");
@@ -747,11 +764,14 @@ namespace MBKC.Repository.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("BankingAccountId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasMaxLength(300)
+                        .HasMaxLength(100)
                         .IsUnicode(true)
-                        .HasColumnType("nvarchar(300)");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("CreateBy")
                         .HasColumnType("int");
@@ -776,7 +796,7 @@ namespace MBKC.Repository.Migrations
 
                     b.HasKey("PaymentId");
 
-                    b.HasIndex("KCBankingAccountId");
+                    b.HasIndex("BankingAccountId");
 
                     b.HasIndex("OrderId");
 
@@ -883,8 +903,8 @@ namespace MBKC.Repository.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<decimal>("Commission")
-                        .HasColumnType("decimal(9,2)");
+                    b.Property<float>("Commission")
+                        .HasColumnType("real");
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -919,7 +939,7 @@ namespace MBKC.Repository.Migrations
                     b.Property<int?>("ExchangeId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("PaymentId")
+                    b.Property<int>("PaymentId")
                         .HasColumnType("int");
 
                     b.Property<int>("Status")
@@ -1030,7 +1050,7 @@ namespace MBKC.Repository.Migrations
                 {
                     b.HasOne("MBKC.Repository.Models.Cashier", "Cashier")
                         .WithMany("CashierMoneyExchanges")
-                        .HasForeignKey("CashierId")
+                        .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1143,7 +1163,8 @@ namespace MBKC.Repository.Migrations
                     b.HasOne("MBKC.Repository.Models.OrderDetail", "MasterOrderDetail")
                         .WithMany("ExtraOrderDetails")
                         .HasForeignKey("MasterOrderDetailId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("MBKC.Repository.Models.Product", "Product")
                         .WithMany("OrderDetails")
@@ -1207,7 +1228,9 @@ namespace MBKC.Repository.Migrations
                 {
                     b.HasOne("MBKC.Repository.Models.BankingAccount", "BankingAccount")
                         .WithMany("ShipperPayments")
-                        .HasForeignKey("KCBankingAccountId");
+                        .HasForeignKey("BankingAccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("MBKC.Repository.Models.Order", "Order")
                         .WithMany("ShipperPayments")
@@ -1314,7 +1337,8 @@ namespace MBKC.Repository.Migrations
                     b.HasOne("MBKC.Repository.Models.ShipperPayment", "ShipperPayment")
                         .WithMany("Transactions")
                         .HasForeignKey("PaymentId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("MBKC.Repository.Models.Wallet", "Wallet")
                         .WithMany("Transactions")

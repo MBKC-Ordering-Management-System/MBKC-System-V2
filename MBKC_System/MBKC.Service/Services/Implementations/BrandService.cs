@@ -42,21 +42,21 @@ namespace MBKC.Service.Services.Implementations
                 if (getBrandsRequest.SearchValue != null && StringUtil.IsUnicode(getBrandsRequest.SearchValue))
                 {
                     numberItems = await this._unitOfWork.BrandRepository.GetNumberBrandsAsync(getBrandsRequest.SearchValue, null);
-                    brands = await this._unitOfWork.BrandRepository.GetBrandsAsync(getBrandsRequest.SearchValue, null, getBrandsRequest.CurrentPage.Value, getBrandsRequest.ItemsPerPage.Value,
+                    brands = await this._unitOfWork.BrandRepository.GetBrandsAsync(getBrandsRequest.SearchValue, null, getBrandsRequest.CurrentPage, getBrandsRequest.ItemsPerPage,
                                                                                                               getBrandsRequest.SortBy != null && getBrandsRequest.SortBy.ToLower().EndsWith("asc") ? getBrandsRequest.SortBy.Split("_")[0] : null,
                                                                                                               getBrandsRequest.SortBy != null && getBrandsRequest.SortBy.ToLower().EndsWith("desc") ? getBrandsRequest.SortBy.Split("_")[0] : null);
                 }
                 else if (getBrandsRequest.SearchValue != null && StringUtil.IsUnicode(getBrandsRequest.SearchValue) == false)
                 {
                     numberItems = await this._unitOfWork.BrandRepository.GetNumberBrandsAsync(null, getBrandsRequest.SearchValue);
-                    brands = await this._unitOfWork.BrandRepository.GetBrandsAsync(null, getBrandsRequest.SearchValue, getBrandsRequest.CurrentPage.Value, getBrandsRequest.ItemsPerPage.Value,
+                    brands = await this._unitOfWork.BrandRepository.GetBrandsAsync(null, getBrandsRequest.SearchValue, getBrandsRequest.CurrentPage, getBrandsRequest.ItemsPerPage,
                                                                                                               getBrandsRequest.SortBy != null && getBrandsRequest.SortBy.ToLower().EndsWith("asc") ? getBrandsRequest.SortBy.Split("_")[0] : null,
                                                                                                               getBrandsRequest.SortBy != null && getBrandsRequest.SortBy.ToLower().EndsWith("desc") ? getBrandsRequest.SortBy.Split("_")[0] : null);
                 }
                 else if (getBrandsRequest.SearchValue == null)
                 {
                     numberItems = await this._unitOfWork.BrandRepository.GetNumberBrandsAsync(null, null);
-                    brands = await this._unitOfWork.BrandRepository.GetBrandsAsync(null, null, getBrandsRequest.CurrentPage.Value, getBrandsRequest.ItemsPerPage.Value,
+                    brands = await this._unitOfWork.BrandRepository.GetBrandsAsync(null, null, getBrandsRequest.CurrentPage, getBrandsRequest.ItemsPerPage,
                                                                                                               getBrandsRequest.SortBy != null && getBrandsRequest.SortBy.ToLower().EndsWith("asc") ? getBrandsRequest.SortBy.Split("_")[0] : null,
                                                                                                               getBrandsRequest.SortBy != null && getBrandsRequest.SortBy.ToLower().EndsWith("desc") ? getBrandsRequest.SortBy.Split("_")[0] : null);
                 }

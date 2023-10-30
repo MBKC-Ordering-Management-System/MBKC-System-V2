@@ -2,9 +2,11 @@
 using MBKC.Repository.GrabFood.Models;
 using MBKC.Repository.Models;
 using MBKC.Service.Constants;
-using MBKC.Service.GrabFoods;
+using MBKC.Service.DTOs.GrabFoods;
+using MBKC.Service.Exceptions;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -42,7 +44,7 @@ namespace MBKC.Service.Utils
                                 if (string.IsNullOrWhiteSpace(item.ItemCode))
                                 {
                                     // compare name
-                                    existedProduct = existedCategory.Products.SingleOrDefault(x => x.Name.ToLower().Equals(item.ItemName.ToLower()) && x.SellingPrice == item.PriceInMin);
+                                    existedProduct = existedCategory.Products.SingleOrDefault(x => x.Name.ToLower().Equals(item.ItemName.ToLower()));
                                     if (existedProduct is not null && existedProduct.PartnerProducts.SingleOrDefault(x => x.ProductId == existedProduct.ProductId) is null)
                                     {
                                         newPartnerProducts.Add(new PartnerProduct()
@@ -414,6 +416,56 @@ namespace MBKC.Service.Utils
                 return partnerProductsFromGrabFood;
             }
             catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public static void CheckProductCodeFromGrabFood(GrabFoodMenu grabFoodMenu, string productCode, decimal price, int status)
+        {
+            try
+            {
+                foreach (var category in grabFoodMenu.Categories)
+                {
+                    GrabFoodItem grabFoodItem = category.Items.FirstOrDefault(x => x.ItemID.Trim().ToLower().Equals(productCode.Trim().ToLower()));
+                    if (grabFoodItem is null)
+                    {
+                        foreach (var modifierGroup in grabFoodMenu.ModifierGroups)
+                        {
+                            GrabFoodModifier grabFoodModifier = modifierGroup.Modifiers.FirstOrDefault(x => x.ModifierID.Trim().ToLower().Equals(productCode.Trim().ToLower()));
+                            if(grabFoodModifier is null)
+                            {
+                                throw new BadRequestException(MessageConstant.PartnerProductMessage.ProductCodeNotExistInGrabFoodSystem);
+                            }
+                            else
+                            {
+                                if(grabFoodModifier.PriceInMin != price)
+                                {
+                                    throw new BadRequestException(MessageConstant.PartnerProductMessage.PriceNotMatchWithProductInGrabFoodSystem);
+                                }
+                                if(grabFoodModifier.AvailableStatus != status)
+                                {
+                                    throw new BadRequestException(MessageConstant.PartnerProductMessage.StatusNotMatchWithProductInGrabFoodSystem);
+                                }
+                            }
+                        }
+                    } else
+                    {
+                        if(grabFoodItem.PriceInMin != price)
+                        {
+                            throw new BadRequestException(MessageConstant.PartnerProductMessage.PriceNotMatchWithProductInGrabFoodSystem);
+                        }
+                        if (grabFoodItem.AvailableStatus != status)
+                        {
+                            throw new BadRequestException(MessageConstant.PartnerProductMessage.StatusNotMatchWithProductInGrabFoodSystem);
+                        }
+                    }
+                }
+            } catch(BadRequestException ex)
+            {
+                throw new BadRequestException(ex.Message);
+            }
+            catch(Exception ex)
             {
                 throw new Exception(ex.Message);
             }
