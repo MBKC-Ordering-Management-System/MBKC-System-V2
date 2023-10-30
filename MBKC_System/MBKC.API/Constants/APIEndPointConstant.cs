@@ -118,5 +118,11 @@
             public const string WithdrawMoneyToStore = MoneyExchangeEndpoint + "/withdraw-money-to-store";
             public const string UpdateSchedulingTimeJob = MoneyExchangeEndpoint + "/update-scheduling-time-job";
         }
+
+        public static class Configuration
+        {
+            public const string ConfigurationsEndpoint = ApiEndpoint + "/configurations";
+            public const string ConfigurationEndpoint = ConfigurationsEndpoint + "/{id}";
+        }
     }
 }
