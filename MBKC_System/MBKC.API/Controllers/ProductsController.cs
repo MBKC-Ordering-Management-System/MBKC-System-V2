@@ -42,7 +42,9 @@ namespace MBKC.API.Controllers
         /// <summary>
         /// Get Products in the system.
         /// </summary>
-        /// <param name="getProductsRequest">An object include </param>
+        /// <param name="getProductsRequest">An object include Search Value, ItemsPerPage, CurrentPage,
+        /// SortBy, ProductType, IdCategory, IdStore, IsGetAll.
+        /// </param>
         /// <returns>
         /// A list of products with requested conditions.
         /// </returns>
@@ -119,14 +121,14 @@ namespace MBKC.API.Controllers
         [HttpGet(APIEndPointConstant.Product.ProductEndpoint)]
         public async Task<IActionResult> GetProductAsync([FromRoute] ProductRequest getProductRequest)
         {
-            ValidationResult validationResult = await this._getProductsValidator.ValidateAsync(getProductsRequest);
+            ValidationResult validationResult = await this._getProductValidator.ValidateAsync(getProductRequest);
             if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            GetProductResponse getProductResponse = await this._productService.GetProductAsync(id, claims);
+            GetProductResponse getProductResponse = await this._productService.GetProductAsync(getProductRequest.Id, claims);
             return Ok(getProductResponse);
         }
         #endregion
@@ -192,7 +194,7 @@ namespace MBKC.API.Controllers
         /// <summary>
         /// Update a specific product information.
         /// </summary>
-        /// <param name="id">The product's id.</param>
+        /// <param name="getProductRequest">An object include id of product.</param>
         /// <param name="updateProductRequest">The object contains updated product information.</param>
         /// <returns>
         /// A success message about updating specific product information.
@@ -200,7 +202,8 @@ namespace MBKC.API.Controllers
         /// <remarks>
         ///     Sample request:
         ///
-        ///         PUT 
+        ///         PUT
+        ///         Id = 1
         ///         Name = Bún đậu mắm tôm
         ///         Description = Bún đậu mắm tôm thơn ngon
         ///         SellingPrice = 50000
@@ -227,16 +230,22 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
         [HttpPut(APIEndPointConstant.Product.ProductEndpoint)]
-        public async Task<IActionResult> PutUpdateProductAsync([FromRoute] int id, [FromForm] UpdateProductRequest updateProductRequest)
+        public async Task<IActionResult> PutUpdateProductAsync([FromRoute] ProductRequest getProductRequest, [FromForm] UpdateProductRequest updateProductRequest)
         {
             ValidationResult validationResult = await this._updateProductValidator.ValidateAsync(updateProductRequest);
+            ValidationResult validationResultProductId = await this._getProductValidator.ValidateAsync(getProductRequest);
             if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
+            if (validationResultProductId.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResultProductId);
+                throw new BadRequestException(errors);
+            }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            await this._productService.UpdateProductAsync(id, updateProductRequest, claims);
+            await this._productService.UpdateProductAsync(getProductRequest.Id, updateProductRequest, claims);
             return Ok(new
             {
                 Message = MessageConstant.ProductMessage.UpdatedProductSuccessfully
@@ -248,7 +257,7 @@ namespace MBKC.API.Controllers
         /// <summary>
         /// Update a specific product status.
         /// </summary>
-        /// <param name="id">The product's id.</param>
+        /// <param name="getProductRequest">An object include id of product.</param>
         /// <param name="updateProductStatusRequest">The object contains updated product status.</param>
         /// <returns>
         /// A success message about updating specific product status.
@@ -276,16 +285,22 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
         [HttpPut(APIEndPointConstant.Product.UpdatingStatusProductEndpoint)]
-        public async Task<IActionResult> PutUpdateProductStatusAsync([FromRoute] int id, [FromBody] UpdateProductStatusRequest updateProductStatusRequest)
+        public async Task<IActionResult> PutUpdateProductStatusAsync([FromRoute] ProductRequest getProductRequest, [FromBody] UpdateProductStatusRequest updateProductStatusRequest)
         {
             ValidationResult validationResult = await this._updateProductStatusValidator.ValidateAsync(updateProductStatusRequest);
+            ValidationResult validationResultProductId = await this._getProductValidator.ValidateAsync(getProductRequest);
             if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
+            if (validationResultProductId.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResultProductId);
+                throw new BadRequestException(errors);
+            }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            await this._productService.UpdateProductStatusAsync(id, updateProductStatusRequest, claims);
+            await this._productService.UpdateProductStatusAsync(getProductRequest.Id, updateProductStatusRequest, claims);
             return Ok(new
             {
                 Message = MessageConstant.ProductMessage.UpdatedProductStatusSuccessfully

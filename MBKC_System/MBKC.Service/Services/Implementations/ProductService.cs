@@ -235,10 +235,6 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
-                if (idProduct <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidProductId);
-                }
                 Product existedProduct = await this._unitOfWork.ProductRepository.GetProductAsync(idProduct);
                 if (existedProduct == null)
                 {
@@ -286,8 +282,7 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidProductId) ||
-                    ex.Message.Equals(MessageConstant.ProductMessage.ProductNotBelongToBrand) ||
+                if (ex.Message.Equals(MessageConstant.ProductMessage.ProductNotBelongToBrand) ||
                     ex.Message.Equals(MessageConstant.ProductMessage.ProductNotBelongToStore) ||
                     ex.Message.Equals(MessageConstant.ProductMessage.ProductNotSpendToStore))
                 {
@@ -469,10 +464,6 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
-                if (idProduct <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidProductId);
-                }
                 Product existedProduct = await this._unitOfWork.ProductRepository.GetProductAsync(idProduct);
                 if (existedProduct == null)
                 {
@@ -518,10 +509,6 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
-                if (idProduct <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidProductId);
-                }
                 Product existedProduct = await this._unitOfWork.ProductRepository.GetProductAsync(idProduct);
                 if (existedProduct == null)
                 {
@@ -563,10 +550,6 @@ namespace MBKC.Service.Services.Implementations
             bool isDeleted = false;
             try
             {
-                if (idProduct <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidProductId);
-                }
                 Product existedProduct = await this._unitOfWork.ProductRepository.GetProductAsync(idProduct);
                 if (existedProduct == null)
                 {
@@ -714,8 +697,7 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidProductId) ||
-                    ex.Message.Equals(MessageConstant.ProductMessage.ProductNotBelongToBrand) ||
+                if (ex.Message.Equals(MessageConstant.ProductMessage.ProductNotBelongToBrand) ||
                     ex.Message.Equals(MessageConstant.ProductMessage.ProductIdNotParentType))
                 {
                     fieldName = "Product id";
