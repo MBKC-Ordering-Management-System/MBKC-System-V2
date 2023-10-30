@@ -1,5 +1,8 @@
-﻿using MBKC.PrivateAPI.Middlewares;
+﻿using FluentValidation;
+using MBKC.PrivateAPI.Middlewares;
+using MBKC.PrivateAPI.Validators.Orders;
 using MBKC.Repository.Infrastructures;
+using MBKC.Service.DTOs.Orders;
 using MBKC.Service.Services.Implementations;
 using MBKC.Service.Services.Interfaces;
 using Microsoft.OpenApi.Models;
@@ -43,11 +46,16 @@ namespace MBKC.PrivateAPI.Extentions
         {
             services.AddScoped<IConfigurationService, ConfigurationService>();
             services.AddScoped<IStoreService, StoreService>();
+            services.AddScoped<IOrderService, OrderService>();
             return services;
         }
 
         public static IServiceCollection AddValidators(this IServiceCollection services)
         {
+            services.AddScoped<IValidator<GetOrderRequest>, GetOrderValidator>();
+            services.AddScoped<IValidator<PostOrderRequest>, PostOrderValidator>();
+            services.AddScoped<IValidator<PutOrderIdRequest>, PutOrderIdValidator>();
+            services.AddScoped<IValidator<PutOrderRequest>, PutOrderValidator>();
             return services;
         }
 

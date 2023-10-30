@@ -11,6 +11,7 @@ namespace MBKC.Service.Services.Interfaces
 {
     public interface IOrderService
     {
-         public Task ConfirmOrderToCompletedAsync(ConfirmOrderToCompletedRequest confirmOrderToCompleted, IEnumerable<Claim> claims);
+        public Task ConfirmOrderToCompletedAsync(ConfirmOrderToCompletedRequest confirmOrderToCompleted, IEnumerable<Claim> claims);
+        public Task<GetOrderResponse> GetOrderAsync(string orderPartnerId);
     }
 }

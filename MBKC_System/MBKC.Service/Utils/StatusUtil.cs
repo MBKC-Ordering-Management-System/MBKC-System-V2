@@ -192,6 +192,15 @@ namespace MBKC.Service.Utils
             }
             return null;
         }
+
+        public static string ChangeTransactionStatus(int status)
+        {
+            if(status == (int)TransactionEnum.Status.FAIL)
+            {
+                return char.ToUpper(TransactionEnum.Status.FAIL.ToString()[0]) + TransactionEnum.Status.FAIL.ToString().ToLower().Substring(1);
+            }
+            return char.ToUpper(TransactionEnum.Status.SUCCESS.ToString()[0]) + TransactionEnum.Status.SUCCESS.ToString().ToLower().Substring(1);
+        }
     }
 }
 

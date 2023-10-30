@@ -25,7 +25,14 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await this._dbContext.Orders.Include(o => o.OrderDetails).FirstOrDefaultAsync(o => o.OrderPartnerId == orderPartnerId);
+                return await this._dbContext.Orders.Include(o => o.OrderDetails).ThenInclude(x => x.MasterOrderDetail)
+                                                   .Include(o => o.OrderDetails).ThenInclude(x => x.Product)
+                                                   .Include(o => o.OrderDetails).ThenInclude(x => x.ExtraOrderDetails)
+                                                   .Include(o => o.Partner)
+                                                   .Include(o => o.ShipperPayments).ThenInclude(o => o.BankingAccount)
+                                                   .Include(o => o.ShipperPayments).ThenInclude(o => o.Transactions)
+                                                   .Include(o => o.Store).ThenInclude(o => o.KitchenCenter)
+                                                   .FirstOrDefaultAsync(o => o.OrderPartnerId.Equals(orderPartnerId));
             }
             catch (Exception ex)
             {

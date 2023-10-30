@@ -17,13 +17,13 @@ namespace MBKC.Repository.Models
         public string Note { get; set; }
         public int? MasterOrderDetailId { get; set; }
 
-        [ForeignKey("Id")]
+        [ForeignKey("OrderId")]
         public virtual Order Order { get; set; }
         [ForeignKey("ProductId")]
         public virtual Product Product { get; set; }
 
         [ForeignKey("MasterOrderDetailId")]
         public virtual OrderDetail? MasterOrderDetail { get; set; }
-        public virtual IEnumerable<OrderDetail> ExtraOrderDetails { get; set; }
+        public virtual IEnumerable<OrderDetail>? ExtraOrderDetails { get; set; }
     }
 }
