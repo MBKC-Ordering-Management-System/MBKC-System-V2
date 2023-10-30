@@ -29,13 +29,21 @@ namespace MBKC.Repository.Repositories
             }
         }
 
+<<<<<<< HEAD
         public void UpdateConfiguration(Configuration configuration)
+=======
+        public void UpdateConfigurationAsync(Configuration configuration)
+>>>>>>> main
         {
             try
             {
                 this._dbContext.Configurations.Update(configuration);
+<<<<<<< HEAD
             }
             catch (Exception ex)
+=======
+            } catch(Exception ex)
+>>>>>>> main
             {
                 throw new Exception(ex.Message);
             }

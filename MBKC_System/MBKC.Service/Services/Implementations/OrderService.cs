@@ -196,5 +196,37 @@ namespace MBKC.Service.Services.Implementations
             }
         }
         #endregion
+
+        public async Task<GetOrderResponse> GetOrderAsync(string orderPartnerId)
+        {
+            try
+            {
+                Order existedOrder = await this._unitOfWork.OrderRepository.GetOrderByOrderPartnerIdAsync(orderPartnerId);
+                if(existedOrder is null)
+                {
+                    throw new NotFoundException(MessageConstant.OrderMessage.OrderPartnerIdNotExist);
+                }
+                GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(existedOrder);
+                if(getOrderResponse.ShipperPayments is not null && getOrderResponse.ShipperPayments.Count > 0)
+                {
+                    foreach (var shipperpayment in getOrderResponse.ShipperPayments)
+                    {
+                        Cashier existedCashier = await this._unitOfWork.CashierRepository.GetCashierAsync(shipperpayment.CreatedBy);
+                        shipperpayment.CashierCreated = existedCashier.FullName;
+                    }
+                }
+                return getOrderResponse;
+            }
+            catch(NotFoundException ex)
+            {
+                string error = ErrorUtil.GetErrorString("Order partner id", ex.Message);
+                throw new NotFoundException(error);
+            }
+            catch (Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                throw new Exception(error);
+            }
+        }
     }
 }

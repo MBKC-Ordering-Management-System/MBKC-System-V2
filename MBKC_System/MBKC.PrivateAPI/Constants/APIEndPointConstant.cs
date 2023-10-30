@@ -15,5 +15,11 @@
         {
             public const string StoresEndPoint = ApiEndpoint + "/stores";
         }
+
+        public static class Order
+        {
+            public const string OrdersEndPoint = ApiEndpoint + "/orders";
+            public const string OrderEndPoint = OrdersEndPoint + "/{id}";
+        }
     }
 }

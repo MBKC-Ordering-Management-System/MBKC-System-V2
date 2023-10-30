@@ -222,6 +222,7 @@ namespace MBKC.Service.Constants
             public const string OrderIsCompleted = "This order is already COMPLETED status, so You can not confirm completed order..";
             public const string OrderIsCancelled = "This order has been CANCELLED status, so You can not confirm completed order.";
             public const string OrderAlreadyPaid = "This order has been paid, so You can not confirm completed order.";
+            public const string OrderPartnerIdNotExist = "Order Partner Id does not exist in the system.";
         }
 
         public static class WalletMessage
