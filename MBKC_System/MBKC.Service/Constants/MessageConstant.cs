@@ -1,4 +1,6 @@
-﻿namespace MBKC.Service.Constants
+﻿using MBKC.Repository.Models;
+
+namespace MBKC.Service.Constants
 {
     public static class MessageConstant
     {
@@ -151,6 +153,8 @@
             public const string ProductNameNotFollowingFormat = "Name of product Type CHILD is required following format: 'ParentName - Size x' With x is a your chosen size options.";
             public const string ProductNameTypeChildNotAllowUpdate = "Name of product which is type CHILD does not allow update.";
             public const string ProductIdNotParentType = "Product id is not a PARENT type.";
+            public const string ExcelFileHasNoData = "This excel file has no data.";
+            public const string DuplicateProductCode = "Your excel file is duplicating the product code.";
         }
 
         public static class PartnerMessage

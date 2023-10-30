@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Http;
 using Spire.Xls;
 using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using ExcelPicture = Spire.Xls.ExcelPicture;
+using MBKC.Service.Errors;
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -785,90 +786,79 @@ namespace MBKC.Service.Services.Implementations
         #region upload file excel
         public async Task UploadExelFile(IFormFile file, IEnumerable<Claim> claims)
         {
-            string folderName = "Products";
-            string logoId = "";
-            bool isUploaded = false;
+            // string folderName = "Products";
+            List<string> logoId = new List<string>();
+            // bool isUploaded = false;
 
             try
             {
                 #region validation
                 List<Product> productsToAdd = new List<Product>();
+                Dictionary<string, FileStream> productsImage = new Dictionary<string, FileStream>();
                 Claim registeredEmailClaim = claims.First(x => x.Type == ClaimTypes.Email);
                 string email = registeredEmailClaim.Value;
                 Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandAsync(email);
 
                 // reading excel file
-                using (var stream = new MemoryStream())
+                List<CreateProductExcelRequest> excelData = FileUtil.GetDataFromExcelFile(file);
+                if(!excelData.Any())
                 {
-                    file.CopyTo(stream);
-                    Workbook workbook = new Workbook();
-                    workbook.LoadFromStream(stream);
-                    Worksheet worksheet = workbook.Worksheets[0];
-                    int rowCount = worksheet.Rows.Length;
-
-                    for (int row = 2; row <= rowCount; row++)
-                    {
-                        var Code = worksheet.Range[row, 1].Value.ToString();
-                        var Name = worksheet.Range[row, 2].Value.ToString();
-                        ExcelPicture picture = worksheet.Pictures[row - 2];
-
-                        FileStream fileStream = FileUtil.ConvertExcelPictureToStream(picture);
-                        var imageId = Guid.NewGuid().ToString();
-                        string urlImage = await this._unitOfWork.FirebaseStorageRepository.UploadImageAsync(fileStream, "LOLLLLLL", imageId);
-
-                        //var Code = worksheet.Cells[row, 1].Value.ToString();
-                        //var Name = worksheet.Cells[row, 2].Value.ToString();
-                        //var Description = worksheet.Cells[row, 3].Value.ToString();
-                        //var SellingPrice = decimal.Parse(worksheet.Cells[row, 4].Value.ToString());
-                        //var DiscountPrice = decimal.Parse(worksheet.Cells[row, 5].Value.ToString());
-                        //var HistoricalPrice = decimal.Parse(worksheet.Cells[row, 6].Value.ToString());
-                        //var Size = worksheet.Cells[row, 7].Value?.ToString();
-                        //var Type = worksheet.Cells[row, 8].Value.ToString();
-                        //var image = worksheet.Cells[row, 9].Value;
-                        //var DisplayOrder = int.Parse(worksheet.Cells[row, 10].Value?.ToString());
-                        //int? ParentProductId = worksheet.Cells[row, 11].Value != null ? int.Parse(worksheet.Cells[row, 11].Value.ToString()) : null;
-                        //var CategoryId = int.Parse(worksheet.Cells[row, 12].Value?.ToString());
-                        //var product = new CreateProductRequest
-                        //{
-                        //    Code = worksheet.Cells[row, 1].Value.ToString(),
-                        //    Name = worksheet.Cells[row, 2].Value.ToString(),
-                        //    Description = worksheet.Cells[row, 3].Value.ToString(),
-                        //    SellingPrice = decimal.Parse(worksheet.Cells[row, 4].Value.ToString()),
-                        //    DiscountPrice = decimal.Parse(worksheet.Cells[row, 5].Value.ToString()),
-                        //    HistoricalPrice = decimal.Parse(worksheet.Cells[row, 6].Value.ToString()),
-                        //    Size = worksheet.Cells[row, 7].Value?.ToString(),
-                        //    Type = worksheet.Cells[row, 8].Value?.ToString(),
-                        //    Image = (IFormFile)worksheet.GetValue(row, 9),
-                        //    DisplayOrder = int.Parse(worksheet.Cells[row, 10].Value?.ToString()),
-                        //    ParentProductId = int.Parse(worksheet.Cells[row, 11].Value?.ToString()),
-                        //    CategoryId = int.Parse(worksheet.Cells[row, 12].Value?.ToString()),
-                        //};
-                        //await CreateProductAsync(product, claims);
-                    }
+                    throw new BadRequestException(MessageConstant.ProductMessage.ExcelFileHasNoData);
                 }
+
+                if(excelData.GroupBy(ex => ex.Code).Any(group => group.Count() > 1))
+                {
+                    throw new BadRequestException(MessageConstant.ProductMessage.DuplicateProductCode);
+                }
+
+                List<ErrorDetail> errors = new List<ErrorDetail>();
+                foreach (var product in excelData)
+                {
+                    List<string> errorDetail = new List<string>();
+                    if (product.Code == null) errorDetail.Add($"{nameof(product.Code)} is empty.");
+                    if (product.Name == null) errorDetail.Add($"{nameof(product.Name)} is empty.");
+                    if (product.Description == null) errorDetail.Add($"{nameof(product.Description)} is empty.");
+                    if(product.Type == null) errorDetail.Add($"{nameof(product.Type)} is empty.");
+                }
+
                 #endregion
 
                 #region operation
-                using (var stream = new MemoryStream())
-                {
-                    file.CopyTo(stream);
-                    Workbook workbook = new Workbook();
-                    workbook.LoadFromStream(stream);
-                    Worksheet worksheet = workbook.Worksheets[0]; 
-                    int rowCount = worksheet.Rows.Length;
 
-                    for (int row = 2; row <= rowCount; row++)
-                    { 
-                        var Code = worksheet.Range[row, 1].Value.ToString();
-                        var Name = worksheet.Range[row, 2].Value.ToString();
-                        ExcelPicture picture = worksheet.Pictures[row - 2];
-
-                        FileStream fileStream = FileUtil.ConvertExcelPictureToStream(picture);
-                        var imageId = Guid.NewGuid().ToString();
-                        string urlImage = await this._unitOfWork.FirebaseStorageRepository.UploadImageAsync(fileStream, "LOLLLLLL", imageId);
-                    }
-                }
                 #endregion
+            }
+            catch (NotFoundException ex)
+            {
+                string fieldName = "";
+                switch (ex.Message)
+                {
+                    case MessageConstant.CommonMessage.NotExistOrderPartnerId:
+                        fieldName = "Order partner id";
+                        break;
+
+                    default:
+                        fieldName = "Exception";
+                        break;
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new NotFoundException(error);
+            }
+            catch (BadRequestException ex)
+            {
+                string fieldName = "";
+                switch (ex.Message)
+                {
+                    case MessageConstant.ProductMessage.DuplicateProductCode:
+                    case MessageConstant.ProductMessage.ExcelFileHasNoData:
+                        fieldName = "Excel file";
+                        break;
+
+                    default:
+                        fieldName = "Exception";
+                        break;
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new BadRequestException(error);
             }
             catch (Exception ex)
             {
