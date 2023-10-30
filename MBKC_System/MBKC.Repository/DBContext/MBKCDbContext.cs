@@ -430,12 +430,15 @@ namespace MBKC.Repository.DBContext
             {
                 configuration.Property(x => x.ScrawlingOrderStartTime).HasColumnType("time").IsRequired(true);
                 configuration.Property(x => x.ScrawlingOrderEndTime).HasColumnType("time").IsRequired(true);
+                configuration.Property(x => x.TimeMoneyExchangeToKitcenCenter).IsUnicode(false).HasMaxLength(20).IsRequired(true);
+                configuration.Property(x => x.TimeMoneyExchangeToStore).IsUnicode(false).HasMaxLength(20).IsRequired(true);
             });
             #endregion
 
 
             modelBuilder.RoleData();
             modelBuilder.PartnerData();
+            modelBuilder.ConfigData();
         }
     }
 }

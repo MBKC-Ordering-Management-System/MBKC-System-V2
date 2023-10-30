@@ -81,7 +81,7 @@ namespace MBKC.Service.Constants
             public const string ManagerEmailExisted = "Kitchen center manager email already existed in the system.";
             public const string ExistedActiveStores_Delete = "The kitchen center has active stores, so this kitchen center cannot be deleted.";
             public const string NotBelongToKitchenCenter = "Kitchen center id does not belong to your kitchen center.";
-            public const string NoOneActive = "Currently there are no active kitchen centers.";
+            public const string NoOneAvailable = "There is no kitchen center available.";
 
         }
 
@@ -177,7 +177,7 @@ namespace MBKC.Service.Constants
             public const string CashierIdNotBelogToCashier = "Cashier id is not suitable with your account.";
             public const string StatusIsRequiredWithKitchenCenterManager = "Status is not null";
             public const string StatusIsNotRequiredWithCashier = "Cashier does not allow to update Status property.";
-            public const string NoOneActive = "Currently there are no active cashier.";
+            public const string NoOneAvailable = "There is no cashier available.";
         }
 
         public static class StorePartnerMessage
@@ -236,6 +236,7 @@ namespace MBKC.Service.Constants
             public const string TransferToStoreSuccessfully = "Transfer money to store successfully.";
             public const string TransferToKitchenCenterSuccessfully = "Transfer money to kitchen center successfully.";
             public const string NotExistJobId = "Job id is not existed in the MBKC System.";
+            public const string ConfigDoesNotExist = "Config to run background job does not exist.";
             public const string TimeKitchenCenterMustEarlier = "The scheduling time of money transfer to the kitchen center must be at least 1 minute earlier than the money transfer time to the store.";
             public const string TimeStoreMustLater = "The scheduling time of money transfer to the store must be at least 1 minute later than the money transfer time to the kitchen center.";
         }

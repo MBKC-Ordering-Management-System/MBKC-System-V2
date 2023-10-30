@@ -11,6 +11,6 @@ namespace MBKC.Service.Services.Interfaces
     public interface IHangfireService
     {
         public Task UpdateCronAsync(UpdateCronJobRequest updateCronJobRequest);
-        public void StartAllBackgroundJob();
+        public Task StartAllBackgroundJob();
     }
 }

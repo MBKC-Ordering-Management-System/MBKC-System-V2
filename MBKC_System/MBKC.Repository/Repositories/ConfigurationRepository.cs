@@ -1,6 +1,7 @@
 ﻿using MBKC.Repository.DBContext;
 using MBKC.Repository.Models;
 using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +24,18 @@ namespace MBKC.Repository.Repositories
             {
                 return await this._dbContext.Configurations.ToListAsync();
             } catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public void UpdateConfiguration(Configuration configuration)
+        {
+            try
+            {
+                this._dbContext.Configurations.Update(configuration);
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }

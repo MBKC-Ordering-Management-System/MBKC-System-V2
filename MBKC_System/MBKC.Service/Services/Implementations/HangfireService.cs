@@ -35,29 +35,37 @@ namespace MBKC.Service.Services.Implementations
         }
 
         #region start all background job
-        public void StartAllBackgroundJob()
+        public async Task StartAllBackgroundJob()
         {
-            // cashier money exchange to kitchen center
-            RecurringJob.AddOrUpdate(HangfireConstant.MoneyExchangeToKitchenCenter_ID,
-                                  () => MoneyExchangeKitchenCentersync(),
-                                  cronExpression: this._unitOfWork.HangfireRepository
-                                 .GetCronByKey(HangfireConstant.MoneyExchangeToKitchenCenter_ID) ?? HangfireConstant.Default_MoneyExchangeToKitchenCenter_CronExpression,
-                                  new RecurringJobOptions
-                                  {
-                                      // sync time(utc +7)
-                                      TimeZone = TimeZoneInfo.Local,
-                                  });
+            var configs = await this._unitOfWork.ConfigurationRepository.GetConfigurationsAsync();
+            if (!configs.Any())
+            {
+                this._logger.LogWarning($"{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second} - " + MessageConstant.MoneyExchangeMessage.ConfigDoesNotExist);
+                return;
+            }
+            else
+            {
+                // cashier money exchange to kitchen center
+                RecurringJob.AddOrUpdate(HangfireConstant.MoneyExchangeToKitchenCenter_ID,
+                                      () => MoneyExchangeKitchenCentersync(),
+                                      cronExpression: configs[0].TimeMoneyExchangeToKitcenCenter,
+                                      new RecurringJobOptions
+                                      {
+                                          // sync time(utc +7)
+                                          TimeZone = TimeZoneInfo.Local,
+                                      });
 
-            // kitchen center money exchange to store
-            RecurringJob.AddOrUpdate(HangfireConstant.MoneyExchangeToStore_ID,
-                                  () => MoneyExchangeToStoreAsync(),
-                                  cronExpression: this._unitOfWork.HangfireRepository
-                                 .GetCronByKey(HangfireConstant.MoneyExchangeToStore_ID) ?? HangfireConstant.Default_MoneyExchangeToStore_CronExpression,
-                                  new RecurringJobOptions
-                                  {
-                                      // sync time(utc +7)
-                                      TimeZone = TimeZoneInfo.Local,
-                                  });
+                // kitchen center money exchange to store
+                RecurringJob.AddOrUpdate(HangfireConstant.MoneyExchangeToStore_ID,
+                                      () => MoneyExchangeToStoreAsync(),
+                                      cronExpression: configs[0].TimeMoneyExchangeToStore,
+                                      new RecurringJobOptions
+                                      {
+                                          // sync time(utc +7)
+                                          TimeZone = TimeZoneInfo.Local,
+                                      });
+            }
+
         }
         #endregion
 
@@ -67,17 +75,23 @@ namespace MBKC.Service.Services.Implementations
             try
             {
                 #region validation
-                var existedCron = await Task.FromResult(this._unitOfWork.HangfireRepository.GetCronByKey(updateCronJobRequest.JobId));
-                if (existedCron == null)
+                if(!updateCronJobRequest.JobId.Equals(HangfireConstant.MoneyExchangeToKitchenCenter_ID)
+                && !updateCronJobRequest.JobId.Equals(HangfireConstant.MoneyExchangeToStore_ID))
                 {
                     throw new NotFoundException(MessageConstant.MoneyExchangeMessage.NotExistJobId);
+                }
+
+                var configs =  await this._unitOfWork.ConfigurationRepository.GetConfigurationsAsync();
+                if (!configs.Any())
+                {
+                    throw new BadRequestException(MessageConstant.MoneyExchangeMessage.ConfigDoesNotExist);
                 }
 
                 // check time job money exchange to kitchen center
                 if (updateCronJobRequest.JobId.Equals(HangfireConstant.MoneyExchangeToKitchenCenter_ID))
                 {
                     DateTime timeUpdate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, updateCronJobRequest.hour, updateCronJobRequest.minute, 0);
-                    DateTime timeExistedToStore = StringUtil.ConvertCronToTime(this._unitOfWork.HangfireRepository.GetCronByKey(HangfireConstant.MoneyExchangeToStore_ID)!);
+                    DateTime timeExistedToStore = StringUtil.ConvertCronToTime(configs[0].TimeMoneyExchangeToStore);
                     if (DateUtil.IsTimeUpdateValid(timeExistedToStore, timeUpdate, 1) == false)
                     {
                         throw new NotFoundException(MessageConstant.MoneyExchangeMessage.TimeKitchenCenterMustEarlier);
@@ -88,7 +102,7 @@ namespace MBKC.Service.Services.Implementations
                 if (updateCronJobRequest.JobId.Equals(HangfireConstant.MoneyExchangeToStore_ID))
                 {
                     DateTime timeUpdate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, updateCronJobRequest.hour, updateCronJobRequest.minute, 0);
-                    DateTime timeExistedToKitchenCenter = StringUtil.ConvertCronToTime(this._unitOfWork.HangfireRepository.GetCronByKey(HangfireConstant.MoneyExchangeToKitchenCenter_ID)!);
+                    DateTime timeExistedToKitchenCenter = StringUtil.ConvertCronToTime(configs[0].TimeMoneyExchangeToKitcenCenter);
                     if (DateUtil.IsTimeUpdateValid(timeUpdate, timeExistedToKitchenCenter, 1) == false)
                     {
                         throw new NotFoundException(MessageConstant.MoneyExchangeMessage.TimeStoreMustLater);
@@ -97,15 +111,18 @@ namespace MBKC.Service.Services.Implementations
                 #endregion
 
                 #region operation
+                // update for sql lite
                 Expression<Func<Task>> methodCall = () => Task.CompletedTask;
                 switch (updateCronJobRequest.JobId)
                 {
                     case HangfireConstant.MoneyExchangeToKitchenCenter_ID:
                         methodCall = () => MoneyExchangeKitchenCentersync();
+                        configs[0].TimeMoneyExchangeToKitcenCenter = StringUtil.ConvertTimeToCron(updateCronJobRequest.hour, updateCronJobRequest.minute);
                         break;
 
                     case HangfireConstant.MoneyExchangeToStore_ID:
                         methodCall = () => MoneyExchangeToStoreAsync();
+                        configs[0].TimeMoneyExchangeToStore = StringUtil.ConvertTimeToCron(updateCronJobRequest.hour, updateCronJobRequest.minute);
                         break;
                 }
 
@@ -117,6 +134,10 @@ namespace MBKC.Service.Services.Implementations
                                     // sync time(utc +7)
                                     TimeZone = TimeZoneInfo.Local,
                                 });
+
+                // update for sql server
+                this._unitOfWork.ConfigurationRepository.UpdateConfiguration(configs[0]);
+                await this._unitOfWork.CommitAsync();
                 #endregion
 
             }
@@ -169,7 +190,7 @@ namespace MBKC.Service.Services.Implementations
                 var cashiers = await this._unitOfWork.CashierRepository.GetCashiersAsync();
                 if (!cashiers.Any())
                 {
-                    this._logger.LogWarning($"{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second} - " + MessageConstant.CashierMessage.NoOneActive);
+                    this._logger.LogWarning($"{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second} - " + MessageConstant.CashierMessage.NoOneAvailable);
                     return;
                 }
 
@@ -276,7 +297,7 @@ namespace MBKC.Service.Services.Implementations
                 var kitchenCenters = await this._unitOfWork.KitchenCenterRepository.GetKitchenCentersIncludeOrderAsync();
                 if (!kitchenCenters.Any())
                 {
-                    this._logger.LogWarning($"{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second} - " + MessageConstant.KitchenCenterMessage.NoOneActive);
+                    this._logger.LogWarning($"{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second} - " + MessageConstant.KitchenCenterMessage.NoOneAvailable);
                     return;
                 }
 
@@ -422,6 +443,5 @@ namespace MBKC.Service.Services.Implementations
             }
         }
         #endregion
-
     }
 }
