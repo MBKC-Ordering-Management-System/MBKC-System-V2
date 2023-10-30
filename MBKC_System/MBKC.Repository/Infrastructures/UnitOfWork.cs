@@ -49,7 +49,6 @@ namespace MBKC.Repository.Infrastructures
         private EmailRepository _emailRepository;
         private GrabFoodRepository _grabFoodRepository;
         private ConfigurationRepository _configurationRepository;
-        private HangfireRepository _hangfireRepository;
         private RabbitMQRepository _rabbitMQRepository;
 
         public UnitOfWork(IDbFactory dbFactory)
@@ -426,18 +425,6 @@ namespace MBKC.Repository.Infrastructures
                     this._configurationRepository = new ConfigurationRepository(this._dbContext);
                 }
                 return this._configurationRepository;
-            }
-        }
-
-        public HangfireRepository HangfireRepository
-        {
-            get
-            {
-                if (this._hangfireRepository == null)
-                {
-                    this._hangfireRepository = new HangfireRepository();
-                }
-                return this._hangfireRepository;
             }
         }
 

@@ -241,8 +241,6 @@ namespace MBKC.Service.Constants
             public const string TransferToKitchenCenterSuccessfully = "Transfer money to kitchen center successfully.";
             public const string NotExistJobId = "Job id is not existed in the MBKC System.";
             public const string ConfigDoesNotExist = "Config to run background job does not exist.";
-            public const string TimeKitchenCenterMustEarlier = "The scheduling time of money transfer to the kitchen center must be at least 1 minute earlier than the money transfer time to the store.";
-            public const string TimeStoreMustLater = "The scheduling time of money transfer to the store must be at least 1 minute later than the money transfer time to the kitchen center.";
         }
 
     }

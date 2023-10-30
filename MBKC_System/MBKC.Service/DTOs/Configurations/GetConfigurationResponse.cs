@@ -11,5 +11,7 @@ namespace MBKC.Service.DTOs.Configurations
         public string Id { get; set; }
         public TimeSpan ScrawlingOrderStartTime { get; set; }
         public TimeSpan ScrawlingOrderEndTime { get; set; }
+        public TimeSpan ScrawlingMoneyExchangeToKitchenCenter { get; set; }
+        public TimeSpan ScrawlingMoneyExchangeToStore { get; set; }
     }
 }

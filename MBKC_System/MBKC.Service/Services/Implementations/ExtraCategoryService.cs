@@ -18,7 +18,6 @@ namespace MBKC.Service.Services.Implementations
             this._unitOfWork = (UnitOfWork)unitOfWork;
             this._mapper = mapper;
         }
-
         
     }
 }

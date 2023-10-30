@@ -16,10 +16,10 @@ namespace MBKC.Repository.DataSeedings
                 new Configuration()
                 {
                     Id = 1,
-                    ScrawlingOrderStartTime = TimeSpan.FromHours(18),
-                    ScrawlingOrderEndTime = TimeSpan.FromHours(18),
-                    TimeMoneyExchangeToKitcenCenter = "* 22 * * *",
-                    TimeMoneyExchangeToStore = "* 23 * * *"
+                    ScrawlingOrderStartTime = new TimeSpan(12, 0, 0),
+                    ScrawlingOrderEndTime = new TimeSpan(12, 0, 0),
+                    ScrawlingMoneyExchangeToKitchenCenter = new TimeSpan(22, 0, 0),
+                    ScrawlingMoneyExchangeToStore = new TimeSpan(23, 0, 0),
                 }
              );
         }

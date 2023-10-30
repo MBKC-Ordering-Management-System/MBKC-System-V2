@@ -14,7 +14,7 @@ namespace MBKC.Repository.Models
         public int Id { get; set; }
         public TimeSpan ScrawlingOrderStartTime { get; set; }
         public TimeSpan ScrawlingOrderEndTime { get; set; }
-        public string TimeMoneyExchangeToKitcenCenter { get; set; }
-        public string TimeMoneyExchangeToStore { get; set; }
+        public TimeSpan ScrawlingMoneyExchangeToKitchenCenter { get; set; }
+        public TimeSpan ScrawlingMoneyExchangeToStore { get; set; }
     }
 }

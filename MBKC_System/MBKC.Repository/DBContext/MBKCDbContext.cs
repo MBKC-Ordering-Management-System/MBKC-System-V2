@@ -424,14 +424,13 @@ namespace MBKC.Repository.DBContext
            .HasForeignKey<StoreMoneyExchange>(storeMoneyExchange => storeMoneyExchange.ExchangeId);
             #endregion
 
-
             #region Configuration
             modelBuilder.Entity<Configuration>(configuration =>
             {
                 configuration.Property(x => x.ScrawlingOrderStartTime).HasColumnType("time").IsRequired(true);
                 configuration.Property(x => x.ScrawlingOrderEndTime).HasColumnType("time").IsRequired(true);
-                configuration.Property(x => x.TimeMoneyExchangeToKitcenCenter).IsUnicode(false).HasMaxLength(20).IsRequired(true);
-                configuration.Property(x => x.TimeMoneyExchangeToStore).IsUnicode(false).HasMaxLength(20).IsRequired(true);
+                configuration.Property(x => x.ScrawlingMoneyExchangeToKitchenCenter).HasColumnType("time").IsRequired(true);
+                configuration.Property(x => x.ScrawlingMoneyExchangeToStore).HasColumnType("time").IsRequired(true);
             });
             #endregion
 

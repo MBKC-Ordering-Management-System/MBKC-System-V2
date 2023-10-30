@@ -15,17 +15,13 @@ namespace MBKC.Service.Utils
             return dateTimeInterval;
         }
 
-        public static bool IsTimeUpdateValid(DateTime timeLater, DateTime timeEarlier, int condition)
+        public static bool IsTimeUpdateValid(TimeSpan timeSpanLater, TimeSpan timeSpanEarlier, int condition)
         {
-            // Convert the two times to TimeSpan objects.
-            TimeSpan timeLaterSpan = new TimeSpan(timeLater.Ticks);
-            TimeSpan timeEarlierSpan = new TimeSpan(timeEarlier.Ticks);
-
             // Subtract the two TimeSpan objects to get the difference.
-            TimeSpan difference = timeLaterSpan.Subtract(timeEarlierSpan);
+            TimeSpan difference = timeSpanLater.Subtract(timeSpanEarlier);
 
             // Check if the difference is at least condition minute.
-            return difference.TotalMinutes >= condition;
+            return difference.TotalHours >= condition;
         }
     }
 }
