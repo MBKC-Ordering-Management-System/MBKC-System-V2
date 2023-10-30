@@ -155,6 +155,9 @@ namespace MBKC.Service.Constants
             public const string ProductIdNotParentType = "Product id is not a PARENT type.";
             public const string ExcelFileHasNoData = "This excel file has no data.";
             public const string DuplicateProductCode = "Your excel file is duplicating the product code.";
+            public const string InvalidProductTypeParent = "is invalid for product type: PARENT.";
+            public const string InvalidProductTypeChild = "is invalid for product type: CHILD.";
+
         }
 
         public static class PartnerMessage

@@ -801,12 +801,12 @@ namespace MBKC.Service.Services.Implementations
 
                 // reading excel file
                 List<CreateProductExcelRequest> excelData = FileUtil.GetDataFromExcelFile(file);
-                if(!excelData.Any())
+                if (!excelData.Any())
                 {
                     throw new BadRequestException(MessageConstant.ProductMessage.ExcelFileHasNoData);
                 }
 
-                if(excelData.GroupBy(ex => ex.Code).Any(group => group.Count() > 1))
+                if (excelData.GroupBy(ex => ex.Code).Any(group => group.Count() > 1))
                 {
                     throw new BadRequestException(MessageConstant.ProductMessage.DuplicateProductCode);
                 }
@@ -815,12 +815,78 @@ namespace MBKC.Service.Services.Implementations
                 foreach (var product in excelData)
                 {
                     List<string> errorDetail = new List<string>();
-                    if (product.Code == null) errorDetail.Add($"{nameof(product.Code)} is empty.");
-                    if (product.Name == null) errorDetail.Add($"{nameof(product.Name)} is empty.");
-                    if (product.Description == null) errorDetail.Add($"{nameof(product.Description)} is empty.");
-                    if(product.Type == null) errorDetail.Add($"{nameof(product.Type)} is empty.");
-                }
+                    if (product.Code is null) errorDetail.Add($"{nameof(product.Code)} is empty.");
+                    if (product.Name is null) errorDetail.Add($"{nameof(product.Name)} is empty.");
+                    if (product.Description is null) errorDetail.Add($"{nameof(product.Description)} is empty.");
+                    if (product.Type is null)
+                    {
+                        errorDetail.Add($"{nameof(product.Type)} is empty.");
+                    }
+                    else
+                    {
+                        if (product.Type.ToUpper().Equals(ProductEnum.Type.PARENT))
+                        {
+                            if (product.SellingPrice != 0)
+                            {
+                                errorDetail.Add($"{nameof(product.SellingPrice)} {MessageConstant.ProductMessage.InvalidProductTypeParent}");
+                            }
+                            if (product.DiscountPrice != 0)
+                            {
+                                errorDetail.Add($"{nameof(product.DiscountPrice)} {MessageConstant.ProductMessage.InvalidProductTypeParent}");
+                            }
+                            if (product.HistoricalPrice != 0)
+                            {
+                                errorDetail.Add($"{nameof(product.HistoricalPrice)} {MessageConstant.ProductMessage.InvalidProductTypeParent}");
+                            }
 
+                            if (product.Size is not null)
+                            {
+                                errorDetail.Add($"{nameof(product.Size)} {MessageConstant.ProductMessage.InvalidProductTypeParent}");
+                            }
+
+                            if (product.ParentProductId is not null)
+                            {
+                                errorDetail.Add($"{nameof(product.ParentProductId)} {MessageConstant.ProductMessage.InvalidProductTypeParent}");
+                            }
+
+                            if (product.CategoryId is null)
+                            {
+                                errorDetail.Add($"{nameof(product.CategoryId)} is empty.");
+                            }
+                        }
+                        else if (product.Type.ToUpper().Equals(ProductEnum.Type.CHILD))
+                        {
+                            if (product.SellingPrice == 0)
+                            {
+                                errorDetail.Add($"{nameof(product.SellingPrice)} {MessageConstant.ProductMessage.InvalidProductTypeChild}");
+                            }
+
+                            if (product.Size is null)
+                            {
+                                errorDetail.Add($"{nameof(product.Size)} is empty.");
+                            }
+
+                            if (product.ParentProductId is null)
+                            {
+                                errorDetail.Add($"{nameof(product.Size)} is empty.");
+                            }
+
+                            if (product.CategoryId is not null)
+                            {
+                                errorDetail.Add($"{nameof(product.CategoryId)} {MessageConstant.ProductMessage.InvalidProductTypeChild}");
+                            }
+                        }
+                        else if (product.Type.ToUpper().Equals(ProductEnum.Type.SINGLE))
+                        {
+
+                        }
+                        else if (product.Type.ToUpper().Equals(ProductEnum.Type.EXTRA))
+                        {
+
+                        }
+                    }
+
+                }
                 #endregion
 
                 #region operation
@@ -848,9 +914,12 @@ namespace MBKC.Service.Services.Implementations
                 string fieldName = "";
                 switch (ex.Message)
                 {
-                    case MessageConstant.ProductMessage.DuplicateProductCode:
                     case MessageConstant.ProductMessage.ExcelFileHasNoData:
                         fieldName = "Excel file";
+                        break;
+
+                    case MessageConstant.ProductMessage.DuplicateProductCode:
+                        fieldName = "Product code";
                         break;
 
                     default:
