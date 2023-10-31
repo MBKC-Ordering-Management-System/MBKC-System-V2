@@ -27,7 +27,7 @@ namespace MBKC.Service.Services.Implementations
             this._mapper = mapper;
         }
 
-        public async Task<GetBankingAccountsResponse> GetBankingAccountsAsync(string? searchValue, int? currentPage, int? itemsPerPage, IEnumerable<Claim> claims)
+        public async Task<GetBankingAccountsResponse> GetBankingAccountsAsync(GetBankingAccountsRequest getBankingAccountsRequest, IEnumerable<Claim> claims)
         {
             try
             {
@@ -38,43 +38,35 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistKitchenCenter);
                 }
-                if (currentPage != null && currentPage <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidCurrentPage);
-                }
-                else
-                {
-                    currentPage = 1;
-                }
-
-                if (itemsPerPage != null && itemsPerPage <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidItemsPerPage);
-                }
-                else
-                {
-                    itemsPerPage = 5;
-                }
 
                 int numberItems = 0;
                 List<BankingAccount> bankingAccounts = null;
-                if (searchValue != null && StringUtil.IsUnicode(searchValue))
+                if (getBankingAccountsRequest.SearchValue != null && StringUtil.IsUnicode(getBankingAccountsRequest.SearchValue))
                 {
-                    numberItems = await this._unitOfWork.BankingAccountRepository.GetNumberBankingAccountsAsync(existedKitchenCenter.KitchenCenterId, searchValue, null);
-                    bankingAccounts = await this._unitOfWork.BankingAccountRepository.GetBankingAccountsAsync(existedKitchenCenter.KitchenCenterId, searchValue, null, currentPage.Value, itemsPerPage.Value);
+                    numberItems = await this._unitOfWork.BankingAccountRepository.GetNumberBankingAccountsAsync(existedKitchenCenter.KitchenCenterId, getBankingAccountsRequest.SearchValue, null);
+                    bankingAccounts = await this._unitOfWork.BankingAccountRepository.GetBankingAccountsAsync(getBankingAccountsRequest.SearchValue, null, getBankingAccountsRequest.CurrentPage, getBankingAccountsRequest.ItemsPerPage,
+                                                                                                              getBankingAccountsRequest.SortBy != null && getBankingAccountsRequest.SortBy.ToLower().EndsWith("asc") ? getBankingAccountsRequest.SortBy.Split("_")[0] : null,
+                                                                                                              getBankingAccountsRequest.SortBy != null && getBankingAccountsRequest.SortBy.ToLower().EndsWith("desc") ? getBankingAccountsRequest.SortBy.Split("_")[0] : null,
+                                                                                                              existedKitchenCenter.KitchenCenterId);
                 }
-                else if (searchValue != null && StringUtil.IsUnicode(searchValue) == false)
+                else if (getBankingAccountsRequest.SearchValue != null && StringUtil.IsUnicode(getBankingAccountsRequest.SearchValue) == false)
                 {
-                    numberItems = await this._unitOfWork.BankingAccountRepository.GetNumberBankingAccountsAsync(existedKitchenCenter.KitchenCenterId, null, searchValue);
-                    bankingAccounts = await this._unitOfWork.BankingAccountRepository.GetBankingAccountsAsync(existedKitchenCenter.KitchenCenterId, null, searchValue, currentPage.Value, itemsPerPage.Value);
+                    numberItems = await this._unitOfWork.BankingAccountRepository.GetNumberBankingAccountsAsync(existedKitchenCenter.KitchenCenterId, null, getBankingAccountsRequest.SearchValue);
+                    bankingAccounts = await this._unitOfWork.BankingAccountRepository.GetBankingAccountsAsync(null, getBankingAccountsRequest.SearchValue, getBankingAccountsRequest.CurrentPage, getBankingAccountsRequest.ItemsPerPage,
+                                                                                                              getBankingAccountsRequest.SortBy != null && getBankingAccountsRequest.SortBy.ToLower().EndsWith("asc") ? getBankingAccountsRequest.SortBy.Split("_")[0] : null,
+                                                                                                              getBankingAccountsRequest.SortBy != null && getBankingAccountsRequest.SortBy.ToLower().EndsWith("desc") ? getBankingAccountsRequest.SortBy.Split("_")[0] : null,
+                                                                                                              existedKitchenCenter.KitchenCenterId);
                 }
-                else if (searchValue == null)
+                else if (getBankingAccountsRequest.SearchValue == null)
                 {
                     numberItems = await this._unitOfWork.BankingAccountRepository.GetNumberBankingAccountsAsync(existedKitchenCenter.KitchenCenterId, null, null);
-                    bankingAccounts = await this._unitOfWork.BankingAccountRepository.GetBankingAccountsAsync(existedKitchenCenter.KitchenCenterId, null, null, currentPage.Value, itemsPerPage.Value);
+                    bankingAccounts = await this._unitOfWork.BankingAccountRepository.GetBankingAccountsAsync(null, null, getBankingAccountsRequest.CurrentPage, getBankingAccountsRequest.ItemsPerPage,
+                                                                                                              getBankingAccountsRequest.SortBy != null && getBankingAccountsRequest.SortBy.ToLower().EndsWith("asc") ? getBankingAccountsRequest.SortBy.Split("_")[0] : null,
+                                                                                                              getBankingAccountsRequest.SortBy != null && getBankingAccountsRequest.SortBy.ToLower().EndsWith("desc") ? getBankingAccountsRequest.SortBy.Split("_")[0] : null,
+                                                                                                              existedKitchenCenter.KitchenCenterId);
                 }
 
-                int totalPages = (int)((numberItems + itemsPerPage) / itemsPerPage);
+                int totalPages = (int)((numberItems + getBankingAccountsRequest.ItemsPerPage) / getBankingAccountsRequest.ItemsPerPage);
                 if (numberItems == 0)
                 {
                     totalPages = 0;
@@ -87,20 +79,6 @@ namespace MBKC.Service.Services.Implementations
                     NumberItems = numberItems,
                     BankingAccounts = getBankingAccountResponses
                 };
-            }
-            catch (BadRequestException ex)
-            {
-                string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidCurrentPage))
-                {
-                    fieldName = "Current page";
-                }
-                else if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidItemsPerPage))
-                {
-                    fieldName = "Items per page";
-                }
-                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
-                throw new BadRequestException(error);
             }
             catch (NotFoundException ex)
             {
@@ -123,10 +101,6 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
-                if (bankingAccountId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidBankingAccountId);
-                }
                 BankingAccount existedBankingAccount = await this._unitOfWork.BankingAccountRepository.GetBankingAccountAsync(bankingAccountId);
                 if (existedBankingAccount == null)
                 {
@@ -150,8 +124,8 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidBankingAccountId)
-                    || ex.Message.Equals(MessageConstant.BankingAccountMessage.BankingAccountNotBelongToKitchenCenter))
+
+                if (ex.Message.Equals(MessageConstant.BankingAccountMessage.BankingAccountNotBelongToKitchenCenter))
                 {
                     fieldName = "Banking account id";
                 }
@@ -245,10 +219,6 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
-                if (bankingAccountId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidBankingAccountId);
-                }
                 BankingAccount existedBankingAccount = await this._unitOfWork.BankingAccountRepository.GetBankingAccountAsync(bankingAccountId);
                 if (existedBankingAccount == null)
                 {
@@ -273,8 +243,7 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidBankingAccountId)
-                    || ex.Message.Equals(MessageConstant.BankingAccountMessage.BankingAccountNotBelongToKitchenCenter))
+                if (ex.Message.Equals(MessageConstant.BankingAccountMessage.BankingAccountNotBelongToKitchenCenter))
                 {
                     fieldName = "Banking account id";
                 }
@@ -306,10 +275,6 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
-                if (bankingAccountId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidBankingAccountId);
-                }
                 BankingAccount existedBankingAccount = await this._unitOfWork.BankingAccountRepository.GetBankingAccountAsync(bankingAccountId);
                 if (existedBankingAccount == null)
                 {
@@ -342,8 +307,7 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.InvalidBankingAccountId)
-                    || ex.Message.Equals(MessageConstant.BankingAccountMessage.BankingAccountNotBelongToKitchenCenter))
+                if (ex.Message.Equals(MessageConstant.BankingAccountMessage.BankingAccountNotBelongToKitchenCenter))
                 {
                     fieldName = "Banking account id";
                 }
@@ -379,10 +343,6 @@ namespace MBKC.Service.Services.Implementations
             string logoId = "";
             try
             {
-                if (bankingAccountId <= 0)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidBankingAccountId);
-                }
                 BankingAccount existedBankingAccount = await this._unitOfWork.BankingAccountRepository.GetBankingAccountAsync(bankingAccountId);
                 if (existedBankingAccount == null)
                 {

@@ -64,7 +64,6 @@ namespace MBKC.API.Extentions
             services.AddScoped<IStorePartnerService, StorePartnerService>();
             services.AddScoped<ITransactionService, TransactionService>();
             services.AddScoped<IWalletService, WalletService>();
-            services.AddScoped<IHangfireService, HangfireService>();
             services.AddScoped<IConfigurationService, ConfigurationService>();
             services.AddHangfire(config => config
                                 .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
@@ -174,7 +173,7 @@ namespace MBKC.API.Extentions
             app.ConfigureExceptionMiddleware();
             app.MapControllers();
             app.UseHangfireDashboard();
-            BackgroundJob.Enqueue<IHangfireService>(hf => hf.StartAllBackgroundJob());
+            BackgroundJob.Enqueue<IConfigurationService>(cf => cf.StartAllBackgroundJob());
             return app;
         }
     }

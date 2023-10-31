@@ -45,7 +45,6 @@ namespace MBKC.API.Controllers
         ///         PUT
         ///         {
         ///           "orderPartnerId": "GRABFOOD",
-        ///           "shipperPhone": "0987654321",
         ///           "bankingAccountId": 1
         ///         }
         /// </remarks>

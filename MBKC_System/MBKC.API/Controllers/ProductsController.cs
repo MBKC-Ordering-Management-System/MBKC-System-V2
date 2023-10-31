@@ -21,26 +21,33 @@ namespace MBKC.API.Controllers
         private IValidator<CreateProductRequest> _createProductValidator;
         private IValidator<UpdateProductRequest> _updateProductValidator;
         private IValidator<UpdateProductStatusRequest> _updateProductStatusValidator;
-        public ProductsController(IProductService productService, IValidator<UpdateProductRequest> updateProductValidator,
-            IValidator<CreateProductRequest> createProductValidator, IValidator<UpdateProductStatusRequest> updateProductStatusValidator)
+        private IValidator<GetProductsRequest> _getProductsValidator;
+        private IValidator<ProductRequest> _getProductValidator;
+        private IValidator<ImportFileRequest> _importFileValidator;
+        public ProductsController(IProductService productService, 
+            IValidator<UpdateProductRequest> updateProductValidator,
+            IValidator<ImportFileRequest> importFileValidator,
+            IValidator<ProductRequest> getProductValidator,
+            IValidator<GetProductsRequest> getProductsValidator,
+            IValidator<CreateProductRequest> createProductValidator,
+            IValidator<UpdateProductStatusRequest> updateProductStatusValidator)
         {
             this._productService = productService;
             this._updateProductValidator = updateProductValidator;
             this._createProductValidator = createProductValidator;
-            _updateProductStatusValidator = updateProductStatusValidator;
+            this._importFileValidator = importFileValidator;
+            this._updateProductStatusValidator = updateProductStatusValidator;
+            this._getProductsValidator = getProductsValidator;
+            this._getProductValidator = getProductValidator;
         }
 
         #region Get Products
         /// <summary>
         /// Get Products in the system.
         /// </summary>
-        /// <param name="searchName">The name of product that user wants to find out.</param>
-        /// <param name="currentPage">The number of page</param>
-        /// <param name="itemsPerPage">The number of records that user wants to get.</param>
-        /// <param name="isGetAll">If user chooses TRUE option, currentPage and itemsPerPage are ignored. Default FALSE option.</param>
-        /// <param name="idCategory">The category's id.</param>
-        /// <param name="idStore">The store's id.</param>
-        /// <param name="productType">The type of product such as: SINGLE, PARENT, CHILD, EXTRA.</param>
+        /// <param name="getProductsRequest">An object include Search Value, ItemsPerPage, CurrentPage,
+        /// SortBy, ProductType, IdCategory, IdStore, IsGetAll.
+        /// </param>
         /// <returns>
         /// A list of products with requested conditions.
         /// </returns>
@@ -49,12 +56,13 @@ namespace MBKC.API.Controllers
         ///
         ///         GET 
         ///         searchValue = Bún đậu mắm tôm
-        ///         currentPage = 1
         ///         itemsPerPage = 5
+        ///         currentPage = 1
+        ///         sortBy = "propertyName_asc | propertyName_ASC | propertyName_desc | propertyName_DESC"
         ///         productType = SINGLE | PARENT | CHILD | EXTRA
-        ///         isGetALL = TRUE | FALSE
         ///         idCategory = 1
         ///         idStore = 1
+        ///         isGetAll = TRUE | FALSE
         /// </remarks>
         /// <response code="200">Get list of products successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
@@ -68,15 +76,19 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces(MediaTypeConstant.ApplicationJson)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager, PermissionAuthorizeConstant.StoreManager, 
+        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager, PermissionAuthorizeConstant.StoreManager,
                              PermissionAuthorizeConstant.KitchenCenterManager, PermissionAuthorizeConstant.MBKCAdmin)]
         [HttpGet(APIEndPointConstant.Product.ProductsEndpoint)]
-        public async Task<IActionResult> GetProductsAsync([FromQuery]string? searchName, [FromQuery] int? currentPage, 
-            [FromQuery] int? itemsPerPage, [FromQuery] string? productType, [FromQuery] bool? isGetAll, [FromQuery] int? idCategory,
-            [FromQuery] int? idStore)
+        public async Task<IActionResult> GetProductsAsync([FromQuery] GetProductsRequest getProductsRequest)
         {
+            ValidationResult validationResult = await this._getProductsValidator.ValidateAsync(getProductsRequest);
+            if (validationResult.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
+            }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            GetProductsResponse getProductsResponse = await this._productService.GetProductsAsync(searchName, currentPage, itemsPerPage, productType, isGetAll, idCategory, idStore, claims);
+            GetProductsResponse getProductsResponse = await this._productService.GetProductsAsync(getProductsRequest, claims);
             return Ok(getProductsResponse);
         }
         #endregion
@@ -85,7 +97,7 @@ namespace MBKC.API.Controllers
         /// <summary>
         /// Get a specific product by id.
         /// </summary>
-        /// <param name="id">The product's id.</param>
+        /// <param name="getProductRequest">An object include id of product.</param>
         /// <returns>
         /// An object contains the product information.
         /// </returns>
@@ -107,13 +119,19 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces(MediaTypeConstant.ApplicationJson)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager, PermissionAuthorizeConstant.StoreManager, 
+        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager, PermissionAuthorizeConstant.StoreManager,
                              PermissionAuthorizeConstant.KitchenCenterManager, PermissionAuthorizeConstant.MBKCAdmin)]
         [HttpGet(APIEndPointConstant.Product.ProductEndpoint)]
-        public async Task<IActionResult> GetProductAsync([FromRoute] int id)
+        public async Task<IActionResult> GetProductAsync([FromRoute] ProductRequest getProductRequest)
         {
+            ValidationResult validationResult = await this._getProductValidator.ValidateAsync(getProductRequest);
+            if (validationResult.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
+            }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            GetProductResponse getProductResponse = await this._productService.GetProductAsync(id, claims);
+            GetProductResponse getProductResponse = await this._productService.GetProductAsync(getProductRequest.Id, claims);
             return Ok(getProductResponse);
         }
         #endregion
@@ -158,10 +176,10 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
         [HttpPost(APIEndPointConstant.Product.ProductsEndpoint)]
-        public async Task<IActionResult> PostCreatNewProduct([FromForm]CreateProductRequest createProductRequest)
+        public async Task<IActionResult> PostCreatNewProduct([FromForm] CreateProductRequest createProductRequest)
         {
             ValidationResult validationResult = await this._createProductValidator.ValidateAsync(createProductRequest);
-            if(validationResult.IsValid == false)
+            if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
@@ -179,7 +197,7 @@ namespace MBKC.API.Controllers
         /// <summary>
         /// Update a specific product information.
         /// </summary>
-        /// <param name="id">The product's id.</param>
+        /// <param name="getProductRequest">An object include id of product.</param>
         /// <param name="updateProductRequest">The object contains updated product information.</param>
         /// <returns>
         /// A success message about updating specific product information.
@@ -187,7 +205,8 @@ namespace MBKC.API.Controllers
         /// <remarks>
         ///     Sample request:
         ///
-        ///         PUT 
+        ///         PUT
+        ///         Id = 1
         ///         Name = Bún đậu mắm tôm
         ///         Description = Bún đậu mắm tôm thơn ngon
         ///         SellingPrice = 50000
@@ -214,16 +233,22 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
         [HttpPut(APIEndPointConstant.Product.ProductEndpoint)]
-        public async Task<IActionResult> PutUpdateProductAsync([FromRoute] int id, [FromForm] UpdateProductRequest updateProductRequest)
+        public async Task<IActionResult> PutUpdateProductAsync([FromRoute] ProductRequest getProductRequest, [FromForm] UpdateProductRequest updateProductRequest)
         {
             ValidationResult validationResult = await this._updateProductValidator.ValidateAsync(updateProductRequest);
+            ValidationResult validationResultProductId = await this._getProductValidator.ValidateAsync(getProductRequest);
             if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
+            if (validationResultProductId.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResultProductId);
+                throw new BadRequestException(errors);
+            }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            await this._productService.UpdateProductAsync(id, updateProductRequest, claims);
+            await this._productService.UpdateProductAsync(getProductRequest.Id, updateProductRequest, claims);
             return Ok(new
             {
                 Message = MessageConstant.ProductMessage.UpdatedProductSuccessfully
@@ -235,7 +260,7 @@ namespace MBKC.API.Controllers
         /// <summary>
         /// Update a specific product status.
         /// </summary>
-        /// <param name="id">The product's id.</param>
+        /// <param name="getProductRequest">An object include id of product.</param>
         /// <param name="updateProductStatusRequest">The object contains updated product status.</param>
         /// <returns>
         /// A success message about updating specific product status.
@@ -263,17 +288,23 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
         [HttpPut(APIEndPointConstant.Product.UpdatingStatusProductEndpoint)]
-        public async Task<IActionResult> PutUpdateProductStatusAsync([FromRoute] int id, [FromBody] UpdateProductStatusRequest updateProductStatusRequest)
+        public async Task<IActionResult> PutUpdateProductStatusAsync([FromRoute] ProductRequest getProductRequest, [FromBody] UpdateProductStatusRequest updateProductStatusRequest)
         {
             ValidationResult validationResult = await this._updateProductStatusValidator.ValidateAsync(updateProductStatusRequest);
+            ValidationResult validationResultProductId = await this._getProductValidator.ValidateAsync(getProductRequest);
             if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
+            if (validationResultProductId.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResultProductId);
+                throw new BadRequestException(errors);
+            }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            await this._productService.UpdateProductStatusAsync(id, updateProductStatusRequest, claims);
-            return Ok( new
+            await this._productService.UpdateProductStatusAsync(getProductRequest.Id, updateProductStatusRequest, claims);
+            return Ok(new
             {
                 Message = MessageConstant.ProductMessage.UpdatedProductStatusSuccessfully
             });
@@ -315,6 +346,53 @@ namespace MBKC.API.Controllers
             return Ok(new
             {
                 Message = MessageConstant.ProductMessage.DeletedProductSuccessfully
+            });
+        }
+        #endregion
+
+        #region Create new product by excel
+        /// <summary>
+        /// Import excel file for create new products.
+        /// </summary>
+        /// <param name="importFileRequest">The file contains created product information.</param>
+        /// <returns>
+        /// A success message about creating new product.
+        /// </returns>
+        /// <remarks>
+        ///     Sample request:
+        ///
+        ///         POST 
+        ///         File: file_excel.xlsx
+        /// </remarks>
+        /// <response code="200">Created new product successfully.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
+        /// <response code="404">Some Error about request data not found.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
+        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Consumes(MediaTypeConstant.MultipartFormData)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
+        [HttpPost(APIEndPointConstant.Product.ImportFileEndpoint)]
+        public async Task<IActionResult> ImportFileExcel([FromForm] ImportFileRequest importFileRequest)
+        {
+            ValidationResult validationResult = await this._importFileValidator.ValidateAsync(importFileRequest);
+            if (validationResult.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
+            }
+
+            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
+            await this._productService.UploadExelFile(importFileRequest.file, claims);
+            return Ok(new
+            {
+                Message = MessageConstant.ProductMessage.CreatedNewProductSuccessfully
             });
         }
         #endregion

@@ -9,6 +9,7 @@ namespace MBKC.Service.Services.Interfaces
 {
     public interface IConfigurationService
     {
+        public Task StartAllBackgroundJob();
         public Task<List<GetConfigurationResponse>> GetConfigurationsAsync();
         public Task UpdateConfigurationAsync(PutConfigurationRequest putConfigurationRequest);
     }

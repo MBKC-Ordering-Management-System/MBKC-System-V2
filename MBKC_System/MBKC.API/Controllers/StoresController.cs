@@ -21,8 +21,12 @@ namespace MBKC.API.Controllers
         private IValidator<UpdateStoreRequest> _updateStoreValidator;
         private IValidator<UpdateStoreStatusRequest> _updateStoreStatusValidator;
         private IValidator<ConfirmStoreRegistrationRequest> _confirmStoreRegistrationValidator;
-        public StoresController(IStoreService storeService, IValidator<RegisterStoreRequest> registerStoreValidator, 
+        private IValidator<StoreRequest> _getStoreValidator;
+        private IValidator<GetStoresRequest> _getStoresValidator;
+        public StoresController(IStoreService storeService, IValidator<RegisterStoreRequest> registerStoreValidator,
             IValidator<UpdateStoreRequest> updateStoreValidator, IValidator<UpdateStoreStatusRequest> updateStoreStatusValidator,
+            IValidator<StoreRequest> getStoreValidator,
+            IValidator<GetStoresRequest> getStoresValidator,
             IValidator<ConfirmStoreRegistrationRequest> confirmStoreRegistrationValidator)
         {
             this._storeService = storeService;
@@ -30,17 +34,16 @@ namespace MBKC.API.Controllers
             this._updateStoreValidator = updateStoreValidator;
             this._updateStoreStatusValidator = updateStoreStatusValidator;
             this._confirmStoreRegistrationValidator = confirmStoreRegistrationValidator;
+            this._getStoreValidator = getStoreValidator;
+            this._getStoresValidator = getStoresValidator;
         }
 
         #region Get Stores
         /// <summary>
         /// Get stores in the system.
         /// </summary>
-        /// <param name="itemsPerPage">The number of items that will display on a page.</param>
-        /// <param name="currentPage">The position of the page.</param>
-        /// <param name="searchValue">The search value about store's name.</param>
-        /// <param name="idBrand">The brand's id</param>
-        /// <param name="idKitchenCenter">The kitchen center's id</param>
+        /// <param name="getStoresRequest">An object include SearchValue, ItemPerPage,
+        /// CurrentPage, SortBy, IsGetAll, IdBrand, IdKitchenCenter, Status</param>
         /// <returns>
         /// An object contains NumberItems, TotalPage, a list of stores.
         /// </returns>
@@ -48,12 +51,14 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///
         ///         GET 
-        ///         itemsPerPage = 5
+        ///         searchValue = HighLand Coffee
         ///         currentPage = 1
-        ///         searchValue = KFC Bình Thạnh
+        ///         itemsPerPage = 5
+        ///         sortBy = "propertyName_asc | propertyName_ASC | propertyName_desc | propertyName_DESC"
+        ///         isGetAll = True | False
         ///         idBrand = 1
-        ///         idKitchenCenter = 1
-        ///         status = ACTIVE | INACTIVE | 
+        ///         idKitchenCenter = 2
+        ///         status = BE_CONFIRMING | ACTIVE | INACTIVE | REJECTED
         /// </remarks>
         /// <response code="200">Get a list of stores Successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
@@ -66,11 +71,16 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin, PermissionAuthorizeConstant.BrandManager, PermissionAuthorizeConstant.KitchenCenterManager)]
         [HttpGet(APIEndPointConstant.Store.StoresEndpoint)]
-        public async Task<IActionResult> GetStoresAync([FromQuery] int? itemsPerPage, [FromQuery] int? currentPage, [FromQuery] string? searchValue,
-            [FromQuery] int? idBrand, [FromQuery] int? idKitchenCenter, [FromQuery] string? status, [FromQuery] bool? isGetAll)
+        public async Task<IActionResult> GetStoresAync([FromQuery] GetStoresRequest getStoresRequest)
         {
+            ValidationResult validationResult = await this._getStoresValidator.ValidateAsync(getStoresRequest);
+            if (validationResult.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
+            }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            GetStoresResponse stores = await this._storeService.GetStoresAsync(searchValue, currentPage, itemsPerPage, idBrand, idKitchenCenter, status, isGetAll, claims);
+            GetStoresResponse stores = await this._storeService.GetStoresAsync(getStoresRequest, claims);
             return Ok(stores);
         }
         #endregion
@@ -103,8 +113,14 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin, PermissionAuthorizeConstant.KitchenCenterManager, PermissionAuthorizeConstant.BrandManager)]
         [HttpGet(APIEndPointConstant.Store.StoreEndpoint)]
-        public async Task<IActionResult> GetStoreAsync( [FromRoute] StoreRequest getStoreRequest)
+        public async Task<IActionResult> GetStoreAsync([FromRoute] StoreRequest getStoreRequest)
         {
+            ValidationResult validationResult = await this._getStoreValidator.ValidateAsync(getStoreRequest);
+            if (validationResult.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
+            }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
             GetStoreResponse store = await this._storeService.GetStoreAsync(getStoreRequest.Id, claims);
             return Ok(store);
@@ -172,7 +188,7 @@ namespace MBKC.API.Controllers
         public async Task<IActionResult> PostRegisterStoreAsync([FromForm] RegisterStoreRequest storeRequest)
         {
             ValidationResult validationResult = await this._registerStoreValidator.ValidateAsync(storeRequest);
-            if(validationResult.IsValid == false)
+            if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
@@ -190,7 +206,7 @@ namespace MBKC.API.Controllers
         /// <summary>
         /// Update information of an existed store of a brand.
         /// </summary>
-        /// <param name="id">The store's id.</param>
+        /// <param name="getStoreRequest">An object include id of store.</param>
         /// <param name="updateStoreRequest">An store object contains updated information.</param>
         /// <returns>
         /// A success message about updating store information.  
@@ -223,16 +239,22 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin, PermissionAuthorizeConstant.BrandManager)]
         [HttpPut(APIEndPointConstant.Store.StoreEndpoint)]
-        public async Task<IActionResult> PutUpdateStoreAsync([FromRoute]int id, [FromForm]UpdateStoreRequest updateStoreRequest)
+        public async Task<IActionResult> PutUpdateStoreAsync([FromRoute] StoreRequest getStoreRequest, [FromForm] UpdateStoreRequest updateStoreRequest)
         {
             ValidationResult validationResult = await this._updateStoreValidator.ValidateAsync(updateStoreRequest);
-            if(validationResult.IsValid == false)
+            ValidationResult validationResultStoreId = await this._getStoreValidator.ValidateAsync(getStoreRequest);
+            if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
+            if (validationResultStoreId.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResultStoreId);
+                throw new BadRequestException(errors);
+            }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            await this._storeService.UpdateStoreAsync(id, updateStoreRequest, claims);
+            await this._storeService.UpdateStoreAsync(getStoreRequest.Id, updateStoreRequest, claims);
             return Ok(new
             {
                 Message = MessageConstant.StoreMessage.UpdatedStoreInformationSuccessfully
@@ -244,7 +266,7 @@ namespace MBKC.API.Controllers
         /// <summary>
         /// Update status of an existed store of a brand.
         /// </summary>
-        /// <param name="id">The store's id.</param>
+        /// <param name="getStoreRequest">An object include id of store.</param>
         /// <param name="updateStoreStatusRequest">An store object contains updated status.</param>
         /// <returns>
         /// A success message about updating store status.  
@@ -274,16 +296,24 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin, PermissionAuthorizeConstant.BrandManager)]
         [HttpPut(APIEndPointConstant.Store.UpdateingStatusStore)]
-        public async Task<IActionResult> PutUpdateStoreStatusAsync([FromRoute]int id, [FromBody] UpdateStoreStatusRequest updateStoreStatusRequest)
+        public async Task<IActionResult> PutUpdateStoreStatusAsync([FromRoute] StoreRequest getStoreRequest, [FromBody] UpdateStoreStatusRequest updateStoreStatusRequest)
         {
             ValidationResult validationResult = await this._updateStoreStatusValidator.ValidateAsync(updateStoreStatusRequest);
-            if(validationResult.IsValid == false)
+            ValidationResult validationResultStoreId = await this._getStoreValidator.ValidateAsync(getStoreRequest);
+
+            if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
+
+            if (validationResultStoreId.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResultStoreId);
+                throw new BadRequestException(errors);
+            }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            await this._storeService.UpdateStoreStatusAsync(id, updateStoreStatusRequest, claims);
+            await this._storeService.UpdateStoreStatusAsync(getStoreRequest.Id, updateStoreStatusRequest, claims);
             return Ok(new
             {
                 Message = MessageConstant.StoreMessage.UpdatedStoreStatusSuccessfully
@@ -295,7 +325,7 @@ namespace MBKC.API.Controllers
         /// <summary>
         /// Delete an existed store.
         /// </summary>
-        /// <param name="id">The store's id</param>
+        /// <param name="getStoreRequest">An object include id of store</param>
         /// <returns>
         /// A success message about deleting exsited store.
         /// </returns>
@@ -303,7 +333,7 @@ namespace MBKC.API.Controllers
         ///     Sample request:
         ///
         ///         DELETE 
-        ///         idStore = 1
+        ///         id = 1
         /// </remarks>
         /// <response code="200">Deleted a store successfully.</response>
         /// <response code="400">Some Error about request data and logic data.</response>
@@ -319,10 +349,16 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin, PermissionAuthorizeConstant.BrandManager)]
         [HttpDelete(APIEndPointConstant.Store.StoreEndpoint)]
-        public async Task<IActionResult> DeleteStoreAsync([FromRoute] int id)
+        public async Task<IActionResult> DeleteStoreAsync([FromRoute] StoreRequest getStoreRequest)
         {
+            ValidationResult validationResult = await this._getStoreValidator.ValidateAsync(getStoreRequest);
+            if (validationResult.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
+            }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            await this._storeService.DeleteStoreAsync(id, claims);
+            await this._storeService.DeleteStoreAsync(getStoreRequest.Id, claims);
             return Ok(new
             {
                 Message = MessageConstant.StoreMessage.DeletedStoreSuccessfully
@@ -334,7 +370,7 @@ namespace MBKC.API.Controllers
         /// <summary>
         /// Confirm a store registration.
         /// </summary>
-        /// <param name="id">The store's id</param>
+        /// <param name="getStoreRequest">An object include id of store.</param>
         /// <param name="confirmStoreRegistrationRequest">An object contains status property and rejected reason (if have)</param>
         /// <returns>
         /// A success message about confirming a store registration.
@@ -365,15 +401,21 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin)]
         [HttpPut(APIEndPointConstant.Store.ConfirmRegistrationStore)]
-        public async Task<IActionResult> PutConfirmRegistrationStore([FromRoute]int id, [FromBody]ConfirmStoreRegistrationRequest confirmStoreRegistrationRequest)
+        public async Task<IActionResult> PutConfirmRegistrationStore([FromRoute] StoreRequest getStoreRequest, [FromBody] ConfirmStoreRegistrationRequest confirmStoreRegistrationRequest)
         {
             ValidationResult validationResult = await this._confirmStoreRegistrationValidator.ValidateAsync(confirmStoreRegistrationRequest);
-            if(validationResult.IsValid == false)
+            ValidationResult validationResultStoreId = await this._getStoreValidator.ValidateAsync(getStoreRequest);
+            if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
-            await this._storeService.ConfirmStoreRegistrationAsync(id, confirmStoreRegistrationRequest);
+            if (validationResultStoreId.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResultStoreId);
+                throw new BadRequestException(errors);
+            }
+            await this._storeService.ConfirmStoreRegistrationAsync(getStoreRequest.Id, confirmStoreRegistrationRequest);
             return Ok(new
             {
                 Message = MessageConstant.StoreMessage.ConfirmedStoreRegistrationSuccessfully

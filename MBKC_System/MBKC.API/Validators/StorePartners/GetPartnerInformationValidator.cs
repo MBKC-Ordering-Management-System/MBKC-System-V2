@@ -36,7 +36,7 @@ namespace MBKC.API.Validators.StorePartners
                             }
 
                             return keySortStatus.ToUpper().Equals(StorePartnerEnum.KeySort.ASC.ToString()) ||
-                                 keySortStatus.ToUpper().Equals(StorePartnerEnum.KeySort.DESC.ToString());
+                                   keySortStatus.ToUpper().Equals(StorePartnerEnum.KeySort.DESC.ToString());
                         }).WithMessage(MessageConstant.StorePartnerMessage.KeySortNotExist);
             #endregion
 

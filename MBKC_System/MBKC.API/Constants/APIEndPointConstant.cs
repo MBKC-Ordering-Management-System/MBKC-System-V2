@@ -67,6 +67,7 @@
             public const string ProductsEndpoint = ApiEndpoint + "/products";
             public const string ProductEndpoint = ProductsEndpoint + "/{id}";
             public const string UpdatingStatusProductEndpoint = ProductEndpoint + "/updating-status";
+            public const string ImportFileEndpoint = ProductsEndpoint + "/import-file";
         }
 
         public static class Partner

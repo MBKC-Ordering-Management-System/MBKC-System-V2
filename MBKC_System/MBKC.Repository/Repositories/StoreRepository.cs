@@ -130,15 +130,26 @@ namespace MBKC.Repository.Repositories
             }
         }
 
-        public async Task<List<Store>> GetStoresAsync(string? searchValue, string? searchValueWithoutUnicode, int? itemsPerPage, int? currentPage, int? brandId, int? kitchenCenterId, int? statusParam)
+        public async Task<List<Store>> GetStoresAsync(string? searchValue, string? searchValueWithoutUnicode,
+            int currentPage, int itemsPerPage, string? sortByASC, string? sortByDESC, int? brandId, int? kitchenCenterId, int? statusParam, bool? isGetAll)
         {
             try
             {
-                if (itemsPerPage != null && currentPage != null)
+                if (isGetAll != null && isGetAll == true)
                 {
-                    if (searchValue == null && searchValueWithoutUnicode != null && brandId == null && kitchenCenterId == null)
-                    {
+                    return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                   .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
+                                                   .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                   .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                   .Where(x => x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                   .ToListAsync();
+                }
+
+                if (searchValue == null && searchValueWithoutUnicode != null && brandId == null && kitchenCenterId == null)
+                {
+                    if (sortByASC is not null)
                         return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                     .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                      .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                      .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                      .Where(x => x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
@@ -152,19 +163,124 @@ namespace MBKC.Repository.Repositories
                                                          {
                                                              return false;
                                                          }
-                                                     }).Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).AsQueryable().ToList();
-                    }
-                    else if (searchValue != null && searchValueWithoutUnicode == null && brandId == null && kitchenCenterId == null)
-                    {
-                        return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
-                                                           .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                           .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                           .Where(x => x.Name.ToLower().Contains(searchValue) && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
-                                                           .Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
-                    }
-                    else if (searchValue == null && searchValueWithoutUnicode != null && brandId != null && kitchenCenterId == null)
-                    {
+                                                     })
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
+                                                                then => then.OrderBy(x => x.Name))
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("storemanageremail"),
+                                                                then => then.OrderBy(x => x.StoreManagerEmail))
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
+                                                                then => then.OrderBy(x => x.Status).Reverse())
+                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
+
+                    else if (sortByDESC is not null)
                         return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                     .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
+                                                     .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Where(x => x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                     .Where(delegate (Store store)
+                                                     {
+                                                         if (StringUtil.RemoveSign4VietnameseString(store.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
+                                                         {
+                                                             return true;
+                                                         }
+                                                         else
+                                                         {
+                                                             return false;
+                                                         }
+                                                     })
+                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
+                                                                then => then.OrderByDescending(x => x.Name))
+                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("storemanageremail"),
+                                                                then => then.OrderByDescending(x => x.StoreManagerEmail))
+                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
+                                                                then => then.OrderByDescending(x => x.Status).Reverse())
+                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
+
+                    return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                 .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
+                                                 .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                 .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                 .Where(x => x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                 .Where(delegate (Store store)
+                                                    {
+                                                        if (StringUtil.RemoveSign4VietnameseString(store.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
+                                                        {
+                                                            return true;
+                                                        }
+                                                        else
+                                                        {
+                                                            return false;
+                                                        }
+                                                    })
+                                                    .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
+                }
+                else if (searchValue != null && searchValueWithoutUnicode == null && brandId == null && kitchenCenterId == null)
+                {
+                    if (sortByASC is not null)
+                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                     .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
+                                                     .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Where(x => x.Name.ToLower().Contains(searchValue) && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
+                                                              then => then.OrderBy(x => x.Name))
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("storemanageremail"),
+                                                              then => then.OrderBy(x => x.StoreManagerEmail))
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
+                                                              then => then.OrderBy(x => x.Status).Reverse())
+                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+
+                    else if (sortByDESC is not null)
+                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                     .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
+                                                     .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Where(x => x.Name.ToLower().Contains(searchValue) && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
+                                                              then => then.OrderByDescending(x => x.Name))
+                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("storemanageremail"),
+                                                              then => then.OrderByDescending(x => x.StoreManagerEmail))
+                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
+                                                              then => then.OrderByDescending(x => x.Status).Reverse())
+                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+
+                    return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                 .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
+                                                 .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                 .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                 .Where(x => x.Name.ToLower().Contains(searchValue) && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                 .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+                }
+                else if (searchValue == null && searchValueWithoutUnicode != null && brandId != null && kitchenCenterId == null)
+                {
+                    if (sortByASC is not null)
+                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                     .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
+                                                     .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Where(x => x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                     .Where(delegate (Store store)
+                                                      {
+                                                          if (StringUtil.RemoveSign4VietnameseString(store.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
+                                                          {
+                                                              return true;
+                                                          }
+                                                          else
+                                                          {
+                                                              return false;
+                                                          }
+                                                      })
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
+                                                           then => then.OrderBy(x => x.Name))
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("storemanageremail"),
+                                                           then => then.OrderBy(x => x.StoreManagerEmail))
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
+                                                           then => then.OrderBy(x => x.Status).Reverse())
+                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
+
+                    else if (sortByDESC is not null)
+                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                     .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                      .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                      .Where(x => x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
                                                      .Where(delegate (Store store)
@@ -177,125 +293,17 @@ namespace MBKC.Repository.Repositories
                                                          {
                                                              return false;
                                                          }
-                                                     }).Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).AsQueryable().ToList();
-                    }
-                    else if (searchValue != null && searchValueWithoutUnicode == null && brandId != null && kitchenCenterId == null)
-                    {
-                        return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
-                                                           .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                           .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                           .Where(x => x.Name.ToLower().Contains(searchValue) && x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
-                                                           .Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
-                    }
-                    else if (searchValue == null && searchValueWithoutUnicode == null && brandId != null && kitchenCenterId == null)
-                    {
-                        return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
-                                                           .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                           .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                           .Where(x => x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
-                                                           .Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
-                    }
-                    else if (searchValue == null && searchValueWithoutUnicode != null && brandId == null && kitchenCenterId != null)
-                    {
-                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
-                                                     .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                     .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
-                                                     .Where(delegate (Store store)
-                                                     {
-                                                         if (StringUtil.RemoveSign4VietnameseString(store.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
-                                                         {
-                                                             return true;
-                                                         }
-                                                         else
-                                                         {
-                                                             return false;
-                                                         }
-                                                     }).Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).AsQueryable().ToList();
-                    }
-                    else if (searchValue != null && searchValueWithoutUnicode == null && brandId == null && kitchenCenterId != null)
-                    {
-                        return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
-                                                          .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                          .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                          .Where(x => x.Name.ToLower().Contains(searchValue) && x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
-                                                          .Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
-                    }
-                    else if (searchValue == null && searchValueWithoutUnicode == null && brandId == null && kitchenCenterId != null)
-                    {
-                        return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
-                                                           .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                           .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                           .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
-                                                           .Take(itemsPerPage.Value).Skip(itemsPerPage.Value * (currentPage.Value - 1)).ToListAsync();
-                    }
-                    else if (searchValue == null && searchValueWithoutUnicode == null && brandId != null && kitchenCenterId != null)
-                    {
-                        return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
-                                                       .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                       .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                       .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
-                                                       .Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
-                    }
-                    else if (searchValue == null && searchValueWithoutUnicode != null && brandId != null && kitchenCenterId != null)
-                    {
-                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
-                                                     .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                     .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
-                                                     .Where(delegate (Store store)
-                                                     {
-                                                         if (StringUtil.RemoveSign4VietnameseString(store.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
-                                                         {
-                                                             return true;
-                                                         }
-                                                         else
-                                                         {
-                                                             return false;
-                                                         }
-                                                     }).Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).AsQueryable().ToList();
-                    }
-                    else if (searchValue != null && searchValueWithoutUnicode == null && brandId != null && kitchenCenterId != null)
-                    {
-                        return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
-                                                           .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                           .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                           .Where(x => x.Name.ToLower().Contains(searchValue) && x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
-                                                           .Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
-                    }
-                    return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
-                                                       .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                       .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                       .Where(x => x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
-                                                       .Skip(itemsPerPage.Value * (currentPage.Value - 1)).Take(itemsPerPage.Value).ToListAsync();
-                }
-                if (searchValue == null && searchValueWithoutUnicode != null && brandId == null && kitchenCenterId == null)
-                {
+                                                     })
+                                                 .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
+                                                       then => then.OrderByDescending(x => x.Name))
+                                                 .If(sortByDESC != null && sortByDESC.ToLower().Equals("storemanageremail"),
+                                                       then => then.OrderByDescending(x => x.StoreManagerEmail))
+                                                 .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
+                                                       then => then.OrderByDescending(x => x.Status).Reverse())
+                                                 .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
+
                     return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
-                                                 .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                 .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                 .Where(x => x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
-                                                 .Where(delegate (Store store)
-                                                 {
-                                                     if (StringUtil.RemoveSign4VietnameseString(store.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
-                                                     {
-                                                         return true;
-                                                     }
-                                                     else
-                                                     {
-                                                         return false;
-                                                     }
-                                                 }).AsQueryable().ToList();
-                }
-                else if (searchValue != null && searchValueWithoutUnicode == null && brandId == null && kitchenCenterId == null)
-                {
-                    return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
-                                                       .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                       .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                       .Where(x => x.Name.ToLower().Contains(searchValue) && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
-                                                       .ToListAsync();
-                }
-                else if (searchValue == null && searchValueWithoutUnicode != null && brandId != null && kitchenCenterId == null)
-                {
-                    return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                 .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                  .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                  .Where(x => x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
                                                  .Where(delegate (Store store)
@@ -308,27 +316,134 @@ namespace MBKC.Repository.Repositories
                                                      {
                                                          return false;
                                                      }
-                                                 }).AsQueryable().ToList();
+                                                 }).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
                 }
                 else if (searchValue != null && searchValueWithoutUnicode == null && brandId != null && kitchenCenterId == null)
                 {
-                    return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
-                                                       .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                       .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                       .Where(x => x.Name.ToLower().Contains(searchValue) && x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
-                                                       .ToListAsync();
+                    if (sortByASC is not null)
+                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                     .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
+                                                     .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Where(x => x.Name.ToLower().Contains(searchValue) && x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
+                                                           then => then.OrderBy(x => x.Name))
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("storemanageremail"),
+                                                           then => then.OrderBy(x => x.StoreManagerEmail))
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
+                                                           then => then.OrderBy(x => x.Status).Reverse())
+                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+
+                    else if (sortByDESC is not null)
+                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                     .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
+                                                     .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Where(x => x.Name.ToLower().Contains(searchValue) && x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
+                                                           then => then.OrderByDescending(x => x.Name))
+                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("storemanageremail"),
+                                                           then => then.OrderByDescending(x => x.StoreManagerEmail))
+                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
+                                                           then => then.OrderByDescending(x => x.Status).Reverse())
+                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+
+                    return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                 .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
+                                                 .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                 .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                 .Where(x => x.Name.ToLower().Contains(searchValue) && x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                 .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
                 }
                 else if (searchValue == null && searchValueWithoutUnicode == null && brandId != null && kitchenCenterId == null)
                 {
-                    return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
-                                                       .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                       .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                       .Where(x => x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
-                                                       .ToListAsync();
+                    if (sortByASC is not null)
+                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                     .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
+                                                     .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Where(x => x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
+                                                               then => then.OrderBy(x => x.Name))
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("storemanageremail"),
+                                                               then => then.OrderBy(x => x.StoreManagerEmail))
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
+                                                               then => then.OrderBy(x => x.Status).Reverse())
+                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+
+                    else if (sortByDESC is not null)
+                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                     .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
+                                                     .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Where(x => x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
+                                                               then => then.OrderByDescending(x => x.Name))
+                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("storemanageremail"),
+                                                               then => then.OrderByDescending(x => x.StoreManagerEmail))
+                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
+                                                               then => then.OrderByDescending(x => x.Status).Reverse())
+                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+
+                    return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                 .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
+                                                 .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                 .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                 .Where(x => x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                 .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
                 }
                 else if (searchValue == null && searchValueWithoutUnicode != null && brandId == null && kitchenCenterId != null)
                 {
+                    if (sortByASC is not null)
+                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                     .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
+                                                     .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                     .Where(delegate (Store store)
+                                                     {
+                                                         if (StringUtil.RemoveSign4VietnameseString(store.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
+                                                         {
+                                                             return true;
+                                                         }
+                                                         else
+                                                         {
+                                                             return false;
+                                                         }
+                                                     })
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
+                                                               then => then.OrderBy(x => x.Name))
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("storemanageremail"),
+                                                               then => then.OrderBy(x => x.StoreManagerEmail))
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
+                                                               then => then.OrderBy(x => x.Status).Reverse())
+                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
+
+                    else if (sortByDESC is not null)
+                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                     .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
+                                                     .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                     .Where(delegate (Store store)
+                                                     {
+                                                         if (StringUtil.RemoveSign4VietnameseString(store.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
+                                                         {
+                                                             return true;
+                                                         }
+                                                         else
+                                                         {
+                                                             return false;
+                                                         }
+                                                     })
+                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
+                                                               then => then.OrderByDescending(x => x.Name))
+                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("storemanageremail"),
+                                                               then => then.OrderByDescending(x => x.StoreManagerEmail))
+                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
+                                                               then => then.OrderByDescending(x => x.Status).Reverse())
+                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
+
                     return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                 .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                  .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                  .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
                                                  .Where(delegate (Store store)
@@ -341,35 +456,170 @@ namespace MBKC.Repository.Repositories
                                                      {
                                                          return false;
                                                      }
-                                                 }).AsQueryable().ToList();
+                                                 }).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
                 }
                 else if (searchValue != null && searchValueWithoutUnicode == null && brandId == null && kitchenCenterId != null)
                 {
-                    return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
-                                                      .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                      .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                      .Where(x => x.Name.ToLower().Contains(searchValue) && x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
-                                                      .ToListAsync();
+                    if (sortByASC is not null)
+                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                     .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
+                                                     .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Where(x => x.Name.ToLower().Contains(searchValue) && x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
+                                                          then => then.OrderBy(x => x.Name))
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("storemanageremail"),
+                                                          then => then.OrderBy(x => x.StoreManagerEmail))
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
+                                                          then => then.OrderBy(x => x.Status).Reverse())
+                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+
+                    else if (sortByDESC is not null)
+                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                     .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
+                                                     .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Where(x => x.Name.ToLower().Contains(searchValue) && x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
+                                                           then => then.OrderByDescending(x => x.Name))
+                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("storemanageremail"),
+                                                           then => then.OrderByDescending(x => x.StoreManagerEmail))
+                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
+                                                           then => then.OrderByDescending(x => x.Status).Reverse())
+                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+
+                    return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                 .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
+                                                 .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                 .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                 .Where(x => x.Name.ToLower().Contains(searchValue) && x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                 .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
                 }
                 else if (searchValue == null && searchValueWithoutUnicode == null && brandId == null && kitchenCenterId != null)
                 {
-                    return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
-                                                       .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                       .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                       .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
-                                                       .Take(itemsPerPage.Value).Skip(itemsPerPage.Value * (currentPage.Value - 1)).ToListAsync();
+                    if (sortByASC is not null)
+                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                     .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
+                                                     .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
+                                                             then => then.OrderBy(x => x.Name))
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("storemanageremail"),
+                                                             then => then.OrderBy(x => x.StoreManagerEmail))
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
+                                                             then => then.OrderBy(x => x.Status).Reverse())
+                                                     .Take(itemsPerPage).Skip(itemsPerPage * (currentPage - 1)).ToList();
+                    else if (sortByDESC is not null)
+                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                     .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
+                                                     .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
+                                                          then => then.OrderByDescending(x => x.Name))
+                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("storemanageremail"),
+                                                          then => then.OrderByDescending(x => x.StoreManagerEmail))
+                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
+                                                          then => then.OrderByDescending(x => x.Status).Reverse())
+                                                     .Take(itemsPerPage).Skip(itemsPerPage * (currentPage - 1)).ToList();
+
+                    return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                 .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
+                                                 .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                 .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                 .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                 .Take(itemsPerPage).Skip(itemsPerPage * (currentPage - 1)).ToList();
                 }
                 else if (searchValue == null && searchValueWithoutUnicode == null && brandId != null && kitchenCenterId != null)
                 {
-                    return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
-                                                   .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                   .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                   .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
-                                                   .ToListAsync();
+                    if (sortByASC is not null)
+                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                     .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
+                                                     .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
+                                                             then => then.OrderBy(x => x.Name))
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("storemanageremail"),
+                                                             then => then.OrderBy(x => x.StoreManagerEmail))
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
+                                                             then => then.OrderBy(x => x.Status).Reverse())
+                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+
+                    else if (sortByDESC is not null)
+                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                     .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
+                                                     .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
+                                                          then => then.OrderByDescending(x => x.Name))
+                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("storemanageremail"),
+                                                          then => then.OrderByDescending(x => x.StoreManagerEmail))
+                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
+                                                          then => then.OrderByDescending(x => x.Status).Reverse())
+                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+
+                    return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                 .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
+                                                 .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                 .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                 .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                 .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
                 }
                 else if (searchValue == null && searchValueWithoutUnicode != null && brandId != null && kitchenCenterId != null)
                 {
+                    if (sortByASC is not null)
+                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                     .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
+                                                     .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                     .Where(delegate (Store store)
+                                                     {
+                                                         if (StringUtil.RemoveSign4VietnameseString(store.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
+                                                         {
+                                                             return true;
+                                                         }
+                                                         else
+                                                         {
+                                                             return false;
+                                                         }
+                                                     })
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
+                                                             then => then.OrderBy(x => x.Name))
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("storemanageremail"),
+                                                             then => then.OrderBy(x => x.StoreManagerEmail))
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
+                                                             then => then.OrderBy(x => x.Status).Reverse())
+                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
+
+                    else if (sortByDESC is not null)
+                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                     .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
+                                                     .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                     .Where(delegate (Store store)
+                                                     {
+                                                         if (StringUtil.RemoveSign4VietnameseString(store.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
+                                                         {
+                                                             return true;
+                                                         }
+                                                         else
+                                                         {
+                                                             return false;
+                                                         }
+                                                     })
+                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
+                                                            then => then.OrderByDescending(x => x.Name))
+                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("storemanageremail"),
+                                                            then => then.OrderByDescending(x => x.StoreManagerEmail))
+                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
+                                                            then => then.OrderByDescending(x => x.Status).Reverse())
+                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
+
                     return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                 .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                  .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                  .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
                                                  .Where(delegate (Store store)
@@ -382,21 +632,50 @@ namespace MBKC.Repository.Repositories
                                                      {
                                                          return false;
                                                      }
-                                                 }).AsQueryable().ToList();
+                                                 }).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
                 }
                 else if (searchValue != null && searchValueWithoutUnicode == null && brandId != null && kitchenCenterId != null)
                 {
-                    return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
-                                                       .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                       .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                       .Where(x => x.Name.ToLower().Contains(searchValue) && x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
-                                                       .ToListAsync();
+                    if (sortByASC is not null)
+                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                     .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
+                                                     .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Where(x => x.Name.ToLower().Contains(searchValue) && x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
+                                                           then => then.OrderBy(x => x.Name))
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("storemanageremail"),
+                                                           then => then.OrderBy(x => x.StoreManagerEmail))
+                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
+                                                           then => then.OrderBy(x => x.Status).Reverse())
+                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+
+                    else if (sortByDESC is not null)
+                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                     .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
+                                                     .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                     .Where(x => x.Name.ToLower().Contains(searchValue) && x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
+                                                           then => then.OrderByDescending(x => x.Name))
+                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("storemanageremail"),
+                                                           then => then.OrderByDescending(x => x.StoreManagerEmail))
+                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
+                                                           then => then.OrderByDescending(x => x.Status).Reverse())
+                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+
+                    return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                                                 .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
+                                                 .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                 .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
+                                                 .Where(x => x.Name.ToLower().Contains(searchValue) && x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                 .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
                 }
                 return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                    .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                    .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                    .Where(x => x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
-                                                   .ToListAsync();
+                                                   .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
             }
             catch (Exception ex)
             {
@@ -463,7 +742,8 @@ namespace MBKC.Repository.Repositories
             try
             {
                 return await this._dbContext.Stores.Include(x => x.Brand).ThenInclude(x => x.Categories).Include(x => x.KitchenCenter).ThenInclude(x => x.Manager).SingleOrDefaultAsync(x => x.StoreManagerEmail.Equals(managerEmail));
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
@@ -479,7 +759,8 @@ namespace MBKC.Repository.Repositories
                                       .Include(x => x.StorePartners.Where(x => x.Status == (int)StorePartnerEnum.Status.ACTIVE))
                                       .ThenInclude(x => x.PartnerProducts).ThenInclude(x => x.Product).ThenInclude(x => x.ChildrenProducts)
                                       .Where(x => x.Status == (int)StoreEnum.Status.ACTIVE).ToListAsync();
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }

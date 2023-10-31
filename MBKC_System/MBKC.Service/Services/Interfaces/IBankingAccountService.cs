@@ -10,7 +10,7 @@ namespace MBKC.Service.Services.Interfaces
 {
     public interface IBankingAccountService
     {
-        public Task<GetBankingAccountsResponse> GetBankingAccountsAsync(string? searchValue, int? currentPage, int? itemsPerPage, IEnumerable<Claim> claims);
+        public Task<GetBankingAccountsResponse> GetBankingAccountsAsync(GetBankingAccountsRequest getBankingAccountsRequest, IEnumerable<Claim> claims);
         public Task<GetBankingAccountResponse> GetBankingAccountAsync(int bankingAccountId, IEnumerable<Claim> claims);
         public Task CreateBankingAccountAsync(CreateBankingAccountRequest createBankingAccountRequest, IEnumerable<Claim> claims);
         public Task DeleteBankingAccountAsync(int bankingAccountId, IEnumerable<Claim> claims);

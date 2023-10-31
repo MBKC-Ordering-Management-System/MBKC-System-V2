@@ -47,11 +47,6 @@ namespace MBKC.Service.Services.Implementations
                     throw new BadRequestException(MessageConstant.OrderMessage.OrderNotBelongToKitchenCenter);
                 }
 
-                if (!existedOrder.ShipperPhone.Equals(confirmOrderToCompleted.ShipperPhone))
-                {
-                    throw new BadRequestException(MessageConstant.OrderMessage.OrderShipperPhoneNotMatch);
-                }
-
                 if (confirmOrderToCompleted.BankingAccountId != null)
                 {
                     if (existedOrder.PaymentMethod.ToUpper().Equals(OrderEnum.PaymentMethod.CASHLESS.ToString()))
@@ -105,7 +100,7 @@ namespace MBKC.Service.Services.Implementations
                 if (existedOrder.PaymentMethod.ToUpper().Equals(OrderEnum.PaymentMethod.CASH.ToString()))
                 {
                     decimal finalToTalPriceSubstractDeliveryFee = existedOrder.FinalTotalPrice - existedOrder.DeliveryFee;
-                    decimal finalPrice = finalToTalPriceSubstractDeliveryFee - (finalToTalPriceSubstractDeliveryFee * existedOrder.Commission / 100);
+                    decimal finalPrice = finalToTalPriceSubstractDeliveryFee - (finalToTalPriceSubstractDeliveryFee * (decimal)existedOrder.Commission / 100);
                     ShipperPayment shipperPayment = new ShipperPayment()
                     {
                         Status = (int)ShipperPaymentEnum.Status.SUCCESS,
