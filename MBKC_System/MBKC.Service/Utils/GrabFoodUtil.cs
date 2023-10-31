@@ -4,6 +4,7 @@ using MBKC.Repository.Models;
 using MBKC.Service.Constants;
 using MBKC.Service.DTOs.GrabFoods;
 using MBKC.Service.Exceptions;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity.Infrastructure;
@@ -421,10 +422,11 @@ namespace MBKC.Service.Utils
             }
         }
 
-        public static void CheckProductCodeFromGrabFood(GrabFoodMenu grabFoodMenu, string productCode, decimal price, int status)
+        public static void CheckProductCodeFromGrabFood(GrabFoodMenu grabFoodMenu, string productCode, string type, decimal price, int status, bool isUpdated)
         {
             try
             {
+                bool isExisted = false;
                 foreach (var category in grabFoodMenu.Categories)
                 {
                     GrabFoodItem grabFoodItem = category.Items.FirstOrDefault(x => x.ItemID.Trim().ToLower().Equals(productCode.Trim().ToLower()));
@@ -433,17 +435,14 @@ namespace MBKC.Service.Utils
                         foreach (var modifierGroup in grabFoodMenu.ModifierGroups)
                         {
                             GrabFoodModifier grabFoodModifier = modifierGroup.Modifiers.FirstOrDefault(x => x.ModifierID.Trim().ToLower().Equals(productCode.Trim().ToLower()));
-                            if(grabFoodModifier is null)
+                            if(grabFoodModifier is not null)
                             {
-                                throw new BadRequestException(MessageConstant.PartnerProductMessage.ProductCodeNotExistInGrabFoodSystem);
-                            }
-                            else
-                            {
+                                isExisted = true;
                                 if(grabFoodModifier.PriceInMin != price)
                                 {
                                     throw new BadRequestException(MessageConstant.PartnerProductMessage.PriceNotMatchWithProductInGrabFoodSystem);
                                 }
-                                if(grabFoodModifier.AvailableStatus != status)
+                                if(grabFoodModifier.AvailableStatus != status && isUpdated == false)
                                 {
                                     throw new BadRequestException(MessageConstant.PartnerProductMessage.StatusNotMatchWithProductInGrabFoodSystem);
                                 }
@@ -451,15 +450,23 @@ namespace MBKC.Service.Utils
                         }
                     } else
                     {
-                        if(grabFoodItem.PriceInMin != price)
+                        isExisted = true;
+                        if(type.ToLower().Equals(ProductEnum.Type.PARENT.ToString().ToLower()) == false)
                         {
-                            throw new BadRequestException(MessageConstant.PartnerProductMessage.PriceNotMatchWithProductInGrabFoodSystem);
+                            if (grabFoodItem.PriceInMin != price)
+                            {
+                                throw new BadRequestException(MessageConstant.PartnerProductMessage.PriceNotMatchWithProductInGrabFoodSystem);
+                            }
                         }
-                        if (grabFoodItem.AvailableStatus != status)
+                        if (grabFoodItem.AvailableStatus != status && isUpdated == false)
                         {
                             throw new BadRequestException(MessageConstant.PartnerProductMessage.StatusNotMatchWithProductInGrabFoodSystem);
                         }
                     }
+                }
+                if(isExisted == false)
+                {
+                    throw new BadRequestException(MessageConstant.PartnerProductMessage.ProductCodeNotExistInGrabFoodSystem);
                 }
             } catch(BadRequestException ex)
             {

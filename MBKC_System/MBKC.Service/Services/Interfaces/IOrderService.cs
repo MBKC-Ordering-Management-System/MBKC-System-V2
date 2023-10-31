@@ -13,5 +13,7 @@ namespace MBKC.Service.Services.Interfaces
     {
         public Task ConfirmOrderToCompletedAsync(ConfirmOrderToCompletedRequest confirmOrderToCompleted, IEnumerable<Claim> claims);
         public Task<GetOrderResponse> GetOrderAsync(string orderPartnerId);
+        public Task CreateOrderAsync(PostOrderRequest postOrderRequest);
+        public Task UpdateOrderAsync(PutOrderIdRequest putOrderIdRequest, PutOrderRequest putOrderRequest);
     }
 }

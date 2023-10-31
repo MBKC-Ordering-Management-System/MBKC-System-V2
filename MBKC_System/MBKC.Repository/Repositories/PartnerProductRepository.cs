@@ -25,7 +25,7 @@ namespace MBKC.Repository.Repositories
             try
             {
                 return await this._dbContext.PartnerProducts
-                    .Include(x => x.Product)
+                    .Include(x => x.Product).ThenInclude(x => x.ChildrenProducts)
                     .Include(x => x.StorePartner)
                     .ThenInclude(x => x.Store)
                     .Include(x => x.StorePartner)
@@ -362,5 +362,17 @@ namespace MBKC.Repository.Repositories
             }
         }
         #endregion
+
+        public void UpdatePartnerProductRange(List<PartnerProduct> partnerProducts)
+        {
+            try
+            {
+                this._dbContext.PartnerProducts.UpdateRange(partnerProducts);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }

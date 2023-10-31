@@ -140,7 +140,7 @@ namespace MBKC.Service.Services.Implementations
                     };
                     GrabFoodAuthenticationResponse grabFoodAuthenticationResponse = await this._unitOfWork.GrabFoodRepository.LoginGrabFoodAsync(grabFoodAccount);
                     GrabFoodMenu grabFoodMenu = await this._unitOfWork.GrabFoodRepository.GetGrabFoodMenuAsync(grabFoodAuthenticationResponse);
-                    GrabFoodUtil.CheckProductCodeFromGrabFood(grabFoodMenu, postPartnerProductRequest.ProductCode, postPartnerProductRequest.Price, status);
+                    GrabFoodUtil.CheckProductCodeFromGrabFood(grabFoodMenu, postPartnerProductRequest.ProductCode, product.Type, postPartnerProductRequest.Price, status, false);
                 }
 
                 // Check partner product existed in system or not
@@ -562,7 +562,7 @@ namespace MBKC.Service.Services.Implementations
                     };
                     GrabFoodAuthenticationResponse grabFoodAuthenticationResponse = await this._unitOfWork.GrabFoodRepository.LoginGrabFoodAsync(grabFoodAccount);
                     GrabFoodMenu grabFoodMenu = await this._unitOfWork.GrabFoodRepository.GetGrabFoodMenuAsync(grabFoodAuthenticationResponse);
-                    GrabFoodUtil.CheckProductCodeFromGrabFood(grabFoodMenu, updatePartnerProductRequest.ProductCode, updatePartnerProductRequest.Price, status);
+                    GrabFoodUtil.CheckProductCodeFromGrabFood(grabFoodMenu, updatePartnerProductRequest.ProductCode, product.Type, updatePartnerProductRequest.Price, status, true);
                 }
 
                 // Check partner product existed in system or not
@@ -577,8 +577,25 @@ namespace MBKC.Service.Services.Implementations
                 partnerProductExisted.UpdatedDate = DateTime.Now;
                 partnerProductExisted.Price = updatePartnerProductRequest.Price;
                 partnerProductExisted.Status = status;
-
-                this._unitOfWork.PartnerProductRepository.UpdatePartnerProduct(partnerProductExisted);
+                List<PartnerProduct> partnerProductList = new List<PartnerProduct>();
+                if (partnerProductExisted.Product.Type.ToLower().Equals(ProductEnum.Type.PARENT.ToString().ToLower()))
+                {
+                    partnerProductList.Add(partnerProductExisted);
+                    if (partnerProductExisted.Product.ChildrenProducts is not null)
+                    {
+                        foreach (var childrenProduct in partnerProductExisted.Product.ChildrenProducts)
+                        {
+                            var childPartnerProductExisted = await this._unitOfWork.PartnerProductRepository.GetPartnerProductAsync(childrenProduct.ProductId, partnerId, storeId, storePartner.CreatedDate);
+                            childPartnerProductExisted.Status = status;
+                            partnerProductList.Add(childPartnerProductExisted);
+                        }
+                    }
+                    this._unitOfWork.PartnerProductRepository.UpdatePartnerProductRange(partnerProductList);
+                }
+                else
+                {
+                    this._unitOfWork.PartnerProductRepository.UpdatePartnerProduct(partnerProductExisted);
+                }
                 await this._unitOfWork.CommitAsync();
             }
             catch (BadRequestException ex)
@@ -885,12 +902,29 @@ namespace MBKC.Service.Services.Implementations
                 };
                 GrabFoodAuthenticationResponse grabFoodAuthenticationResponse = await this._unitOfWork.GrabFoodRepository.LoginGrabFoodAsync(grabFoodAccount);
                 GrabFoodMenu grabFoodMenu = await this._unitOfWork.GrabFoodRepository.GetGrabFoodMenuAsync(grabFoodAuthenticationResponse);
-                GrabFoodUtil.CheckProductCodeFromGrabFood(grabFoodMenu, partnerProductExisted.ProductCode, partnerProductExisted.Price, status);
+                GrabFoodUtil.CheckProductCodeFromGrabFood(grabFoodMenu, partnerProductExisted.ProductCode, partnerProductExisted.Product.Type, partnerProductExisted.Price, status, true);
 
 
                 // assign status to partner product existed
                 partnerProductExisted.Status = status;
-                this._unitOfWork.PartnerProductRepository.UpdatePartnerProduct(partnerProductExisted);
+                List<PartnerProduct> partnerProductList = new List<PartnerProduct>();
+                if(partnerProductExisted.Product.Type.ToLower().Equals(ProductEnum.Type.PARENT.ToString().ToLower()))
+                {
+                    partnerProductList.Add(partnerProductExisted);
+                    if (partnerProductExisted.Product.ChildrenProducts is not null)
+                    {
+                        foreach (var childrenProduct in partnerProductExisted.Product.ChildrenProducts)
+                        {
+                            var childPartnerProductExisted = await this._unitOfWork.PartnerProductRepository.GetPartnerProductAsync(childrenProduct.ProductId, partnerId, storeId, storePartner.CreatedDate);
+                            childPartnerProductExisted.Status = status;
+                            partnerProductList.Add(childPartnerProductExisted);
+                        }
+                    }
+                    this._unitOfWork.PartnerProductRepository.UpdatePartnerProductRange(partnerProductList);
+                } else
+                {
+                    this._unitOfWork.PartnerProductRepository.UpdatePartnerProduct(partnerProductExisted);
+                }
                 await this._unitOfWork.CommitAsync();
             }
             catch (BadRequestException ex)
@@ -936,6 +970,9 @@ namespace MBKC.Service.Services.Implementations
                 else if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistPartnerProduct))
                 {
                     fieldName = "Mapping product";
+                } else if (ex.Message.Equals(MessageConstant.PartnerProductMessage.ProductCodeNotExistInGrabFoodSystem))
+                {
+                    fieldName = "Product code";
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);

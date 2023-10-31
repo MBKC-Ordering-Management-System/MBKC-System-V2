@@ -1,10 +1,4 @@
-﻿using MBKC.Repository.Models;
-using MBKC.Service.DTOs.OrderDetails;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MBKC.Service.DTOs.OrderDetails;
 
 namespace MBKC.Service.DTOs.Orders
 {

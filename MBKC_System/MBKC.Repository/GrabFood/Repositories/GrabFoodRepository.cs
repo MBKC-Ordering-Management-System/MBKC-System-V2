@@ -1,4 +1,5 @@
 ﻿using MBKC.Repository.GrabFood.Models;
+using MBKC.Repository.Models;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
@@ -67,6 +68,7 @@ namespace MBKC.Repository.GrabFood.Repositories
                 HttpClient client = new HttpClient();
                 HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, grabFoodAPI.MenusURI);
                 request.Headers.Accept.Clear();
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 request.Headers.Add("Merchantid", grabFoodAuthentication.Data.Data.User_Profile.Grab_Food_Entity_Id);
                 request.Headers.Add("Authorization", grabFoodAuthentication.Data.Data.JWT);
                 request.Headers.Add("Requestsource", grabFoodAPI.RequestSource);
@@ -77,7 +79,8 @@ namespace MBKC.Repository.GrabFood.Repositories
                 string responseText = await response.Content.ReadAsStringAsync();
                 GrabFoodMenu grabFoodMenu = JsonConvert.DeserializeObject<GrabFoodMenu>(responseText);
                 return grabFoodMenu;
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }

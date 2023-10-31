@@ -41,6 +41,36 @@ namespace MBKC.Repository.Repositories
         }
         #endregion
 
+        public async Task<Order> GetOrderByDisplayIdAsync(string displayId)
+        {
+            try
+            {
+                return await this._dbContext.Orders.Include(o => o.OrderDetails).ThenInclude(x => x.MasterOrderDetail)
+                                                   .Include(o => o.OrderDetails).ThenInclude(x => x.Product)
+                                                   .Include(o => o.OrderDetails).ThenInclude(x => x.ExtraOrderDetails)
+                                                   .Include(o => o.Partner)
+                                                   .Include(o => o.ShipperPayments).ThenInclude(o => o.BankingAccount)
+                                                   .Include(o => o.ShipperPayments).ThenInclude(o => o.Transactions)
+                                                   .Include(o => o.Store).ThenInclude(o => o.KitchenCenter)
+                                                   .FirstOrDefaultAsync(o => o.DisplayId.Equals(displayId));
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task InsertOrderAsync(Order order)
+        {
+            try
+            {
+                await this._dbContext.Orders.AddAsync(order);
+            } catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         #region update order
         public void UpdateOrder(Order order)
         {

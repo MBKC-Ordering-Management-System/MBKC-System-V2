@@ -33,7 +33,7 @@
             public const string CategoryIdNotBelongToBrand = "Category id does not belong to your brand.";
             public const string CategoryIdNotBelongToStore = "Category id does not belong to your store.";
             public const string AlreadyExistPartnerProduct = "Mapping product already exists in the system.";
-            public const string NotExistPartnerProduct = "Mapping priduct does not exist in the system.";
+            public const string NotExistPartnerProduct = "Mapping product does not exist in the system.";
 
         }
 
@@ -203,6 +203,9 @@
             public const string ProductCodeNotExistInGrabFoodSystem = "Product code does not exist in the GrabFood System.";
             public const string PriceNotMatchWithProductInGrabFoodSystem = "Price does not match with product in the GrabFood System.";
             public const string StatusNotMatchWithProductInGrabFoodSystem = "Status does not match with product status in the GrabFood System.";
+            public const string ProductPartnerNotAvailableNow = "Partner product is not available now.";
+            public const string ProductPriceNotMatchWithPartnerProduct = "Product price does not match with partner product.";
+            public const string ExtraProductPriceNotMatchWithPartnerProduct = "Extra Product price does not match with partner product.";
         }
 
         public static class OrderMessage
@@ -216,6 +219,12 @@
             public const string OrderIsCancelled = "This order has been CANCELLED status, so You can not confirm completed order.";
             public const string OrderAlreadyPaid = "This order has been paid, so You can not confirm completed order.";
             public const string OrderPartnerIdNotExist = "Order Partner Id does not exist in the system.";
+            public const string OrderPartnerIdAlreadyExist = "Order Partner Id already existd in the system.";
+            public const string DisplayIdAlreadyExist = "Display Id already existd in the system.";
+            public const string ProductPartnerNotMappingBefore = "The product in the order have not yet been mapped to the store's partner product.";
+            public const string ProductExtraPartnerNotMappingBefore = "The extra product in the order Detail have not yet been mapped to the store's partner extra product.";
+            public const string ProductInOrderNotExistInTheSystem = "Product Id in the Order does not exist in the system.";
+            public const string ProductExtraInOrderDetailNotExistInTheSystem = "Product Extra Id in the Order does not exist in the system.";
         }
 
         public static class WalletMessage

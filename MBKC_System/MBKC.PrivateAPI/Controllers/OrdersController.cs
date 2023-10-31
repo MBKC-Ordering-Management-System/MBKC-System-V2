@@ -50,7 +50,8 @@ namespace MBKC.PrivateAPI.Controllers
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
-            return Ok();
+            await this._orderService.CreateOrderAsync(postOrderRequest);
+            return Ok(MessageConstant.Order.CreatedOrderSuccessfully);
         }
 
         [HttpPut(APIEndPointConstant.Order.OrderEndPoint)]
@@ -69,7 +70,8 @@ namespace MBKC.PrivateAPI.Controllers
                 string errors = ErrorUtil.GetErrorsString(validationResultPutOrderRequest);
                 throw new BadRequestException(errors);
             }
-            return Ok();
+            await this._orderService.UpdateOrderAsync(putOrderIdRequest, putOrderRequest);
+            return Ok(MessageConstant.Order.UpdatedOrderSuccessfully);
         }
 
     }
