@@ -23,6 +23,27 @@ namespace MBKC.API.Controllers
             this._configurationService = configurationService;
         }
 
+        #region Get System Configuration
+        /// <summary>
+        /// Get Configuration of System.
+        /// </summary>
+        /// <returns>
+        /// An Object contains some configuration.
+        /// </returns>
+        /// <response code="200">Get System configuration successfully.</response>
+        /// <response code="500">Some Error about the system.</response>
+        [ProducesResponseType(typeof(GetConfigurationResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin)]
+        [HttpGet(APIEndPointConstant.Configuration.ConfigurationsEndpoint)]
+        public async Task<IActionResult> GetConfigurationAsync()
+        {
+            List<GetConfigurationResponse> configurationResponses = await this._configurationService.GetConfigurationsAsync();
+            return Ok(configurationResponses.First());
+        }
+        #endregion
+
         #region Update System Configuration
         /// <summary>
         /// Update configuration of system.
@@ -37,7 +58,9 @@ namespace MBKC.API.Controllers
         ///         PUT
         ///         {
         ///             "scrawlingOrderStartTime": "HH:mm:ss",
-        ///             "scrawlingOrderEndTime": "HH:mm:ss"
+        ///             "scrawlingOrderEndTime": "HH:mm:ss",
+        ///             "scrawlingMoneyExchangeToKitchenCenter": "HH:mm:ss",
+        ///             "scrawlingMoneyExchangeToStore": "HH:mm:ss"
         ///         }
         /// </remarks>
         /// <response code="200">Update system configuration successfully.</response>
@@ -65,25 +88,5 @@ namespace MBKC.API.Controllers
             });
         }
         #endregion
-
-
-        /// <summary>
-        /// Get Configuration of System.
-        /// </summary>
-        /// <returns>
-        /// An Object contains some configuration.
-        /// </returns>
-        /// <response code="200">Get System configuration successfully.</response>
-        /// <response code="500">Some Error about the system.</response>
-        [ProducesResponseType(typeof(GetConfigurationResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces(MediaTypeConstant.ApplicationJson)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin)]
-        [HttpGet(APIEndPointConstant.Configuration.ConfigurationsEndpoint)]
-        public async Task<IActionResult> GetConfigurationAsync()
-        {
-            List<GetConfigurationResponse> configurationResponses = await this._configurationService.GetConfigurationsAsync();
-            return Ok(configurationResponses.First());
-        }
     }
 }

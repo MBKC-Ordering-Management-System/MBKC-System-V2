@@ -83,7 +83,7 @@ namespace MBKC.Service.Utils
             }
             return false;
         }
-        
+
         public static bool CheckStoreStatusNameParam(string statusName)
         {
             string[] statusNameParts = StoreEnum.Status.BE_CONFIRMING.ToString().Split("_");
@@ -174,7 +174,7 @@ namespace MBKC.Service.Utils
 
         public static bool CheckProductType(string productType)
         {
-            if(productType.Trim().ToLower().Equals(ProductEnum.Type.SINGLE.ToString().ToLower()) ||
+            if (productType.Trim().ToLower().Equals(ProductEnum.Type.SINGLE.ToString().ToLower()) ||
                 productType.Trim().ToLower().Equals(ProductEnum.Type.PARENT.ToString().ToLower()) ||
                 productType.Trim().ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()) ||
                 productType.Trim().ToLower().Equals(ProductEnum.Type.EXTRA.ToString().ToLower()))
@@ -193,7 +193,7 @@ namespace MBKC.Service.Utils
             }
             return false;
         }
-        
+
         public static bool CheckPartnerProductStatusName(string statusName)
         {
             if (statusName.ToLower().Trim().Equals(GrabFoodItemEnum.AvailableStatus.AVAILABLE.ToString().ToLower()) ||
@@ -230,26 +230,12 @@ namespace MBKC.Service.Utils
             return $"in the amount of: {amount}đ at {DateTime.Now.Hour}:{DateTime.Now.Minute} - {DateTime.Now.Day}/{DateTime.Now.Month}/{DateTime.Now.Year}";
         }
 
-        public static string ConvertTimeToCron(int hour, int minute)
+        public static string ConvertTimeSpanToCron(TimeSpan timeSpan)
         {
-            if(minute == 0)
-            {
-                return $"* {hour} * * *";
-            }
+            string second = timeSpan.Seconds == 0 ? "*" : timeSpan.Seconds.ToString();
+            string minute = timeSpan.Minutes == 0 ? "*" : timeSpan.Minutes.ToString();
 
-            return $"{minute} {hour} * * *";
-        }
-
-        public static DateTime ConvertCronToTime(string cron)
-        {
-            var cronFields = Regex.Split(cron, @"\s+");
-            int hour = int.Parse(cronFields[1]);
-            int minute = 0;
-            if (!cronFields[0].Equals("*"))
-            {
-                minute = int.Parse(cronFields[0]);
-            }
-            return new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, hour, minute, 0);
+            return $"{second} {minute} {timeSpan.Hours} * * *";
         }
     }
 }

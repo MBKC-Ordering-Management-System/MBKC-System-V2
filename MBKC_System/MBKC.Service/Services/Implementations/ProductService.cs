@@ -15,6 +15,11 @@ using MBKC.Service.Constants;
 using MBKC.Repository.Enums;
 using Microsoft.Extensions.Logging.Abstractions;
 using MBKC.Service.DTOs.Stores;
+using Microsoft.AspNetCore.Http;
+using Spire.Xls;
+using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
+using ExcelPicture = Spire.Xls.ExcelPicture;
+using MBKC.Service.Errors;
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -729,5 +734,159 @@ namespace MBKC.Service.Services.Implementations
                 throw new Exception(error);
             }
         }
+
+        #region upload file excel
+        public async Task UploadExelFile(IFormFile file, IEnumerable<Claim> claims)
+        {
+            // string folderName = "Products";
+            List<string> logoId = new List<string>();
+            // bool isUploaded = false;
+
+            try
+            {
+                #region validation
+                List<Product> productsToAdd = new List<Product>();
+                Dictionary<string, FileStream> productsImage = new Dictionary<string, FileStream>();
+                Claim registeredEmailClaim = claims.First(x => x.Type == ClaimTypes.Email);
+                string email = registeredEmailClaim.Value;
+                Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandAsync(email);
+
+                // reading excel file
+                List<CreateProductExcelRequest> excelData = FileUtil.GetDataFromExcelFile(file);
+                if (!excelData.Any())
+                {
+                    throw new BadRequestException(MessageConstant.ProductMessage.ExcelFileHasNoData);
+                }
+
+                if (excelData.GroupBy(ex => ex.Code).Any(group => group.Count() > 1))
+                {
+                    throw new BadRequestException(MessageConstant.ProductMessage.DuplicateProductCode);
+                }
+
+                List<ErrorDetail> errors = new List<ErrorDetail>();
+                foreach (var product in excelData)
+                {
+                    List<string> errorDetail = new List<string>();
+                    if (product.Code is null) errorDetail.Add($"{nameof(product.Code)} is empty.");
+                    if (product.Name is null) errorDetail.Add($"{nameof(product.Name)} is empty.");
+                    if (product.Description is null) errorDetail.Add($"{nameof(product.Description)} is empty.");
+                    if (product.Type is null)
+                    {
+                        errorDetail.Add($"{nameof(product.Type)} is empty.");
+                    }
+                    else
+                    {
+                        if (product.Type.ToUpper().Equals(ProductEnum.Type.PARENT))
+                        {
+                            if (product.SellingPrice != 0)
+                            {
+                                errorDetail.Add($"{nameof(product.SellingPrice)} {MessageConstant.ProductMessage.InvalidProductTypeParent}");
+                            }
+                            if (product.DiscountPrice != 0)
+                            {
+                                errorDetail.Add($"{nameof(product.DiscountPrice)} {MessageConstant.ProductMessage.InvalidProductTypeParent}");
+                            }
+                            if (product.HistoricalPrice != 0)
+                            {
+                                errorDetail.Add($"{nameof(product.HistoricalPrice)} {MessageConstant.ProductMessage.InvalidProductTypeParent}");
+                            }
+
+                            if (product.Size is not null)
+                            {
+                                errorDetail.Add($"{nameof(product.Size)} {MessageConstant.ProductMessage.InvalidProductTypeParent}");
+                            }
+
+                            if (product.ParentProductId is not null)
+                            {
+                                errorDetail.Add($"{nameof(product.ParentProductId)} {MessageConstant.ProductMessage.InvalidProductTypeParent}");
+                            }
+
+                            if (product.CategoryId is null)
+                            {
+                                errorDetail.Add($"{nameof(product.CategoryId)} is empty.");
+                            }
+                        }
+                        else if (product.Type.ToUpper().Equals(ProductEnum.Type.CHILD))
+                        {
+                            if (product.SellingPrice == 0)
+                            {
+                                errorDetail.Add($"{nameof(product.SellingPrice)} {MessageConstant.ProductMessage.InvalidProductTypeChild}");
+                            }
+
+                            if (product.Size is null)
+                            {
+                                errorDetail.Add($"{nameof(product.Size)} is empty.");
+                            }
+
+                            if (product.ParentProductId is null)
+                            {
+                                errorDetail.Add($"{nameof(product.Size)} is empty.");
+                            }
+
+                            if (product.CategoryId is not null)
+                            {
+                                errorDetail.Add($"{nameof(product.CategoryId)} {MessageConstant.ProductMessage.InvalidProductTypeChild}");
+                            }
+                        }
+                        else if (product.Type.ToUpper().Equals(ProductEnum.Type.SINGLE))
+                        {
+
+                        }
+                        else if (product.Type.ToUpper().Equals(ProductEnum.Type.EXTRA))
+                        {
+
+                        }
+                    }
+
+                }
+                #endregion
+
+                #region operation
+
+                #endregion
+            }
+            catch (NotFoundException ex)
+            {
+                string fieldName = "";
+                switch (ex.Message)
+                {
+                    case MessageConstant.CommonMessage.NotExistOrderPartnerId:
+                        fieldName = "Order partner id";
+                        break;
+
+                    default:
+                        fieldName = "Exception";
+                        break;
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new NotFoundException(error);
+            }
+            catch (BadRequestException ex)
+            {
+                string fieldName = "";
+                switch (ex.Message)
+                {
+                    case MessageConstant.ProductMessage.ExcelFileHasNoData:
+                        fieldName = "Excel file";
+                        break;
+
+                    case MessageConstant.ProductMessage.DuplicateProductCode:
+                        fieldName = "Product code";
+                        break;
+
+                    default:
+                        fieldName = "Exception";
+                        break;
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new BadRequestException(error);
+            }
+            catch (Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                throw new Exception(error);
+            }
+        }
+        #endregion
     }
 }

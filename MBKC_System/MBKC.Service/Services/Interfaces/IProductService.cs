@@ -1,4 +1,5 @@
 ﻿using MBKC.Service.DTOs.Products;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,5 +17,6 @@ namespace MBKC.Service.Services.Interfaces
         public Task DeleteProductAsync(int idProduct, IEnumerable<Claim> claims);
         public Task UpdateProductStatusAsync(int idProduct, UpdateProductStatusRequest updateProductStatusRequest, IEnumerable<Claim> claims);
         public Task UpdateProductAsync(int idProduct, UpdateProductRequest updateProductRequest, IEnumerable<Claim> claims);
+        public Task UploadExelFile(IFormFile file, IEnumerable<Claim> claims);
     }
 }
