@@ -12,6 +12,6 @@ namespace MBKC.Service.DTOs.Partners
         public int ItemsPerPage { get; set; } = 5;
         public int CurrentPage { get; set; } = 1;
         public string? SortBy { get; set; } 
-        public bool? isGetAll { get; set; }
+        public bool? IsGetAll { get; set; }
     }
 }

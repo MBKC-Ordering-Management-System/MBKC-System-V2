@@ -176,7 +176,7 @@ namespace MBKC.Repository.DBContext
             #region PartnerProduct
             modelBuilder.Entity<PartnerProduct>(partnerProduct =>
             {
-                modelBuilder.Entity<PartnerProduct>().HasKey(key => new { key.ProductId, key.PartnerId, key.StoreId, key.CreatedDate});
+                modelBuilder.Entity<PartnerProduct>().HasKey(key => new { key.ProductId, key.PartnerId, key.StoreId, key.CreatedDate });
                 partnerProduct.Property(prop => prop.ProductCode).IsUnicode(false).HasMaxLength(50).IsRequired(true);
                 partnerProduct.Property(prop => prop.Status).IsRequired(true);
                 partnerProduct.Property(prop => prop.Price).HasColumnType("decimal(9,2)").IsRequired(true);
@@ -323,7 +323,7 @@ namespace MBKC.Repository.DBContext
             #region StorePartner
             modelBuilder.Entity<StorePartner>(storePartner =>
             {
-                modelBuilder.Entity<StorePartner>().HasKey(key => new { key.StoreId, key.PartnerId , key.CreatedDate});
+                modelBuilder.Entity<StorePartner>().HasKey(key => new { key.StoreId, key.PartnerId, key.CreatedDate });
                 storePartner.Property(prop => prop.CreatedDate).HasColumnType("datetime2").IsRequired(true);
                 storePartner.Property(prop => prop.UserName).IsUnicode(false).HasMaxLength(100).IsRequired(true);
                 storePartner.Property(prop => prop.Password).IsUnicode(false).HasMaxLength(50).IsRequired(true);

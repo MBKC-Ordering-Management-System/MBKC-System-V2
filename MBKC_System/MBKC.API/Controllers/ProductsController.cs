@@ -20,11 +20,17 @@ namespace MBKC.API.Controllers
         private IProductService _productService;
         private IValidator<CreateProductRequest> _createProductValidator;
         private IValidator<UpdateProductRequest> _updateProductValidator;
-        private IValidator<UpdateProductStatusRequest> _updateProductStatusValidator
+        private IValidator<UpdateProductStatusRequest> _updateProductStatusValidator;
+        private IValidator<GetProductsRequest> _getProductsValidator;
+        private IValidator<ProductRequest> _getProductValidator;
         private IValidator<ImportFileRequest> _importFileValidator;
-        public ProductsController(IProductService productService, IValidator<UpdateProductRequest> updateProductValidator,
+        public ProductsController(IProductService productService, 
+            IValidator<UpdateProductRequest> updateProductValidator,
             IValidator<ImportFileRequest> importFileValidator,
-            IValidator<CreateProductRequest> createProductValidator, IValidator<UpdateProductStatusRequest> updateProductStatusValidator)
+            IValidator<ProductRequest> getProductValidator,
+            IValidator<GetProductsRequest> getProductsValidator,
+            IValidator<CreateProductRequest> createProductValidator,
+            IValidator<UpdateProductStatusRequest> updateProductStatusValidator)
         {
             this._productService = productService;
             this._updateProductValidator = updateProductValidator;
