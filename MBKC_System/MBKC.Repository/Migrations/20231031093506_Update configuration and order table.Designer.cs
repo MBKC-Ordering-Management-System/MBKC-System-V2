@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MBKC.Repository.Migrations
 {
     [DbContext(typeof(MBKCDbContext))]
-    [Migration("20231031025701_init database")]
-    partial class initdatabase
+    [Migration("20231031093506_Update configuration and order table")]
+    partial class Updateconfigurationandordertable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -520,8 +520,8 @@ namespace MBKC.Repository.Migrations
                     b.Property<decimal>("SubTotalPrice")
                         .HasColumnType("decimal(9,2)");
 
-                    b.Property<decimal>("Tax")
-                        .HasColumnType("decimal(9,2)");
+                    b.Property<float>("Tax")
+                        .HasColumnType("real");
 
                     b.Property<decimal>("TotalDiscount")
                         .HasColumnType("decimal(9,2)");

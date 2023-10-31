@@ -518,8 +518,8 @@ namespace MBKC.Repository.Migrations
                     b.Property<decimal>("SubTotalPrice")
                         .HasColumnType("decimal(9,2)");
 
-                    b.Property<decimal>("Tax")
-                        .HasColumnType("decimal(9,2)");
+                    b.Property<float>("Tax")
+                        .HasColumnType("real");
 
                     b.Property<decimal>("TotalDiscount")
                         .HasColumnType("decimal(9,2)");
