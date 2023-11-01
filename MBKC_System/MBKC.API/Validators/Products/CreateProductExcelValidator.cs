@@ -2,6 +2,7 @@
 using MBKC.Repository.Enums;
 using MBKC.Service.DTOs.Products;
 using MBKC.Service.Utils;
+using System.IO;
 
 namespace MBKC.API.Validators.Products
 {
@@ -45,9 +46,9 @@ namespace MBKC.API.Validators.Products
                         .Cascade(CascadeMode.Stop)
                         .ExclusiveBetween(0, MAX_BYTES).WithMessage($"Image is required file length greater than 0 and less than {MAX_BYTES / 1024 / 1024} MB.");
 
-                    ckcr.RuleFor(cpr => cpr!.Name)
-                        .Cascade(CascadeMode.Stop)
-                        .Must(FileUtil.HaveSupportedFileType).WithMessage("Image is required extension type .png, .jpg, .jpeg, .webp.");
+                    //ckcr.RuleFor(cpr => Path.GetExtension(cpr!.Name))
+                    //    .Cascade(CascadeMode.Stop)
+                    //    .Must(FileUtil.HaveSupportedFileType).WithMessage("Image is required extension type .png, .jpg, .jpeg, .webp.");
                 });
 
             RuleFor(cpr => cpr.DisplayOrder)

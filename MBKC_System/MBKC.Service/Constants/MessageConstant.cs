@@ -154,9 +154,13 @@ namespace MBKC.Service.Constants
             public const string ProductNameTypeChildNotAllowUpdate = "Name of product which is type CHILD does not allow update.";
             public const string ProductIdNotParentType = "Product id is not a PARENT type.";
             public const string ExcelFileHasNoData = "This excel file has no data.";
+            public const string ExcelImageIsNotValid = "The image placed in the excel file is not valid.";
             public const string DuplicateProductCode = "Your excel file is duplicating the product code.";
             public const string InvalidProductTypeParent = "is invalid for product type: PARENT.";
             public const string InvalidProductTypeChild = "is invalid for product type: CHILD.";
+            public const string InvalidProductTypeSingle = "is invalid for product type: SINGLE.";
+            public const string InvalidProductTypeExtra = "is invalid for product type: EXTRA.";
+            public const string InvalidOnField = "Invalid on field";
 
         }
 

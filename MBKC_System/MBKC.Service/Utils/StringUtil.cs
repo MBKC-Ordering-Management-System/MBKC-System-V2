@@ -1,4 +1,5 @@
 ﻿using MBKC.Repository.Enums;
+using MBKC.Service.Constants;
 using MBKC.Service.DTOs.MoneyExchanges;
 using System;
 using System.Collections.Generic;
@@ -236,6 +237,24 @@ namespace MBKC.Service.Utils
             string minute = timeSpan.Minutes == 0 ? "*" : timeSpan.Minutes.ToString();
 
             return $"{second} {minute} {timeSpan.Hours} * * *";
+        }
+
+        public static string GetStringErrorWithProductType(string productType)
+        {
+            if (productType.ToUpper().Equals(ProductEnum.Type.PARENT.ToString()))
+            {
+                return MessageConstant.ProductMessage.InvalidProductTypeParent;
+            }
+            else if (productType.ToUpper().Equals(ProductEnum.Type.CHILD.ToString()))
+            {
+                return MessageConstant.ProductMessage.InvalidProductTypeChild;
+            }
+            else if (productType.ToUpper().Equals(ProductEnum.Type.SINGLE.ToString()))
+            {
+                return MessageConstant.ProductMessage.InvalidProductTypeSingle;
+            }
+
+            return MessageConstant.ProductMessage.InvalidProductTypeExtra;
         }
     }
 }
