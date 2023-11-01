@@ -138,9 +138,17 @@ namespace MBKC.Service.Services.Implementations
                         Username = storePartner.UserName,
                         Password = storePartner.Password
                     };
+
+                    string? productCodeParentProduct = null;
+                    if (checkProductCode.Product.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))
+                    {
+                        Product parentProduct = checkProductCode.Product.ParentProduct;
+                        productCodeParentProduct = parentProduct.PartnerProducts.FirstOrDefault(x => x.ProductId == parentProduct.ProductId && x.StoreId == postPartnerProductRequest.StoreId && x.PartnerId == postPartnerProductRequest.PartnerId && x.CreatedDate.Equals(storePartner.CreatedDate)).ProductCode;
+                    }
+
                     GrabFoodAuthenticationResponse grabFoodAuthenticationResponse = await this._unitOfWork.GrabFoodRepository.LoginGrabFoodAsync(grabFoodAccount);
                     GrabFoodMenu grabFoodMenu = await this._unitOfWork.GrabFoodRepository.GetGrabFoodMenuAsync(grabFoodAuthenticationResponse);
-                    GrabFoodUtil.CheckProductCodeFromGrabFood(grabFoodMenu, postPartnerProductRequest.ProductCode, product.Type, postPartnerProductRequest.Price, status, false);
+                    GrabFoodUtil.CheckProductCodeFromGrabFood(grabFoodMenu, postPartnerProductRequest.ProductCode, product.Type, postPartnerProductRequest.Price, status, false, productCodeParentProduct);
                 }
 
                 // Check partner product existed in system or not
@@ -560,9 +568,15 @@ namespace MBKC.Service.Services.Implementations
                         Username = storePartner.UserName,
                         Password = storePartner.Password
                     };
+                    string? productCodeParentProduct = null;
+                    if (checkProductCode.Product.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))
+                    {
+                        Product parentProduct = checkProductCode.Product.ParentProduct;
+                        productCodeParentProduct = parentProduct.PartnerProducts.FirstOrDefault(x => x.ProductId == parentProduct.ProductId && x.StoreId == storeId && x.PartnerId == partnerId && x.CreatedDate.Equals(storePartner.CreatedDate)).ProductCode;
+                    }
                     GrabFoodAuthenticationResponse grabFoodAuthenticationResponse = await this._unitOfWork.GrabFoodRepository.LoginGrabFoodAsync(grabFoodAccount);
                     GrabFoodMenu grabFoodMenu = await this._unitOfWork.GrabFoodRepository.GetGrabFoodMenuAsync(grabFoodAuthenticationResponse);
-                    GrabFoodUtil.CheckProductCodeFromGrabFood(grabFoodMenu, updatePartnerProductRequest.ProductCode, product.Type, updatePartnerProductRequest.Price, status, true);
+                    GrabFoodUtil.CheckProductCodeFromGrabFood(grabFoodMenu, updatePartnerProductRequest.ProductCode, product.Type, updatePartnerProductRequest.Price, status, true, productCodeParentProduct);
                 }
 
                 // Check partner product existed in system or not
@@ -900,9 +914,15 @@ namespace MBKC.Service.Services.Implementations
                     Username = storePartner.UserName,
                     Password = storePartner.Password
                 };
+                string? productCodeParentProduct = null;
+                if (partnerProductExisted.Product.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))
+                {
+                    Product parentProduct = partnerProductExisted.Product.ParentProduct;
+                    productCodeParentProduct = parentProduct.PartnerProducts.FirstOrDefault(x => x.ProductId == parentProduct.ProductId && x.StoreId == storeId && x.PartnerId == partnerId && x.CreatedDate.Equals(storePartner.CreatedDate)).ProductCode;
+                }
                 GrabFoodAuthenticationResponse grabFoodAuthenticationResponse = await this._unitOfWork.GrabFoodRepository.LoginGrabFoodAsync(grabFoodAccount);
                 GrabFoodMenu grabFoodMenu = await this._unitOfWork.GrabFoodRepository.GetGrabFoodMenuAsync(grabFoodAuthenticationResponse);
-                GrabFoodUtil.CheckProductCodeFromGrabFood(grabFoodMenu, partnerProductExisted.ProductCode, partnerProductExisted.Product.Type, partnerProductExisted.Price, status, true);
+                GrabFoodUtil.CheckProductCodeFromGrabFood(grabFoodMenu, partnerProductExisted.ProductCode, partnerProductExisted.Product.Type, partnerProductExisted.Price, status, true, productCodeParentProduct);
 
 
                 // assign status to partner product existed

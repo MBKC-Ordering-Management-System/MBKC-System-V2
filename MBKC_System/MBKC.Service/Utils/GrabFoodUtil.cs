@@ -422,7 +422,7 @@ namespace MBKC.Service.Utils
             }
         }
 
-        public static void CheckProductCodeFromGrabFood(GrabFoodMenu grabFoodMenu, string productCode, string type, decimal price, int status, bool isUpdated)
+        public static void CheckProductCodeFromGrabFood(GrabFoodMenu grabFoodMenu, string productCode, string type, decimal price, int status, bool isUpdated, string? productCodeParentProduct)
         {
             try
             {
@@ -438,7 +438,8 @@ namespace MBKC.Service.Utils
                             if(grabFoodModifier is not null)
                             {
                                 isExisted = true;
-                                if(grabFoodModifier.PriceInMin != (price - grabFoodItem.PriceInMin))
+                                grabFoodItem = category.Items.FirstOrDefault(x => x.ItemID.Trim().ToLower().Equals(productCodeParentProduct.Trim().ToLower()));
+                                if (grabFoodModifier.PriceInMin != (price - grabFoodItem.PriceInMin))
                                 {
                                     throw new BadRequestException(MessageConstant.PartnerProductMessage.PriceNotMatchWithProductInGrabFoodSystem);
                                 }
