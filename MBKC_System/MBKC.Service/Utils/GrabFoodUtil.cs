@@ -427,6 +427,18 @@ namespace MBKC.Service.Utils
             try
             {
                 bool isExisted = false;
+                GrabFoodItem parentGrabFoodItem = null;
+                if(productCodeParentProduct is not null)
+                {
+                    foreach (var category in grabFoodMenu.Categories)
+                    {
+                        parentGrabFoodItem = category.Items.FirstOrDefault(x => x.ItemID.Trim().ToLower().Equals(productCodeParentProduct.Trim().ToLower()));
+                        if(parentGrabFoodItem is not null)
+                        {
+                            break;
+                        }
+                    }
+                }
                 foreach (var category in grabFoodMenu.Categories)
                 {
                     GrabFoodItem grabFoodItem = category.Items.FirstOrDefault(x => x.ItemID.Trim().ToLower().Equals(productCode.Trim().ToLower()));
@@ -438,8 +450,7 @@ namespace MBKC.Service.Utils
                             if(grabFoodModifier is not null)
                             {
                                 isExisted = true;
-                                grabFoodItem = category.Items.FirstOrDefault(x => x.ItemID.Trim().ToLower().Equals(productCodeParentProduct.Trim().ToLower()));
-                                if (grabFoodModifier.PriceInMin != (price - grabFoodItem.PriceInMin))
+                                if (grabFoodModifier.PriceInMin != (price - parentGrabFoodItem.PriceInMin))
                                 {
                                     throw new BadRequestException(MessageConstant.PartnerProductMessage.PriceNotMatchWithProductInGrabFoodSystem);
                                 }

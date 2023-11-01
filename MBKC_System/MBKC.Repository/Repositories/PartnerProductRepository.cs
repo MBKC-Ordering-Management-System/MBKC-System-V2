@@ -25,8 +25,8 @@ namespace MBKC.Repository.Repositories
             try
             {
                 return await this._dbContext.PartnerProducts
-                    .Include(x => x.Product).ThenInclude(x => x.ChildrenProducts)
-                    .Include(x => x.Product).ThenInclude(x => x.ParentProduct)
+                    .Include(x => x.Product).ThenInclude(x => x.ChildrenProducts).ThenInclude(x => x.PartnerProducts)
+                    .Include(x => x.Product).ThenInclude(x => x.ParentProduct).ThenInclude(x => x.PartnerProducts)
                     .Include(x => x.StorePartner)
                     .ThenInclude(x => x.Store)
                     .Include(x => x.StorePartner)
@@ -50,8 +50,8 @@ namespace MBKC.Repository.Repositories
             try
             {
                 return await this._dbContext.PartnerProducts
-                                            .Include(x => x.Product).ThenInclude(x => x.ChildrenProducts)
-                                            .Include(x => x.Product).ThenInclude(x => x.ParentProduct)
+                                            .Include(x => x.Product).ThenInclude(x => x.ChildrenProducts).ThenInclude(x => x.PartnerProducts)
+                                            .Include(x => x.Product).ThenInclude(x => x.ParentProduct).ThenInclude(x => x.PartnerProducts)
                                             .Include(x => x.StorePartner)
                                             .ThenInclude(x => x.Store)
                                             .Include(x => x.StorePartner)
