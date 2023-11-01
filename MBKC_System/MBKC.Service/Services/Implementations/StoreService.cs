@@ -752,7 +752,8 @@ namespace MBKC.Service.Services.Implementations
             try
             {
                 List<Store> stores = await this._unitOfWork.StoreRepository.GetStoresAsync();
-                return this._mapper.Map<List<GetStoreResponseForPrivateAPI>>(stores);
+                List<GetStoreResponseForPrivateAPI> storeResponseForPrivateAPIs = this._mapper.Map<List<GetStoreResponseForPrivateAPI>>(stores);
+                return storeResponseForPrivateAPIs;
             }
             catch (Exception ex)
             {
