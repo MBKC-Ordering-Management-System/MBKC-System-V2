@@ -438,7 +438,7 @@ namespace MBKC.Service.Utils
                             if(grabFoodModifier is not null)
                             {
                                 isExisted = true;
-                                if(grabFoodModifier.PriceInMin != price)
+                                if(grabFoodModifier.PriceInMin != (price - grabFoodItem.PriceInMin))
                                 {
                                     throw new BadRequestException(MessageConstant.PartnerProductMessage.PriceNotMatchWithProductInGrabFoodSystem);
                                 }
