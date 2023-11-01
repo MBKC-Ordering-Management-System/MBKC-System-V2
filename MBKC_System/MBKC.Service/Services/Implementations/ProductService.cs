@@ -21,6 +21,8 @@ using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using ExcelPicture = Spire.Xls.ExcelPicture;
 using MBKC.Service.Errors;
 using MBKC.Service.DTOs.PartnerProducts;
+using FluentValidation;
+using FluentValidation.Results;
 
 namespace MBKC.Service.Services.Implementations
 {
