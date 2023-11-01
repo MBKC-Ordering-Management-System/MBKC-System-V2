@@ -8,6 +8,7 @@ using MBKC.Service.Exceptions;
 using Microsoft.Office.Interop.Excel;
 using Workbook = Spire.Xls.Workbook;
 using Worksheet = Spire.Xls.Worksheet;
+using System.IO;
 
 namespace MBKC.Service.Utils
 {
@@ -79,17 +80,17 @@ namespace MBKC.Service.Utils
                     {
                         CreateProductExcelRequest product = new CreateProductExcelRequest
                         {
-                            row = row,
+                            Row = row,
                             Code = string.IsNullOrEmpty(worksheet.Range[row, 1].Value.ToString()) ? null : worksheet.Range[row, 1].Value.ToString(),
                             Name = string.IsNullOrEmpty(worksheet.Range[row, 2].Value.ToString()) ? null : worksheet.Range[row, 2].Value.ToString(),
                             Description = string.IsNullOrEmpty(worksheet.Range[row, 3].Value.ToString()) ? null : worksheet.Range[row, 3].Value.ToString(),
-                            SellingPrice = string.IsNullOrEmpty(worksheet.Range[row, 4].Value.ToString()) ? 0 : decimal.Parse(worksheet.Range[row, 4].Value.ToString()),
-                            DiscountPrice = string.IsNullOrEmpty(worksheet.Range[row, 5].Value.ToString()) ? 0 : decimal.Parse(worksheet.Range[row, 5].Value.ToString()),
-                            HistoricalPrice = string.IsNullOrEmpty(worksheet.Range[row, 6].Value.ToString()) ? 0 : decimal.Parse(worksheet.Range[row, 6].Value.ToString()),
+                            SellingPrice = string.IsNullOrEmpty(worksheet.Range[row, 4].Value.ToString()) ? null : decimal.Parse(worksheet.Range[row, 4].Value.ToString()),
+                            DiscountPrice = string.IsNullOrEmpty(worksheet.Range[row, 5].Value.ToString()) ? null : decimal.Parse(worksheet.Range[row, 5].Value.ToString()),
+                            HistoricalPrice = string.IsNullOrEmpty(worksheet.Range[row, 6].Value.ToString()) ? null : decimal.Parse(worksheet.Range[row, 6].Value.ToString()),
                             Size = string.IsNullOrEmpty(worksheet.Range[row, 7].Value.ToString()) ? null : worksheet.Range[row, 7].Value.ToString(),
                             Type = string.IsNullOrEmpty(worksheet.Range[row, 8].Value.ToString()) ? null : worksheet.Range[row, 8].Value.ToString(),
                             Image = worksheet.Pictures[row - 2] == null ? null : ConvertExcelPictureToStream(worksheet.Pictures[row - 2]),
-                            DisplayOrder = string.IsNullOrEmpty(worksheet.Range[row, 10].Value.ToString()) ? 0 : int.Parse(worksheet.Range[row, 10].Value.ToString()),
+                            DisplayOrder = string.IsNullOrEmpty(worksheet.Range[row, 10].Value.ToString()) ? null : int.Parse(worksheet.Range[row, 10].Value.ToString()),
                             ParentProductId = string.IsNullOrEmpty(worksheet.Range[row, 11].Value.ToString()) ? null : int.Parse(worksheet.Range[row, 11].Value.ToString()),
                             CategoryId = string.IsNullOrEmpty(worksheet.Range[row, 12].Value.ToString()) ? null : int.Parse(worksheet.Range[row, 12].Value.ToString()),
                         };
@@ -99,8 +100,13 @@ namespace MBKC.Service.Utils
 
                 return products;
             }
-            catch
+            catch (Exception ex)
             {
+                if (ex is ArgumentOutOfRangeException)
+                {
+                    throw new BadRequestException(MessageConstant.ProductMessage.ExcelImageIsNotValid);
+                }
+
                 throw;
             }
         }
