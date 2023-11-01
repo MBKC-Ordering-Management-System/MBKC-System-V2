@@ -126,34 +126,26 @@ namespace MBKC.Service.Services.Implementations
                 }
 
                 // Check product code existed or not
-                var checkProductCode = await this._unitOfWork.PartnerProductRepository.GetPartnerProductByProductCodeAsync(postPartnerProductRequest.ProductCode);
-                if (checkProductCode != null && checkProductCode.Status != (int)GrabFoodItemEnum.AvailableStatus.DEACTIVE)
+                GrabFoodAccount grabFoodAccount = new GrabFoodAccount()
                 {
-                    throw new BadRequestException(MessageConstant.PartnerProductMessage.ProductCodeExisted);
-                }
-                else
+                    Username = storePartner.UserName,
+                    Password = storePartner.Password
+                };
+
+                string? productCodeParentProduct = null;
+                if (product.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))
                 {
-                    GrabFoodAccount grabFoodAccount = new GrabFoodAccount()
-                    {
-                        Username = storePartner.UserName,
-                        Password = storePartner.Password
-                    };
-
-                    string? productCodeParentProduct = null;
-                    if (checkProductCode.Product.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))
-                    {
-                        Product parentProduct = checkProductCode.Product.ParentProduct;
-                        productCodeParentProduct = parentProduct.PartnerProducts.FirstOrDefault(x => x.ProductId == parentProduct.ProductId && x.StoreId == postPartnerProductRequest.StoreId && x.PartnerId == postPartnerProductRequest.PartnerId && x.CreatedDate.Equals(storePartner.CreatedDate)).ProductCode;
-                    }
-
-                    GrabFoodAuthenticationResponse grabFoodAuthenticationResponse = await this._unitOfWork.GrabFoodRepository.LoginGrabFoodAsync(grabFoodAccount);
-                    GrabFoodMenu grabFoodMenu = await this._unitOfWork.GrabFoodRepository.GetGrabFoodMenuAsync(grabFoodAuthenticationResponse);
-                    GrabFoodUtil.CheckProductCodeFromGrabFood(grabFoodMenu, postPartnerProductRequest.ProductCode, product.Type, postPartnerProductRequest.Price, status, false, productCodeParentProduct);
+                    Product parentProduct = product.ParentProduct;
+                    productCodeParentProduct = parentProduct.PartnerProducts.FirstOrDefault(x => x.ProductId == parentProduct.ProductId && x.StoreId == postPartnerProductRequest.StoreId && x.PartnerId == postPartnerProductRequest.PartnerId && x.CreatedDate.Equals(storePartner.CreatedDate)).ProductCode;
                 }
+
+                GrabFoodAuthenticationResponse grabFoodAuthenticationResponse = await this._unitOfWork.GrabFoodRepository.LoginGrabFoodAsync(grabFoodAccount);
+                GrabFoodMenu grabFoodMenu = await this._unitOfWork.GrabFoodRepository.GetGrabFoodMenuAsync(grabFoodAuthenticationResponse);
+                GrabFoodUtil.CheckProductCodeFromGrabFood(grabFoodMenu, postPartnerProductRequest.ProductCode, product.Type, postPartnerProductRequest.Price, status, false, productCodeParentProduct);
 
                 // Check partner product existed in system or not
-                var PartnerProduct = await this._unitOfWork.PartnerProductRepository.GetPartnerProductAsync(postPartnerProductRequest.ProductId, postPartnerProductRequest.PartnerId, postPartnerProductRequest.StoreId, storePartner.CreatedDate);
-                if (PartnerProduct != null)
+                var partnerProduct = await this._unitOfWork.PartnerProductRepository.GetPartnerProductAsync(postPartnerProductRequest.ProductId, postPartnerProductRequest.PartnerId, postPartnerProductRequest.StoreId, storePartner.CreatedDate);
+                if (partnerProduct != null && partnerProduct.Status != (int)GrabFoodItemEnum.AvailableStatus.DEACTIVE)
                 {
                     throw new BadRequestException(MessageConstant.CommonMessage.AlreadyExistPartnerProduct);
                 }
@@ -734,12 +726,12 @@ namespace MBKC.Service.Services.Implementations
                 var product = await this._unitOfWork.ProductRepository.GetProductAsync(productId);
                 if (product != null)
                 {
-                    if(product.Brand.BrandId != brandId)
+                    if (product.Brand.BrandId != brandId)
                     {
                         throw new BadRequestException(MessageConstant.ProductMessage.ProductNotBelongToBrand);
                     }
 
-                    if(product.Status == (int)ProductEnum.Status.DEACTIVE)
+                    if (product.Status == (int)ProductEnum.Status.DEACTIVE)
                     {
                         throw new BadRequestException(MessageConstant.PartnerProductMessage.DeactiveProduct_Create_Update);
                     }
@@ -928,7 +920,7 @@ namespace MBKC.Service.Services.Implementations
                 // assign status to partner product existed
                 partnerProductExisted.Status = status;
                 List<PartnerProduct> partnerProductList = new List<PartnerProduct>();
-                if(partnerProductExisted.Product.Type.ToLower().Equals(ProductEnum.Type.PARENT.ToString().ToLower()))
+                if (partnerProductExisted.Product.Type.ToLower().Equals(ProductEnum.Type.PARENT.ToString().ToLower()))
                 {
                     partnerProductList.Add(partnerProductExisted);
                     if (partnerProductExisted.Product.ChildrenProducts is not null)
@@ -941,7 +933,8 @@ namespace MBKC.Service.Services.Implementations
                         }
                     }
                     this._unitOfWork.PartnerProductRepository.UpdatePartnerProductRange(partnerProductList);
-                } else
+                }
+                else
                 {
                     this._unitOfWork.PartnerProductRepository.UpdatePartnerProduct(partnerProductExisted);
                 }
@@ -990,7 +983,8 @@ namespace MBKC.Service.Services.Implementations
                 else if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistPartnerProduct))
                 {
                     fieldName = "Mapping product";
-                } else if (ex.Message.Equals(MessageConstant.PartnerProductMessage.ProductCodeNotExistInGrabFoodSystem))
+                }
+                else if (ex.Message.Equals(MessageConstant.PartnerProductMessage.ProductCodeNotExistInGrabFoodSystem))
                 {
                     fieldName = "Product code";
                 }

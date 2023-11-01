@@ -645,7 +645,7 @@ namespace MBKC.Repository.Migrations
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("ProductId", "PartnerId", "StoreId", "CreatedDate");
+                    b.HasKey("ProductId", "PartnerId", "StoreId", "CreatedDate", "MappedDate");
 
                     b.HasIndex("StoreId", "PartnerId", "CreatedDate");
 

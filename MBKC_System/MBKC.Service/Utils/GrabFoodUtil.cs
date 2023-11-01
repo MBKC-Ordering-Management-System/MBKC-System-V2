@@ -458,6 +458,7 @@ namespace MBKC.Service.Utils
                                 {
                                     throw new BadRequestException(MessageConstant.PartnerProductMessage.StatusNotMatchWithProductInGrabFoodSystem);
                                 }
+                                break;
                             }
                         }
                     } else
@@ -474,6 +475,10 @@ namespace MBKC.Service.Utils
                         {
                             throw new BadRequestException(MessageConstant.PartnerProductMessage.StatusNotMatchWithProductInGrabFoodSystem);
                         }
+                    }
+                    if (isExisted)
+                    {
+                        break;
                     }
                 }
                 if(isExisted == false)

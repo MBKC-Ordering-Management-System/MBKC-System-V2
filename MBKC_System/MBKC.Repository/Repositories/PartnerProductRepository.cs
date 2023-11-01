@@ -34,7 +34,7 @@ namespace MBKC.Repository.Repositories
                     .SingleOrDefaultAsync(mp => mp.ProductId == productId &&
                                           mp.PartnerId == partnerId &&
                                           mp.CreatedDate == createdDate &&
-                                          mp.StoreId == storeId);
+                                          mp.StoreId == storeId && mp.Status != (int)GrabFoodItemEnum.AvailableStatus.DEACTIVE);
 
             }
             catch (Exception ex)
