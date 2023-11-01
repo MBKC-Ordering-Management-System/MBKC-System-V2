@@ -438,5 +438,20 @@ namespace MBKC.Service.Services.Implementations
             }
         }
         #endregion
+
+        #region change stats of product to available
+        public async Task ChangeStatusPartnerProduct()
+        {
+            try
+            {
+               
+            }
+            catch (Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.InnerException != null ? ex.InnerException.Message : ex.Message);
+                throw new Exception(error);
+            }
+        }
+        #endregion
     }
 }
