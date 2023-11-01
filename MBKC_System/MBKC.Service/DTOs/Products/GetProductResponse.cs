@@ -1,6 +1,7 @@
 ﻿using MBKC.Repository.Models;
 using MBKC.Service.DTOs.Brands;
 using MBKC.Service.DTOs.Categories;
+using MBKC.Service.DTOs.PartnerProducts;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -29,5 +30,6 @@ namespace MBKC.Service.DTOs.Products
         public int CategoryId { get; set; }
         public string CategoryName { get; set; }
         public GetBrandResponse Brand { get; set; }
+        public List<GetPartnerProductsForProductDetailResponse> PartnerProducts { get; set; }
     }
 }

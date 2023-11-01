@@ -20,6 +20,7 @@ using Spire.Xls;
 using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using ExcelPicture = Spire.Xls.ExcelPicture;
 using MBKC.Service.Errors;
+using MBKC.Service.DTOs.PartnerProducts;
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -282,6 +283,22 @@ namespace MBKC.Service.Services.Implementations
                 }
 
                 GetProductResponse getProductResponse = this._mapper.Map<GetProductResponse>(existedProduct);
+
+                List<GetPartnerProductsForProductDetailResponse> partnerProducts = new List<GetPartnerProductsForProductDetailResponse>();
+                if (existedProduct.PartnerProducts.Any())
+                {
+                    foreach (var p in existedProduct.PartnerProducts)
+                    {
+                        var partnerProduct = new GetPartnerProductsForProductDetailResponse()
+                        {
+                            PartnerName = p.StorePartner.Partner.Name,
+                            ProductCode = p.ProductCode
+                        };
+                        partnerProducts.Add(partnerProduct);
+                    }
+                    getProductResponse.PartnerProducts = partnerProducts;
+                }
+
                 return getProductResponse;
             }
             catch (BadRequestException ex)

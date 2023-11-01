@@ -17,6 +17,7 @@ namespace MBKC.Service.Profiles.Products
             CreateMap<Product, GetProductResponse>().ForMember(dept => dept.Status, opt => opt.MapFrom(src => StatusUtil.ChangeProductStatusStatus(src.Status)))
                                                     .ForMember(dept => dept.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
                                                     .ForMember(dept => dept.CategoryId, opt => opt.MapFrom(src => src.Category.CategoryId))
+                                                    .ForMember(dest => dest.PartnerProducts, opt => opt.Ignore())
                                                     .ReverseMap();
         }
     }
