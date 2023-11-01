@@ -38,6 +38,18 @@ namespace MBKC.Repository.Repositories
             }
         }
 
+        public async Task CreateRangProductAsync(IEnumerable<Product> products)
+        {
+            try
+            {
+                await this._dbContext.Products.AddRangeAsync(products);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
 
         public async Task<int> GetNumberProductsAsync(string? searchName, string? searchValueWithoutUnicode, string? productType,
             int? idCategory, int? storeId, int? brandId, int? kitchenCenterId)

@@ -21,6 +21,8 @@ using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using ExcelPicture = Spire.Xls.ExcelPicture;
 using MBKC.Service.Errors;
 using MBKC.Service.DTOs.PartnerProducts;
+using FluentValidation;
+using FluentValidation.Results;
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -28,10 +30,12 @@ namespace MBKC.Service.Services.Implementations
     {
         private UnitOfWork _unitOfWork;
         private IMapper _mapper;
-        public ProductService(IUnitOfWork unitOfWork, IMapper mapper)
+        private IValidator<CreateProductExcelRequest> _createProductExcelValidator;
+        public ProductService(IUnitOfWork unitOfWork, IMapper mapper, IValidator<CreateProductExcelRequest> createProductExcelValidator)
         {
             this._unitOfWork = (UnitOfWork)unitOfWork;
             this._mapper = mapper;
+            this._createProductExcelValidator = createProductExcelValidator;
         }
 
         public async Task<GetProductsResponse> GetProductsAsync(GetProductsRequest getProductsRequest, IEnumerable<Claim> claims)
@@ -755,21 +759,17 @@ namespace MBKC.Service.Services.Implementations
         #region upload file excel
         public async Task UploadExelFile(IFormFile file, IEnumerable<Claim> claims)
         {
-            // string folderName = "Products";
-            List<string> logoId = new List<string>();
-            // bool isUploaded = false;
+            string folderName = "Products";
+            List<string> logos = new List<string>();
+            bool isUploaded = false;
+            List<ErrorDetail> errorDetails = new List<ErrorDetail>();
 
             try
             {
                 #region validation
-                List<Product> productsToAdd = new List<Product>();
-                Dictionary<string, FileStream> productsImage = new Dictionary<string, FileStream>();
-                Claim registeredEmailClaim = claims.First(x => x.Type == ClaimTypes.Email);
-                string email = registeredEmailClaim.Value;
-                Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandAsync(email);
-
                 // reading excel file
                 List<CreateProductExcelRequest> excelData = FileUtil.GetDataFromExcelFile(file);
+
                 if (!excelData.Any())
                 {
                     throw new BadRequestException(MessageConstant.ProductMessage.ExcelFileHasNoData);
@@ -780,109 +780,159 @@ namespace MBKC.Service.Services.Implementations
                     throw new BadRequestException(MessageConstant.ProductMessage.DuplicateProductCode);
                 }
 
-                List<ErrorDetail> errors = new List<ErrorDetail>();
+                List<Product> productsToAdd = new List<Product>();
+                Dictionary<string, FileStream> imagesToAdd = new Dictionary<string, FileStream>();
+                Claim registeredEmailClaim = claims.First(x => x.Type == ClaimTypes.Email);
+                string email = registeredEmailClaim.Value;
+                Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandAsync(email);
+
                 foreach (var product in excelData)
                 {
-                    List<string> errorDetail = new List<string>();
-                    if (product.Code is null) errorDetail.Add($"{nameof(product.Code)} is empty.");
-                    if (product.Name is null) errorDetail.Add($"{nameof(product.Name)} is empty.");
-                    if (product.Description is null) errorDetail.Add($"{nameof(product.Description)} is empty.");
-                    if (product.Type is null)
+                    List<string> errorsOnProduct = new List<string>();
+                    ValidationResult validationResult = await this._createProductExcelValidator.ValidateAsync(product);
+                    if (validationResult.IsValid == false)
                     {
-                        errorDetail.Add($"{nameof(product.Type)} is empty.");
+                        errorsOnProduct = ErrorUtil.GetErrorsOnObject(validationResult);
+                    }
+
+                    if (product.Code is not null)
+                    {
+                        Product existedProduct = await this._unitOfWork.ProductRepository.GetProductAsync(product.Code!);
+                        if (existedProduct is not null && existedProduct.Status != (int)ProductEnum.Status.DEACTIVE)
+                        {
+                            errorsOnProduct.Add(MessageConstant.ProductMessage.ProductCodeExisted);
+                        }
+                    }
+
+                    Product? existedParentProduct = null;
+                    if (product.ParentProductId is not null)
+                    {
+                        existedParentProduct = await this._unitOfWork.ProductRepository.GetProductAsync(product.ParentProductId.Value);
+                        if (existedParentProduct is null)
+                        {
+                            errorsOnProduct.Add(MessageConstant.ProductMessage.ParentProductIdNotExist);
+                        }
+
+                        if (existedParentProduct is not null && existedBrand.Products.FirstOrDefault(x => x.ProductId == product.ParentProductId) is null)
+                        {
+                            errorsOnProduct.Add(MessageConstant.ProductMessage.ParentProductIdNotBelongToBrand);
+                        }
+                    }
+
+                    Category? existedCategory = null;
+                    if (product.Type is not null
+                    && (product.Type.Trim().ToUpper().Equals(ProductEnum.Type.PARENT.ToString())
+                     || product.Type.Trim().ToUpper().Equals(ProductEnum.Type.SINGLE.ToString())
+                     || product.Type.Trim().ToUpper().Equals(ProductEnum.Type.EXTRA.ToString()))
+                    && product.CategoryId is not null)
+                    {
+                        existedCategory = await this._unitOfWork.CategoryRepository.GetCategoryByIdAsync(product.CategoryId.Value);
+                        if (existedCategory == null)
+                        {
+                            errorsOnProduct.Add(MessageConstant.CommonMessage.NotExistCategoryId);
+                        }
+
+                        if (existedCategory is not null && existedBrand.Categories.FirstOrDefault(x => x.CategoryId == product.CategoryId) is null)
+                        {
+                            errorsOnProduct.Add(MessageConstant.CommonMessage.CategoryIdNotBelongToBrand);
+                        }
+
+                        if ((product.Type.Trim().ToUpper().Equals(ProductEnum.Type.SINGLE.ToString())
+                          || product.Type.Trim().ToUpper().Equals(ProductEnum.Type.PARENT.ToString()))
+                        && existedCategory is not null)
+                        {
+                            if (existedCategory.Type.Trim().ToUpper().Equals(CategoryEnum.Type.NORMAL.ToString()) == false)
+                            {
+                                errorsOnProduct.Add(MessageConstant.ProductMessage.CategoryNotSuitableForSingleOrParentProductType);
+                            }
+                        }
+
+                        if (product.Type.Trim().ToUpper().Equals(ProductEnum.Type.EXTRA.ToString())
+                         && existedCategory is not null)
+                        {
+                            if (existedCategory.Type.Trim().ToUpper().Equals(CategoryEnum.Type.EXTRA.ToString()) == false)
+                            {
+                                errorsOnProduct.Add(MessageConstant.ProductMessage.CategoryNotSuitableForEXTRAProductType);
+                            }
+                        }
+
+                    }
+                    else if (product.Type is not null && product.Type.ToUpper().Equals(ProductEnum.Type.CHILD.ToString())
+                          && product.CategoryId is null
+                          && existedParentProduct is not null)
+                    {
+                        existedCategory = existedParentProduct.Category;
+                        if (product.Name is not null && product.Size is not null
+                         && product.Name.Trim().ToLower().Equals($"{existedParentProduct.Name.ToLower()} - size {product.Size.ToLower()}") == false)
+                        {
+                            errorsOnProduct.Add(MessageConstant.ProductMessage.ProductNameNotFollowingFormat);
+                        }
+                    }
+
+
+                    if (errorsOnProduct.Any())
+                    {
+                        ErrorDetail errorDetail = new ErrorDetail()
+                        {
+                            FieldNameError = $"Product at row [{product.Row}] in excel file",
+                            DescriptionError = errorsOnProduct,
+                        };
+
+                        errorDetails.Add(errorDetail);
                     }
                     else
                     {
-                        if (product.Type.ToUpper().Equals(ProductEnum.Type.PARENT))
+                        Product newProduct = new Product()
                         {
-                            if (product.SellingPrice != 0)
-                            {
-                                errorDetail.Add($"{nameof(product.SellingPrice)} {MessageConstant.ProductMessage.InvalidProductTypeParent}");
-                            }
-                            if (product.DiscountPrice != 0)
-                            {
-                                errorDetail.Add($"{nameof(product.DiscountPrice)} {MessageConstant.ProductMessage.InvalidProductTypeParent}");
-                            }
-                            if (product.HistoricalPrice != 0)
-                            {
-                                errorDetail.Add($"{nameof(product.HistoricalPrice)} {MessageConstant.ProductMessage.InvalidProductTypeParent}");
-                            }
-
-                            if (product.Size is not null)
-                            {
-                                errorDetail.Add($"{nameof(product.Size)} {MessageConstant.ProductMessage.InvalidProductTypeParent}");
-                            }
-
-                            if (product.ParentProductId is not null)
-                            {
-                                errorDetail.Add($"{nameof(product.ParentProductId)} {MessageConstant.ProductMessage.InvalidProductTypeParent}");
-                            }
-
-                            if (product.CategoryId is null)
-                            {
-                                errorDetail.Add($"{nameof(product.CategoryId)} is empty.");
-                            }
-                        }
-                        else if (product.Type.ToUpper().Equals(ProductEnum.Type.CHILD))
-                        {
-                            if (product.SellingPrice == 0)
-                            {
-                                errorDetail.Add($"{nameof(product.SellingPrice)} {MessageConstant.ProductMessage.InvalidProductTypeChild}");
-                            }
-
-                            if (product.Size is null)
-                            {
-                                errorDetail.Add($"{nameof(product.Size)} is empty.");
-                            }
-
-                            if (product.ParentProductId is null)
-                            {
-                                errorDetail.Add($"{nameof(product.Size)} is empty.");
-                            }
-
-                            if (product.CategoryId is not null)
-                            {
-                                errorDetail.Add($"{nameof(product.CategoryId)} {MessageConstant.ProductMessage.InvalidProductTypeChild}");
-                            }
-                        }
-                        else if (product.Type.ToUpper().Equals(ProductEnum.Type.SINGLE))
-                        {
-
-                        }
-                        else if (product.Type.ToUpper().Equals(ProductEnum.Type.EXTRA))
-                        {
-
-                        }
+                            Code = product.Code!,
+                            Name = product.Name!,
+                            Description = product.Description!,
+                            HistoricalPrice = product.HistoricalPrice!.Value,
+                            SellingPrice = product.SellingPrice!.Value,
+                            DiscountPrice = product.DiscountPrice!.Value,
+                            Size = product.Size,
+                            DisplayOrder = product.DisplayOrder!.Value,
+                            Status = (int)ProductEnum.Status.ACTIVE,
+                            Type = product.Type!.ToUpper(),
+                            ParentProductId = product.ParentProductId,
+                            Brand = existedBrand,
+                            Category = existedCategory!
+                        };
+                        productsToAdd.Add(newProduct);
+                        imagesToAdd.Add(product.Code!, product.Image!);
                     }
-
                 }
-                #endregion
 
-                #region operation
-
-                #endregion
-            }
-            catch (NotFoundException ex)
-            {
-                string fieldName = "";
-                switch (ex.Message)
+                if (errorDetails.Any())
                 {
-                    case MessageConstant.CommonMessage.NotExistOrderPartnerId:
-                        fieldName = "Order partner id";
-                        break;
-
-                    default:
-                        fieldName = "Exception";
-                        break;
+                    throw new BadRequestException(MessageConstant.ProductMessage.InvalidOnField);
                 }
-                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
-                throw new NotFoundException(error);
+
+                foreach(var product in productsToAdd)
+                {
+                    Guid guid = Guid.NewGuid();
+                    string logoId = guid.ToString();
+                    string imageUrl = await this._unitOfWork.FirebaseStorageRepository.UploadImageAsync(imagesToAdd[product.Code], folderName, logoId);
+                    if (imageUrl != null && imageUrl.Length > 0 && !isUploaded)
+                    {   
+                        isUploaded = true;
+                    }
+                    imageUrl += $"&imageId={logoId}";
+                    product.Image = imageUrl;
+                    logos.Add(logoId);
+                }
+                
+                #endregion
+
+                await this._unitOfWork.ProductRepository.CreateRangProductAsync(productsToAdd);
+                await this._unitOfWork.CommitAsync();
             }
             catch (BadRequestException ex)
             {
                 string fieldName = "";
                 switch (ex.Message)
                 {
+                    case MessageConstant.ProductMessage.ExcelImageIsNotValid:
                     case MessageConstant.ProductMessage.ExcelFileHasNoData:
                         fieldName = "Excel file";
                         break;
@@ -890,6 +940,10 @@ namespace MBKC.Service.Services.Implementations
                     case MessageConstant.ProductMessage.DuplicateProductCode:
                         fieldName = "Product code";
                         break;
+
+                    case MessageConstant.ProductMessage.InvalidOnField:
+                        string errors = ErrorUtil.GetErrorString(errorDetails);
+                        throw new BadRequestException(errors);
 
                     default:
                         fieldName = "Exception";
@@ -900,7 +954,11 @@ namespace MBKC.Service.Services.Implementations
             }
             catch (Exception ex)
             {
-                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                if (isUploaded)
+                {
+                    foreach (var logoId in logos) await this._unitOfWork.FirebaseStorageRepository.DeleteImageAsync(logoId, folderName);
+                }
+                string error = ErrorUtil.GetErrorString("Exception", ex.InnerException != null ? ex.InnerException.Message : ex.Message);
                 throw new Exception(error);
             }
         }

@@ -27,6 +27,11 @@ namespace MBKC.Service.Utils
             return JsonConvert.SerializeObject(errors);
         }
 
+        public static string GetErrorString(List<ErrorDetail> errorDetails)
+        {
+            return JsonConvert.SerializeObject(errorDetails);
+        }
+
         public static string GetErrorString(List<string> errorStr)
         {
             List<ErrorDetail> errors = new List<ErrorDetail>();
@@ -68,6 +73,17 @@ namespace MBKC.Service.Utils
 
             var message = JsonConvert.SerializeObject(errors);
             return message;
+        }
+
+        public static List<string> GetErrorsOnObject(ValidationResult validationResult)
+        {
+            List<string> errors = new List<string>();
+            foreach (var error in validationResult.Errors)
+            {
+                errors.Add(error.ErrorMessage);
+            }
+
+            return errors;
         }
     }
 }
