@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MBKC.Repository.Migrations
 {
     [DbContext(typeof(MBKCDbContext))]
-    [Migration("20231031111407_Update storepartner table")]
-    partial class Updatestorepartnertable
+    [Migration("20231101092911_Update partner product table")]
+    partial class Updatepartnerproducttable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -647,7 +647,7 @@ namespace MBKC.Repository.Migrations
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("ProductId", "PartnerId", "StoreId", "CreatedDate");
+                    b.HasKey("ProductId", "PartnerId", "StoreId", "CreatedDate", "MappedDate");
 
                     b.HasIndex("StoreId", "PartnerId", "CreatedDate");
 

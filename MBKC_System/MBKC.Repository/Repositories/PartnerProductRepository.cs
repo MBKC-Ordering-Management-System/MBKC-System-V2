@@ -25,7 +25,8 @@ namespace MBKC.Repository.Repositories
             try
             {
                 return await this._dbContext.PartnerProducts
-                    .Include(x => x.Product).ThenInclude(x => x.ChildrenProducts)
+                    .Include(x => x.Product).ThenInclude(x => x.ChildrenProducts).ThenInclude(x => x.PartnerProducts)
+                    .Include(x => x.Product).ThenInclude(x => x.ParentProduct).ThenInclude(x => x.PartnerProducts)
                     .Include(x => x.StorePartner)
                     .ThenInclude(x => x.Store)
                     .Include(x => x.StorePartner)
@@ -33,7 +34,7 @@ namespace MBKC.Repository.Repositories
                     .SingleOrDefaultAsync(mp => mp.ProductId == productId &&
                                           mp.PartnerId == partnerId &&
                                           mp.CreatedDate == createdDate &&
-                                          mp.StoreId == storeId);
+                                          mp.StoreId == storeId && mp.Status != (int)GrabFoodItemEnum.AvailableStatus.DEACTIVE);
 
             }
             catch (Exception ex)
@@ -48,7 +49,14 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await this._dbContext.PartnerProducts.SingleOrDefaultAsync(mp => mp.ProductCode.Equals(productCode));
+                return await this._dbContext.PartnerProducts
+                                            .Include(x => x.Product).ThenInclude(x => x.ChildrenProducts).ThenInclude(x => x.PartnerProducts)
+                                            .Include(x => x.Product).ThenInclude(x => x.ParentProduct).ThenInclude(x => x.PartnerProducts)
+                                            .Include(x => x.StorePartner)
+                                            .ThenInclude(x => x.Store)
+                                            .Include(x => x.StorePartner)
+                                            .ThenInclude(x => x.Partner)
+                                            .SingleOrDefaultAsync(mp => mp.ProductCode.Equals(productCode));
             }
             catch (Exception ex)
             {
@@ -70,7 +78,7 @@ namespace MBKC.Repository.Repositories
             }
         }
         #endregion
-        
+
         #region Create Range Partner Product
         public async Task CreateRangePartnerProductsAsync(List<PartnerProduct> partnerProducts)
         {
@@ -83,7 +91,7 @@ namespace MBKC.Repository.Repositories
                 throw new Exception(ex.Message);
             }
         }
-        
+
         public void UpdateRangePartnerProductsAsync(List<PartnerProduct> partnerProducts)
         {
             try

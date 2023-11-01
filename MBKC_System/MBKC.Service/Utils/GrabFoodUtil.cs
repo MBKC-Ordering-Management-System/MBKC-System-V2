@@ -422,11 +422,23 @@ namespace MBKC.Service.Utils
             }
         }
 
-        public static void CheckProductCodeFromGrabFood(GrabFoodMenu grabFoodMenu, string productCode, string type, decimal price, int status, bool isUpdated)
+        public static void CheckProductCodeFromGrabFood(GrabFoodMenu grabFoodMenu, string productCode, string type, decimal price, int status, bool isUpdated, string? productCodeParentProduct)
         {
             try
             {
                 bool isExisted = false;
+                GrabFoodItem parentGrabFoodItem = null;
+                if(productCodeParentProduct is not null)
+                {
+                    foreach (var category in grabFoodMenu.Categories)
+                    {
+                        parentGrabFoodItem = category.Items.FirstOrDefault(x => x.ItemID.Trim().ToLower().Equals(productCodeParentProduct.Trim().ToLower()));
+                        if(parentGrabFoodItem is not null)
+                        {
+                            break;
+                        }
+                    }
+                }
                 foreach (var category in grabFoodMenu.Categories)
                 {
                     GrabFoodItem grabFoodItem = category.Items.FirstOrDefault(x => x.ItemID.Trim().ToLower().Equals(productCode.Trim().ToLower()));
@@ -438,7 +450,7 @@ namespace MBKC.Service.Utils
                             if(grabFoodModifier is not null)
                             {
                                 isExisted = true;
-                                if(grabFoodModifier.PriceInMin != price)
+                                if (grabFoodModifier.PriceInMin != (price - parentGrabFoodItem.PriceInMin))
                                 {
                                     throw new BadRequestException(MessageConstant.PartnerProductMessage.PriceNotMatchWithProductInGrabFoodSystem);
                                 }
@@ -446,6 +458,7 @@ namespace MBKC.Service.Utils
                                 {
                                     throw new BadRequestException(MessageConstant.PartnerProductMessage.StatusNotMatchWithProductInGrabFoodSystem);
                                 }
+                                break;
                             }
                         }
                     } else
@@ -462,6 +475,10 @@ namespace MBKC.Service.Utils
                         {
                             throw new BadRequestException(MessageConstant.PartnerProductMessage.StatusNotMatchWithProductInGrabFoodSystem);
                         }
+                    }
+                    if (isExisted)
+                    {
+                        break;
                     }
                 }
                 if(isExisted == false)

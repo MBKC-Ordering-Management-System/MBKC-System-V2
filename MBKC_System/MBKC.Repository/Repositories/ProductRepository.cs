@@ -496,7 +496,7 @@ namespace MBKC.Repository.Repositories
                 return await this._dbContext.Products.Include(x => x.Category)
                                         .Include(x => x.PartnerProducts).ThenInclude(x => x.StorePartner).ThenInclude(x => x.Partner)
                                         .Include(x => x.Brand).ThenInclude(x => x.Stores).ThenInclude(x => x.KitchenCenter)
-                                        .Include(x => x.ParentProduct)
+                                        .Include(x => x.ParentProduct).ThenInclude(x => x.PartnerProducts)
                                         .Include(x => x.ChildrenProducts)
                                         .SingleOrDefaultAsync(x => x.ProductId == id);
             }

@@ -176,7 +176,7 @@ namespace MBKC.Repository.DBContext
             #region PartnerProduct
             modelBuilder.Entity<PartnerProduct>(partnerProduct =>
             {
-                modelBuilder.Entity<PartnerProduct>().HasKey(key => new { key.ProductId, key.PartnerId, key.StoreId, key.CreatedDate });
+                modelBuilder.Entity<PartnerProduct>().HasKey(key => new { key.ProductId, key.PartnerId, key.StoreId, key.CreatedDate, key.MappedDate });
                 partnerProduct.Property(prop => prop.ProductCode).IsUnicode(false).HasMaxLength(50).IsRequired(true);
                 partnerProduct.Property(prop => prop.Status).IsRequired(true);
                 partnerProduct.Property(prop => prop.Price).HasColumnType("decimal(9,2)").IsRequired(true);
