@@ -72,19 +72,19 @@ namespace MBKC.Service.Services.Implementations
                     }
                 }
 
-                if (existedOrder.Status.Equals(OrderEnum.Status.PREPARING.ToString()))
+                if (existedOrder.PartnerOrderStatus.Equals(OrderEnum.Status.PREPARING.ToString()))
                 {
                     throw new BadRequestException(MessageConstant.OrderMessage.OrderIsPreparing);
                 }
-                if (existedOrder.Status.Equals(OrderEnum.Status.UPCOMING.ToString()))
+                if (existedOrder.PartnerOrderStatus.Equals(OrderEnum.Status.UPCOMING.ToString()))
                 {
                     throw new BadRequestException(MessageConstant.OrderMessage.OrderIsUpcoming);
                 }
-                if (existedOrder.Status.Equals(OrderEnum.Status.COMPLETED.ToString()))
+                if (existedOrder.PartnerOrderStatus.Equals(OrderEnum.Status.COMPLETED.ToString()))
                 {
                     throw new BadRequestException(MessageConstant.OrderMessage.OrderIsCompleted);
                 }
-                if (existedOrder.Status.Equals(OrderEnum.Status.CANCELLED.ToString()))
+                if (existedOrder.PartnerOrderStatus.Equals(OrderEnum.Status.CANCELLED.ToString()))
                 {
                     throw new BadRequestException(MessageConstant.OrderMessage.OrderIsCancelled);
                 }
@@ -93,7 +93,7 @@ namespace MBKC.Service.Services.Implementations
                 #region operation
 
                 #region orders
-                existedOrder.Status = OrderEnum.Status.COMPLETED.ToString();
+                existedOrder.PartnerOrderStatus = OrderEnum.Status.COMPLETED.ToString();
                 this._unitOfWork.OrderRepository.UpdateOrder(existedOrder);
                 #endregion
 
@@ -280,7 +280,8 @@ namespace MBKC.Service.Services.Implementations
                     Partner = existedPartner,
                     StoreId = postOrderRequest.StoreId,
                     PaymentMethod = postOrderRequest.PaymentMethod,
-                    Status = postOrderRequest.Status.ToUpper(),
+                    PartnerOrderStatus = postOrderRequest.Status.ToUpper(),
+                    SystemStatus = OrderEnum.SystemStatus.IN_STORE.ToString().Split("_")[0] + " " + OrderEnum.SystemStatus.IN_STORE.ToString().Split("_")[1],
                     SubTotalPrice = postOrderRequest.SubTotalPrice,
                     TotalDiscount = postOrderRequest.TotalDiscount,
                     Store = existedStore,
@@ -421,7 +422,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new NotFoundException(MessageConstant.OrderMessage.OrderPartnerIdNotExist);
                 }
-                existedOrder.Status = putOrderRequest.Status.ToUpper();
+                existedOrder.PartnerOrderStatus = putOrderRequest.Status.ToUpper();
                 this._unitOfWork.OrderRepository.UpdateOrder(existedOrder);
                 await this._unitOfWork.CommitAsync();
             }
