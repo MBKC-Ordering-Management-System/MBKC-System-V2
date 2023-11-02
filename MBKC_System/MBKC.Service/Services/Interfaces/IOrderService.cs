@@ -17,5 +17,6 @@ namespace MBKC.Service.Services.Interfaces
         public Task CreateOrderAsync(PostOrderRequest postOrderRequest);
         public Task UpdateOrderAsync(PutOrderIdRequest putOrderIdRequest, PutOrderRequest putOrderRequest);
         public Task<GetOrdersResponse> GetOrdersAsync(GetOrdersRequest getOrdersRequest, IEnumerable<Claim> claims);
+        public Task<GetOrderResponse> GetOrderAsync(OrderRequest getOrderRequest, IEnumerable<Claim> claims);
     }
 }

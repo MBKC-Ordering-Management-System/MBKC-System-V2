@@ -519,7 +519,69 @@ namespace MBKC.Service.Services.Implementations
                 throw new Exception(error);
             }
         }
+
+
         #endregion
+
+        public async Task<GetOrderResponse> GetOrderAsync(OrderRequest getOrderRequest, IEnumerable<Claim> claims)
+        {
+            try
+            {
+                Order existedOrder = await this._unitOfWork.OrderRepository.GetOrderAsync(getOrderRequest.Id);
+                // Get email, role, account id from claims
+                Claim registeredEmailClaim = claims.First(x => x.Type == ClaimTypes.Email);
+                Claim registeredRoleClaim = claims.First(x => x.Type.ToLower().Equals("role"));
+                Claim accountId = claims.First(x => x.Type.ToLower().Equals("sid"));
+
+                var email = registeredEmailClaim.Value;
+                var role = registeredRoleClaim.Value;
+                KitchenCenter? kitchenCenter = null;
+                StoreAccount? storeAccount = null;
+                Cashier? cashier = null;
+
+                // Check role when user login 
+                if (registeredRoleClaim.Value.Equals(RoleConstant.Kitchen_Center_Manager))
+                {
+                    kitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(email);
+                }
+                else if (registeredRoleClaim.Value.Equals(RoleConstant.Cashier))
+                {
+                    cashier = await this._unitOfWork.CashierRepository.GetCashierAsync(int.Parse(accountId.Value));
+                    kitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(cashier.KitchenCenter.KitchenCenterId);
+                }
+                else if (registeredRoleClaim.Value.Equals(RoleConstant.Store_Manager))
+                {
+                    storeAccount = await this._unitOfWork.StoreAccountRepository.GetStoreAccountAsync(int.Parse(accountId.Value));
+                }
+                if (existedOrder == null)
+                {
+                    throw new NotFoundException(MessageConstant.OrderMessage.OrderIdNotExist);
+                }
+                if (storeAccount != null)
+                {
+                    if (existedOrder.StoreId != storeAccount.StoreId)
+                    {
+                        throw new BadRequestException(MessageConstant.OrderMessage.OrderIdNotBelongToStore);
+                    }
+                }
+
+                if (kitchenCenter != null)
+                {
+                    if (existedOrder.Store.KitchenCenter.KitchenCenterId != kitchenCenter.KitchenCenterId)
+                    { 
+                        throw new BadRequestException(MessageConstant.OrderMessage.OrderIdNotBelongToKitchenCenter);
+                    }
+                }
+
+
+                // Check order belong to kitchen center or not
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
     }
 }
 

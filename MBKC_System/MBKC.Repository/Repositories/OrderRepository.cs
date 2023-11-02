@@ -423,5 +423,18 @@ namespace MBKC.Repository.Repositories
             }
         }
 
+
+        public async Task<Order> GetOrderAsync(int id)
+        {
+            return await this._dbContext.Orders
+                             .Include(x => x.Store)
+                             .Include(x => x.Partner)
+                             .Include(x => x.ShipperPayments)
+                             .Include(o => o.OrderDetails).ThenInclude(x => x.MasterOrderDetail)
+                             .Include(o => o.OrderDetails).ThenInclude(x => x.Product)
+                             .Include(o => o.OrderDetails).ThenInclude(x => x.ExtraOrderDetails)
+                             .Include(x => x.Store).SingleOrDefaultAsync(x => x.Id == id);
+
+        }
     }
 }

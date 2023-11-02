@@ -173,7 +173,7 @@ namespace MBKC.Service.Constants
             public const string DeactivePartner_Get = "Partner cannot get because that was deleted before.";
             public const string KeySortNotExist = "Key sort are ASC or DESC";
             public const string PartnerHasPartnerStoreActive_Update = "Partner can not update status because active stores is using this partner.";
-            public const string PartnerHasPartnerStoreActive_Delete = "Partner can not delete status because active stores is using this partner.";
+            public const string PartnerHasPartnerStoreActive_Delete = "Partner can not delete because active stores is using this partner.";
 
 
         }
@@ -236,6 +236,10 @@ namespace MBKC.Service.Constants
             public const string ProductExtraPartnerNotMappingBefore = "The extra product in the order Detail have not yet been mapped to the store's partner extra product.";
             public const string ProductInOrderNotExistInTheSystem = "Product Id in the Order does not exist in the system.";
             public const string ProductExtraInOrderDetailNotExistInTheSystem = "Product Extra Id in the Order does not exist in the system.";
+            public const string OrderIdNotExist = "Order id does not exist in the system.";
+            public const string OrderIdNotBelongToStore = "Order id does not belong to store.";
+            public const string OrderIdNotBelongToKitchenCenter = "Order id does not belong to kitchen center.";
+
         }
 
         public static class WalletMessage

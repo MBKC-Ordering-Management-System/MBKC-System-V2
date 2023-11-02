@@ -108,7 +108,8 @@
 
         public static class Order
         {
-            public const string OrderEndpoint = ApiEndpoint + "/orders";
+            public const string OrdersEndpoint = ApiEndpoint + "/orders";
+            public const string OrderEndpoint = OrdersEndpoint + "/{id}";
             public const string ConfirmOrderToCompletedEndpoint = OrderEndpoint + "/confirm-order-to-completed";
         }
 
