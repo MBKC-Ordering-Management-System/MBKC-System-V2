@@ -261,6 +261,13 @@ namespace MBKC.Service.Services.Implementations
                 }
                 StorePartner activeStorePartner = existedStore.StorePartners.FirstOrDefault(x => x.PartnerId == existedPartner.PartnerId && x.Status == (int)StorePartnerEnum.Status.ACTIVE);
 
+                OrderHistory orderHistory = new OrderHistory()
+                {
+                    CreatedDate = DateTime.Now,
+                    SystemStatus = OrderEnum.SystemStatus.IN_STORE.ToString().Split("_")[0] + " " + OrderEnum.SystemStatus.IN_STORE.ToString().Split("_")[1],
+                    PartnerOrderStatus = postOrderRequest.Status.ToUpper()
+                };
+
                 Order newOrder = new Order()
                 {
                     OrderPartnerId = postOrderRequest.OrderPartnerId,
@@ -285,7 +292,8 @@ namespace MBKC.Service.Services.Implementations
                     TotalDiscount = postOrderRequest.TotalDiscount,
                     Store = existedStore,
                     Tax = postOrderRequest.Tax,
-                    OrderDetails = new List<OrderDetail>()
+                    OrderDetails = new List<OrderDetail>(),
+                    OrderHistories = new List<OrderHistory>() { orderHistory}
                 };
 
                 foreach (var orderDetail in postOrderRequest.OrderDetails)
@@ -417,6 +425,13 @@ namespace MBKC.Service.Services.Implementations
                     throw new NotFoundException(MessageConstant.OrderMessage.OrderPartnerIdNotExist);
                 }
                 existedOrder.PartnerOrderStatus = putOrderRequest.Status.ToUpper();
+                OrderHistory orderHistory = new OrderHistory()
+                {
+                    CreatedDate = DateTime.Now,
+                    PartnerOrderStatus = putOrderRequest.Status.ToUpper(),
+                    SystemStatus = OrderEnum.SystemStatus.IN_STORE.ToString().Split("_")[0] + " " + OrderEnum.SystemStatus.IN_STORE.ToString().Split("_")[1],
+                };
+                existedOrder.OrderHistories.ToList().Add(orderHistory);
                 this._unitOfWork.OrderRepository.UpdateOrder(existedOrder);
                 await this._unitOfWork.CommitAsync();
             }
