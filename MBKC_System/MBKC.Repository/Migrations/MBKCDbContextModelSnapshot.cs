@@ -490,6 +490,11 @@ namespace MBKC.Repository.Migrations
                     b.Property<int>("PartnerId")
                         .HasColumnType("int");
 
+                    b.Property<string>("PartnerOrderStatus")
+                        .HasMaxLength(20)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(20)");
+
                     b.Property<string>("PaymentMethod")
                         .HasMaxLength(10)
                         .IsUnicode(false)
@@ -507,16 +512,16 @@ namespace MBKC.Repository.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(100)");
 
-                    b.Property<string>("Status")
-                        .HasMaxLength(20)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(20)");
-
                     b.Property<int>("StoreId")
                         .HasColumnType("int");
 
                     b.Property<decimal>("SubTotalPrice")
                         .HasColumnType("decimal(9,2)");
+
+                    b.Property<string>("SystemStatus")
+                        .HasMaxLength(20)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(20)");
 
                     b.Property<float>("Tax")
                         .HasColumnType("real");
@@ -571,6 +576,44 @@ namespace MBKC.Repository.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("OrderDetails");
+                });
+
+            modelBuilder.Entity("MBKC.Repository.Models.OrderHistory", b =>
+                {
+                    b.Property<int>("OrderHistoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderHistoryId"), 1L, 1);
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Image")
+                        .HasMaxLength(2147483647)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(max)");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PartnerOrderStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("SystemStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(20)");
+
+                    b.HasKey("OrderHistoryId");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("OrderHistories");
                 });
 
             modelBuilder.Entity("MBKC.Repository.Models.Partner", b =>
@@ -1198,6 +1241,17 @@ namespace MBKC.Repository.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("MBKC.Repository.Models.OrderHistory", b =>
+                {
+                    b.HasOne("MBKC.Repository.Models.Order", "Order")
+                        .WithMany("OrderHistories")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+                });
+
             modelBuilder.Entity("MBKC.Repository.Models.PartnerProduct", b =>
                 {
                     b.HasOne("MBKC.Repository.Models.Product", "Product")
@@ -1418,6 +1472,8 @@ namespace MBKC.Repository.Migrations
             modelBuilder.Entity("MBKC.Repository.Models.Order", b =>
                 {
                     b.Navigation("OrderDetails");
+
+                    b.Navigation("OrderHistories");
 
                     b.Navigation("ShipperPayments");
                 });

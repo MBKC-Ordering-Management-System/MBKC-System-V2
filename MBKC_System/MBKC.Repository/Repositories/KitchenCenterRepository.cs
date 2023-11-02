@@ -245,7 +245,7 @@ namespace MBKC.Repository.Repositories
                                                                                                                                                           && ts.TransactionTime.Month == DateTime.Now.Month
                                                                                                                                                           && ts.TransactionTime.Year == DateTime.Now.Year)))
                                                            .Include(kc => kc.Stores.Where(s => s.Status == (int)StoreEnum.Status.ACTIVE))
-                                                           .ThenInclude(s => s.Orders.Where(o => o.Status.Equals(OrderEnum.Status.COMPLETED.ToString())
+                                                           .ThenInclude(s => s.Orders.Where(o => o.PartnerOrderStatus.Equals(OrderEnum.Status.COMPLETED.ToString())
                                                                                               && o.PaymentMethod.ToUpper().Equals(OrderEnum.PaymentMethod.CASH.ToString())
                                                                                               && o.ShipperPayments.Any(sp => sp.CreateDate.Day == DateTime.Now.Day
                                                                                                                           && sp.CreateDate.Month == DateTime.Now.Month

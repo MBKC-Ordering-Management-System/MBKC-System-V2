@@ -4,9 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Configuration = MBKC.Repository.Models.Configuration;
 
 namespace MBKC.Repository.DBContext
 {
@@ -48,6 +50,7 @@ namespace MBKC.Repository.DBContext
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<Wallet> Wallets { get; set; }
         public DbSet<Configuration> Configurations { get; set; }
+        public DbSet<OrderHistory> OrderHistories { get; set; }
         #endregion
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -211,7 +214,8 @@ namespace MBKC.Repository.DBContext
                 order.Property(prop => prop.FinalTotalPrice).HasColumnType("decimal(9,2)").IsRequired(true);
                 order.Property(prop => prop.Commission).IsRequired(true);
                 order.Property(prop => prop.Tax).IsRequired(true);
-                order.Property(prop => prop.Status).IsUnicode(false).HasMaxLength(20).IsRequired(false);
+                order.Property(prop => prop.SystemStatus).IsUnicode(false).HasMaxLength(20).IsRequired(false);
+                order.Property(prop => prop.PartnerOrderStatus).IsUnicode(false).HasMaxLength(20).IsRequired(false);
                 order.Property(prop => prop.DisplayId).IsUnicode(false).HasMaxLength(100).IsRequired(false);
                 order.Property(prop => prop.Address).IsUnicode(true).HasMaxLength(250).IsRequired(false);
                 order.Property(prop => prop.Cutlery).IsRequired(false);
@@ -431,6 +435,16 @@ namespace MBKC.Repository.DBContext
                 configuration.Property(x => x.ScrawlingOrderEndTime).HasColumnType("time").IsRequired(true);
                 configuration.Property(x => x.ScrawlingMoneyExchangeToKitchenCenter).HasColumnType("time").IsRequired(true);
                 configuration.Property(x => x.ScrawlingMoneyExchangeToStore).HasColumnType("time").IsRequired(true);
+            });
+            #endregion
+
+            #region 
+            modelBuilder.Entity<OrderHistory>(orderHistories =>
+            {
+                orderHistories.Property(x => x.SystemStatus).IsUnicode(false).HasMaxLength(20).IsRequired(true);
+                orderHistories.Property(x => x.PartnerOrderStatus).IsUnicode(false).HasMaxLength(20).IsRequired(true);
+                orderHistories.Property(x => x.Image).IsUnicode(false).HasMaxLength(int.MaxValue).IsRequired(false);
+                orderHistories.Property(x => x.CreatedDate).HasColumnType("datetime2").IsRequired(true);
             });
             #endregion
 
