@@ -25,12 +25,13 @@ namespace MBKC.Repository.Models
         public decimal FinalTotalPrice { get; set; }
         public float Commission { get; set; }
         public float Tax { get; set; }
-        public string Status { get; set; }
+        public string SystemStatus { get; set; }
         public int PartnerId { get; set; }
         public int StoreId { get; set; }
         public string DisplayId { get; set; }
         public string Address { get; set; }
         public int? Cutlery { get; set; }
+        public string PartnerOrderStatus { get; set; }
 
         [ForeignKey("StoreId")]
         public virtual Store Store { get; set; }
@@ -38,5 +39,6 @@ namespace MBKC.Repository.Models
         public virtual Partner Partner { get; set; }
         public virtual IEnumerable<ShipperPayment> ShipperPayments { get; set; }
         public virtual IEnumerable<OrderDetail> OrderDetails { get; set; }
+        public virtual IEnumerable<OrderHistory> OrderHistories { get; set; }
     }
 }

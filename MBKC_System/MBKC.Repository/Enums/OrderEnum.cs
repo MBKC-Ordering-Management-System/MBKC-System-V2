@@ -17,6 +17,13 @@ namespace MBKC.Repository.Enums
             CANCELLED,
         }
 
+        public enum SystemStatus
+        {
+            IN_STORE = 1,
+            READY_DELIVERY = 2,
+            COMPLETED = 3
+        }
+
         public enum PaymentMethod
         {
             CASH,
