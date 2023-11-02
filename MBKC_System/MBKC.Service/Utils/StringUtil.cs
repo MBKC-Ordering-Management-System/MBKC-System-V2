@@ -233,10 +233,9 @@ namespace MBKC.Service.Utils
 
         public static string ConvertTimeSpanToCron(TimeSpan timeSpan)
         {
-            string second = timeSpan.Seconds == 0 ? "*" : timeSpan.Seconds.ToString();
             string minute = timeSpan.Minutes == 0 ? "*" : timeSpan.Minutes.ToString();
 
-            return $"{second} {minute} {timeSpan.Hours} * * *";
+            return $"{minute} {timeSpan.Hours} * * *";
         }
 
         public static string GetStringErrorWithProductType(string productType)

@@ -178,9 +178,10 @@ namespace MBKC.Service.Services.Implementations
                 FileStream fileStream = FileUtil.ConvertFormFileToStream(withdrawMoneyRequest.Image);
                 imageId = Guid.NewGuid().ToString();
                 string urlImage = await this._unitOfWork.FirebaseStorageRepository.UploadImageAsync(fileStream, folderName, imageId);
-                if (urlImage != null)
+                if (urlImage != null && urlImage.Length > 0)
                 {
                     uploaded = true;
+                    urlImage += $"&imageId={imageId}";
                 }
                 #endregion
 

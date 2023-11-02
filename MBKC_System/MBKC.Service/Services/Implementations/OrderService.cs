@@ -13,6 +13,7 @@ using MBKC.Service.Constants;
 using MBKC.Repository.Models;
 using MBKC.Service.Utils;
 using MBKC.Repository.Enums;
+using MBKC.Service.DTOs.MoneyExchanges;
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -29,6 +30,9 @@ namespace MBKC.Service.Services.Implementations
         #region change order status to completed
         public async Task ConfirmOrderToCompletedAsync(ConfirmOrderToCompletedRequest confirmOrderToCompleted, IEnumerable<Claim> claims)
         {
+            string folderName = "Orders";
+            string imageId = "";
+            bool uploaded = false;
             try
             {
                 #region validation
@@ -71,19 +75,32 @@ namespace MBKC.Service.Services.Implementations
                     }
                 }
 
-                if (existedOrder.PartnerOrderStatus.Equals(OrderEnum.Status.PREPARING.ToString()))
+                if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.Status.PREPARING.ToString()))
                 {
                     throw new BadRequestException(MessageConstant.OrderMessage.OrderIsPreparing);
                 }
-                if (existedOrder.PartnerOrderStatus.Equals(OrderEnum.Status.UPCOMING.ToString()))
+                if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.Status.UPCOMING.ToString()))
                 {
                     throw new BadRequestException(MessageConstant.OrderMessage.OrderIsUpcoming);
                 }
-                if (existedOrder.PartnerOrderStatus.Equals(OrderEnum.Status.COMPLETED.ToString()))
+                if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.Status.COMPLETED.ToString()))
                 {
                     throw new BadRequestException(MessageConstant.OrderMessage.OrderIsCompleted);
                 }
-                if (existedOrder.PartnerOrderStatus.Equals(OrderEnum.Status.CANCELLED.ToString()))
+                if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.Status.CANCELLED.ToString()))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsCancelled);
+                }
+
+                if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.SystemStatus.IN_STORE.ToString()))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsPreparing);
+                }
+                if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.SystemStatus.COMPLETED.ToString()))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsCompleted);
+                }
+                if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.SystemStatus.CANCELLED.ToString()))
                 {
                     throw new BadRequestException(MessageConstant.OrderMessage.OrderIsCancelled);
                 }
@@ -91,9 +108,31 @@ namespace MBKC.Service.Services.Implementations
 
                 #region operation
 
+                #region upload file
+                FileStream fileStream = FileUtil.ConvertFormFileToStream(confirmOrderToCompleted.Image);
+                imageId = Guid.NewGuid().ToString();
+                string urlImage = await this._unitOfWork.FirebaseStorageRepository.UploadImageAsync(fileStream, folderName, imageId);
+                if (urlImage != null && urlImage.Length > 0)
+                {
+                    uploaded = true;
+                    urlImage += $"&imageId={imageId}";
+                }
+                #endregion
+
                 #region orders
                 existedOrder.PartnerOrderStatus = OrderEnum.Status.COMPLETED.ToString();
+                existedOrder.SystemStatus = OrderEnum.SystemStatus.COMPLETED.ToString();
                 this._unitOfWork.OrderRepository.UpdateOrder(existedOrder);
+
+                OrderHistory orderHistory = new OrderHistory()
+                {
+                    Image = urlImage,
+                    CreatedDate = DateTime.Now,
+                    SystemStatus = OrderEnum.SystemStatus.COMPLETED.ToString(),
+                    PartnerOrderStatus = OrderEnum.Status.COMPLETED.ToString(),
+                    Order = existedOrder,
+                };
+                await this._unitOfWork.OrderHistoryRepository.InsertOrderHistoryAsync(orderHistory);
                 #endregion
 
                 #region shipper payment and transaction and wallet (Cash only)
@@ -191,6 +230,10 @@ namespace MBKC.Service.Services.Implementations
             }
             catch (Exception ex)
             {
+                if (uploaded)
+                {
+                    await this._unitOfWork.FirebaseStorageRepository.DeleteImageAsync(imageId, folderName);
+                }
                 string error = ErrorUtil.GetErrorString("Exception", ex.InnerException != null ? ex.InnerException.Message : ex.Message);
                 throw new Exception(error);
             }
@@ -202,12 +245,12 @@ namespace MBKC.Service.Services.Implementations
             try
             {
                 Order existedOrder = await this._unitOfWork.OrderRepository.GetOrderByOrderPartnerIdAsync(orderPartnerId);
-                if(existedOrder is null)
+                if (existedOrder is null)
                 {
                     throw new NotFoundException(MessageConstant.OrderMessage.OrderPartnerIdNotExist);
                 }
                 GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(existedOrder);
-                if(getOrderResponse.ShipperPayments is not null && getOrderResponse.ShipperPayments.Count > 0)
+                if (getOrderResponse.ShipperPayments is not null && getOrderResponse.ShipperPayments.Count > 0)
                 {
                     foreach (var shipperpayment in getOrderResponse.ShipperPayments)
                     {
@@ -217,7 +260,7 @@ namespace MBKC.Service.Services.Implementations
                 }
                 return getOrderResponse;
             }
-            catch(NotFoundException ex)
+            catch (NotFoundException ex)
             {
                 string error = ErrorUtil.GetErrorString("Order partner id", ex.Message);
                 throw new NotFoundException(error);
@@ -234,7 +277,7 @@ namespace MBKC.Service.Services.Implementations
             try
             {
                 Order existedOrder = await this._unitOfWork.OrderRepository.GetOrderByOrderPartnerIdAsync(postOrderRequest.OrderPartnerId);
-                if(existedOrder is not null)
+                if (existedOrder is not null)
                 {
                     throw new BadRequestException(MessageConstant.OrderMessage.OrderPartnerIdAlreadyExist);
                 }
@@ -246,7 +289,7 @@ namespace MBKC.Service.Services.Implementations
                 }
 
                 Store existedStore = await this._unitOfWork.StoreRepository.GetStoreByIdAsync(postOrderRequest.StoreId);
-                if(existedStore is null)
+                if (existedStore is null)
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistStoreId);
                 }
@@ -255,7 +298,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistPartnerId);
                 }
-                if(existedStore.StorePartners.Any(x => x.PartnerId == existedPartner.PartnerId && x.Status == (int)StorePartnerEnum.Status.ACTIVE) == false)
+                if (existedStore.StorePartners.Any(x => x.PartnerId == existedPartner.PartnerId && x.Status == (int)StorePartnerEnum.Status.ACTIVE) == false)
                 {
                     throw new BadRequestException(MessageConstant.StorePartnerMessage.NotLinkedWithParner);
                 }
@@ -293,26 +336,26 @@ namespace MBKC.Service.Services.Implementations
                     Store = existedStore,
                     Tax = postOrderRequest.Tax,
                     OrderDetails = new List<OrderDetail>(),
-                    OrderHistories = new List<OrderHistory>() { orderHistory}
+                    OrderHistories = new List<OrderHistory>() { orderHistory }
                 };
 
                 foreach (var orderDetail in postOrderRequest.OrderDetails)
                 {
                     Product existedProduct = await this._unitOfWork.ProductRepository.GetProductAsync(orderDetail.ProductId);
-                    if(existedProduct is null)
+                    if (existedProduct is null)
                     {
                         throw new NotFoundException(MessageConstant.OrderMessage.ProductInOrderNotExistInTheSystem);
                     }
-                    
-                    if(existedProduct.PartnerProducts.FirstOrDefault(x => x.StoreId == existedStore.StoreId && x.PartnerId == existedPartner.PartnerId && x.CreatedDate == activeStorePartner.CreatedDate && x.ProductId == existedProduct.ProductId) is null)
+
+                    if (existedProduct.PartnerProducts.FirstOrDefault(x => x.StoreId == existedStore.StoreId && x.PartnerId == existedPartner.PartnerId && x.CreatedDate == activeStorePartner.CreatedDate && x.ProductId == existedProduct.ProductId) is null)
                     {
                         throw new NotFoundException(MessageConstant.OrderMessage.ProductPartnerNotMappingBefore);
                     }
-                    if(existedProduct.PartnerProducts.FirstOrDefault(x => x.StoreId == existedStore.StoreId && x.PartnerId == existedPartner.PartnerId && x.CreatedDate == activeStorePartner.CreatedDate && x.ProductId == existedProduct.ProductId).Status == (int)GrabFoodItemEnum.AvailableStatus.AVAILABLE)
+                    if (existedProduct.PartnerProducts.FirstOrDefault(x => x.StoreId == existedStore.StoreId && x.PartnerId == existedPartner.PartnerId && x.CreatedDate == activeStorePartner.CreatedDate && x.ProductId == existedProduct.ProductId).Status == (int)GrabFoodItemEnum.AvailableStatus.AVAILABLE)
                     {
                         throw new BadRequestException(MessageConstant.PartnerProductMessage.ProductPartnerNotAvailableNow);
                     }
-                    if(existedProduct.PartnerProducts.FirstOrDefault(x => x.StoreId == existedStore.StoreId && x.PartnerId == existedPartner.PartnerId && x.CreatedDate == activeStorePartner.CreatedDate && x.ProductId == existedProduct.ProductId).Price != orderDetail.SellingPrice)
+                    if (existedProduct.PartnerProducts.FirstOrDefault(x => x.StoreId == existedStore.StoreId && x.PartnerId == existedPartner.PartnerId && x.CreatedDate == activeStorePartner.CreatedDate && x.ProductId == existedProduct.ProductId).Price != orderDetail.SellingPrice)
                     {
                         throw new BadRequestException(MessageConstant.PartnerProductMessage.ProductPriceNotMatchWithPartnerProduct);
                     }
@@ -325,7 +368,7 @@ namespace MBKC.Service.Services.Implementations
                         Quantity = orderDetail.Quantity
                     };
                     newOrder.OrderDetails.ToList().Add(newOrderDetail);
-                    if(orderDetail.ExtraOrderDetails is not null)
+                    if (orderDetail.ExtraOrderDetails is not null)
                     {
                         foreach (var extraOrderDetail in orderDetail.ExtraOrderDetails)
                         {
@@ -361,31 +404,35 @@ namespace MBKC.Service.Services.Implementations
                 await this._unitOfWork.OrderRepository.InsertOrderAsync(newOrder);
                 await this._unitOfWork.CommitAsync();
             }
-            catch(BadRequestException ex)
+            catch (BadRequestException ex)
             {
                 string fieldName = "";
                 if (ex.Message.Equals(MessageConstant.OrderMessage.OrderPartnerIdAlreadyExist))
                 {
                     fieldName = "Order partner id";
-                } else if (ex.Message.Equals(MessageConstant.OrderMessage.DisplayIdAlreadyExist))
+                }
+                else if (ex.Message.Equals(MessageConstant.OrderMessage.DisplayIdAlreadyExist))
                 {
                     fieldName = "Display id";
-                } else if (ex.Message.Equals(MessageConstant.StorePartnerMessage.NotLinkedWithParner) ||
+                }
+                else if (ex.Message.Equals(MessageConstant.StorePartnerMessage.NotLinkedWithParner) ||
                     ex.Message.Equals(MessageConstant.PartnerProductMessage.ProductPartnerNotAvailableNow))
                 {
                     fieldName = "Partner product";
-                } else if(ex.Message.Equals(MessageConstant.PartnerProductMessage.ProductPriceNotMatchWithPartnerProduct)||
+                }
+                else if (ex.Message.Equals(MessageConstant.PartnerProductMessage.ProductPriceNotMatchWithPartnerProduct) ||
                     ex.Message.Equals(MessageConstant.PartnerProductMessage.ExtraProductPriceNotMatchWithPartnerProduct))
                 {
                     fieldName = "Price";
-                } else if (ex.Message.Equals(MessageConstant.OrderMessage.ProductInOrderNotExistInTheSystem))
+                }
+                else if (ex.Message.Equals(MessageConstant.OrderMessage.ProductInOrderNotExistInTheSystem))
                 {
                     fieldName = "Product id";
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
             }
-            catch(NotFoundException ex)
+            catch (NotFoundException ex)
             {
                 string fieldName = "";
                 if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistStoreId))
@@ -395,12 +442,13 @@ namespace MBKC.Service.Services.Implementations
                 else if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistPartnerId))
                 {
                     fieldName = "Partner id";
-                } else if(ex.Message.Equals(MessageConstant.OrderMessage.ProductExtraInOrderDetailNotExistInTheSystem) ||
+                }
+                else if (ex.Message.Equals(MessageConstant.OrderMessage.ProductExtraInOrderDetailNotExistInTheSystem) ||
                     ex.Message.Equals(MessageConstant.OrderMessage.ProductInOrderNotExistInTheSystem))
                 {
                     fieldName = "Product id";
                 }
-                else if (ex.Message.Equals(MessageConstant.OrderMessage.ProductPartnerNotMappingBefore)||
+                else if (ex.Message.Equals(MessageConstant.OrderMessage.ProductPartnerNotMappingBefore) ||
                     ex.Message.Equals(MessageConstant.OrderMessage.ProductExtraPartnerNotMappingBefore))
                 {
                     fieldName = "Partner product";
@@ -408,7 +456,7 @@ namespace MBKC.Service.Services.Implementations
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new NotFoundException(error);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 string error = ErrorUtil.GetErrorString("Exception", ex.Message);
                 throw new Exception(error);
@@ -420,7 +468,7 @@ namespace MBKC.Service.Services.Implementations
             try
             {
                 Order existedOrder = await this._unitOfWork.OrderRepository.GetOrderByOrderPartnerIdAsync(putOrderIdRequest.Id);
-                if(existedOrder is null)
+                if (existedOrder is null)
                 {
                     throw new NotFoundException(MessageConstant.OrderMessage.OrderPartnerIdNotExist);
                 }
@@ -435,12 +483,12 @@ namespace MBKC.Service.Services.Implementations
                 this._unitOfWork.OrderRepository.UpdateOrder(existedOrder);
                 await this._unitOfWork.CommitAsync();
             }
-            catch(NotFoundException ex)
+            catch (NotFoundException ex)
             {
                 string error = ErrorUtil.GetErrorString("Partner order id", ex.Message);
                 throw new NotFoundException(error);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 string error = ErrorUtil.GetErrorString("Exception", ex.Message);
                 throw new Exception(error);
