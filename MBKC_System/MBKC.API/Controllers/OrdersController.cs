@@ -4,6 +4,7 @@ using MBKC.API.Constants;
 using MBKC.Service.Authorization;
 using MBKC.Service.DTOs.Brands;
 using MBKC.Service.DTOs.Orders;
+using MBKC.Service.DTOs.Orders.MBKC.Service.DTOs.Orders;
 using MBKC.Service.Errors;
 using MBKC.Service.Exceptions;
 using MBKC.Service.Services.Interfaces;
@@ -19,14 +20,17 @@ namespace MBKC.API.Controllers
     {
         private IOrderService _orderService;
         private IValidator<ConfirmOrderToCompletedRequest> _confirmOrderToCompletedValidator;
+        private IValidator<GetOrdersRequest> _getOrdersValidator;
         public OrdersController
         (
-            IOrderService orderService, 
-            IValidator<ConfirmOrderToCompletedRequest> confirmOrderToCompletedValidator
+            IOrderService orderService,
+            IValidator<ConfirmOrderToCompletedRequest> confirmOrderToCompletedValidator,
+            IValidator<GetOrdersRequest> getOrdersValidator
         )
         {
             this._orderService = orderService;
             this._confirmOrderToCompletedValidator = confirmOrderToCompletedValidator;
+            this._getOrdersValidator = getOrdersValidator;
         }
 
         #region confirm order to completed
@@ -78,6 +82,23 @@ namespace MBKC.API.Controllers
             {
                 Message = MessageConstant.OrderMessage.UpdateOrderSuccessfully
             });
+        }
+        #endregion
+
+        #region GetOrders
+        [PermissionAuthorize(PermissionAuthorizeConstant.Cashier, PermissionAuthorizeConstant.KitchenCenterManager, PermissionAuthorizeConstant.StoreManager)]
+        [HttpGet(APIEndPointConstant.Order.OrderEndpoint)]
+        public async Task<IActionResult> GetOrdersAsync([FromQuery] GetOrdersRequest getOrdersRequest)
+        {
+            ValidationResult validationResult = await this._getOrdersValidator.ValidateAsync(getOrdersRequest);
+            if (validationResult.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
+            }
+            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
+            var getOrderResponse = await this._orderService.GetOrdersAsync(getOrdersRequest, claims);
+            return Ok(getOrderResponse);
         }
         #endregion
 

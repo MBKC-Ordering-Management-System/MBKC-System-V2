@@ -26,8 +26,8 @@ namespace MBKC.Service.DTOs.Orders
         public decimal SubTotalPrice { get; set; }
         public decimal TotalDiscount { get; set; }
         public decimal FinalTotalPrice { get; set; }
-        public decimal Commission { get; set; }
-        public decimal Tax { get; set; }
+        public float Commission { get; set; }
+        public float Tax { get; set; }
         public string Status { get; set; }
         public string DisplayId { get; set; }
         public string Address { get; set; }

@@ -1,4 +1,5 @@
 ﻿using MBKC.Service.DTOs.Orders;
+using MBKC.Service.DTOs.Orders.MBKC.Service.DTOs.Orders;
 using MBKC.Service.DTOs.Partners;
 using System;
 using System.Collections.Generic;
@@ -15,5 +16,6 @@ namespace MBKC.Service.Services.Interfaces
         public Task<GetOrderResponse> GetOrderAsync(string orderPartnerId);
         public Task CreateOrderAsync(PostOrderRequest postOrderRequest);
         public Task UpdateOrderAsync(PutOrderIdRequest putOrderIdRequest, PutOrderRequest putOrderRequest);
+        public Task<GetOrdersResponse> GetOrdersAsync(GetOrdersRequest getOrdersRequest, IEnumerable<Claim> claims);
     }
 }
