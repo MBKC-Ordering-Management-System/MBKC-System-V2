@@ -432,6 +432,7 @@ namespace MBKC.Repository.Repositories
                              .Include(x => x.Store)
                              .Include(x => x.Partner)
                              .Include(x => x.ShipperPayments)
+                             .Include(x => x.OrderHistories)
                              .Include(o => o.OrderDetails).ThenInclude(x => x.MasterOrderDetail)
                              .Include(o => o.OrderDetails).ThenInclude(x => x.Product)
                              .Include(o => o.OrderDetails).ThenInclude(x => x.ExtraOrderDetails)

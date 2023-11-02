@@ -294,7 +294,7 @@ namespace MBKC.Service.Services.Implementations
                     Store = existedStore,
                     Tax = postOrderRequest.Tax,
                     OrderDetails = new List<OrderDetail>(),
-                    OrderHistories = new List<OrderHistory>() { orderHistory}
+                    OrderHistories = new List<OrderHistory>() { orderHistory }
                 };
 
                 foreach (var orderDetail in postOrderRequest.OrderDetails)
@@ -535,7 +535,6 @@ namespace MBKC.Service.Services.Implementations
             }
         }
 
-
         #endregion
 
         public async Task<GetOrderResponse> GetOrderAsync(OrderRequest getOrderRequest, IEnumerable<Claim> claims)
@@ -568,10 +567,14 @@ namespace MBKC.Service.Services.Implementations
                 {
                     storeAccount = await this._unitOfWork.StoreAccountRepository.GetStoreAccountAsync(int.Parse(accountId.Value));
                 }
+
+                // Check order id exist or not
                 if (existedOrder == null)
                 {
                     throw new NotFoundException(MessageConstant.OrderMessage.OrderIdNotExist);
                 }
+
+                // Check order belong to store or not.
                 if (storeAccount != null)
                 {
                     if (existedOrder.StoreId != storeAccount.StoreId)
@@ -579,22 +582,50 @@ namespace MBKC.Service.Services.Implementations
                         throw new BadRequestException(MessageConstant.OrderMessage.OrderIdNotBelongToStore);
                     }
                 }
-
-                if (kitchenCenter != null)
+                else if (kitchenCenter != null) // Check order belong to kitchen center or not.
                 {
                     if (existedOrder.Store.KitchenCenter.KitchenCenterId != kitchenCenter.KitchenCenterId)
-                    { 
+                    {
                         throw new BadRequestException(MessageConstant.OrderMessage.OrderIdNotBelongToKitchenCenter);
                     }
                 }
+                else if (cashier != null) // Check order belong to kitchen center or not.
+                {
+                    if (existedOrder.Store.KitchenCenter.KitchenCenterId != kitchenCenter.KitchenCenterId)
+                    {
+                        throw new BadRequestException(MessageConstant.OrderMessage.OrderIdNotBelongToKitchenCenter);
+                    }
+                }
+                GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(existedOrder);
+                return getOrderResponse;
 
+            }
+            catch (NotFoundException ex)
+            {
+                string fieldName = "";
+                if (ex.Message.Equals(MessageConstant.OrderMessage.OrderIdNotExist))
+                {
+                    fieldName = "Order id";
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new NotFoundException(error);
+            }
 
-                // Check order belong to kitchen center or not
-
+            catch (BadRequestException ex)
+            {
+                string fieldName = "";
+                if (ex.Message.Equals(MessageConstant.OrderMessage.OrderIdNotBelongToKitchenCenter)
+                    || ex.Message.Equals(MessageConstant.OrderMessage.OrderIdNotBelongToKitchenCenter))
+                {
+                    fieldName = "Order id";
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new BadRequestException(error);
             }
             catch (Exception ex)
             {
-
+                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                throw new Exception(error);
             }
         }
     }

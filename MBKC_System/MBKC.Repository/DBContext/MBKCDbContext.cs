@@ -438,7 +438,7 @@ namespace MBKC.Repository.DBContext
             });
             #endregion
 
-            #region 
+            #region OrderHistory
             modelBuilder.Entity<OrderHistory>(orderHistories =>
             {
                 orderHistories.Property(x => x.SystemStatus).IsUnicode(false).HasMaxLength(20).IsRequired(true);
