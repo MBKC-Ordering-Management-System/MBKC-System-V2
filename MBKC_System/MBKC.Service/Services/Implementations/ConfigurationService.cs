@@ -33,6 +33,7 @@ namespace MBKC.Service.Services.Implementations
         #region start background job
         public async Task StartAllBackgroundJob()
         {
+            
             var configs = await this._unitOfWork.ConfigurationRepository.GetConfigurationsAsync();
             if (!configs.Any())
             {
@@ -55,6 +56,16 @@ namespace MBKC.Service.Services.Implementations
                 RecurringJob.AddOrUpdate(HangfireConstant.MoneyExchangeToStore_ID,
                                       () => MoneyExchangeToStoreAsync(),
                                       cronExpression: StringUtil.ConvertTimeSpanToCron(configs.First().ScrawlingMoneyExchangeToStore),
+                                      new RecurringJobOptions
+                                      {
+                                          // sync time(utc +7)
+                                          TimeZone = TimeZoneInfo.Local,
+                                      });
+
+                // update status for partner product
+                RecurringJob.AddOrUpdate(HangfireConstant.UpdateStatusPartnerProduct_ID,
+                                      () => ChangeStatusPartnerProduct(),
+                                      cronExpression: "* 0 * * *",
                                       new RecurringJobOptions
                                       {
                                           // sync time(utc +7)
@@ -430,6 +441,32 @@ namespace MBKC.Service.Services.Implementations
                 await this._unitOfWork.CommitAsync();
 
                 this._logger.LogInformation($"{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second} - " + MessageConstant.MoneyExchangeMessage.TransferToStoreSuccessfully);
+            }
+            catch (Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.InnerException != null ? ex.InnerException.Message : ex.Message);
+                throw new Exception(error);
+            }
+        }
+        #endregion
+
+        #region change stats of partner product to available
+        public async Task ChangeStatusPartnerProduct()
+        {
+            try
+            {
+               List<PartnerProduct> partnerProducts = await this._unitOfWork.PartnerProductRepository.GetPartnerProductsAsync();
+                if (!partnerProducts.Any())
+                {
+                    this._logger.LogWarning($"{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second} - " + MessageConstant.PartnerProductMessage.NoOneOutOfStock);
+                    return;
+                }
+
+                foreach (var partnerProduct in partnerProducts) partnerProduct.Status = (int)PartnerProductEnum.AvailableStatus.AVAILABLE;
+                this._unitOfWork.PartnerProductRepository.UpdatePartnerProductRange(partnerProducts);
+                await this._unitOfWork.CommitAsync();
+
+                this._logger.LogInformation($"{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second} - " + MessageConstant.PartnerProductMessage.UpdatePartnerProductSuccessfully);
             }
             catch (Exception ex)
             {

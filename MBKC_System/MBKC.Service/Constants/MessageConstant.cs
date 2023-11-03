@@ -217,6 +217,8 @@ namespace MBKC.Service.Constants
             public const string ProductPartnerNotAvailableNow = "Partner product is not available now.";
             public const string ProductPriceNotMatchWithPartnerProduct = "Product price does not match with partner product.";
             public const string ExtraProductPriceNotMatchWithPartnerProduct = "Extra Product price does not match with partner product.";
+            public const string NoOneOutOfStock = "No partner products are out of stock.";
+            public const string UpdatePartnerProductSuccessfully = "Change the status of partner product successfully.";
         }
 
         public static class OrderMessage

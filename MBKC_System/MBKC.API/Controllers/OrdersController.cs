@@ -51,8 +51,9 @@ namespace MBKC.API.Controllers
         ///     
         ///         PUT
         ///         {
-        ///           "orderPartnerId": "GRABFOOD",
-        ///           "bankingAccountId": 1
+        ///           OrderPartnerId: "GRABFOOD",
+        ///           BankingAccountId: 1,
+        ///           Image: ...
         ///         }
         /// </remarks>
         /// <response code="200">Changed order status successfully.</response>
@@ -66,11 +67,11 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Consumes(MediaTypeConstant.ApplicationJson)]
+        [Consumes(MediaTypeConstant.MultipartFormData)]
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.Cashier)]
         [HttpPut(APIEndPointConstant.Order.ConfirmOrderToCompletedEndpoint)]
-        public async Task<IActionResult> ConfirmOrderToCompletedAsync([FromBody] ConfirmOrderToCompletedRequest confirmOrderToCompletedRequest)
+        public async Task<IActionResult> ConfirmOrderToCompletedAsync([FromForm] ConfirmOrderToCompletedRequest confirmOrderToCompletedRequest)
         {
             ValidationResult validationResult = await this._confirmOrderToCompletedValidator.ValidateAsync(confirmOrderToCompletedRequest);
             if (validationResult.IsValid == false)

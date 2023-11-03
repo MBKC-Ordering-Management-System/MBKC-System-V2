@@ -50,6 +50,7 @@ namespace MBKC.Repository.Infrastructures
         private GrabFoodRepository _grabFoodRepository;
         private ConfigurationRepository _configurationRepository;
         private RabbitMQRepository _rabbitMQRepository;
+        private OrderHistoryRepository _orderHistoryRepository;
 
         public UnitOfWork(IDbFactory dbFactory)
         {
@@ -437,6 +438,18 @@ namespace MBKC.Repository.Infrastructures
                     this._rabbitMQRepository = new RabbitMQRepository();
                 }
                 return this._rabbitMQRepository;
+            }
+        }
+
+        public OrderHistoryRepository OrderHistoryRepository
+        {
+            get
+            {
+                if (this._orderHistoryRepository == null)
+                {
+                    this._orderHistoryRepository = new OrderHistoryRepository(this._dbContext);
+                }
+                return this._orderHistoryRepository;
             }
         }
 

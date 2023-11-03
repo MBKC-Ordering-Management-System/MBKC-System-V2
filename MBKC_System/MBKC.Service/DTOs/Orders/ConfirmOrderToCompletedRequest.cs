@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,5 +11,6 @@ namespace MBKC.Service.DTOs.Orders
     {
         public string OrderPartnerId { get; set; }
         public int? BankingAccountId { get; set; }
+        public IFormFile Image { get; set; }
     }
 }

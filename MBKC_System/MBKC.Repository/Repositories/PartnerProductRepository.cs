@@ -19,6 +19,20 @@ namespace MBKC.Repository.Repositories
             this._dbContext = dbContext;
         }
 
+        #region get partner product with status is OUT_OF_STOCK_TODAY
+        public async Task<List<PartnerProduct>> GetPartnerProductsAsync()
+        {
+            try
+            {
+                return await this._dbContext.PartnerProducts.Where(pp => pp.Status == (int)PartnerProductEnum.AvailableStatus.OUT_OF_STOCK_TODAY).ToListAsync();
+            }
+            catch
+            {
+                throw;
+            }
+        }
+        #endregion
+
         #region GetPartnerProductAsync
         public async Task<PartnerProduct> GetPartnerProductAsync(int productId, int partnerId, int storeId, DateTime createdDate)
         {

@@ -14,6 +14,7 @@ using MBKC.Repository.Models;
 using MBKC.Service.Utils;
 using MBKC.Repository.Enums;
 using MBKC.Service.DTOs.Orders.MBKC.Service.DTOs.Orders;
+using MBKC.Service.DTOs.MoneyExchanges;
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -30,6 +31,9 @@ namespace MBKC.Service.Services.Implementations
         #region change order status to completed
         public async Task ConfirmOrderToCompletedAsync(ConfirmOrderToCompletedRequest confirmOrderToCompleted, IEnumerable<Claim> claims)
         {
+            string folderName = "Orders";
+            string imageId = "";
+            bool uploaded = false;
             try
             {
                 #region validation
@@ -72,19 +76,32 @@ namespace MBKC.Service.Services.Implementations
                     }
                 }
 
-                if (existedOrder.PartnerOrderStatus.Equals(OrderEnum.Status.PREPARING.ToString()))
+                if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.Status.PREPARING.ToString()))
                 {
                     throw new BadRequestException(MessageConstant.OrderMessage.OrderIsPreparing);
                 }
-                if (existedOrder.PartnerOrderStatus.Equals(OrderEnum.Status.UPCOMING.ToString()))
+                if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.Status.UPCOMING.ToString()))
                 {
                     throw new BadRequestException(MessageConstant.OrderMessage.OrderIsUpcoming);
                 }
-                if (existedOrder.PartnerOrderStatus.Equals(OrderEnum.Status.COMPLETED.ToString()))
+                if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.Status.COMPLETED.ToString()))
                 {
                     throw new BadRequestException(MessageConstant.OrderMessage.OrderIsCompleted);
                 }
-                if (existedOrder.PartnerOrderStatus.Equals(OrderEnum.Status.CANCELLED.ToString()))
+                if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.Status.CANCELLED.ToString()))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsCancelled);
+                }
+
+                if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.SystemStatus.IN_STORE.ToString()))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsPreparing);
+                }
+                if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.SystemStatus.COMPLETED.ToString()))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsCompleted);
+                }
+                if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.SystemStatus.CANCELLED.ToString()))
                 {
                     throw new BadRequestException(MessageConstant.OrderMessage.OrderIsCancelled);
                 }
@@ -92,9 +109,31 @@ namespace MBKC.Service.Services.Implementations
 
                 #region operation
 
+                #region upload file
+                FileStream fileStream = FileUtil.ConvertFormFileToStream(confirmOrderToCompleted.Image);
+                imageId = Guid.NewGuid().ToString();
+                string urlImage = await this._unitOfWork.FirebaseStorageRepository.UploadImageAsync(fileStream, folderName, imageId);
+                if (urlImage != null && urlImage.Length > 0)
+                {
+                    uploaded = true;
+                    urlImage += $"&imageId={imageId}";
+                }
+                #endregion
+
                 #region orders
                 existedOrder.PartnerOrderStatus = OrderEnum.Status.COMPLETED.ToString();
+                existedOrder.SystemStatus = OrderEnum.SystemStatus.COMPLETED.ToString();
                 this._unitOfWork.OrderRepository.UpdateOrder(existedOrder);
+
+                OrderHistory orderHistory = new OrderHistory()
+                {
+                    Image = urlImage,
+                    CreatedDate = DateTime.Now,
+                    SystemStatus = OrderEnum.SystemStatus.COMPLETED.ToString(),
+                    PartnerOrderStatus = OrderEnum.Status.COMPLETED.ToString(),
+                    Order = existedOrder,
+                };
+                await this._unitOfWork.OrderHistoryRepository.InsertOrderHistoryAsync(orderHistory);
                 #endregion
 
                 #region shipper payment and transaction and wallet (Cash only)
@@ -192,6 +231,10 @@ namespace MBKC.Service.Services.Implementations
             }
             catch (Exception ex)
             {
+                if (uploaded)
+                {
+                    await this._unitOfWork.FirebaseStorageRepository.DeleteImageAsync(imageId, folderName);
+                }
                 string error = ErrorUtil.GetErrorString("Exception", ex.InnerException != null ? ex.InnerException.Message : ex.Message);
                 throw new Exception(error);
             }

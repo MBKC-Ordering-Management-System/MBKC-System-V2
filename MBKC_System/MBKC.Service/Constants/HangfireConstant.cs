@@ -10,6 +10,7 @@ namespace MBKC.Service.Constants
     {
         // job id
         public const string MoneyExchangeToStore_ID = "job_money_exchange_to_store";
-        public const string MoneyExchangeToKitchenCenter_ID = "job_money_exchange_to_kitchen_center";        
+        public const string MoneyExchangeToKitchenCenter_ID = "job_money_exchange_to_kitchen_center";
+        public const string UpdateStatusPartnerProduct_ID = "job_update_status_partner_product";
     }
 }
