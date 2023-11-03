@@ -906,7 +906,7 @@ namespace MBKC.Repository.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(100)");
 
-                    b.Property<int>("WalletId")
+                    b.Property<int?>("WalletId")
                         .HasColumnType("int");
 
                     b.HasKey("StoreId");
@@ -916,7 +916,8 @@ namespace MBKC.Repository.Migrations
                     b.HasIndex("KitchenCenterId");
 
                     b.HasIndex("WalletId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[WalletId] IS NOT NULL");
 
                     b.ToTable("Stores");
                 });
@@ -1330,9 +1331,7 @@ namespace MBKC.Repository.Migrations
 
                     b.HasOne("MBKC.Repository.Models.Wallet", "Wallet")
                         .WithOne()
-                        .HasForeignKey("MBKC.Repository.Models.Store", "WalletId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("MBKC.Repository.Models.Store", "WalletId");
 
                     b.Navigation("Brand");
 
