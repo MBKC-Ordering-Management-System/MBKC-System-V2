@@ -22,7 +22,7 @@ namespace MBKC.Repository.Models
         [ForeignKey("KitchenCenterId")]
         public virtual KitchenCenter KitchenCenter { get; set; }
         [ForeignKey("WalletId")]
-        public virtual Wallet Wallet { get; set; }
+        public virtual Wallet? Wallet { get; set; }
         public virtual IEnumerable<StoreAccount> StoreAccounts { get; set; }
         public virtual IEnumerable<StoreMoneyExchange> StoreMoneyExchanges { get; set; }
         public virtual IEnumerable<Order> Orders { get; set; }

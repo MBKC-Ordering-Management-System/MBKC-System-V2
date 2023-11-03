@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MBKC.Repository.Repositories
 {
-   public class WalletRepository
+    public class WalletRepository
     {
         private MBKCDbContext _dbContext;
         public WalletRepository(MBKCDbContext dbContext)
@@ -23,6 +23,18 @@ namespace MBKC.Repository.Repositories
             try
             {
                 this._dbContext.Wallets.Update(wallet);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task CreateWallet(Wallet wallet)
+        {
+            try
+            {
+                await this._dbContext.Wallets.AddAsync(wallet);
             }
             catch (Exception ex)
             {

@@ -93,7 +93,7 @@ namespace MBKC.API.Controllers
         ///  Get all orders for a specified store or kitchen center.
         /// </summary>
         /// <param name="getOrdersRequest">
-        /// An object include SearchValue, SearchByDateFrom, SearchByDateTo, 
+        /// An object include SearchValue,
         /// ItemsPerPage, CurrentPage, SortBy for sort, search and paging. 
         /// </param>
         /// <returns>
@@ -104,8 +104,6 @@ namespace MBKC.API.Controllers
         ///     
         ///         GET
         ///         SearchValue = Grab
-        ///         SearchByDateFrom = 2023/10/2
-        ///         SearchByDateTo = 2023/11/2
         ///         CurrentPage = 1
         ///         ItemsPerPage = 5
         ///         SortBy = "propertyName_asc | propertyName_ASC | propertyName_desc | propertyName_DESC"

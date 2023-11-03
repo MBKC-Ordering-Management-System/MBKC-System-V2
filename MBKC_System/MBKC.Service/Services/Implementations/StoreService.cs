@@ -312,10 +312,7 @@ namespace MBKC.Service.Services.Implementations
                     Role = storeManagerRole,
                 };
 
-                Wallet storeWallet = new Wallet()
-                {
-                    Balance = 0,
-                };
+
 
                 Store newStore = new Store()
                 {
@@ -324,7 +321,7 @@ namespace MBKC.Service.Services.Implementations
                     Status = (int)StoreEnum.Status.BE_CONFIRMING,
                     Brand = existedBrand,
                     KitchenCenter = existedKitchenCenter,
-                    Wallet = storeWallet,
+                    Wallet = null,
                     StoreManagerEmail = registerStoreRequest.StoreManagerEmail
                 };
 
@@ -687,6 +684,12 @@ namespace MBKC.Service.Services.Implementations
                     confirmStoreRegistrationRequest.RejectedReason = null;
                     existedStore.Status = (int)StoreEnum.Status.ACTIVE;
                     isActiveStore = true;
+                    Wallet storeWallet = new Wallet()
+                    {
+                        Balance = 0,
+                    };
+                    await this._unitOfWork.WalletRepository.CreateWallet(storeWallet);
+                    existedStore.Wallet = storeWallet;
                 }
                 else if (confirmStoreRegistrationRequest.Status.Trim().ToLower().Equals(StoreEnum.Status.REJECTED.ToString().ToLower()) &&
                     confirmStoreRegistrationRequest.RejectedReason == null)
