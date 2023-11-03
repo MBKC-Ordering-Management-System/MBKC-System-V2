@@ -142,7 +142,7 @@ namespace MBKC.Repository.Repositories
         }
 
         public async Task<List<Order>> GetOrdersAsync(string? searchValue, string? searchValueWithoutUnicode,
-            int currentPage, int itemsPerPage, string? sortByASC, string? sortByDESC, int? storeId, int? kitchenCenterId)
+            int currentPage, int itemsPerPage, string? sortByASC, string? sortByDESC, int? storeId, int? kitchenCenterId, string? systemStatus)
         {
             try
             {
@@ -162,10 +162,13 @@ namespace MBKC.Repository.Repositories
                                                                     : true) &&
                                                                     (kitchenCenterId != null
                                                                     ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId
+                                                                    : true) &&
+                                                                    (systemStatus != null
+                                                                    ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper())
                                                                     : true))
                                                         .Where(delegate (Order order)
                                                         {
-                                                            if (StringUtil.RemoveSign4VietnameseString(order.CustomerName).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
+                                                            if (StringUtil.RemoveSign4VietnameseString(order.Partner.Name).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
                                                             {
                                                                 return true;
                                                             }
@@ -201,10 +204,13 @@ namespace MBKC.Repository.Repositories
                                                                     : true) &&
                                                                     (kitchenCenterId != null
                                                                     ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId
+                                                                    : true) &&
+                                                                    (systemStatus != null
+                                                                    ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper())
                                                                     : true))
                                                         .Where(delegate (Order order)
                                                         {
-                                                            if (StringUtil.RemoveSign4VietnameseString(order.CustomerName).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
+                                                            if (StringUtil.RemoveSign4VietnameseString(order.Partner.Name).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
                                                             {
                                                                 return true;
                                                             }
@@ -226,7 +232,6 @@ namespace MBKC.Repository.Repositories
                                                                          then => then.OrderByDescending(x => x.Address))
                                                               .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
 
-                    Console.WriteLine("Kekeke");
                     return this._dbContext.Orders.Include(x => x.Store)
                                                  .Include(x => x.Partner)
                                                  .Include(o => o.OrderDetails).ThenInclude(x => x.MasterOrderDetail)
@@ -237,11 +242,8 @@ namespace MBKC.Repository.Repositories
                                                  .ThenInclude(x => x.KitchenCenter)
                                                     .Where(delegate (Order order)
                                                     {
-                                                        if (StringUtil.RemoveSign4VietnameseString(order.CustomerName).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
+                                                        if (StringUtil.RemoveSign4VietnameseString(order.Partner.Name).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
                                                         {
-                                                            Console.WriteLine(StringUtil.RemoveSign4VietnameseString(order.CustomerName));
-                                                            string s = StringUtil.RemoveSign4VietnameseString(order.CustomerName);
-                                                           
                                                             return true;
                                                         }
                                                         return false;
@@ -251,7 +253,10 @@ namespace MBKC.Repository.Repositories
                                                                    : true) &&
                                                                    (kitchenCenterId != null
                                                                    ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId
-                                                                   : true))
+                                                                   : true) &&
+                                                                    (systemStatus != null
+                                                                    ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper())
+                                                                    : true))
                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
                 }
                 else if (searchValue != null && searchValueWithoutUnicode == null)
@@ -271,7 +276,10 @@ namespace MBKC.Repository.Repositories
                                                                      (kitchenCenterId != null
                                                                      ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId
                                                                      : true) &&
-                                                                     x.CustomerName.ToLower().Contains(searchValue.ToLower()))
+                                                                    (systemStatus != null
+                                                                    ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper())
+                                                                    : true) &&
+                                                                     x.Partner.Name.ToLower().Contains(searchValue.ToLower()))
                                                            .If(sortByASC != null && sortByASC.ToLower().Equals("shippername"),
                                                                       then => then.OrderBy(x => x.ShipperName))
                                                            .If(sortByASC != null && sortByASC.ToLower().Equals("customername"),
@@ -303,7 +311,10 @@ namespace MBKC.Repository.Repositories
                                                                      (kitchenCenterId != null
                                                                      ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId
                                                                      : true) &&
-                                                                     x.CustomerName.ToLower().Contains(searchValue.ToLower()))
+                                                                      (systemStatus != null
+                                                                    ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper())
+                                                                    : true) &&
+                                                                     x.Partner.Name.ToLower().Contains(searchValue.ToLower()))
                                                               .If(sortByDESC != null && sortByDESC.ToLower().Equals("shippername"),
                                                                   then => then.OrderByDescending(x => x.ShipperName))
                                                               .If(sortByDESC != null && sortByDESC.ToLower().Equals("customername"),
@@ -334,7 +345,10 @@ namespace MBKC.Repository.Repositories
                                                                      (kitchenCenterId != null
                                                                      ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId
                                                                      : true) &&
-                                                                     x.CustomerName.ToLower().Contains(searchValue.ToLower()))
+                                                                       (systemStatus != null
+                                                                     ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper())
+                                                                     : true)&&
+                                                                     x.Partner.Name.ToLower().Contains(searchValue.ToLower()))
                                                               .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
                 }
 
@@ -351,6 +365,9 @@ namespace MBKC.Repository.Repositories
                                                            .Where(x => (storeId != null
                                                                      ? x.StoreId == storeId
                                                                      : true) &&
+                                                                     (systemStatus != null
+                                                                    ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper())
+                                                                    : true) &&
                                                                      (kitchenCenterId != null
                                                                      ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId
                                                                      : true))
@@ -382,6 +399,9 @@ namespace MBKC.Repository.Repositories
                                                            .Where(x => (storeId != null
                                                                      ? x.StoreId == storeId
                                                                      : true) &&
+                                                                     (systemStatus != null
+                                                                    ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper())
+                                                                    : true) &&
                                                                      (kitchenCenterId != null
                                                                      ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId
                                                                      : true))
@@ -412,6 +432,9 @@ namespace MBKC.Repository.Repositories
                                                            .Where(x => (storeId != null
                                                                      ? x.StoreId == storeId
                                                                      : true) &&
+                                                                     (systemStatus != null
+                                                                    ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper())
+                                                                    : true) &&
                                                                      (kitchenCenterId != null
                                                                      ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId
                                                                      : true))

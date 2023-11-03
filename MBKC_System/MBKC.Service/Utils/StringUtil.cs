@@ -256,5 +256,17 @@ namespace MBKC.Service.Utils
 
             return MessageConstant.ProductMessage.InvalidProductTypeExtra;
         }
+
+        public static bool CheckSystemStatusOrder(string status)
+        {
+            if (status.Trim().ToLower().Equals(OrderEnum.SystemStatus.IN_STORE.ToString().ToLower()) ||
+                status.Trim().ToLower().Equals(OrderEnum.SystemStatus.READY_DELIVERY.ToString().ToLower()) ||
+                status.Trim().ToLower().Equals(OrderEnum.SystemStatus.COMPLETED.ToString().ToLower()) ||
+                status.Trim().ToLower().Equals(OrderEnum.SystemStatus.CANCELLED.ToString().ToLower()))
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

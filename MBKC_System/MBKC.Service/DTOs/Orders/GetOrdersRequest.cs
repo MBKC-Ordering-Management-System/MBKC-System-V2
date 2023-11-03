@@ -19,6 +19,7 @@ namespace MBKC.Service.DTOs.Orders
             public string? SearchValue { get; set; }
             public int ItemsPerPage { get; set; } = 5;
             public int CurrentPage { get; set; } = 1;
+            public string? SystemStatus { get; set; }
             public string? SortBy { get; set; }
         }
     }

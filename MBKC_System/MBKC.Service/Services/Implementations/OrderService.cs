@@ -492,7 +492,7 @@ namespace MBKC.Service.Services.Implementations
                     orders = await this._unitOfWork.OrderRepository.GetOrdersAsync(getOrdersRequest.SearchValue, null, getOrdersRequest.CurrentPage, getOrdersRequest.ItemsPerPage,
                                                                                                                   getOrdersRequest.SortBy != null && getOrdersRequest.SortBy.ToLower().EndsWith("asc") ? getOrdersRequest.SortBy.Split("_")[0] : null,
                                                                                                                   getOrdersRequest.SortBy != null && getOrdersRequest.SortBy.ToLower().EndsWith("desc") ? getOrdersRequest.SortBy.Split("_")[0] : null,
-                                                                                                                  storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId);
+                                                                                                                  storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId, getOrdersRequest.SystemStatus);
                 }
                 else if (getOrdersRequest.SearchValue != null && StringUtil.IsUnicode(getOrdersRequest.SearchValue) == false)
                 {
@@ -500,7 +500,7 @@ namespace MBKC.Service.Services.Implementations
                     orders = await this._unitOfWork.OrderRepository.GetOrdersAsync(null, getOrdersRequest.SearchValue, getOrdersRequest.CurrentPage, getOrdersRequest.ItemsPerPage,
                                                                                                                   getOrdersRequest.SortBy != null && getOrdersRequest.SortBy.ToLower().EndsWith("asc") ? getOrdersRequest.SortBy.Split("_")[0] : null,
                                                                                                                   getOrdersRequest.SortBy != null && getOrdersRequest.SortBy.ToLower().EndsWith("desc") ? getOrdersRequest.SortBy.Split("_")[0] : null,
-                                                                                                                  storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId);
+                                                                                                                  storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId, getOrdersRequest.SystemStatus);
                 }
                 else if (getOrdersRequest.SearchValue == null)
                 {
@@ -508,7 +508,7 @@ namespace MBKC.Service.Services.Implementations
                     orders = await this._unitOfWork.OrderRepository.GetOrdersAsync(null, null, getOrdersRequest.CurrentPage, getOrdersRequest.ItemsPerPage,
                                                                                                                   getOrdersRequest.SortBy != null && getOrdersRequest.SortBy.ToLower().EndsWith("asc") ? getOrdersRequest.SortBy.Split("_")[0] : null,
                                                                                                                   getOrdersRequest.SortBy != null && getOrdersRequest.SortBy.ToLower().EndsWith("desc") ? getOrdersRequest.SortBy.Split("_")[0] : null,
-                                                                                                                  storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId);
+                                                                                                                  storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId, getOrdersRequest.SystemStatus);
                 }
 
                 int totalPages = 0;

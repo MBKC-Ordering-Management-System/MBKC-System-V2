@@ -3,6 +3,7 @@
     using FluentValidation;
     using global::MBKC.Service.DTOs.Orders;
     using global::MBKC.Service.DTOs.Orders.MBKC.Service.DTOs.Orders;
+    using global::MBKC.Service.Utils;
     using System.Reflection;
     using System.Text.RegularExpressions;
 
@@ -52,6 +53,19 @@
                             }
                         }
                     });
+
+                #region SystemStatus
+                RuleFor(x => x.SystemStatus)
+                         .Cascade(CascadeMode.StopOnFirstFailure)
+                         .Must((x, status) =>
+                         {
+                             if (status == null)
+                             {
+                                 return true; // Skip validation when keySortName is null
+                             }
+                             return StringUtil.CheckSystemStatusOrder(status);
+                         }).WithMessage("{PropertyName} is required IN_STORE, READY_DELIVERY, COMPLETED, CANCELLED");
+                #endregion
             }
         }
     }

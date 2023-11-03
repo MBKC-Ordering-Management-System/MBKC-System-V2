@@ -19,10 +19,10 @@ namespace MBKC.Repository.Enums
 
         public enum SystemStatus
         {
-            IN_STORE = 1,
-            READY_DELIVERY = 2,
-            COMPLETED = 3,
-            CANCELLED = 4,
+            IN_STORE,
+            READY_DELIVERY,
+            COMPLETED,
+            CANCELLED
         }
 
         public enum PaymentMethod
