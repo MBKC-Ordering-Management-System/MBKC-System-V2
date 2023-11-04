@@ -142,7 +142,8 @@ namespace MBKC.Repository.Repositories
         }
 
         public async Task<List<Order>> GetOrdersAsync(string? searchValue, string? searchValueWithoutUnicode,
-            int currentPage, int itemsPerPage, string? sortByASC, string? sortByDESC, int? storeId, int? kitchenCenterId, string? systemStatus)
+                                                      int currentPage, int itemsPerPage, string? sortByASC, string? sortByDESC, int? storeId, 
+                                                      int? kitchenCenterId, string? systemStatus, string? partnerOrderStatus)
         {
             try
             {
@@ -155,9 +156,10 @@ namespace MBKC.Repository.Repositories
                                                      .Include(o => o.OrderDetails).ThenInclude(x => x.MasterOrderDetail)
                                                      .Include(o => o.OrderDetails).ThenInclude(x => x.Product)
                                                      .Include(o => o.OrderDetails).ThenInclude(x => x.ExtraOrderDetails)
+                                                     .Include(o => o.OrderHistories)
                                                      .Include(x => x.Store)
                                                      .ThenInclude(x => x.KitchenCenter)
-                                                        .Where(x => (storeId != null
+                                                     .Where(x => (storeId != null
                                                                     ? x.StoreId == storeId
                                                                     : true) &&
                                                                     (kitchenCenterId != null
@@ -165,10 +167,13 @@ namespace MBKC.Repository.Repositories
                                                                     : true) &&
                                                                     (systemStatus != null
                                                                     ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper())
+                                                                    : true) &&
+                                                                    (partnerOrderStatus != null
+                                                                    ? x.PartnerOrderStatus.ToUpper().Equals(partnerOrderStatus.Trim().ToUpper())
                                                                     : true))
                                                         .Where(delegate (Order order)
                                                         {
-                                                            if (StringUtil.RemoveSign4VietnameseString(order.Partner.Name).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
+                                                            if (StringUtil.RemoveSign4VietnameseString(order.Store.Name).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
                                                             {
                                                                 return true;
                                                             }
@@ -188,12 +193,15 @@ namespace MBKC.Repository.Repositories
                                                                          then => then.OrderBy(x => x.Tax))
                                                               .If(sortByASC != null && sortByASC.ToLower().Equals("address"),
                                                                          then => then.OrderBy(x => x.Address))
+                                                              .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
+                                                                         then => then.OrderBy(x => x.Store.Name))
                                                               .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
 
                     else if (sortByDESC is not null)
                         return this._dbContext.Orders.Include(x => x.Store)
                                                      .Include(x => x.Partner)
                                                      .Include(x => x.ShipperPayments)
+                                                     .Include(o => o.OrderHistories)
                                                      .Include(o => o.OrderDetails).ThenInclude(x => x.MasterOrderDetail)
                                                      .Include(o => o.OrderDetails).ThenInclude(x => x.Product)
                                                      .Include(o => o.OrderDetails).ThenInclude(x => x.ExtraOrderDetails)
@@ -207,10 +215,13 @@ namespace MBKC.Repository.Repositories
                                                                     : true) &&
                                                                     (systemStatus != null
                                                                     ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper())
+                                                                    : true) &&
+                                                                    (partnerOrderStatus != null
+                                                                    ? x.PartnerOrderStatus.ToUpper().Equals(partnerOrderStatus.Trim().ToUpper())
                                                                     : true))
                                                         .Where(delegate (Order order)
                                                         {
-                                                            if (StringUtil.RemoveSign4VietnameseString(order.Partner.Name).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
+                                                            if (StringUtil.RemoveSign4VietnameseString(order.Store.Name).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
                                                             {
                                                                 return true;
                                                             }
@@ -234,6 +245,7 @@ namespace MBKC.Repository.Repositories
 
                     return this._dbContext.Orders.Include(x => x.Store)
                                                  .Include(x => x.Partner)
+                                                 .Include(o => o.OrderHistories)
                                                  .Include(o => o.OrderDetails).ThenInclude(x => x.MasterOrderDetail)
                                                  .Include(o => o.OrderDetails).ThenInclude(x => x.Product)
                                                  .Include(o => o.OrderDetails).ThenInclude(x => x.ExtraOrderDetails)
@@ -242,7 +254,7 @@ namespace MBKC.Repository.Repositories
                                                  .ThenInclude(x => x.KitchenCenter)
                                                     .Where(delegate (Order order)
                                                     {
-                                                        if (StringUtil.RemoveSign4VietnameseString(order.Partner.Name).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
+                                                        if (StringUtil.RemoveSign4VietnameseString(order.Store.Name).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
                                                         {
                                                             return true;
                                                         }
@@ -256,6 +268,9 @@ namespace MBKC.Repository.Repositories
                                                                    : true) &&
                                                                     (systemStatus != null
                                                                     ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper())
+                                                                    : true) &&
+                                                                    (partnerOrderStatus != null
+                                                                    ? x.PartnerOrderStatus.ToUpper().Equals(partnerOrderStatus.Trim().ToUpper())
                                                                     : true))
                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
                 }
@@ -264,6 +279,7 @@ namespace MBKC.Repository.Repositories
                     if (sortByASC is not null)
                         return this._dbContext.Orders.Include(x => x.Store)
                                                      .Include(x => x.Partner)
+                                                     .Include(o => o.OrderHistories)
                                                      .Include(x => x.ShipperPayments)
                                                      .Include(o => o.OrderDetails).ThenInclude(x => x.MasterOrderDetail)
                                                      .Include(o => o.OrderDetails).ThenInclude(x => x.Product)
@@ -279,7 +295,10 @@ namespace MBKC.Repository.Repositories
                                                                     (systemStatus != null
                                                                     ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper())
                                                                     : true) &&
-                                                                     x.Partner.Name.ToLower().Contains(searchValue.ToLower()))
+                                                                    (partnerOrderStatus != null
+                                                                    ? x.PartnerOrderStatus.ToUpper().Equals(partnerOrderStatus.Trim().ToUpper())
+                                                                    : true) &&
+                                                                     x.Store.Name.ToLower().Contains(searchValue.ToLower()))
                                                            .If(sortByASC != null && sortByASC.ToLower().Equals("shippername"),
                                                                       then => then.OrderBy(x => x.ShipperName))
                                                            .If(sortByASC != null && sortByASC.ToLower().Equals("customername"),
@@ -299,6 +318,7 @@ namespace MBKC.Repository.Repositories
                     else if (sortByDESC is not null)
                         return this._dbContext.Orders.Include(x => x.Store)
                                                      .Include(x => x.Partner)
+                                                     .Include(o => o.OrderHistories)
                                                      .Include(x => x.ShipperPayments)
                                                      .Include(o => o.OrderDetails).ThenInclude(x => x.MasterOrderDetail)
                                                      .Include(o => o.OrderDetails).ThenInclude(x => x.Product)
@@ -314,7 +334,10 @@ namespace MBKC.Repository.Repositories
                                                                       (systemStatus != null
                                                                     ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper())
                                                                     : true) &&
-                                                                     x.Partner.Name.ToLower().Contains(searchValue.ToLower()))
+                                                                    (partnerOrderStatus != null
+                                                                    ? x.PartnerOrderStatus.ToUpper().Equals(partnerOrderStatus.Trim().ToUpper())
+                                                                    : true) &&
+                                                                     x.Store.Name.ToLower().Contains(searchValue.ToLower()))
                                                               .If(sortByDESC != null && sortByDESC.ToLower().Equals("shippername"),
                                                                   then => then.OrderByDescending(x => x.ShipperName))
                                                               .If(sortByDESC != null && sortByDESC.ToLower().Equals("customername"),
@@ -334,6 +357,7 @@ namespace MBKC.Repository.Repositories
                     return this._dbContext.Orders.Include(x => x.Store)
                                                      .Include(x => x.Partner)
                                                      .Include(x => x.ShipperPayments)
+                                                     .Include(o => o.OrderHistories)
                                                      .Include(o => o.OrderDetails).ThenInclude(x => x.MasterOrderDetail)
                                                      .Include(o => o.OrderDetails).ThenInclude(x => x.Product)
                                                      .Include(o => o.OrderDetails).ThenInclude(x => x.ExtraOrderDetails)
@@ -347,16 +371,18 @@ namespace MBKC.Repository.Repositories
                                                                      : true) &&
                                                                        (systemStatus != null
                                                                      ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper())
-                                                                     : true)&&
-                                                                     x.Partner.Name.ToLower().Contains(searchValue.ToLower()))
+                                                                     : true) &&
+                                                                    (partnerOrderStatus != null
+                                                                    ? x.PartnerOrderStatus.ToUpper().Equals(partnerOrderStatus.Trim().ToUpper())
+                                                                    : true) &&
+                                                                     x.Store.Name.ToLower().Contains(searchValue.ToLower()))
                                                               .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
                 }
-
-
                 if (sortByASC is not null)
                     return this._dbContext.Orders.Include(x => x.Store)
                                                      .Include(x => x.Partner)
                                                      .Include(x => x.ShipperPayments)
+                                                     .Include(o => o.OrderHistories)
                                                      .Include(o => o.OrderDetails).ThenInclude(x => x.MasterOrderDetail)
                                                      .Include(o => o.OrderDetails).ThenInclude(x => x.Product)
                                                      .Include(o => o.OrderDetails).ThenInclude(x => x.ExtraOrderDetails)
@@ -370,7 +396,10 @@ namespace MBKC.Repository.Repositories
                                                                     : true) &&
                                                                      (kitchenCenterId != null
                                                                      ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId
-                                                                     : true))
+                                                                     : true) &&
+                                                                    (partnerOrderStatus != null
+                                                                    ? x.PartnerOrderStatus.ToUpper().Equals(partnerOrderStatus.Trim().ToUpper())
+                                                                    : true))
                                                            .If(sortByASC != null && sortByASC.ToLower().Equals("shippername"),
                                                                       then => then.OrderBy(x => x.ShipperName))
                                                            .If(sortByASC != null && sortByASC.ToLower().Equals("customername"),
@@ -391,6 +420,7 @@ namespace MBKC.Repository.Repositories
                     return this._dbContext.Orders.Include(x => x.Store)
                                                      .Include(x => x.Partner)
                                                      .Include(x => x.ShipperPayments)
+                                                     .Include(o => o.OrderHistories)
                                                      .Include(o => o.OrderDetails).ThenInclude(x => x.MasterOrderDetail)
                                                      .Include(o => o.OrderDetails).ThenInclude(x => x.Product)
                                                      .Include(o => o.OrderDetails).ThenInclude(x => x.ExtraOrderDetails)
@@ -404,7 +434,10 @@ namespace MBKC.Repository.Repositories
                                                                     : true) &&
                                                                      (kitchenCenterId != null
                                                                      ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId
-                                                                     : true))
+                                                                     : true) &&
+                                                                    (partnerOrderStatus != null
+                                                                    ? x.PartnerOrderStatus.ToUpper().Equals(partnerOrderStatus.Trim().ToUpper())
+                                                                    : true))
                                                               .If(sortByDESC != null && sortByDESC.ToLower().Equals("shippername"),
                                                                   then => then.OrderByDescending(x => x.ShipperName))
                                                               .If(sortByDESC != null && sortByDESC.ToLower().Equals("customername"),
@@ -424,6 +457,7 @@ namespace MBKC.Repository.Repositories
                 return this._dbContext.Orders.Include(x => x.Store)
                                                      .Include(x => x.Partner)
                                                      .Include(x => x.ShipperPayments)
+                                                     .Include(o => o.OrderHistories)
                                                      .Include(o => o.OrderDetails).ThenInclude(x => x.MasterOrderDetail)
                                                      .Include(o => o.OrderDetails).ThenInclude(x => x.Product)
                                                      .Include(o => o.OrderDetails).ThenInclude(x => x.ExtraOrderDetails)
@@ -437,7 +471,10 @@ namespace MBKC.Repository.Repositories
                                                                     : true) &&
                                                                      (kitchenCenterId != null
                                                                      ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId
-                                                                     : true))
+                                                                     : true) &&
+                                                                    (partnerOrderStatus != null
+                                                                    ? x.PartnerOrderStatus.ToUpper().Equals(partnerOrderStatus.Trim().ToUpper())
+                                                                    : true))
                                                               .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
 
 

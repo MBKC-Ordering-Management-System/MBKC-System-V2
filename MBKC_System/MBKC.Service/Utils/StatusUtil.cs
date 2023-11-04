@@ -195,11 +195,70 @@ namespace MBKC.Service.Utils
 
         public static string ChangeTransactionStatus(int status)
         {
-            if(status == (int)TransactionEnum.Status.FAIL)
+            if (status == (int)TransactionEnum.Status.FAIL)
             {
                 return char.ToUpper(TransactionEnum.Status.FAIL.ToString()[0]) + TransactionEnum.Status.FAIL.ToString().ToLower().Substring(1);
             }
             return char.ToUpper(TransactionEnum.Status.SUCCESS.ToString()[0]) + TransactionEnum.Status.SUCCESS.ToString().ToLower().Substring(1);
+        }
+
+        public static string ChangeShipperPaymentStatus(int status)
+        {
+            if (status == (int)ShipperPaymentEnum.Status.SUCCESS)
+            {
+                return char.ToUpper(ShipperPaymentEnum.Status.SUCCESS.ToString()[0]) + ShipperPaymentEnum.Status.SUCCESS.ToString().ToLower().Substring(1);
+            }
+
+            return char.ToUpper(ShipperPaymentEnum.Status.FAIL.ToString()[0]) + ShipperPaymentEnum.Status.FAIL.ToString().ToLower().Substring(1);
+        }
+
+        public static string ChangeMoneyExchangeStatus(int status)
+        {
+            if (status == (int)MoneyExchangeEnum.Status.SUCCESS)
+            {
+                return char.ToUpper(MoneyExchangeEnum.Status.SUCCESS.ToString()[0]) + MoneyExchangeEnum.Status.SUCCESS.ToString().ToLower().Substring(1);
+            }
+
+            return char.ToUpper(MoneyExchangeEnum.Status.FAIL.ToString()[0]) + MoneyExchangeEnum.Status.FAIL.ToString().ToLower().Substring(1);
+        }
+
+        public static string ChangePartnerOrderStatus(string status)
+        {
+            if (status.ToUpper().Equals(OrderEnum.Status.READY.ToString()))
+            {
+                return char.ToUpper(OrderEnum.Status.READY.ToString()[0]) + OrderEnum.Status.READY.ToString().ToLower().Substring(1);
+            }
+            else if (status.ToUpper().Equals(OrderEnum.Status.PREPARING.ToString()))
+            {
+                return char.ToUpper(OrderEnum.Status.PREPARING.ToString()[0]) + OrderEnum.Status.PREPARING.ToString().ToLower().Substring(1);
+            }
+            else if (status.ToUpper().Equals(OrderEnum.Status.CANCELLED.ToString()))
+            {
+                return char.ToUpper(OrderEnum.Status.CANCELLED.ToString()[0]) + OrderEnum.Status.CANCELLED.ToString().ToLower().Substring(1);
+            }
+            else if (status.ToUpper().Equals(OrderEnum.Status.COMPLETED.ToString()))
+            {
+                return char.ToUpper(OrderEnum.Status.COMPLETED.ToString()[0]) + OrderEnum.Status.COMPLETED.ToString().ToLower().Substring(1);
+            }
+            return "Upcoming";
+        }
+
+        public static string ChangeSystemOrderStatus(string status)
+        {
+            if (status.ToUpper().Equals(OrderEnum.SystemStatus.READY_DELIVERY.ToString()))
+            {
+                return "Ready delivery";
+            }
+            else if (status.ToUpper().Equals(OrderEnum.SystemStatus.IN_STORE.ToString()))
+            {
+                return "In store";
+            }
+            else if (status.ToUpper().Equals(OrderEnum.SystemStatus.CANCELLED.ToString()))
+            {
+                return char.ToUpper(OrderEnum.SystemStatus.CANCELLED.ToString()[0]) + OrderEnum.SystemStatus.CANCELLED.ToString().ToLower().Substring(1);
+            }
+            return char.ToUpper(OrderEnum.SystemStatus.COMPLETED.ToString()[0]) + OrderEnum.SystemStatus.COMPLETED.ToString().ToLower().Substring(1);
+
         }
     }
 }

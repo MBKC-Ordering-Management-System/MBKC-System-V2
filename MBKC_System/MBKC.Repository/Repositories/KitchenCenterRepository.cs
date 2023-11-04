@@ -44,6 +44,18 @@ namespace MBKC.Repository.Repositories
             {
                 return await this._dbContext.KitchenCenters.Include(x => x.Manager)
                                                            .Include(x => x.Stores).ThenInclude(x => x.Brand)
+                                                           .Include(x => x.KitchenCenterMoneyExchanges)
+                                                           .ThenInclude(x => x.MoneyExchange)
+                                                           .ThenInclude(x => x.Transactions)
+                                                           .ThenInclude(x => x.Wallet)
+                                                           .Include(x => x.KitchenCenterMoneyExchanges)
+                                                           .ThenInclude(x => x.MoneyExchange)
+                                                           .ThenInclude(x => x.Transactions)
+                                                           .ThenInclude(x => x.ShipperPayment).ThenInclude(x => x.Order)
+                                                           .Include(x => x.KitchenCenterMoneyExchanges)
+                                                           .ThenInclude(x => x.MoneyExchange)
+                                                           .ThenInclude(x => x.Transactions)
+                                                           .ThenInclude(x => x.ShipperPayment).ThenInclude(x => x.BankingAccount)
                                                            .FirstOrDefaultAsync(x => x.KitchenCenterId == id && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE);
             }
             catch (Exception ex)
@@ -223,8 +235,20 @@ namespace MBKC.Repository.Repositories
             try
             {
                 return await this._dbContext.KitchenCenters.Include(x => x.Manager)
+                                                           .Include(x => x.KitchenCenterMoneyExchanges)
                                                            .Include(x => x.Cashiers)
                                                            .Include(x => x.Stores)
+                                                           .Include(x => x.Wallet)
+                                                           .ThenInclude(x => x.Transactions)
+                                                           .ThenInclude(x => x.MoneyExchange)
+                                                           .Include(x => x.Wallet)
+                                                           .ThenInclude(x => x.Transactions)
+                                                           .ThenInclude(x => x.ShipperPayment)
+                                                           .ThenInclude(x => x.BankingAccount)
+                                                           .Include(x => x.Wallet)
+                                                           .ThenInclude(x => x.Transactions)
+                                                           .ThenInclude(x => x.ShipperPayment)
+                                                           .ThenInclude(x => x.Order)
                                                            .FirstOrDefaultAsync(x => x.Manager.Email.Equals(managerEmail)
                                                                                   && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE);
             }

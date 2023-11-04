@@ -8,8 +8,8 @@ namespace MBKC.Service.DTOs.Transactions
 {
     public class GetTransactionResponse
     {
-        public int TracsactionId { get; set; }
+        public int TransactionId { get; set; }
         public DateTime TransactionTime { get; set; }
-        public int Status { get; set; }
+        public string Status { get; set; }
     }
 }

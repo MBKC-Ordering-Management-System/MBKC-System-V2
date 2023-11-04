@@ -24,7 +24,7 @@ namespace MBKC.Repository.Repositories
                                                                                               && ce.MoneyExchange.Transactions.Any(ts => ts.TransactionTime.Day == DateTime.Now.Day
                                                                                                                                       && ts.TransactionTime.Month == DateTime.Now.Month
                                                                                                                                       && ts.TransactionTime.Year == DateTime.Now.Year)))
-                                                     .Where(c => c.Account.Status == (int)AccountEnum.Status.ACTIVE 
+                                                     .Where(c => c.Account.Status == (int)AccountEnum.Status.ACTIVE
                                                               && c.Wallet.Balance > 0).ToListAsync();
             }
             catch (Exception ex)
@@ -172,7 +172,7 @@ namespace MBKC.Repository.Repositories
                                                               then => then.OrderBy(x => x.Account.Status))
                                                          .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage)
                                                          .ToList();
-                else if(sortByDESC is not null)
+                else if (sortByDESC is not null)
                     return this._dbContext.Cashiers.Include(x => x.Account).Include(x => x.KitchenCenter)
                                                          .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Account.Status != (int)AccountEnum.Status.DEACTIVE)
                                                          .If(sortByDESC != null && sortByDESC.ToLower().Equals("fullname"),
@@ -205,12 +205,13 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                if(searchValue is not null && searchValueWithoutUnicode is null)
+                if (searchValue is not null && searchValueWithoutUnicode is null)
                 {
                     return await this._dbContext.Cashiers.Include(x => x.Account).Include(x => x.KitchenCenter)
                                                              .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Account.Status != (int)AccountEnum.Status.DEACTIVE && x.FullName.ToLower().Contains(searchValue.ToLower()))
                                                              .CountAsync();
-                } else if(searchValue is null && searchValueWithoutUnicode is not null)
+                }
+                else if (searchValue is null && searchValueWithoutUnicode is not null)
                 {
                     return this._dbContext.Cashiers.Include(x => x.Account).Include(x => x.KitchenCenter)
                                                              .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Account.Status != (int)AccountEnum.Status.DEACTIVE)
@@ -223,7 +224,8 @@ namespace MBKC.Repository.Repositories
                 return await this._dbContext.Cashiers.Include(x => x.Account).Include(x => x.KitchenCenter)
                                                      .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Account.Status != (int)AccountEnum.Status.DEACTIVE)
                                                      .CountAsync();
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
@@ -240,19 +242,25 @@ namespace MBKC.Repository.Repositories
                                                      .Include(x => x.KitchenCenter).ThenInclude(kc => kc.Stores)
                                                      .Include(x => x.KitchenCenter).ThenInclude(kc => kc.BankingAccounts)
                                                      .Include(x => x.KitchenCenter).ThenInclude(kc => kc.Wallet)
+                                                     .Include(x => x.CashierMoneyExchanges.Where(x => x.MoneyExchange.ExchangeType.ToUpper().Equals(MoneyExchangeEnum.ExchangeType.SEND.ToString())
+                                                                                                                  && x.MoneyExchange.Transactions.Any(ts => ts.TransactionTime.Day == DateTime.Now.Day
+                                                                                                                  && ts.TransactionTime.Month == DateTime.Now.Month
+                                                                                                                  && ts.TransactionTime.Year == DateTime.Now.Year)))
                                                      .SingleOrDefaultAsync(x => x.Account.Email.Equals(email));
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
         }
-        
+
         public async Task<Cashier> GetCashierWithCitizenNumberAsync(string citizenNumber)
         {
             try
             {
                 return await this._dbContext.Cashiers.SingleOrDefaultAsync(x => x.CitizenNumber.Equals(citizenNumber));
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
@@ -268,15 +276,29 @@ namespace MBKC.Repository.Repositories
             {
                 throw new Exception(ex.Message);
             }
-        } 
+        }
 
         public async Task<Cashier> GetCashierAsync(int idCashier)
         {
             try
             {
-                return await this._dbContext.Cashiers.Include(x => x.Account).Include(x => x.KitchenCenter)
+                return await this._dbContext.Cashiers.Include(x => x.Account)
+                                                     .Include(x => x.CashierMoneyExchanges)
+                                                     .Include(x => x.KitchenCenter)
+                                                     .Include(x => x.Wallet)
+                                                     .ThenInclude(x => x.Transactions)
+                                                     .ThenInclude(x => x.MoneyExchange)
+                                                     .Include(x => x.Wallet)
+                                                     .ThenInclude(x => x.Transactions)
+                                                     .ThenInclude(x => x.ShipperPayment)
+                                                      .ThenInclude(x => x.Order)
+                                                      .Include(x => x.Wallet)
+                                                     .ThenInclude(x => x.Transactions)
+                                                     .ThenInclude(x => x.ShipperPayment)
+                                                      .ThenInclude(x => x.BankingAccount)
                                                      .SingleOrDefaultAsync(x => x.AccountId == idCashier && x.Account.Status != (int)AccountEnum.Status.DEACTIVE);
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
@@ -294,6 +316,22 @@ namespace MBKC.Repository.Repositories
             }
         }
 
-
+        public async Task<Cashier> GetCashierWithMoneyExchangeTypeIsSendAsync(int idCashier)
+        {
+            try
+            {
+                return await this._dbContext.Cashiers.Include(x => x.Account)
+                                                     .Include(x => x.KitchenCenter)
+                                                     .Include(x => x.CashierMoneyExchanges.Where(x => x.MoneyExchange.ExchangeType.ToUpper().Equals(MoneyExchangeEnum.ExchangeType.SEND.ToString())
+                                                                                                                  && x.MoneyExchange.Transactions.Any(ts => ts.TransactionTime.Day == DateTime.Now.Day
+                                                                                                                  && ts.TransactionTime.Month == DateTime.Now.Month
+                                                                                                                  && ts.TransactionTime.Year == DateTime.Now.Year)))
+                                                     .SingleOrDefaultAsync(x => x.AccountId == idCashier && x.Account.Status != (int)AccountEnum.Status.DEACTIVE);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }

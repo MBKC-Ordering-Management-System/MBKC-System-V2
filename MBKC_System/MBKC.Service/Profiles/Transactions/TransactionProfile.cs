@@ -14,7 +14,9 @@ namespace MBKC.Service.Profiles.Transactions
     {
         public TransactionProfile()
         {
-            CreateMap<Transaction, GetTransactionResponse>().ForMember(dept => dept.Status, opt => opt.MapFrom(src => StatusUtil.ChangeTransactionStatus(src.Status))); ;
+            CreateMap<Transaction, GetTransactionResponse>().ForMember(dept => dept.Status, opt => opt.MapFrom(src => StatusUtil.ChangeTransactionStatus(src.Status)));
+            CreateMap<Transaction, GetTransactionWalletResponse>().ForMember(dept => dept.Status, opt => opt.MapFrom(src => StatusUtil.ChangeTransactionStatus(src.Status))); ;
+
         }
     }
 }

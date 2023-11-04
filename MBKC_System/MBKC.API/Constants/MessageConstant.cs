@@ -105,6 +105,8 @@
         public static class OrderMessage
         {
             public const string UpdateOrderSuccessfully = "Update Order Successfully.";
+            public const string CancelOrderSuccessfully = "Cancel Order Successfully.";
+
         }
 
         public static class MoneyExchangeMessage

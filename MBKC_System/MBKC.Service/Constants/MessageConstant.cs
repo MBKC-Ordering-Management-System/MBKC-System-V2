@@ -241,6 +241,21 @@ namespace MBKC.Service.Constants
             public const string OrderIdNotExist = "Order id does not exist in the system.";
             public const string OrderIdNotBelongToStore = "Order id does not belong to store.";
             public const string OrderIdNotBelongToKitchenCenter = "Order id does not belong to kitchen center.";
+            public const string OrderIsReady_Change_To_Ready = "This order is READY status, so You can not change to ready.";
+            public const string OrderIsUpcoming_Change_To_Ready = "This order is UPCOMING status, so You can not change to ready.";
+            public const string OrderIsCompleted_Change_To_Ready = "This order is COMPLETED status, so You can not change to ready.";
+            public const string OrderIsCancelled_Change_To_Ready = "This order is CANCELLED status, so You can not change to ready.";
+            public const string OrderIsReadyDelivery_Change_To_Ready = "This order is READY_DELIVERY status, so You can not change to ready.";
+            public const string OrderIsPreparing_Change_To_ReadyDelivery = "This order is PREPARING status, so You can not change to ready delivery.";
+            public const string OrderIsUpcoming_Change_To_ReadyDelivery = "This order is UPCOMING status, so You can not change to ready delivery.";
+            public const string OrderIsCompeleted_Change_To_ReadyDelivery = "This order is COMPLETED status, so You can not change to ready delivery.";
+            public const string OrderIsCancelled_Change_To_ReadyDelivery = "This order is Cancelled status, so You can not change to ready delivery.";
+            public const string OrderIsReadyDelivery_Change_To_ReadyDelivery = "This order is READY_DELIVERY status, so You can not change to ready delivery.";
+            public const string OrderIsReady_Cancel = "This order is READY status, so You can not cancel order.";
+            public const string OrderIsCompleted_Cancel = "This order is COMPLETED status, so You can not cancel order.";
+            public const string OrderIsCancelled_Cancel = "This order is CANCELLED status, so You can not cancel order.";
+            public const string OrderIsReadyDelivery_Cancel = "This order is READY_DELIVERY status, so You can not cancel order.";
+            public const string NoChangeOrderStatusWhenClosedShift = "You've closed your shift today so you can't make a status change.";
 
         }
 

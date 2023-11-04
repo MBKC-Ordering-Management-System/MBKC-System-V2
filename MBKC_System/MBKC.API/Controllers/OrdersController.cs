@@ -33,7 +33,7 @@ namespace MBKC.API.Controllers
             this._orderService = orderService;
             this._confirmOrderToCompletedValidator = confirmOrderToCompletedValidator;
             this._getOrdersValidator = getOrdersValidator;
-            this._getOrderValidator = getOrderValidator;    
+            this._getOrderValidator = getOrderValidator;
         }
 
         #region confirm order to completed
@@ -180,6 +180,150 @@ namespace MBKC.API.Controllers
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
             var getOrderResponse = await this._orderService.GetOrderAsync(getOrderRequest, claims);
             return Ok(getOrderResponse);
+        }
+        #endregion
+
+        #region Change order status to Ready
+        /// <summary>
+        /// Change order status to ready.
+        /// </summary>
+        /// <param name="getOrderRequest">
+        /// An object include id of order.
+        /// </param>
+        /// <returns>
+        /// Success message about update order status to ready.
+        /// </returns>
+        /// <remarks>
+        ///     Sample request:
+        ///     
+        ///         GET
+        ///         id = 1
+        /// </remarks>
+        /// <response code="200">Update status to ready success.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
+        /// <response code="404">Some Error about request data not found.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
+        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Consumes(MediaTypeConstant.ApplicationJson)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.StoreManager)]
+        [HttpPut(APIEndPointConstant.Order.ChangeOrderToReadyEndpoint)]
+        public async Task<IActionResult> ChangeOrderStatusToReadyAsync([FromRoute] OrderRequest getOrderRequest)
+        {
+            ValidationResult validationResult = await this._getOrderValidator.ValidateAsync(getOrderRequest);
+            if (validationResult.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
+            }
+            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
+            await this._orderService.ChangeOrderStatusToReadyAsync(getOrderRequest, claims);
+            return Ok(new
+            {
+                Message = MessageConstant.OrderMessage.UpdateOrderSuccessfully
+            });
+        }
+        #endregion
+
+        #region Change order status to ready delivery.
+        /// <summary>
+        /// Change order status to ready delivery.
+        /// </summary>
+        /// <param name="getOrderRequest">
+        /// An object include id of order.
+        /// </param>
+        /// <returns>
+        /// Success message about update order status to ready delivery.
+        /// </returns>
+        /// <remarks>
+        ///     Sample request:
+        ///     
+        ///         GET
+        ///         id = 1
+        /// </remarks>
+        /// <response code="200">Update status to ready delivery success.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
+        /// <response code="404">Some Error about request data not found.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
+        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Consumes(MediaTypeConstant.ApplicationJson)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.Cashier)]
+        [HttpPut(APIEndPointConstant.Order.ChangeOrderToReadyDeliveryEndpoint)]
+        public async Task<IActionResult> ChangeOrderStatusToReadyDeliveryAsync([FromRoute] OrderRequest getOrderRequest)
+        {
+            ValidationResult validationResult = await this._getOrderValidator.ValidateAsync(getOrderRequest);
+            if (validationResult.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
+            }
+            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
+            await this._orderService.ChangeOrderStatusToReadyDeliveryAsync(getOrderRequest, claims);
+            return Ok(new
+            {
+                Message = MessageConstant.OrderMessage.UpdateOrderSuccessfully
+            });
+        }
+        #endregion
+
+        #region Cancel order
+        /// <summary>
+        /// Cancel order when order status is UPCOMING or PREPARING
+        /// </summary>
+        /// <param name="getOrderRequest">
+        /// An object include id of order.
+        /// </param>
+        /// <returns>
+        /// Success message about update order status to cancelled.
+        /// </returns>
+        /// <remarks>
+        ///     Sample request:
+        ///     
+        ///         GET
+        ///         id = 1
+        /// </remarks>
+        /// <response code="200">Update status to cancelled success.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
+        /// <response code="404">Some Error about request data not found.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
+        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Consumes(MediaTypeConstant.ApplicationJson)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.StoreManager)]
+        [HttpPut(APIEndPointConstant.Order.CancelOrderEndpoint)]
+        public async Task<IActionResult> CancelOrderAsync([FromRoute] OrderRequest getOrderRequest)
+        {
+            ValidationResult validationResult = await this._getOrderValidator.ValidateAsync(getOrderRequest);
+            if (validationResult.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
+            }
+            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
+            await this._orderService.CancelOrderAsync(getOrderRequest, claims);
+            return Ok(new
+            {
+                Message = MessageConstant.OrderMessage.CancelOrderSuccessfully
+            });
         }
         #endregion
     }

@@ -66,6 +66,19 @@
                              return StringUtil.CheckSystemStatusOrder(status);
                          }).WithMessage("{PropertyName} is required IN_STORE, READY_DELIVERY, COMPLETED, CANCELLED");
                 #endregion
+
+                #region PartnerOrderStatus
+                RuleFor(x => x.PartnerOrderStatus)
+                         .Cascade(CascadeMode.StopOnFirstFailure)
+                         .Must((x, status) =>
+                         {
+                             if (status == null)
+                             {
+                                 return true; // Skip validation when keySortName is null
+                             }
+                             return StringUtil.CheckParnerOrderStatus(status);
+                         }).WithMessage("{PropertyName} is required PREPARING, READY, UPCOMING, COMPLETED, CANCELLED");
+                #endregion
             }
         }
     }

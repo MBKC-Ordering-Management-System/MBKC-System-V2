@@ -1,4 +1,5 @@
 ﻿using MBKC.Repository.DBContext;
+using MBKC.Repository.Enums;
 using MBKC.Repository.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -34,7 +35,24 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await this._dbContext.StoreAccounts.SingleOrDefaultAsync(x => x.AccountId == accountId);
+                return await this._dbContext.StoreAccounts
+                    .Include(x => x.Store)
+                    .ThenInclude(x => x.StoreMoneyExchanges)
+                    .Include(x => x.Store)
+                    .ThenInclude(x => x.Wallet)
+                    .ThenInclude(x => x.Transactions)
+                    .ThenInclude(x => x.MoneyExchange)
+                    .Include(x => x.Store)
+                    .ThenInclude(x => x.Wallet)
+                    .ThenInclude(x => x.Transactions)
+                    .ThenInclude(x => x.ShipperPayment)
+                    .ThenInclude(x => x.Order)
+                    .Include(x => x.Store)
+                    .ThenInclude(x => x.Wallet)
+                    .ThenInclude(x => x.Transactions)
+                    .ThenInclude(x => x.ShipperPayment)
+                    .ThenInclude(x => x.BankingAccount)
+                    .SingleOrDefaultAsync(x => x.AccountId == accountId);
             }
             catch (Exception ex)
             {

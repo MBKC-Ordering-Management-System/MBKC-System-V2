@@ -336,7 +336,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistKitchenCenterId);
                 }
-
+                
                 if (existedKitchenCenter.Status == (int)KitchenCenterEnum.Status.DEACTIVE)
                 {
                     throw new BadRequestException(MessageConstant.KitchenCenterMessage.DeactiveKitchenCenter_Delete);
@@ -346,7 +346,10 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new BadRequestException(MessageConstant.KitchenCenterMessage.ExistedActiveStores_Delete);
                 }
+                // Deactive kitchen center.
                 existedKitchenCenter.Status = (int)KitchenCenterEnum.Status.DEACTIVE;
+                // Deactive kitchen center manger.
+                existedKitchenCenter.Manager.Status = (int)AccountEnum.Status.DEACTIVE;
                 this._unitOfWork.KitchenCenterRepository.UpdateKitchenCenter(existedKitchenCenter);
                 await this._unitOfWork.CommitAsync();
             }

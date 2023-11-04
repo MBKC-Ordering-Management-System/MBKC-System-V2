@@ -41,15 +41,22 @@ namespace MBKC.Service.Services.Implementations
                 Cashier existedCashier;
                 BankingAccount? existedBankingAccount = null;
                 Order? existedOrder = await this._unitOfWork.OrderRepository.GetOrderByOrderPartnerIdAsync(confirmOrderToCompleted.OrderPartnerId);
+
                 if (existedOrder == null)
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistOrderPartnerId);
                 }
-
                 existedCashier = await this._unitOfWork.CashierRepository.GetCashierAsync(email);
+
+
                 if (!existedCashier.KitchenCenter.Stores.Any(s => s.StoreId == existedOrder.StoreId))
                 {
                     throw new BadRequestException(MessageConstant.OrderMessage.OrderNotBelongToKitchenCenter);
+                }
+
+                if (existedCashier.CashierMoneyExchanges.Any())
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.NoChangeOrderStatusWhenClosedShift);
                 }
 
                 if (confirmOrderToCompleted.BankingAccountId != null)
@@ -93,15 +100,15 @@ namespace MBKC.Service.Services.Implementations
                     throw new BadRequestException(MessageConstant.OrderMessage.OrderIsCancelled);
                 }
 
-                if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.SystemStatus.IN_STORE.ToString()))
+                if (existedOrder.SystemStatus.ToUpper().Equals(OrderEnum.SystemStatus.IN_STORE.ToString()))
                 {
                     throw new BadRequestException(MessageConstant.OrderMessage.OrderIsPreparing);
                 }
-                if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.SystemStatus.COMPLETED.ToString()))
+                if (existedOrder.SystemStatus.ToUpper().Equals(OrderEnum.SystemStatus.COMPLETED.ToString()))
                 {
                     throw new BadRequestException(MessageConstant.OrderMessage.OrderIsCompleted);
                 }
-                if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.SystemStatus.CANCELLED.ToString()))
+                if (existedOrder.SystemStatus.ToUpper().Equals(OrderEnum.SystemStatus.CANCELLED.ToString()))
                 {
                     throw new BadRequestException(MessageConstant.OrderMessage.OrderIsCancelled);
                 }
@@ -200,15 +207,12 @@ namespace MBKC.Service.Services.Implementations
                 string fieldName = "";
                 switch (ex.Message)
                 {
-                    case MessageConstant.OrderMessage.OrderShipperPhoneNotMatch:
-                        fieldName = "Shipper phone";
-                        break;
-
                     case MessageConstant.OrderMessage.OrderNotBelongToKitchenCenter:
                     case MessageConstant.OrderMessage.OrderIsPreparing:
                     case MessageConstant.OrderMessage.OrderIsReady:
                     case MessageConstant.OrderMessage.OrderIsCompleted:
                     case MessageConstant.OrderMessage.OrderIsCancelled:
+                    case MessageConstant.OrderMessage.NoChangeOrderStatusWhenClosedShift:
                         fieldName = "Order";
                         break;
 
@@ -241,6 +245,7 @@ namespace MBKC.Service.Services.Implementations
         }
         #endregion
 
+        #region Get order by order partner id
         public async Task<GetOrderResponse> GetOrderAsync(string orderPartnerId)
         {
             try
@@ -272,7 +277,9 @@ namespace MBKC.Service.Services.Implementations
                 throw new Exception(error);
             }
         }
+        #endregion
 
+        #region Create order
         public async Task CreateOrderAsync(PostOrderRequest postOrderRequest)
         {
             try
@@ -463,7 +470,9 @@ namespace MBKC.Service.Services.Implementations
                 throw new Exception(error);
             }
         }
+        #endregion
 
+        #region Update order
         public async Task UpdateOrderAsync(PutOrderIdRequest putOrderIdRequest, PutOrderRequest putOrderRequest)
         {
             try
@@ -495,7 +504,7 @@ namespace MBKC.Service.Services.Implementations
                 throw new Exception(error);
             }
         }
-
+        #endregion
 
         #region Get Orders
         public async Task<GetOrdersResponse> GetOrdersAsync(GetOrdersRequest getOrdersRequest, IEnumerable<Claim> claims)
@@ -535,7 +544,8 @@ namespace MBKC.Service.Services.Implementations
                     orders = await this._unitOfWork.OrderRepository.GetOrdersAsync(getOrdersRequest.SearchValue, null, getOrdersRequest.CurrentPage, getOrdersRequest.ItemsPerPage,
                                                                                                                   getOrdersRequest.SortBy != null && getOrdersRequest.SortBy.ToLower().EndsWith("asc") ? getOrdersRequest.SortBy.Split("_")[0] : null,
                                                                                                                   getOrdersRequest.SortBy != null && getOrdersRequest.SortBy.ToLower().EndsWith("desc") ? getOrdersRequest.SortBy.Split("_")[0] : null,
-                                                                                                                  storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId, getOrdersRequest.SystemStatus);
+                                                                                                                  storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId, getOrdersRequest.SystemStatus,
+                                                                                                                  getOrdersRequest.PartnerOrderStatus);
                 }
                 else if (getOrdersRequest.SearchValue != null && StringUtil.IsUnicode(getOrdersRequest.SearchValue) == false)
                 {
@@ -543,7 +553,8 @@ namespace MBKC.Service.Services.Implementations
                     orders = await this._unitOfWork.OrderRepository.GetOrdersAsync(null, getOrdersRequest.SearchValue, getOrdersRequest.CurrentPage, getOrdersRequest.ItemsPerPage,
                                                                                                                   getOrdersRequest.SortBy != null && getOrdersRequest.SortBy.ToLower().EndsWith("asc") ? getOrdersRequest.SortBy.Split("_")[0] : null,
                                                                                                                   getOrdersRequest.SortBy != null && getOrdersRequest.SortBy.ToLower().EndsWith("desc") ? getOrdersRequest.SortBy.Split("_")[0] : null,
-                                                                                                                  storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId, getOrdersRequest.SystemStatus);
+                                                                                                                  storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId, getOrdersRequest.SystemStatus,
+                                                                                                                  getOrdersRequest.PartnerOrderStatus);
                 }
                 else if (getOrdersRequest.SearchValue == null)
                 {
@@ -551,18 +562,40 @@ namespace MBKC.Service.Services.Implementations
                     orders = await this._unitOfWork.OrderRepository.GetOrdersAsync(null, null, getOrdersRequest.CurrentPage, getOrdersRequest.ItemsPerPage,
                                                                                                                   getOrdersRequest.SortBy != null && getOrdersRequest.SortBy.ToLower().EndsWith("asc") ? getOrdersRequest.SortBy.Split("_")[0] : null,
                                                                                                                   getOrdersRequest.SortBy != null && getOrdersRequest.SortBy.ToLower().EndsWith("desc") ? getOrdersRequest.SortBy.Split("_")[0] : null,
-                                                                                                                  storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId, getOrdersRequest.SystemStatus);
+                                                                                                                  storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId, getOrdersRequest.SystemStatus,
+                                                                                                                  getOrdersRequest.PartnerOrderStatus);
                 }
 
+                // Search by date from - date to
+                if (getOrdersRequest.SearchDateFrom != null && getOrdersRequest.SearchDateTo != null)
+                {
+                    DateTime startDate = DateTime.ParseExact(getOrdersRequest.SearchDateFrom, "dd/MM/yyyy", null);
+                    DateTime endDate = DateTime.ParseExact(getOrdersRequest.SearchDateTo, "dd/MM/yyyy", null);
+                    if (orders is not null && orders.Any())
+                    {
+                        orders = orders.Where(x => x.OrderHistories.Any(o => o.CreatedDate >= startDate && o.CreatedDate <= endDate)).ToList();
+                    }
+                }
                 int totalPages = 0;
                 totalPages = (int)((numberItems + getOrdersRequest.ItemsPerPage) / getOrdersRequest.ItemsPerPage);
-
 
                 if (numberItems == 0)
                 {
                     totalPages = 0;
                 }
                 List<GetOrderResponse> getOrdersResponse = this._mapper.Map<List<GetOrderResponse>>(orders);
+
+                // Get totalQuantity of each order
+                foreach (GetOrderResponse order in getOrdersResponse)
+                {
+                    List<int> listQuantity = new List<int>();
+                    foreach (var orderDetail in order.OrderDetails)
+                    {
+                        listQuantity.Add(orderDetail.Quantity);
+                    }
+                    int totalQuantity = listQuantity.Sum();
+                    order.TotalQuantity = totalQuantity;
+                }
                 GetOrdersResponse getKitchenCenters = new GetOrdersResponse()
                 {
                     NumberItems = numberItems,
@@ -580,6 +613,7 @@ namespace MBKC.Service.Services.Implementations
 
         #endregion
 
+        #region Get order by order id
         public async Task<GetOrderResponse> GetOrderAsync(OrderRequest getOrderRequest, IEnumerable<Claim> claims)
         {
             try
@@ -671,6 +705,373 @@ namespace MBKC.Service.Services.Implementations
                 throw new Exception(error);
             }
         }
+        #endregion
+
+        #region Change status order to ready
+        public async Task ChangeOrderStatusToReadyAsync(OrderRequest orderRequest, IEnumerable<Claim> claims)
+        {
+            try
+            {
+                // get account id from claims
+                Claim accountId = claims.First(x => x.Type.ToLower().Equals("sid"));
+                var storeAccount = await this._unitOfWork.StoreAccountRepository.GetStoreAccountAsync(int.Parse(accountId.Value));
+                Order existedOrder = await this._unitOfWork.OrderRepository.GetOrderAsync(orderRequest.Id);
+
+                // Check order id exist or not
+                if (existedOrder == null)
+                {
+                    throw new NotFoundException(MessageConstant.OrderMessage.OrderIdNotExist);
+                }
+
+                // Check order belong to store or not.
+                if (storeAccount != null)
+                {
+                    if (existedOrder.StoreId != storeAccount.StoreId)
+                    {
+                        throw new BadRequestException(MessageConstant.OrderMessage.OrderIdNotBelongToStore);
+                    }
+                }
+
+                // Check partner order status  - partner order status must be PREPARING
+                if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.Status.UPCOMING.ToString()))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsUpcoming_Change_To_Ready);
+                }
+                if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.Status.COMPLETED.ToString()))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsCompleted_Change_To_Ready);
+                }
+                if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.Status.CANCELLED.ToString()))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsCancelled_Change_To_Ready);
+                }
+                if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.Status.READY.ToString()))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsReady_Change_To_Ready);
+                }
+
+                // Check system status - system satatus must be IN_STORE
+                if (existedOrder.SystemStatus.ToUpper().Equals(OrderEnum.SystemStatus.COMPLETED.ToString()))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsCompleted_Change_To_Ready);
+                }
+                if (existedOrder.SystemStatus.ToUpper().Equals(OrderEnum.SystemStatus.CANCELLED.ToString()))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsCancelled_Change_To_Ready);
+                }
+                if (existedOrder.SystemStatus.ToUpper().Equals(OrderEnum.SystemStatus.READY_DELIVERY.ToString()))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsReadyDelivery_Change_To_Ready);
+                }
+
+                #region orders
+                // assign READY status to partner order status.
+                existedOrder.PartnerOrderStatus = OrderEnum.Status.READY.ToString();
+                this._unitOfWork.OrderRepository.UpdateOrder(existedOrder);
+
+                OrderHistory orderHistory = new OrderHistory()
+                {
+                    CreatedDate = DateTime.Now,
+                    PartnerOrderStatus = OrderEnum.Status.READY.ToString(),
+                    SystemStatus = OrderEnum.SystemStatus.IN_STORE.ToString(),
+                    Order = existedOrder,
+                };
+                await this._unitOfWork.OrderHistoryRepository.InsertOrderHistoryAsync(orderHistory);
+                await this._unitOfWork.CommitAsync();
+                #endregion
+            }
+            catch (NotFoundException ex)
+            {
+                string fieldName = "";
+                if (ex.Message.Equals(MessageConstant.OrderMessage.OrderIdNotExist))
+                {
+                    fieldName = "Order id";
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new NotFoundException(error);
+            }
+            catch (BadRequestException ex)
+            {
+                string fieldName = "";
+                switch (ex.Message)
+                {
+                    case MessageConstant.OrderMessage.OrderIsReady_Change_To_Ready:
+                    case MessageConstant.OrderMessage.OrderIsUpcoming_Change_To_Ready:
+                    case MessageConstant.OrderMessage.OrderIsCompleted_Change_To_Ready:
+                    case MessageConstant.OrderMessage.OrderIsCancelled_Change_To_Ready:
+                    case MessageConstant.OrderMessage.OrderIsReadyDelivery_Change_To_Ready:
+                        fieldName = "Order";
+                        break;
+                    case MessageConstant.OrderMessage.OrderIdNotBelongToStore:
+                        fieldName = "Order id";
+                        break;
+                    default:
+                        fieldName = "Exception";
+                        break;
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new BadRequestException(error);
+            }
+            catch (Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                throw new Exception(error);
+            }
+        }
+        #endregion
+
+        #region Change order status to ready delivery
+        public async Task ChangeOrderStatusToReadyDeliveryAsync(OrderRequest orderRequest, IEnumerable<Claim> claims)
+        {
+            try
+            {
+                // get account id from claims
+                Claim accountId = claims.First(x => x.Type.ToLower().Equals("sid"));
+                var cashier = await this._unitOfWork.CashierRepository.GetCashierWithMoneyExchangeTypeIsSendAsync(int.Parse(accountId.Value));
+                if (cashier == null)
+                {
+                    throw new NotFoundException(MessageConstant.CommonMessage.NotExistCashierId);
+                }
+
+                // Check cashier shift ended or not
+                if (cashier.CashierMoneyExchanges.Any())
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.NoChangeOrderStatusWhenClosedShift);
+                }
+
+                // Check kitchenCenter exist or not
+                var kitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(cashier.KitchenCenter.KitchenCenterId);
+                if (kitchenCenter == null)
+                {
+                    throw new NotFoundException(MessageConstant.CommonMessage.NotExistKitchenCenterId);
+                }
+
+                // Check order id exist or not
+                Order existedOrder = await this._unitOfWork.OrderRepository.GetOrderAsync(orderRequest.Id);
+                if (existedOrder == null)
+                {
+                    throw new NotFoundException(MessageConstant.OrderMessage.OrderIdNotExist);
+                }
+
+                // Check order belong to kitchen center or not
+                if (kitchenCenter != null)
+                {
+                    if (existedOrder.Store.KitchenCenter.KitchenCenterId != kitchenCenter.KitchenCenterId)
+                    {
+                        throw new BadRequestException(MessageConstant.OrderMessage.OrderIdNotBelongToKitchenCenter);
+                    }
+                }
+
+                // Check partner order status - partner order status must be READY
+                if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.Status.UPCOMING.ToString()))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsUpcoming_Change_To_ReadyDelivery);
+                }
+                if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.Status.COMPLETED.ToString()))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsCompeleted_Change_To_ReadyDelivery);
+                }
+                if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.Status.CANCELLED.ToString()))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsCancelled_Change_To_ReadyDelivery);
+                }
+                if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.Status.PREPARING.ToString()))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsPreparing_Change_To_ReadyDelivery);
+                }
+
+                // Check system status - system status must be IN_STORE
+                if (existedOrder.SystemStatus.ToUpper().Equals(OrderEnum.SystemStatus.COMPLETED.ToString()))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsCompeleted_Change_To_ReadyDelivery);
+                }
+                if (existedOrder.SystemStatus.ToUpper().Equals(OrderEnum.SystemStatus.CANCELLED.ToString()))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsCancelled_Change_To_ReadyDelivery);
+                }
+                if (existedOrder.SystemStatus.ToUpper().Equals(OrderEnum.SystemStatus.READY_DELIVERY.ToString()))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsReadyDelivery_Change_To_ReadyDelivery);
+                }
+
+                #region orders
+                existedOrder.SystemStatus = OrderEnum.SystemStatus.READY_DELIVERY.ToString();
+                this._unitOfWork.OrderRepository.UpdateOrder(existedOrder);
+
+                OrderHistory orderHistory = new OrderHistory()
+                {
+                    CreatedDate = DateTime.Now,
+                    PartnerOrderStatus = OrderEnum.Status.READY.ToString(),
+                    SystemStatus = OrderEnum.SystemStatus.READY_DELIVERY.ToString(),
+                    Order = existedOrder,
+                };
+                await this._unitOfWork.OrderHistoryRepository.InsertOrderHistoryAsync(orderHistory);
+                await this._unitOfWork.CommitAsync();
+                #endregion
+            }
+            catch (BadRequestException ex)
+            {
+                string fieldName = "";
+                switch (ex.Message)
+                {
+                    case MessageConstant.OrderMessage.OrderIsPreparing_Change_To_ReadyDelivery:
+                    case MessageConstant.OrderMessage.OrderIsUpcoming_Change_To_ReadyDelivery:
+                    case MessageConstant.OrderMessage.OrderIsCompeleted_Change_To_ReadyDelivery:
+                    case MessageConstant.OrderMessage.OrderIsCancelled_Change_To_ReadyDelivery:
+                    case MessageConstant.OrderMessage.OrderIsReadyDelivery_Change_To_ReadyDelivery:
+                        fieldName = "Order";
+                        break;
+                    case MessageConstant.OrderMessage.OrderIdNotBelongToKitchenCenter:
+                        fieldName = "Order id";
+                        break;
+
+                    default:
+                        fieldName = "Exception";
+                        break;
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new BadRequestException(error);
+            }
+            catch (NotFoundException ex)
+            {
+                string fieldName = "";
+                switch (ex.Message)
+                {
+                    case MessageConstant.CommonMessage.NotExistCashierId:
+                        fieldName = "Cashier id";
+                        break;
+                    case MessageConstant.CommonMessage.NotExistKitchenCenterId:
+                        fieldName = "Kitchen center id";
+                        break;
+                    case MessageConstant.OrderMessage.OrderIdNotExist:
+                        fieldName = "Order id";
+                        break;
+
+                    default:
+                        fieldName = "Exception";
+                        break;
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new BadRequestException(error);
+            }
+            catch (Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                throw new Exception(error);
+            }
+        }
+
+
+        #endregion 
+
+        #region Cancel Order
+        public async Task CancelOrderAsync(OrderRequest orderRequest, IEnumerable<Claim> claims)
+        {
+            try
+            {
+                // get account id from claims
+                Claim accountId = claims.First(x => x.Type.ToLower().Equals("sid"));
+                var storeAccount = await this._unitOfWork.StoreAccountRepository.GetStoreAccountAsync(int.Parse(accountId.Value));
+                Order existedOrder = await this._unitOfWork.OrderRepository.GetOrderAsync(orderRequest.Id);
+
+                // Check order id exist or not
+                if (existedOrder == null)
+                {
+                    throw new NotFoundException(MessageConstant.OrderMessage.OrderIdNotExist);
+                }
+
+                // Check order belong to store or not.
+                if (storeAccount != null)
+                {
+                    if (existedOrder.StoreId != storeAccount.StoreId)
+                    {
+                        throw new BadRequestException(MessageConstant.OrderMessage.OrderIdNotBelongToStore);
+                    }
+                }
+
+                // Check partner order status  - partner order status must be UPCOMING or PREPARING
+                if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.Status.COMPLETED.ToString()))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsCompleted_Cancel);
+                }
+                if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.Status.CANCELLED.ToString()))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsCancelled_Cancel);
+                }
+                if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.Status.READY.ToString()))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsReady_Cancel);
+                }
+
+                // Check system status - system status must be IN_STORE
+                if (existedOrder.SystemStatus.ToUpper().Equals(OrderEnum.SystemStatus.COMPLETED.ToString()))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsCompleted_Cancel);
+                }
+                if (existedOrder.SystemStatus.ToUpper().Equals(OrderEnum.SystemStatus.CANCELLED.ToString()))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsCancelled_Cancel);
+                }
+                if (existedOrder.SystemStatus.ToUpper().Equals(OrderEnum.SystemStatus.READY_DELIVERY.ToString()))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsReadyDelivery_Cancel);
+                }
+
+                #region orders
+                // assign CANCELLED status to partner order status and system status
+                existedOrder.PartnerOrderStatus = OrderEnum.Status.CANCELLED.ToString();
+                existedOrder.SystemStatus = OrderEnum.SystemStatus.CANCELLED.ToString();
+                this._unitOfWork.OrderRepository.UpdateOrder(existedOrder);
+
+                OrderHistory orderHistory = new OrderHistory()
+                {
+                    CreatedDate = DateTime.Now,
+                    PartnerOrderStatus = OrderEnum.Status.CANCELLED.ToString(),
+                    SystemStatus = OrderEnum.SystemStatus.CANCELLED.ToString(),
+                    Order = existedOrder,
+                };
+                await this._unitOfWork.OrderHistoryRepository.InsertOrderHistoryAsync(orderHistory);
+                await this._unitOfWork.CommitAsync();
+                #endregion
+            }
+            catch (NotFoundException ex)
+            {
+                string fieldName = "";
+                if (ex.Message.Equals(MessageConstant.OrderMessage.OrderIdNotExist))
+                {
+                    fieldName = "Order id";
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new NotFoundException(error);
+            }
+            catch (BadRequestException ex)
+            {
+                string fieldName = "";
+                switch (ex.Message)
+                {
+                    case MessageConstant.OrderMessage.OrderIsReady_Cancel:
+                    case MessageConstant.OrderMessage.OrderIsCompleted_Cancel:
+                    case MessageConstant.OrderMessage.OrderIsCancelled_Cancel:
+                    case MessageConstant.OrderMessage.OrderIsReadyDelivery_Cancel:
+                        fieldName = "Order";
+                        break;
+                    case MessageConstant.OrderMessage.OrderIdNotBelongToStore:
+                        fieldName = "Order id";
+                        break;
+                    default:
+                        fieldName = "Exception";
+                        break;
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new BadRequestException(error);
+            }
+            catch (Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                throw new Exception(error);
+            }
+        }
+        #endregion
     }
 }
 

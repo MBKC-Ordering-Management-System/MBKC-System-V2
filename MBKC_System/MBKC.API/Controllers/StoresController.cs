@@ -347,7 +347,7 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces(MediaTypeConstant.ApplicationJson)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin, PermissionAuthorizeConstant.BrandManager)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin)]
         [HttpDelete(APIEndPointConstant.Store.StoreEndpoint)]
         public async Task<IActionResult> DeleteStoreAsync([FromRoute] StoreRequest getStoreRequest)
         {

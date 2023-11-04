@@ -267,5 +267,18 @@ namespace MBKC.Service.Utils
             }
             return false;
         }
+
+        public static bool CheckParnerOrderStatus(string status)
+        {
+            if (status.Trim().ToLower().Equals(OrderEnum.Status.READY.ToString().ToLower()) ||
+                status.Trim().ToLower().Equals(OrderEnum.Status.PREPARING.ToString().ToLower()) ||
+                status.Trim().ToLower().Equals(OrderEnum.Status.UPCOMING.ToString().ToLower()) ||
+                status.Trim().ToLower().Equals(OrderEnum.Status.COMPLETED.ToString().ToLower()) ||
+                status.Trim().ToLower().Equals(OrderEnum.Status.CANCELLED.ToString().ToLower()))
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

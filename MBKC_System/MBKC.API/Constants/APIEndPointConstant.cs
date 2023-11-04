@@ -111,6 +111,10 @@
             public const string OrdersEndpoint = ApiEndpoint + "/orders";
             public const string OrderEndpoint = OrdersEndpoint + "/{id}";
             public const string ConfirmOrderToCompletedEndpoint = OrderEndpoint + "/confirm-order-to-completed";
+            public const string ChangeOrderToReadyEndpoint = OrderEndpoint + "/change-order-to-ready";
+            public const string ChangeOrderToReadyDeliveryEndpoint = OrderEndpoint + "/change-order-to-ready-delivery";
+            public const string CancelOrderEndpoint = OrderEndpoint + "/cancel-order";
+
         }
 
         public static class MoneyExchange
@@ -125,6 +129,12 @@
         {
             public const string ConfigurationsEndpoint = ApiEndpoint + "/configurations";
             public const string ConfigurationEndpoint = ConfigurationsEndpoint + "/{id}";
+        }
+
+        public static class Wallet
+        {
+            public const string WalletsEndpoint = ApiEndpoint + "/wallets";
+            public const string WalletEndpoint = WalletsEndpoint + "/transaction-money-exchange-shipper-payment-information";
         }
     }
 }
