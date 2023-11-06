@@ -43,26 +43,18 @@ namespace MBKC.API.Extentions
             services.AddScoped<IVerificationService, VerificationService>();
             services.AddScoped<IBankingAccountService, BankingAccountService>();
             services.AddScoped<IBrandService, BrandService>();
-            services.AddScoped<IBrandAccountService, BrandAccountService>();
+            
             services.AddScoped<ICashierService, CashierService>();
-            services.AddScoped<ICashierMoneyExchangeService, CashierMoneyExchangeService>();
             services.AddScoped<ICategoryService, CategoryService>();
-            services.AddScoped<IExtraCategoryService, ExtraCategoryService>();
             services.AddScoped<IKitchenCenterService, KitchenCenterService>();
             services.AddScoped<IKitchenCenterMoneyExchangeService, KitchenCenterMoneyExchangeService>();
             services.AddScoped<IPartnerProductService, PartnerProductService>();
             services.AddScoped<IMoneyExchangeService, MoneyExchangeService>();
             services.AddScoped<IOrderService, OrderService>();
-            services.AddScoped<IOrderDetailService, OrderDetailService>();
             services.AddScoped<IPartnerService, PartnerService>();
             services.AddScoped<IProductService, ProductService>();
-            services.AddScoped<IRoleService, RoleService>();
-            services.AddScoped<IShipperPaymentService, ShipperPaymentService>();
             services.AddScoped<IStoreService, StoreService>();
-            services.AddScoped<IStoreAccountService, StoreAccountService>();
-            services.AddScoped<IStoreMoneyExchangeService, StoreMoneyExchangeService>();
             services.AddScoped<IStorePartnerService, StorePartnerService>();
-            services.AddScoped<ITransactionService, TransactionService>();
             services.AddScoped<IWalletService, WalletService>();
             services.AddScoped<IConfigurationService, ConfigurationService>();
             services.AddHangfire(config => config

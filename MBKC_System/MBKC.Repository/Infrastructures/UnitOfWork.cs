@@ -28,7 +28,6 @@ namespace MBKC.Repository.Infrastructures
         private PartnerProductRepository _partnerProductRepository;
         private MoneyExchangeRepository _moneyExchangeRepository;
         private OrderRepository _orderRepository;
-        private OrderDetailRepository _orderDetailRepository;
         private PartnerRepository _partnerRepository;
         private ProductRepository _productRepository;
         private RoleRepository _roleRepository;
@@ -43,8 +42,8 @@ namespace MBKC.Repository.Infrastructures
         private CashierMoneyExchangeRepository _cashierMoneyExchangeRepository;
         private KitchenCenterMoneyExchangeRepository _kitchenCenterMoneyExchangeRepository;
         private RedisConnectionProvider _redisConnectionProvider;
-        private AccountTokenRedisRepository  _accountTokenRedisRepository;
-        private EmailVerificationRedisRepository  _emailVerificationRedisRepository;
+        private AccountTokenRedisRepository _accountTokenRedisRepository;
+        private EmailVerificationRedisRepository _emailVerificationRedisRepository;
         private FirebaseStorageRepository _firebaseStorageRepository;
         private EmailRepository _emailRepository;
         private GrabFoodRepository _grabFoodRepository;
@@ -152,7 +151,6 @@ namespace MBKC.Repository.Infrastructures
                 return this._categoryRepository;
             }
         }
-
         public ExtraCategoryRepository ExtraCategoryRepository
         {
             get
@@ -164,7 +162,6 @@ namespace MBKC.Repository.Infrastructures
                 return this._extraCategoryRepository;
             }
         }
-
         public KitchenCenterRepository KitchenCenterRepository
         {
             get
@@ -213,18 +210,6 @@ namespace MBKC.Repository.Infrastructures
             }
         }
 
-        public OrderDetailRepository OrderDetailRepository
-        {
-            get
-            {
-                if (this._orderDetailRepository == null)
-                {
-                    this._orderDetailRepository = new OrderDetailRepository(this._dbContext);
-                }
-                return this._orderDetailRepository;
-            }
-        }
-
         public PartnerRepository PartnerRepository
         {
             get
@@ -260,7 +245,6 @@ namespace MBKC.Repository.Infrastructures
                 return this._roleRepository;
             }
         }
-
         public ShipperPaymentRepository ShipperPaymentRepository
         {
             get
@@ -385,7 +369,7 @@ namespace MBKC.Repository.Infrastructures
         {
             get
             {
-                if(this._firebaseStorageRepository == null)
+                if (this._firebaseStorageRepository == null)
                 {
                     this._firebaseStorageRepository = new FirebaseStorageRepository();
                 }
@@ -397,7 +381,7 @@ namespace MBKC.Repository.Infrastructures
         {
             get
             {
-                if(this._emailRepository == null)
+                if (this._emailRepository == null)
                 {
                     this._emailRepository = new EmailRepository();
                 }
@@ -433,7 +417,7 @@ namespace MBKC.Repository.Infrastructures
         {
             get
             {
-                if(this._rabbitMQRepository == null)
+                if (this._rabbitMQRepository == null)
                 {
                     this._rabbitMQRepository = new RabbitMQRepository();
                 }
