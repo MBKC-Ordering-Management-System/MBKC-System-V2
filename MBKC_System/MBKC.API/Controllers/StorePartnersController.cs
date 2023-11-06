@@ -88,50 +88,6 @@ namespace MBKC.API.Controllers
         }
         #endregion
 
-        #region Get a specific store partner
-        /// <summary>
-        /// Get a specific store partner by id.
-        /// </summary>
-        /// <param name="getStorePartnerRequest">An object include store id and partner id.</param>
-
-        /// <returns>
-        /// An object contains the store partner information.
-        /// </returns>
-        /// <remarks>
-        ///     Sample request:
-        ///
-        ///         GET 
-        ///         storeId = 1
-        ///         partnerId = 2
-        /// </remarks>
-        /// <response code="200">Get a specific store partner successfully.</response>
-        /// <response code="400">Some Error about request data and logic data.</response>
-        /// <response code="404">Some Error about request data not found.</response>
-        /// <response code="500">Some Error about the system.</response>
-        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
-        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
-        /// <exception cref="Exception">Throw Error about the system.</exception>
-        [ProducesResponseType(typeof(GetStorePartnerResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Produces(MediaTypeConstant.ApplicationJson)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
-        [HttpGet(APIEndPointConstant.StorePartner.StorePartnerEndpoint)]
-        public async Task<IActionResult> GetStorePartnerAsync([FromRoute] StorePartnerRequest getStorePartnerRequest)
-        {
-            ValidationResult validationResult = await this._getStorePartnerValidator.ValidateAsync(getStorePartnerRequest);
-            if (!validationResult.IsValid)
-            {
-                string error = ErrorUtil.GetErrorsString(validationResult);
-                throw new BadRequestException(error);
-            }
-            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            GetStorePartnerResponse getStorePartnerResponse = await this._storePartnerService.GetStorePartnerAsync(getStorePartnerRequest.StoreId, getStorePartnerRequest.PartnerId, claims);
-            return Ok(getStorePartnerResponse);
-        }
-        #endregion
-
         #region Get store partner information by store Id
         /// <summary>
         /// Get a store partner information by store Id, sortByName, sortByStatus.
