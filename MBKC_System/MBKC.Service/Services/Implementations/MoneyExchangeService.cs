@@ -16,6 +16,7 @@ using System.Security.Claims;
 using MBKC.Service.DTOs.MoneyExchanges;
 using MBKC.Service.DTOs.Brands;
 using static MBKC.Service.Constants.EmailMessageConstant;
+using MBKC.Service.DTOs.Orders.MBKC.Service.DTOs.Orders;
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -29,6 +30,80 @@ namespace MBKC.Service.Services.Implementations
             this._unitOfWork = (UnitOfWork)unitOfWork;
             this._mapper = mapper;
         }
+
+        #region get money exchanges
+        public async Task<GetMoneyExchangesResponse> GetMoneyExchangesAsync(IEnumerable<Claim> claims, GetMoneyExchangeRequest getMoneyExchangeRequest)
+        {
+            try
+            {
+                string email = claims.First(x => x.Type == ClaimTypes.Email).Value;
+                string roleClaim = claims.First(x => x.Type.ToLower().Equals("role")).Value;
+                int? idSearching = null;
+
+                switch (roleClaim)
+                {
+                    case RoleConstant.Kitchen_Center_Manager:
+                        var accountKI = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(email);
+                        idSearching = accountKI.KitchenCenterId;
+                        break;
+
+                    case RoleConstant.Store_Manager:
+                        var accountST = await this._unitOfWork.StoreRepository.GetStoreAsync(email);
+                        idSearching = accountST.StoreId;
+                        break;
+
+                    case RoleConstant.Cashier:
+                        var accountCA = await this._unitOfWork.CashierRepository.GetCashierAsync(email);
+                        idSearching = accountCA.AccountId;
+                        break;
+
+                    default:
+                        throw new BadRequestException("Undefine role.");
+                }
+
+
+
+
+                int numberItems = 0;
+                List<MoneyExchange>? moneyExchanges = null;
+                int totalPages = 0;
+                totalPages = (int)((numberItems + getMoneyExchangeRequest.ItemsPerPage) / getMoneyExchangeRequest.ItemsPerPage);
+                if (numberItems == 0)
+                {
+                    totalPages = 0;
+                }
+
+                List<GetMoneyExchangeResponse> getMoneyExchangesResponse = this._mapper.Map<List<GetMoneyExchangeResponse>>(moneyExchanges);
+                GetMoneyExchangesResponse result = new GetMoneyExchangesResponse()
+                {
+                    NumberItems = numberItems,
+                    TotalPages = totalPages,
+                    MoneyExchanges = getMoneyExchangesResponse
+                };
+                return result;
+
+            }
+            catch(BadRequestException ex)
+            {
+                string fieldName = "Role";
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new BadRequestException(error);
+            }
+            catch (Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.InnerException != null ? ex.InnerException.Message : ex.Message);
+                throw new Exception(error);
+            }
+
+        }
+        #endregion
+
+        #region get money exchange detail
+        public Task<GetMoneyExchangeResponse> GetMoneyExchangeAsync(IEnumerable<Claim> claims, MoneyExchangeRequest moneyExchangeRequest)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
 
         #region money exchange to kitchen center
         public async Task MoneyExchangeToKitchenCenterAsync(IEnumerable<Claim> claims)
@@ -151,17 +226,17 @@ namespace MBKC.Service.Services.Implementations
                 string email = claims.First(x => x.Type == ClaimTypes.Email).Value;
                 var existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(email);
                 var existedStore = await this._unitOfWork.StoreRepository.GetStoreByIdAsync(withdrawMoneyRequest.StoreId);
-                if(existedStore == null)
+                if (existedStore == null)
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistStoreId);
                 }
 
-                if(!existedKitchenCenter.Stores.Any(s => s.StoreId == existedStore.StoreId))
+                if (!existedKitchenCenter.Stores.Any(s => s.StoreId == existedStore.StoreId))
                 {
                     throw new BadRequestException(MessageConstant.MoneyExchangeMessage.StoreIdNotBelogToKitchenCenter);
                 }
 
-                if(existedStore.Wallet.Balance <= 0)
+                if (existedStore.Wallet.Balance <= 0)
                 {
                     throw new BadRequestException(MessageConstant.MoneyExchangeMessage.BalanceIsInvalid);
                 }

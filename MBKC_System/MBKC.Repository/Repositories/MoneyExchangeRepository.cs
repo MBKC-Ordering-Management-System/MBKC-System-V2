@@ -16,6 +16,20 @@ namespace MBKC.Repository.Repositories
             this._dbContext = dbContext;
         }
 
+        #region Get
+        //public async Task<List<MoneyExchange>> GetMoneyExchangesAsync()
+        //{
+
+        //}
+
+        //public async Task<int> GetNumberOrdersAsync()
+        //{
+
+        //}
+
+        #endregion
+
+        #region Insert
         public async Task CreateMoneyExchangeAsync(MoneyExchange moneyExchange)
         {
             try
@@ -39,5 +53,6 @@ namespace MBKC.Repository.Repositories
                 throw new Exception(ex.Message);
             }
         }
+        #endregion
     }
 }

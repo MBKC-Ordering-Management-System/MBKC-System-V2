@@ -741,7 +741,8 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await this._dbContext.Stores.Include(x => x.Brand).ThenInclude(x => x.Categories).Include(x => x.KitchenCenter).ThenInclude(x => x.Manager).SingleOrDefaultAsync(x => x.StoreManagerEmail.Equals(managerEmail));
+                return await this._dbContext.Stores.Include(x => x.Brand).ThenInclude(x => x.Categories)
+                                                   .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager).SingleOrDefaultAsync(x => x.StoreManagerEmail.Equals(managerEmail));
             }
             catch (Exception ex)
             {

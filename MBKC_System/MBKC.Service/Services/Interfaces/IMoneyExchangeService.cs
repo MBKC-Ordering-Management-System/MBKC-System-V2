@@ -10,7 +10,10 @@ namespace MBKC.Service.Services.Interfaces
 {
     public interface IMoneyExchangeService
     {
+        public Task<GetMoneyExchangesResponse> GetMoneyExchangesAsync(IEnumerable<Claim> claims, GetMoneyExchangeRequest getMoneyExchangeRequest);
+        public Task<GetMoneyExchangeResponse> GetMoneyExchangeAsync(IEnumerable<Claim> claims, MoneyExchangeRequest moneyExchangeRequest);
         public Task MoneyExchangeToKitchenCenterAsync(IEnumerable<Claim> claims);
         public Task WithdrawMoneyAsync(IEnumerable<Claim> claims, WithdrawMoneyRequest withdrawMoneyRequest);
+
     }
 }

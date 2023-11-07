@@ -119,7 +119,8 @@
 
         public static class MoneyExchange
         {
-            public const string MoneyExchangeEndpoint = ApiEndpoint + "/money-exchanges";
+            public const string MoneyExchangesEndpoint = ApiEndpoint + "/money-exchanges";
+            public const string MoneyExchangeEndpoint = MoneyExchangesEndpoint + "/{id}";
             public const string MoneyExchangeToKitchenCenter = MoneyExchangeEndpoint + "/money-exchange-to-kitchen-center";
             public const string WithdrawMoneyToStore = MoneyExchangeEndpoint + "/withdraw-money-to-store";
             public const string UpdateSchedulingTimeJob = MoneyExchangeEndpoint + "/update-scheduling-time-job";
