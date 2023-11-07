@@ -85,7 +85,9 @@ namespace MBKC.Repository.Repositories
                 if (searchValue == null && searchValueWithoutUnicode is not null)
                 {
                     if (sortByASC is not null)
-                        return this._dbContext.Categories.Where(delegate (Category category)
+                        return this._dbContext.Categories
+                            .Include(x => x.Brand)
+                            .Where(delegate (Category category)
                         {
                             if (StringUtil.RemoveSign4VietnameseString(category.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
                             {
@@ -108,7 +110,9 @@ namespace MBKC.Repository.Repositories
                           .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage)
                           .ToList();
                     else if (sortByDESC is not null)
-                        return this._dbContext.Categories.Where(delegate (Category category)
+                        return this._dbContext.Categories
+                            .Include(x => x.Brand)
+                            .Where(delegate (Category category)
                         {
                             if (StringUtil.RemoveSign4VietnameseString(category.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
                             {
@@ -133,7 +137,9 @@ namespace MBKC.Repository.Repositories
                           .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage)
                           .ToList();
 
-                    return this._dbContext.Categories.Where(delegate (Category category)
+                    return this._dbContext.Categories
+                        .Include(x => x.Brand)
+                        .Where(delegate (Category category)
                     {
                         if (StringUtil.RemoveSign4VietnameseString(category.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
                         {
@@ -152,6 +158,7 @@ namespace MBKC.Repository.Repositories
                 {
                     if (sortByASC is not null)
                         return this._dbContext.Categories
+                        .Include(x => x.Brand)
                         .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
                         .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
                         .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
@@ -169,6 +176,7 @@ namespace MBKC.Repository.Repositories
 
                     else if (sortByDESC is not null)
                         return this._dbContext.Categories
+                        .Include(x => x.Brand)
                         .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
                         .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
                         .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
@@ -185,6 +193,7 @@ namespace MBKC.Repository.Repositories
                         .ToList();
 
                     return this._dbContext.Categories
+                        .Include(x => x.Brand)
                         .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
                         .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
                         .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage)
@@ -192,7 +201,9 @@ namespace MBKC.Repository.Repositories
                 }
 
                 if (sortByASC is not null)
-                    return this._dbContext.Categories.Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                    return this._dbContext.Categories
+                    .Include(x => x.Brand)
+                    .Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
                     .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
                     .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
                                    then => then.OrderBy(x => x.Name))
@@ -207,7 +218,9 @@ namespace MBKC.Repository.Repositories
                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
 
                 else if (sortByDESC is not null)
-                    return this._dbContext.Categories.Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                    return this._dbContext.Categories
+                        .Include(x => x.Brand)
+                        .Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
                     .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
                    .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
                             then => then.OrderByDescending(x => x.Name))
@@ -221,7 +234,9 @@ namespace MBKC.Repository.Repositories
                                 then => then.OrderByDescending(x => x.Status).Reverse())
                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
 
-                return await this._dbContext.Categories.Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                return await this._dbContext.Categories
+                    .Include(x => x.Brand)
+                    .Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
                     .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
             }
@@ -267,7 +282,9 @@ namespace MBKC.Repository.Repositories
             {
                 if (keySearchUniCode == null && keySearchNotUniCode != null)
                 {
-                    return this._dbContext.Categories.Where(delegate (Category category)
+                    return this._dbContext.Categories
+                        .Include(c => c.Brand)
+                        .Where(delegate (Category category)
                     {
                         if (StringUtil.RemoveSign4VietnameseString(category.Name.ToLower()).Contains(keySearchNotUniCode.ToLower()))
                         {
@@ -281,9 +298,9 @@ namespace MBKC.Repository.Repositories
                 }
                 else if (keySearchUniCode != null && keySearchNotUniCode == null)
                 {
-                    return await this._dbContext.Categories.Where(c => c.Name.ToLower().Contains(keySearchUniCode.ToLower()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Type.Equals(type.ToUpper()) && c.Brand.BrandId == brandId).CountAsync();
+                    return await this._dbContext.Categories.Include(x => x.Brand).Where(c => c.Name.ToLower().Contains(keySearchUniCode.ToLower()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Type.Equals(type.ToUpper()) && c.Brand.BrandId == brandId).CountAsync();
                 }
-                return await this._dbContext.Categories.Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Type.Equals(type.ToUpper()) && c.Brand.BrandId == brandId).CountAsync();
+                return await this._dbContext.Categories.Include(x => x.Brand).Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Type.Equals(type.ToUpper()) && c.Brand.BrandId == brandId).CountAsync();
             }
             catch (Exception ex)
             {
@@ -298,9 +315,10 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                if(isGetAll != null && isGetAll == true)
+                if (isGetAll != null && isGetAll == true)
                 {
-                    return categories.Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                    return categories
+                        .Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
                     .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name).ToList();
                 }
                 if (searchValue == null && searchValueWithoutUnicode is not null)

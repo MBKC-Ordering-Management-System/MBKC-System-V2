@@ -44,14 +44,23 @@ namespace MBKC.Repository.Repositories
         }
 
         public async Task<List<BankingAccount>> GetBankingAccountsAsync(string? searchValue, string? searchValueWithoutUnicode,
-            int currentPage, int itemsPerPage, string? sortByASC, string? sortByDESC, int kitchenCenterId)
+            int currentPage, int itemsPerPage, string? sortByASC, string? sortByDESC, int? kitchenCenterId, bool? isGetAll)
         {
             try
             {
+                if (isGetAll is not null && isGetAll == true)
+                {
+                    return this._dbContext.BankingAccounts
+                       .Include(x => x.KitchenCenter)
+                       .Where(x => x.KitchenCenterId == kitchenCenterId && x.Status != (int)BankingAccountEnum.Status.DEACTIVE)
+                       .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+                }
                 if (searchValue == null && searchValueWithoutUnicode != null)
                 {
                     if (sortByASC is not null)
-                        return this._dbContext.BankingAccounts.Where(x => x.KitchenCenterId == kitchenCenterId
+                        return this._dbContext.BankingAccounts
+                                                                    .Include(x => x.KitchenCenter)
+                                                                    .Where(x => x.KitchenCenterId == kitchenCenterId
                                                                              && x.Status != (int)BankingAccountEnum.Status.DEACTIVE)
                                                                     .Where(delegate (BankingAccount bankingAccount)
                                                                     {
@@ -67,7 +76,9 @@ namespace MBKC.Repository.Repositories
                                                                              then => then.OrderBy(x => x.Status).Reverse())
                                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
                     else if (sortByDESC is not null)
-                        return this._dbContext.BankingAccounts.Where(x => x.KitchenCenterId == kitchenCenterId
+                        return this._dbContext.BankingAccounts
+                                                                   .Include(x => x.KitchenCenter)
+                                                                   .Where(x => x.KitchenCenterId == kitchenCenterId
                                                                             && x.Status != (int)BankingAccountEnum.Status.DEACTIVE)
                                                                    .Where(delegate (BankingAccount bankingAccount)
                                                                    {
@@ -83,7 +94,9 @@ namespace MBKC.Repository.Repositories
                                                                             then => then.OrderByDescending(x => x.Status).Reverse())
                                                                    .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
 
-                    return this._dbContext.BankingAccounts.Where(x => x.KitchenCenterId == kitchenCenterId
+                    return this._dbContext.BankingAccounts
+                                                                   .Include(x => x.KitchenCenter)
+                                                                   .Where(x => x.KitchenCenterId == kitchenCenterId
                                                                             && x.Status != (int)BankingAccountEnum.Status.DEACTIVE)
                                                                    .Where(delegate (BankingAccount bankingAccount)
                                                                    {
@@ -97,7 +110,9 @@ namespace MBKC.Repository.Repositories
                 else if (searchValue != null && searchValueWithoutUnicode == null)
                 {
                     if (sortByASC is not null)
-                        return this._dbContext.BankingAccounts.Where(x => x.KitchenCenterId == kitchenCenterId
+                        return this._dbContext.BankingAccounts
+                                                                    .Include(x => x.KitchenCenter)
+                                                                    .Where(x => x.KitchenCenterId == kitchenCenterId
                                                                         && x.Status != (int)BankingAccountEnum.Status.DEACTIVE
                                                                         && x.Name.ToLower().Contains(searchValue.ToLower()))
                                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
@@ -107,7 +122,9 @@ namespace MBKC.Repository.Repositories
                                                                .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
 
                     else if (sortByDESC is not null)
-                        return this._dbContext.BankingAccounts.Where(x => x.KitchenCenterId == kitchenCenterId
+                        return this._dbContext.BankingAccounts
+                                                                    .Include(x => x.KitchenCenter)
+                                                                    .Where(x => x.KitchenCenterId == kitchenCenterId
                                                                         && x.Status != (int)BankingAccountEnum.Status.DEACTIVE
                                                                         && x.Name.ToLower().Contains(searchValue.ToLower()))
                                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
@@ -116,14 +133,18 @@ namespace MBKC.Repository.Repositories
                                                                              then => then.OrderByDescending(x => x.Status).Reverse())
                                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
 
-                    return this._dbContext.BankingAccounts.Where(x => x.KitchenCenterId == kitchenCenterId
+                              return this._dbContext.BankingAccounts
+                                                                    .Include(x => x.KitchenCenter)
+                                                                    .Where(x => x.KitchenCenterId == kitchenCenterId
                                                                         && x.Status != (int)BankingAccountEnum.Status.DEACTIVE
                                                                         && x.Name.ToLower().Contains(searchValue.ToLower()))
                                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
                 }
 
                 if (sortByASC is not null)
-                    return this._dbContext.BankingAccounts.Where(x => x.KitchenCenterId == kitchenCenterId && x.Status != (int)BankingAccountEnum.Status.DEACTIVE)
+                    return this._dbContext.BankingAccounts
+                                                          .Include(x => x.KitchenCenter)
+                                                          .Where(x => x.KitchenCenterId == kitchenCenterId && x.Status != (int)BankingAccountEnum.Status.DEACTIVE)
                                                                 .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
                                                                              then => then.OrderBy(x => x.Name))
                                                                 .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
@@ -131,14 +152,18 @@ namespace MBKC.Repository.Repositories
                                                                 .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
 
                 else if (sortByDESC is not null)
-                    return this._dbContext.BankingAccounts.Where(x => x.KitchenCenterId == kitchenCenterId && x.Status != (int)BankingAccountEnum.Status.DEACTIVE)
+                    return this._dbContext.BankingAccounts
+                                                          .Include(x => x.KitchenCenter)
+                                                          .Where(x => x.KitchenCenterId == kitchenCenterId && x.Status != (int)BankingAccountEnum.Status.DEACTIVE)
                                                                 .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
                                                                              then => then.OrderByDescending(x => x.Name))
                                                                 .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
                                                                              then => then.OrderByDescending(x => x.Status).Reverse())
                                                                 .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
 
-                return this._dbContext.BankingAccounts.Where(x => x.KitchenCenterId == kitchenCenterId && x.Status != (int)BankingAccountEnum.Status.DEACTIVE)
+                return this._dbContext.BankingAccounts
+                                                      .Include(x => x.KitchenCenter)
+                                                      .Where(x => x.KitchenCenterId == kitchenCenterId && x.Status != (int)BankingAccountEnum.Status.DEACTIVE)
                                                       .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
             }
             catch (Exception ex)

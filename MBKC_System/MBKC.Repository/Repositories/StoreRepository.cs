@@ -141,7 +141,9 @@ namespace MBKC.Repository.Repositories
                                                    .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                    .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                    .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                   .Where(x => x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                   .Where(x => x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true) && 
+                                                   (brandId != null ? x.Brand.BrandId == brandId : true)  && 
+                                                   (kitchenCenterId != null ? x.KitchenCenter.KitchenCenterId == kitchenCenterId : true))
                                                    .ToListAsync();
                 }
 

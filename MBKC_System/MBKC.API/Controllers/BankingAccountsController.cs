@@ -69,7 +69,7 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces(MediaTypeConstant.ApplicationJson)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.KitchenCenterManager)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.KitchenCenterManager, PermissionAuthorizeConstant.Cashier)]
         [HttpGet(APIEndPointConstant.BankingAccount.BankingAccountsEndpoint)]
         public async Task<IActionResult> GetBankingAccountsAsync([FromQuery] GetBankingAccountsRequest getBankingAccountsRequest)
         {

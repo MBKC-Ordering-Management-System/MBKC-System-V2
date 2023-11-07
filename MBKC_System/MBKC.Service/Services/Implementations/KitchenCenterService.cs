@@ -336,13 +336,8 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistKitchenCenterId);
                 }
-                
-                if (existedKitchenCenter.Status == (int)KitchenCenterEnum.Status.DEACTIVE)
-                {
-                    throw new BadRequestException(MessageConstant.KitchenCenterMessage.DeactiveKitchenCenter_Delete);
-                }
 
-                if (existedKitchenCenter.Stores != null && existedKitchenCenter.Stores.Count() > 0 && existedKitchenCenter.Stores.Any(x => x.Status == (int)StoreEnum.Status.ACTIVE) == false)
+                if (existedKitchenCenter.Stores != null && existedKitchenCenter.Stores.Count() > 0 && existedKitchenCenter.Stores.Any(x => x.Status == (int)StoreEnum.Status.ACTIVE))
                 {
                     throw new BadRequestException(MessageConstant.KitchenCenterMessage.ExistedActiveStores_Delete);
                 }
@@ -356,8 +351,7 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.KitchenCenterMessage.DeactiveKitchenCenter_Delete) ||
-                 ex.Message.Equals(MessageConstant.KitchenCenterMessage.ExistedActiveStores_Delete))
+                if (ex.Message.Equals(MessageConstant.KitchenCenterMessage.ExistedActiveStores_Delete))
                 {
                     fieldName = "Deleted kitchen center failed";
                 }

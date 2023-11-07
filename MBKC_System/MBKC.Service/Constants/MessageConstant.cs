@@ -77,7 +77,6 @@ namespace MBKC.Service.Constants
         public static class KitchenCenterMessage
         {
             public const string DeactiveKitchenCenter_Update = "Kitchen center was deleted before, so this kitchen center cannot update.";
-            public const string DeactiveKitchenCenter_Delete = "Kitchen center cannot delete because that was deleted before.";
             public const string ManagerEmailExisted = "Kitchen center manager email already existed in the system.";
             public const string ExistedActiveStores_Delete = "The kitchen center has active stores, so this kitchen center cannot be deleted.";
             public const string NotBelongToKitchenCenter = "Kitchen center id does not belong to your kitchen center.";

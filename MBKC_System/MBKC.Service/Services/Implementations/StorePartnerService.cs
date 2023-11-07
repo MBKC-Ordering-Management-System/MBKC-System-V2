@@ -533,15 +533,15 @@ namespace MBKC.Service.Services.Implementations
                 List<StorePartner> storePartners = null;
                 if (getStorePartnersRequest.SearchValue != null && StringUtil.IsUnicode(getStorePartnersRequest.SearchValue) == false)
                 {
-                    numberItems = await this._unitOfWork.StorePartnerRepository.GetNumberStorePartnersAsync(getStorePartnersRequest.SearchValue, null, brandId);
-                    storePartners = await this._unitOfWork.StorePartnerRepository.GetStorePartnersAsync(getStorePartnersRequest.SearchValue, null, getStorePartnersRequest.CurrentPage, getStorePartnersRequest.ItemsPerPage,
+                    numberItems = await this._unitOfWork.StorePartnerRepository.GetNumberStorePartnersAsync(null, getStorePartnersRequest.SearchValue, brandId);
+                    storePartners = await this._unitOfWork.StorePartnerRepository.GetStorePartnersAsync(null, getStorePartnersRequest.SearchValue, getStorePartnersRequest.CurrentPage, getStorePartnersRequest.ItemsPerPage,
                                                                                                         getStorePartnersRequest.SortBy != null && getStorePartnersRequest.SortBy.ToLower().EndsWith("asc") ? getStorePartnersRequest.SortBy.Split("_")[0] : null,
                                                                                                         getStorePartnersRequest.SortBy != null && getStorePartnersRequest.SortBy.ToLower().EndsWith("desc") ? getStorePartnersRequest.SortBy.Split("_")[0] : null, brandId);
                 }
                 else if (getStorePartnersRequest.SearchValue != null && StringUtil.IsUnicode(getStorePartnersRequest.SearchValue))
                 {
-                    numberItems = await this._unitOfWork.StorePartnerRepository.GetNumberStorePartnersAsync(null, getStorePartnersRequest.SearchValue, brandId);
-                    storePartners = await this._unitOfWork.StorePartnerRepository.GetStorePartnersAsync(null, getStorePartnersRequest.SearchValue, getStorePartnersRequest.CurrentPage, getStorePartnersRequest.ItemsPerPage,
+                    numberItems = await this._unitOfWork.StorePartnerRepository.GetNumberStorePartnersAsync(getStorePartnersRequest.SearchValue, null, brandId);
+                    storePartners = await this._unitOfWork.StorePartnerRepository.GetStorePartnersAsync(getStorePartnersRequest.SearchValue, null, getStorePartnersRequest.CurrentPage, getStorePartnersRequest.ItemsPerPage,
                                                                                                         getStorePartnersRequest.SortBy != null && getStorePartnersRequest.SortBy.ToLower().EndsWith("asc") ? getStorePartnersRequest.SortBy.Split("_")[0] : null,
                                                                                                         getStorePartnersRequest.SortBy != null && getStorePartnersRequest.SortBy.ToLower().EndsWith("desc") ? getStorePartnersRequest.SortBy.Split("_")[0] : null, brandId);
                 }

@@ -135,7 +135,7 @@ namespace MBKC.Repository.Repositories
                                                                      : true))
                                                          .Where(delegate (PartnerProduct partnerProduct)
                                                          {
-                                                             if (searchValueWithoutUnicode.ToLower().Contains(StringUtil.RemoveSign4VietnameseString(partnerProduct.Product.Name).ToLower()))
+                                                             if (StringUtil.RemoveSign4VietnameseString(partnerProduct.Product.Name).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
                                                              {
                                                                  return true;
                                                              }
@@ -189,7 +189,7 @@ namespace MBKC.Repository.Repositories
                                                                      : true))
                                                          .Where(delegate (PartnerProduct partnerProduct)
                                                          {
-                                                             if (searchValueWithoutUnicode.ToLower().Contains(StringUtil.RemoveSign4VietnameseString(partnerProduct.Product.Name).ToLower()))
+                                                             if (StringUtil.RemoveSign4VietnameseString(partnerProduct.Product.Name).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
                                                              {
                                                                  return true;
                                                              }
@@ -218,7 +218,7 @@ namespace MBKC.Repository.Repositories
                                                                      : true))
                                                          .Where(delegate (PartnerProduct partnerProduct)
                                                          {
-                                                             if (searchValueWithoutUnicode.ToLower().Contains(StringUtil.RemoveSign4VietnameseString(partnerProduct.Product.Name).ToLower()))
+                                                             if (StringUtil.RemoveSign4VietnameseString(partnerProduct.Product.Name).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
                                                              {
                                                                  return true;
                                                              }
@@ -247,7 +247,8 @@ namespace MBKC.Repository.Repositories
                                                                      : true))
                                                          .Where(delegate (PartnerProduct partnerProduct)
                                                          {
-                                                             if (searchValueWithoutUnicode.ToLower().Contains(StringUtil.RemoveSign4VietnameseString(partnerProduct.Product.Name).ToLower()))
+                                                             Console.WriteLine(StringUtil.RemoveSign4VietnameseString(partnerProduct.Product.Name));
+                                                             if (StringUtil.RemoveSign4VietnameseString(partnerProduct.Product.Name).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
                                                              {
                                                                  return true;
                                                              }
