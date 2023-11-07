@@ -12,5 +12,6 @@ namespace MBKC.Service.DTOs.BankingAccounts
         public int ItemsPerPage { get; set; } = 5;
         public int CurrentPage { get; set; } = 1;
         public string? SortBy { get; set; }
+        public bool? IsGetAll { get; set; }
     }
 }

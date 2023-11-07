@@ -414,15 +414,15 @@ namespace MBKC.Service.Services.Implementations
                 List<PartnerProduct> partnerProducts = null;
                 if (getPartnerProductsRequest.SearchValue != null && StringUtil.IsUnicode(getPartnerProductsRequest.SearchValue) == false)
                 {
-                    numberItems = await this._unitOfWork.PartnerProductRepository.GetNumberPartnerProductsAsync(getPartnerProductsRequest.SearchValue, null, brandId);
-                    partnerProducts = await this._unitOfWork.PartnerProductRepository.GetPartnerProductsAsync(getPartnerProductsRequest.SearchValue, null, getPartnerProductsRequest.CurrentPage, getPartnerProductsRequest.ItemsPerPage,
+                    numberItems = await this._unitOfWork.PartnerProductRepository.GetNumberPartnerProductsAsync(null, getPartnerProductsRequest.SearchValue, brandId);
+                    partnerProducts = await this._unitOfWork.PartnerProductRepository.GetPartnerProductsAsync(null, getPartnerProductsRequest.SearchValue, getPartnerProductsRequest.CurrentPage, getPartnerProductsRequest.ItemsPerPage,
                                                                                                               getPartnerProductsRequest.SortBy != null && getPartnerProductsRequest.SortBy.ToLower().EndsWith("asc") ? getPartnerProductsRequest.SortBy.Split("_")[0] : null,
                                                                                                               getPartnerProductsRequest.SortBy != null && getPartnerProductsRequest.SortBy.ToLower().EndsWith("desc") ? getPartnerProductsRequest.SortBy.Split("_")[0] : null, brandId);
                 }
                 else if (getPartnerProductsRequest.SearchValue != null && StringUtil.IsUnicode(getPartnerProductsRequest.SearchValue))
                 {
-                    numberItems = await this._unitOfWork.PartnerProductRepository.GetNumberPartnerProductsAsync(null, getPartnerProductsRequest.SearchValue, brandId);
-                    partnerProducts = await this._unitOfWork.PartnerProductRepository.GetPartnerProductsAsync(null, getPartnerProductsRequest.SearchValue, getPartnerProductsRequest.CurrentPage, getPartnerProductsRequest.ItemsPerPage,
+                    numberItems = await this._unitOfWork.PartnerProductRepository.GetNumberPartnerProductsAsync(getPartnerProductsRequest.SearchValue, null, brandId);
+                    partnerProducts = await this._unitOfWork.PartnerProductRepository.GetPartnerProductsAsync(getPartnerProductsRequest.SearchValue, null, getPartnerProductsRequest.CurrentPage, getPartnerProductsRequest.ItemsPerPage,
                                                                                                               getPartnerProductsRequest.SortBy != null && getPartnerProductsRequest.SortBy.ToLower().EndsWith("asc") ? getPartnerProductsRequest.SortBy.Split("_")[0] : null,
                                                                                                               getPartnerProductsRequest.SortBy != null && getPartnerProductsRequest.SortBy.ToLower().EndsWith("desc") ? getPartnerProductsRequest.SortBy.Split("_")[0] : null, brandId);
                 }

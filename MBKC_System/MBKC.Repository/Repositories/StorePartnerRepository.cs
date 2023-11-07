@@ -60,7 +60,7 @@ namespace MBKC.Repository.Repositories
                                                                    )
                                                          .Where(delegate (StorePartner storePartner)
                                                          {
-                                                             if (searchValueWithoutUnicode.ToLower().Contains(StringUtil.RemoveSign4VietnameseString(storePartner.Partner.Name).ToLower()))
+                                                             if (StringUtil.RemoveSign4VietnameseString(storePartner.Partner.Name).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
                                                              {
                                                                  return true;
                                                              }
@@ -134,7 +134,7 @@ namespace MBKC.Repository.Repositories
 
                                                          .Where(delegate (StorePartner storePartner)
                                                          {
-                                                             if (searchValueWithoutUnicode.ToLower().Contains(StringUtil.RemoveSign4VietnameseString(storePartner.Partner.Name).ToLower()))
+                                                             if (StringUtil.RemoveSign4VietnameseString(storePartner.Partner.Name).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
                                                              {
                                                                  return true;
                                                              }
@@ -161,7 +161,7 @@ namespace MBKC.Repository.Repositories
 
                                                          .Where(delegate (StorePartner storePartner)
                                                          {
-                                                             if (searchValueWithoutUnicode.ToLower().Contains(StringUtil.RemoveSign4VietnameseString(storePartner.Partner.Name).ToLower()))
+                                                             if (StringUtil.RemoveSign4VietnameseString(storePartner.Partner.Name).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
                                                              {
                                                                  return true;
                                                              }
@@ -187,7 +187,7 @@ namespace MBKC.Repository.Repositories
                                                                      : true))
                                                          .Where(delegate (StorePartner storePartner)
                                                          {
-                                                             if (searchValueWithoutUnicode.ToLower().Contains(StringUtil.RemoveSign4VietnameseString(storePartner.Partner.Name).ToLower()))
+                                                             if (StringUtil.RemoveSign4VietnameseString(storePartner.Partner.Name).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
                                                              {
                                                                  return true;
                                                              }

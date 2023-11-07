@@ -92,7 +92,7 @@ namespace MBKC.Repository.Repositories
         #endregion
 
         public async Task<int> GetNumberOrdersAsync(string? searchName, string? searchValueWithoutUnicode,
-            int? storeId, int? kitchenCenterId)
+            int? storeId, int? kitchenCenterId, string? systemStatus, string? partnerOrderStatus)
         {
             try
             {
@@ -105,6 +105,10 @@ namespace MBKC.Repository.Repositories
                                                                      : true) &&
                                                                      (kitchenCenterId != null
                                                                      ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId
+                                                                     : true) && (systemStatus != null
+                                                                     ? x.SystemStatus.Equals(systemStatus)
+                                                                     : true) && (partnerOrderStatus != null
+                                                                     ? x.PartnerOrderStatus.Equals(partnerOrderStatus)
                                                                      : true))
                                                          .Where(delegate (Order order)
                                                          {
@@ -123,6 +127,11 @@ namespace MBKC.Repository.Repositories
                                                                      : true) &&
                                                                      (kitchenCenterId != null
                                                                      ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId
+                                                                     : true)
+                                                                     && (systemStatus != null
+                                                                     ? x.SystemStatus.Equals(systemStatus)
+                                                                     : true) && (partnerOrderStatus != null
+                                                                     ? x.PartnerOrderStatus.Equals(partnerOrderStatus)
                                                                      : true) &&
                                                                      x.CustomerName.ToLower().Contains(searchName.ToLower())).CountAsync();
                 }
@@ -133,6 +142,10 @@ namespace MBKC.Repository.Repositories
                                                                      : true) &&
                                                                      (kitchenCenterId != null
                                                                      ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId
+                                                                     : true) && (systemStatus != null
+                                                                     ? x.SystemStatus.Equals(systemStatus)
+                                                                     : true) && (partnerOrderStatus != null
+                                                                     ? x.PartnerOrderStatus.Equals(partnerOrderStatus)
                                                                      : true)).CountAsync();
             }
             catch (Exception ex)
@@ -142,7 +155,7 @@ namespace MBKC.Repository.Repositories
         }
 
         public async Task<List<Order>> GetOrdersAsync(string? searchValue, string? searchValueWithoutUnicode,
-                                                      int currentPage, int itemsPerPage, string? sortByASC, string? sortByDESC, int? storeId, 
+                                                      int currentPage, int itemsPerPage, string? sortByASC, string? sortByDESC, int? storeId,
                                                       int? kitchenCenterId, string? systemStatus, string? partnerOrderStatus)
         {
             try
@@ -152,7 +165,8 @@ namespace MBKC.Repository.Repositories
                     if (sortByASC is not null)
                         return this._dbContext.Orders.Include(x => x.Store)
                                                      .Include(x => x.Partner)
-                                                     .Include(x => x.ShipperPayments)
+                                                     .Include(x => x.ShipperPayments).ThenInclude(x => x.BankingAccount)
+                                                                                     .ThenInclude(x => x.KitchenCenter).ThenInclude(x => x.Cashiers)
                                                      .Include(o => o.OrderDetails).ThenInclude(x => x.MasterOrderDetail)
                                                      .Include(o => o.OrderDetails).ThenInclude(x => x.Product)
                                                      .Include(o => o.OrderDetails).ThenInclude(x => x.ExtraOrderDetails)
