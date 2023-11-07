@@ -302,6 +302,22 @@ namespace MBKC.Service.Services.Implementations
                     }
                     getProductResponse.PartnerProducts = partnerProducts;
                 }
+                Category existedCategory = await this._unitOfWork.CategoryRepository.GetCategoryByIdAsync(existedProduct.Category.CategoryId);
+                List<GetProductResponse> extraProducts = new List<GetProductResponse>();
+                
+                if (existedCategory != null && existedCategory.ExtraCategoryProductCategories.Count() > 0) {
+                    foreach (var extraCategory in existedCategory.ExtraCategoryProductCategories)
+                    {
+                        if (extraCategory.ExtraCategoryNavigation is not null && extraCategory.ExtraCategoryNavigation.Products.Count() > 0) {
+                            foreach (var product in extraCategory.ExtraCategoryNavigation.Products)
+                            {
+                                GetProductResponse productResponse = this._mapper.Map<GetProductResponse>(product);
+                                extraProducts.Add(productResponse);
+                            }
+                        }
+                    }
+                }
+                getProductResponse.ExtraProducts = extraProducts;
 
                 return getProductResponse;
             }
@@ -908,20 +924,20 @@ namespace MBKC.Service.Services.Implementations
                     throw new BadRequestException(MessageConstant.ProductMessage.InvalidOnField);
                 }
 
-                foreach(var product in productsToAdd)
+                foreach (var product in productsToAdd)
                 {
                     Guid guid = Guid.NewGuid();
                     string logoId = guid.ToString();
                     string imageUrl = await this._unitOfWork.FirebaseStorageRepository.UploadImageAsync(imagesToAdd[product.Code], folderName, logoId);
                     if (imageUrl != null && imageUrl.Length > 0 && !isUploaded)
-                    {   
+                    {
                         isUploaded = true;
                     }
                     imageUrl += $"&imageId={logoId}";
                     product.Image = imageUrl;
                     logos.Add(logoId);
                 }
-                
+
                 #endregion
 
                 await this._unitOfWork.ProductRepository.CreateRangProductAsync(productsToAdd);
