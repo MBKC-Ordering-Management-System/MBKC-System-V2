@@ -267,7 +267,7 @@ namespace MBKC.Repository.Repositories
             {
                 if (keySearchUniCode == null && keySearchNotUniCode != null)
                 {
-                    return this._dbContext.Categories.Where(delegate (Category category)
+                    return this._dbContext.Categories.Include(x => x.Brand).Where(delegate (Category category)
                     {
                         if (StringUtil.RemoveSign4VietnameseString(category.Name.ToLower()).Contains(keySearchNotUniCode.ToLower()))
                         {
@@ -281,9 +281,9 @@ namespace MBKC.Repository.Repositories
                 }
                 else if (keySearchUniCode != null && keySearchNotUniCode == null)
                 {
-                    return await this._dbContext.Categories.Where(c => c.Name.ToLower().Contains(keySearchUniCode.ToLower()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Type.Equals(type.ToUpper()) && c.Brand.BrandId == brandId).CountAsync();
+                    return await this._dbContext.Categories.Include(x => x.Brand).Where(c => c.Name.ToLower().Contains(keySearchUniCode.ToLower()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Type.Equals(type.ToUpper()) && c.Brand.BrandId == brandId).CountAsync();
                 }
-                return await this._dbContext.Categories.Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Type.Equals(type.ToUpper()) && c.Brand.BrandId == brandId).CountAsync();
+                return await this._dbContext.Categories.Include(x => x.Brand).Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Type.Equals(type.ToUpper()) && c.Brand.BrandId == brandId).CountAsync();
             }
             catch (Exception ex)
             {

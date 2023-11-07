@@ -17,6 +17,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="hangfire.db-journal" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Hangfire.Dashboard.Basic.Authentication" Version="5.0.0" />
 		<PackageReference Include="Hangfire.Storage.SQLite" Version="0.3.4" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.22" />
