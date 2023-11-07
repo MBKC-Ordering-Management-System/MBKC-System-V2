@@ -1,20 +1,15 @@
 ﻿using AutoMapper;
-using MBKC.Service.Services.Interfaces;
-using MBKC.Repository.Infrastructures;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MBKC.Service.DTOs.PartnerProducts;
-using System.Security.Claims;
-using MBKC.Service.Exceptions;
-using MBKC.Service.Constants;
+using MBKC.Repository.Constants;
 using MBKC.Repository.Enums;
-using MBKC.Repository.Models;
-using MBKC.Service.Utils;
 using MBKC.Repository.GrabFood.Models;
-using System.Data.Entity.Infrastructure;
+using MBKC.Repository.Infrastructures;
+using MBKC.Repository.Models;
+using MBKC.Service.Constants;
+using MBKC.Service.DTOs.PartnerProducts;
+using MBKC.Service.Exceptions;
+using MBKC.Service.Services.Interfaces;
+using MBKC.Service.Utils;
+using System.Security.Claims;
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -547,13 +542,7 @@ namespace MBKC.Service.Services.Implementations
                 }
 
 
-                // Check product code existed or not
-                var checkProductCode = await this._unitOfWork.PartnerProductRepository.GetPartnerProductByProductCodeAsync(updatePartnerProductRequest.ProductCode);
-                if (checkProductCode != null)
-                {
-                    throw new BadRequestException(MessageConstant.PartnerProductMessage.ProductCodeExisted);
-                }
-                else
+                if (partner.Name.ToLower().Equals(PartnerConstant.GrabFood.ToLower()))
                 {
                     GrabFoodAccount grabFoodAccount = new GrabFoodAccount()
                     {
@@ -561,9 +550,9 @@ namespace MBKC.Service.Services.Implementations
                         Password = storePartner.Password
                     };
                     string? productCodeParentProduct = null;
-                    if (checkProductCode.Product.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))
+                    if (product.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))
                     {
-                        Product parentProduct = checkProductCode.Product.ParentProduct;
+                        Product parentProduct = product.ParentProduct;
                         productCodeParentProduct = parentProduct.PartnerProducts.FirstOrDefault(x => x.ProductId == parentProduct.ProductId && x.StoreId == storeId && x.PartnerId == partnerId && x.CreatedDate.Equals(storePartner.CreatedDate)).ProductCode;
                     }
                     GrabFoodAuthenticationResponse grabFoodAuthenticationResponse = await this._unitOfWork.GrabFoodRepository.LoginGrabFoodAsync(grabFoodAccount);
@@ -912,10 +901,13 @@ namespace MBKC.Service.Services.Implementations
                     Product parentProduct = partnerProductExisted.Product.ParentProduct;
                     productCodeParentProduct = parentProduct.PartnerProducts.FirstOrDefault(x => x.ProductId == parentProduct.ProductId && x.StoreId == storeId && x.PartnerId == partnerId && x.CreatedDate.Equals(storePartner.CreatedDate)).ProductCode;
                 }
-                GrabFoodAuthenticationResponse grabFoodAuthenticationResponse = await this._unitOfWork.GrabFoodRepository.LoginGrabFoodAsync(grabFoodAccount);
-                GrabFoodMenu grabFoodMenu = await this._unitOfWork.GrabFoodRepository.GetGrabFoodMenuAsync(grabFoodAuthenticationResponse);
-                GrabFoodUtil.CheckProductCodeFromGrabFood(grabFoodMenu, partnerProductExisted.ProductCode, partnerProductExisted.Product.Type, partnerProductExisted.Price, status, true, productCodeParentProduct);
 
+                if (partner.Name.ToLower().Equals(PartnerConstant.GrabFood.ToLower()))
+                {
+                    GrabFoodAuthenticationResponse grabFoodAuthenticationResponse = await this._unitOfWork.GrabFoodRepository.LoginGrabFoodAsync(grabFoodAccount);
+                    GrabFoodMenu grabFoodMenu = await this._unitOfWork.GrabFoodRepository.GetGrabFoodMenuAsync(grabFoodAuthenticationResponse);
+                    GrabFoodUtil.CheckProductCodeFromGrabFood(grabFoodMenu, partnerProductExisted.ProductCode, partnerProductExisted.Product.Type, partnerProductExisted.Price, status, true, productCodeParentProduct);
+                }
 
                 // assign status to partner product existed
                 partnerProductExisted.Status = status;
