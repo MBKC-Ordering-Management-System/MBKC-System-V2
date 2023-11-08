@@ -679,7 +679,7 @@ namespace MBKC.Service.Services.Implementations
                     foreach (var childProduct in existedProduct.ChildrenProducts)
                     {
                         childProduct.Category = existedProduct.Category;
-                        childProduct.Name = existedProduct.Name + $"Size {childProduct.Size.ToLower()}";
+                        childProduct.Name = existedProduct.Name + $" - Size {childProduct.Size.ToLower()}";
                     }
                 }
 
