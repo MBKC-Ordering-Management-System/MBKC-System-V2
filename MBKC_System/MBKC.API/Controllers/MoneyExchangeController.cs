@@ -4,6 +4,7 @@ using MBKC.API.Constants;
 using MBKC.Service.Authorization;
 using MBKC.Service.DTOs.MoneyExchanges;
 using MBKC.Service.DTOs.Orders;
+using MBKC.Service.DTOs.Orders.MBKC.Service.DTOs.Orders;
 using MBKC.Service.Errors;
 using MBKC.Service.Exceptions;
 using MBKC.Service.Services.Interfaces;
@@ -30,8 +31,8 @@ namespace MBKC.API.Controllers
         {
             this._moneyExchangeService = moneyExchangeService;
             this._withdrawMoneyValidator = withdrawMoneyValidator;
-            this._getMoneyExchangesValidator = getMoneyExchangesValidator;
         }
+        #endregion
 
         #region money exchange to kitchen center
         /// <summary>

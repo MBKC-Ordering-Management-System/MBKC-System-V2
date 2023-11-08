@@ -17,6 +17,7 @@ namespace MBKC.Service.DTOs.MoneyExchanges
         public string SenderName { get; set; }
         public int ReceiveId { get; set; }
         public string ReceiveName { get; set; }
+        public DateTime CreatedDate { get; set; }
         public string? ExchangeImage { get; set; }
         public DateTime TransactionTime { get; set; }
     }

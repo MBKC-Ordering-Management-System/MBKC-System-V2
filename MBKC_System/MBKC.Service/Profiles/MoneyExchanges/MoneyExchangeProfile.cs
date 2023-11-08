@@ -17,5 +17,6 @@ namespace MBKC.Service.Profiles.MoneyExchanges
             CreateMap<MoneyExchange, GetMoneyExchangeResponse>()
                 .ForMember(dept => dept.Status, opt => opt.MapFrom(src => StatusUtil.ChangeMoneyExchangeStatus(src.Status)));
         }
+
     }
 }

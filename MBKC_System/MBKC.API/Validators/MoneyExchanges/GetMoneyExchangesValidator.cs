@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using MBKC.Service.DTOs.MoneyExchanges;
+using MBKC.Service.DTOs.Orders;
 using MBKC.Service.Utils;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -12,13 +13,13 @@ namespace MBKC.API.Validators.MoneyExchanges
         {
             RuleFor(x => x.CurrentPage)
                 .Cascade(CascadeMode.StopOnFirstFailure)
-                .Custom((currentPage, context) =>
-                {
-                    if (currentPage <= 0)
-                    {
-                        context.AddFailure("CurrentPage", "Current page number is required more than 0.");
-                    }
-                });
+              .Custom((currentPage, context) =>
+              {
+                  if (currentPage <= 0)
+                  {
+                      context.AddFailure("CurrentPage", "Current page number is required more than 0.");
+                  }
+              });
 
             RuleFor(x => x.ItemsPerPage)
                 .Cascade(CascadeMode.StopOnFirstFailure)
@@ -32,24 +33,24 @@ namespace MBKC.API.Validators.MoneyExchanges
 
             RuleFor(x => x.SortBy)
                 .Cascade(CascadeMode.StopOnFirstFailure)
-                .Custom((sortBy, context) =>
-                {
-                    PropertyInfo[] properties = typeof(GetMoneyExchangeResponse).GetProperties();
-                    string strRegex = @"(^[a-zA-Z]*_(ASC|asc)$)|(^[a-zA-Z]*_(DESC|desc))";
-                    Regex regex = new Regex(strRegex);
-                    if (sortBy is not null)
-                    {
-                        if (regex.IsMatch(sortBy.Trim()) == false)
-                        {
-                            context.AddFailure("SortBy", "Sort by is required following format: propertyName_ASC | propertyName_DESC.");
-                        }
-                        string[] sortByParts = sortBy.Split("_");
-                        if (properties.Any(x => x.Name.ToLower().Equals(sortByParts[0].Trim().ToLower())) == false)
-                        {
-                            context.AddFailure("SortBy", "Property name in format does not exist in the system.");
-                        }
-                    }
-                });
+                 .Custom((sortBy, context) =>
+                 {
+                     PropertyInfo[] properties = typeof(GetMoneyExchangeResponse).GetProperties();
+                     string strRegex = @"(^[a-zA-Z]*_(ASC|asc)$)|(^[a-zA-Z]*_(DESC|desc))";
+                     Regex regex = new Regex(strRegex);
+                     if (sortBy is not null)
+                     {
+                         if (regex.IsMatch(sortBy.Trim()) == false)
+                         {
+                             context.AddFailure("SortBy", "Sort by is required following format: propertyName_ASC | propertyName_DESC.");
+                         }
+                         string[] sortByParts = sortBy.Split("_");
+                         if (properties.Any(x => x.Name.ToLower().Equals(sortByParts[0].Trim().ToLower())) == false)
+                         {
+                             context.AddFailure("SortBy", "Property name in format does not exist in the system.");
+                         }
+                     }
+                 });
 
             #region Status
             RuleFor(x => x.Status)
@@ -68,11 +69,11 @@ namespace MBKC.API.Validators.MoneyExchanges
             RuleFor(x => x.ExchangeType)
                      .Cascade(CascadeMode.StopOnFirstFailure)
                      .Must((x, exchangeType) =>
-                     {
+                       {
                          if (exchangeType == null)
-                         {
+                           {
                              return true; // Skip validation when status is null
-                         }
+                           }
                          return StringUtil.CheckExchangeType(exchangeType);
                      }).WithMessage("{PropertyName} is required SEND, RECEIVE, WITHDRAW");
             #endregion

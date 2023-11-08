@@ -268,6 +268,18 @@ namespace MBKC.Service.Utils
             return false;
         }
 
+        public static bool CheckMoneyExchangeType(string type)
+        {
+            if (type.Trim().ToUpper().Equals(MoneyExchangeEnum.ExchangeType.SEND.ToString()) ||
+                type.Trim().ToUpper().Equals(MoneyExchangeEnum.ExchangeType.RECEIVE.ToString()) ||
+                type.Trim().ToUpper().Equals(MoneyExchangeEnum.ExchangeType.WITHDRAW.ToString()))
+            {
+                return true;
+            }
+            return false;
+        }
+
+
         public static bool CheckParnerOrderStatus(string status)
         {
             if (status.Trim().ToLower().Equals(OrderEnum.Status.READY.ToString().ToLower()) ||
