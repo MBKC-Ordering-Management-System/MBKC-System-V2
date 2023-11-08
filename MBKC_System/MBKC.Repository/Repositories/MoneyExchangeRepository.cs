@@ -54,6 +54,7 @@ namespace MBKC.Repository.Repositories
                 throw new Exception(ex.Message);
             }
         }
+        #endregion
 
         #region Get money exchanges
         public List<MoneyExchange> GetMoneyExchangesAsync(List<MoneyExchange> moneyExchanges,

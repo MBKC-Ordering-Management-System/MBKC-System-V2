@@ -120,12 +120,8 @@
         public static class MoneyExchange
         {
             public const string MoneyExchangesEndpoint = ApiEndpoint + "/money-exchanges";
-           
-            
-            
-            
-            public const string MoneyExchangeToKitchenCenter = MoneyExchangeEndpoint + "/money-exchange-to-kitchen-center";
-            public const string WithdrawMoneyToStore = MoneyExchangeEndpoint + "/withdraw-money-to-store";
+            public const string MoneyExchangeToKitchenCenter = MoneyExchangesEndpoint + "/money-exchange-to-kitchen-center";
+            public const string WithdrawMoneyToStore = MoneyExchangesEndpoint + "/withdraw-money-to-store";
         }
 
         public static class Configuration

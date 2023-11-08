@@ -32,7 +32,6 @@ namespace MBKC.API.Controllers
             this._moneyExchangeService = moneyExchangeService;
             this._withdrawMoneyValidator = withdrawMoneyValidator;
         }
-        #endregion
 
         #region money exchange to kitchen center
         /// <summary>
