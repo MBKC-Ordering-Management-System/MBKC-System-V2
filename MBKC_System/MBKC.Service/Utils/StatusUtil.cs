@@ -258,7 +258,15 @@ namespace MBKC.Service.Utils
                 return char.ToUpper(OrderEnum.SystemStatus.CANCELLED.ToString()[0]) + OrderEnum.SystemStatus.CANCELLED.ToString().ToLower().Substring(1);
             }
             return char.ToUpper(OrderEnum.SystemStatus.COMPLETED.ToString()[0]) + OrderEnum.SystemStatus.COMPLETED.ToString().ToLower().Substring(1);
+        }
 
+        public static int ChangeMoneyExchangeStatus(string status)
+        {
+            if (status.ToUpper().Equals(MoneyExchangeEnum.Status.SUCCESS.ToString()))
+            {
+                return (int)MoneyExchangeEnum.Status.SUCCESS;
+            }
+            return (int)MoneyExchangeEnum.Status.FAIL;
         }
     }
 }

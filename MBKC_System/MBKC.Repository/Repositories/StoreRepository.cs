@@ -141,8 +141,8 @@ namespace MBKC.Repository.Repositories
                                                    .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                    .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                    .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                   .Where(x => x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true) && 
-                                                   (brandId != null ? x.Brand.BrandId == brandId : true)  && 
+                                                   .Where(x => x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true) &&
+                                                   (brandId != null ? x.Brand.BrandId == brandId : true) &&
                                                    (kitchenCenterId != null ? x.KitchenCenter.KitchenCenterId == kitchenCenterId : true))
                                                    .ToListAsync();
                 }
@@ -743,7 +743,14 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await this._dbContext.Stores.Include(x => x.Brand).ThenInclude(x => x.Categories).Include(x => x.KitchenCenter).ThenInclude(x => x.Manager).SingleOrDefaultAsync(x => x.StoreManagerEmail.Equals(managerEmail));
+                return await this._dbContext.Stores.Include(x => x.Brand)
+                                                   .ThenInclude(x => x.Categories)
+                                                   .Include(x => x.KitchenCenter)
+                                                   .ThenInclude(x => x.Manager)
+                                                   .Include(x => x.StoreMoneyExchanges)
+                                                   .ThenInclude(x => x.MoneyExchange)
+                                                   .ThenInclude(x => x.Transactions)
+                                                   .SingleOrDefaultAsync(x => x.StoreManagerEmail.Equals(managerEmail));
             }
             catch (Exception ex)
             {

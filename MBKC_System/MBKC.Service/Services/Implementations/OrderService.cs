@@ -668,13 +668,7 @@ namespace MBKC.Service.Services.Implementations
                         throw new BadRequestException(MessageConstant.OrderMessage.OrderIdNotBelongToKitchenCenter);
                     }
                 }
-                else if (cashier != null) // Check order belong to kitchen center or not.
-                {
-                    if (existedOrder.Store.KitchenCenter.KitchenCenterId != kitchenCenter.KitchenCenterId)
-                    {
-                        throw new BadRequestException(MessageConstant.OrderMessage.OrderIdNotBelongToKitchenCenter);
-                    }
-                }
+               
                 GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(existedOrder);
                 return getOrderResponse;
 

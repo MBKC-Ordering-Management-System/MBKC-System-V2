@@ -110,7 +110,7 @@
         {
             public const string OrdersEndpoint = ApiEndpoint + "/orders";
             public const string OrderEndpoint = OrdersEndpoint + "/{id}";
-            public const string ConfirmOrderToCompletedEndpoint = OrderEndpoint + "/confirm-order-to-completed";
+            public const string ConfirmOrderToCompletedEndpoint = OrdersEndpoint + "/confirm-order-to-completed";
             public const string ChangeOrderToReadyEndpoint = OrderEndpoint + "/change-order-to-ready";
             public const string ChangeOrderToReadyDeliveryEndpoint = OrderEndpoint + "/change-order-to-ready-delivery";
             public const string CancelOrderEndpoint = OrderEndpoint + "/cancel-order";
@@ -119,10 +119,10 @@
 
         public static class MoneyExchange
         {
-            public const string MoneyExchangeEndpoint = ApiEndpoint + "/money-exchanges";
-            public const string MoneyExchangeToKitchenCenter = MoneyExchangeEndpoint + "/money-exchange-to-kitchen-center";
-            public const string WithdrawMoneyToStore = MoneyExchangeEndpoint + "/withdraw-money-to-store";
-            public const string UpdateSchedulingTimeJob = MoneyExchangeEndpoint + "/update-scheduling-time-job";
+            public const string MoneyExchangesEndpoint = ApiEndpoint + "/money-exchanges";
+            public const string MoneyExchangeToKitchenCenter = MoneyExchangesEndpoint + "/money-exchange-to-kitchen-center";
+            public const string WithdrawMoneyToStore = MoneyExchangesEndpoint + "/withdraw-money-to-store";
+            public const string UpdateSchedulingTimeJob = MoneyExchangesEndpoint + "/update-scheduling-time-job";
         }
 
         public static class Configuration

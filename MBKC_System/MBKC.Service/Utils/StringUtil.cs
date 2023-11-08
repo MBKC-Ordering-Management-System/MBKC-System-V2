@@ -280,5 +280,26 @@ namespace MBKC.Service.Utils
             }
             return false;
         }
+
+        public static bool CheckMoneyExchangeStatus(string status)
+        {
+            if (status.Trim().ToLower().Equals(MoneyExchangeEnum.Status.SUCCESS.ToString().ToLower()) ||
+                status.Trim().ToLower().Equals(MoneyExchangeEnum.Status.FAIL.ToString().ToLower()))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public static bool CheckExchangeType(string exchangeType)
+        {
+            if (exchangeType.Trim().ToLower().Equals(MoneyExchangeEnum.ExchangeType.SEND.ToString().ToLower()) ||
+                exchangeType.Trim().ToLower().Equals(MoneyExchangeEnum.ExchangeType.RECEIVE.ToString().ToLower()) ||
+                exchangeType.Trim().ToLower().Equals(MoneyExchangeEnum.ExchangeType.WITHDRAW.ToString().ToLower()))
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using MBKC.Repository.Models;
 using MBKC.Service.DTOs.OrdersHistories;
+using MBKC.Service.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,10 @@ namespace MBKC.Service.Profiles.OrderHistories
     {
         public OrderHistoryProfile()
         {
-            CreateMap<OrderHistory, OrderHistoryResponse>().ReverseMap();
+            CreateMap<OrderHistory, OrderHistoryResponse>()
+                .ForMember(dept => dept.SystemStatus, opt => opt.MapFrom(src => StatusUtil.ChangeSystemOrderStatus(src.SystemStatus)))
+                .ForMember(dept => dept.PartnerOrderStatus, opt => opt.MapFrom(src => StatusUtil.ChangePartnerOrderStatus(src.PartnerOrderStatus)))
+                .ReverseMap();
         }
     }
 }

@@ -16,6 +16,10 @@ using System.Security.Claims;
 using MBKC.Service.DTOs.MoneyExchanges;
 using MBKC.Service.DTOs.Brands;
 using static MBKC.Service.Constants.EmailMessageConstant;
+using Cashier = MBKC.Repository.Models.Cashier;
+using Store = MBKC.Repository.Models.Store;
+using KitchenCenter = MBKC.Repository.Models.KitchenCenter;
+using MBKC.Service.Profiles.MoneyExchanges;
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -151,17 +155,17 @@ namespace MBKC.Service.Services.Implementations
                 string email = claims.First(x => x.Type == ClaimTypes.Email).Value;
                 var existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(email);
                 var existedStore = await this._unitOfWork.StoreRepository.GetStoreByIdAsync(withdrawMoneyRequest.StoreId);
-                if(existedStore == null)
+                if (existedStore == null)
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistStoreId);
                 }
 
-                if(!existedKitchenCenter.Stores.Any(s => s.StoreId == existedStore.StoreId))
+                if (!existedKitchenCenter.Stores.Any(s => s.StoreId == existedStore.StoreId))
                 {
                     throw new BadRequestException(MessageConstant.MoneyExchangeMessage.StoreIdNotBelogToKitchenCenter);
                 }
 
-                if(existedStore.Wallet.Balance <= 0)
+                if (existedStore.Wallet.Balance <= 0)
                 {
                     throw new BadRequestException(MessageConstant.MoneyExchangeMessage.BalanceIsInvalid);
                 }
@@ -270,6 +274,124 @@ namespace MBKC.Service.Services.Implementations
         }
         #endregion
 
+        #region Get money exchange
+        public async Task<GetMoneyExchangesResponse> GetMoneyExchanges(IEnumerable<Claim> claims, GetMoneyExchangesRequest getMoneyExchangesRequest)
+        {
+            try
+            {
+                Claim registeredEmailClaim = claims.First(x => x.Type == ClaimTypes.Email);
+                Claim registeredRoleClaim = claims.First(x => x.Type.ToLower().Equals("role"));
+                string email = registeredEmailClaim.Value;
+                string role = registeredRoleClaim.Value;
+                Store? existedStore = null;
+                Cashier? existedCashier = null;
+                KitchenCenter? existedKitchenCenter = null;
+                List<MoneyExchange>? existedMoneyExchanges = null;
+
+                // Check role when user login
+                if (role.ToLower().Equals(RoleConstant.Cashier.ToLower()))
+                {
+                    existedCashier = await this._unitOfWork.CashierRepository.GetCashierMoneyExchangeAsync(email);
+                    existedMoneyExchanges = existedCashier.CashierMoneyExchanges.Select(x => x.MoneyExchange).ToList();
+                }
+                else if (role.ToLower().Equals(RoleConstant.Store_Manager.ToLower()))
+                {
+                    existedStore = await this._unitOfWork.StoreRepository.GetStoreAsync(email);
+                    existedMoneyExchanges = existedStore.StoreMoneyExchanges.Select(x => x.MoneyExchange).ToList();
+                }
+                else if (role.ToLower().Equals(RoleConstant.Kitchen_Center_Manager.ToLower()))
+                {
+                    existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(email);
+                    existedMoneyExchanges = existedKitchenCenter.KitchenCenterMoneyExchanges.Select(x => x.MoneyExchange).ToList();
+                }
+
+                // Change status int to string
+                int? status = null;
+                if (getMoneyExchangesRequest.Status != null)
+                {
+                    status = StatusUtil.ChangeMoneyExchangeStatus(getMoneyExchangesRequest.Status);
+                }
+
+                int numberItems = 0;
+                List<MoneyExchange>? listMoneyExchanges = null;
+                numberItems = this._unitOfWork.MoneyExchangeRepository.GetNumberMoneyExchangesAsync(existedMoneyExchanges,
+                                                                         getMoneyExchangesRequest.ExchangeType, status,
+                                                                         getMoneyExchangesRequest.SearchDateFrom,
+                                                                         getMoneyExchangesRequest.SearchDateTo);
+
+                listMoneyExchanges = this._unitOfWork.MoneyExchangeRepository.GetMoneyExchangesAsync(existedMoneyExchanges, 
+                                                                                 getMoneyExchangesRequest.CurrentPage, getMoneyExchangesRequest.ItemsPerPage,
+                                                                                 getMoneyExchangesRequest.SortBy != null && getMoneyExchangesRequest.SortBy.ToLower().EndsWith("asc") ? getMoneyExchangesRequest.SortBy.Split("_")[0] : null,
+                                                                                 getMoneyExchangesRequest.SortBy != null && getMoneyExchangesRequest.SortBy.ToLower().EndsWith("desc") ? getMoneyExchangesRequest.SortBy.Split("_")[0] : null,
+                                                                                 getMoneyExchangesRequest.ExchangeType, status, getMoneyExchangesRequest.SearchDateFrom, getMoneyExchangesRequest.SearchDateTo);
+
+                var getMoneyExchangeResponse = this._mapper.Map<List<GetMoneyExchangeResponse>>(listMoneyExchanges);
+
+                // Assign sender name, receive name, transaction time role Store.
+                if (existedStore != null)
+                {
+                    foreach (var item in getMoneyExchangeResponse)
+                    {
+                        item.SenderName = existedStore.KitchenCenter.Name;
+                        item.ReceiveName = existedStore.Name;
+                        item.TransactionTime = existedMoneyExchanges
+                             .SelectMany(x => x.Transactions.Where(x => x.ExchangeId == item.ExchangeId)
+                             .Select(x => x.TransactionTime))
+                             .SingleOrDefault();
+                    }
+                }
+
+                // Assign sender name and receiver name, transaction time role Kitchen Center
+                if (existedKitchenCenter != null)
+                {
+                    foreach (var item in getMoneyExchangeResponse)
+                    {
+                        item.SenderName = existedKitchenCenter.Name;
+                        item.ReceiveName = existedKitchenCenter.Stores
+                                          .Where(store => store.StoreId == item.ReceiveId)
+                                          .Select(store => store.Name)
+                                          .SingleOrDefault();
+                        item.TransactionTime = existedMoneyExchanges
+                            .SelectMany(x => x.Transactions.Where(x => x.ExchangeId == item.ExchangeId)
+                            .Select(x => x.TransactionTime))
+                            .SingleOrDefault();
+                    }
+                }
+
+                // Assign sender name and receiver name, transaction time role Cashier
+                if (existedCashier != null)
+                {
+                    foreach (var item in getMoneyExchangeResponse)
+                    {
+                        item.SenderName = existedCashier.FullName;
+                        item.ReceiveName = existedCashier.KitchenCenter.Name;
+                        item.TransactionTime = existedMoneyExchanges
+                            .SelectMany(x => x.Transactions.Where(x => x.ExchangeId == item.ExchangeId)
+                            .Select(x => x.TransactionTime))
+                            .SingleOrDefault();
+                    }
+                }
+
+                int totalPages = 0;
+                totalPages = (int)((numberItems + getMoneyExchangesRequest.ItemsPerPage) / getMoneyExchangesRequest.ItemsPerPage);
+
+                if (numberItems == 0)
+                {
+                    totalPages = 0;
+                }
+                return new GetMoneyExchangesResponse
+                {
+                    TotalPages = totalPages,
+                    NumberItems = numberItems,
+                    KitchenCenters = getMoneyExchangeResponse
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
     }
 }
 

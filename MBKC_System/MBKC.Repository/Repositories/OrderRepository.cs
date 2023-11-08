@@ -505,7 +505,7 @@ namespace MBKC.Repository.Repositories
             return await this._dbContext.Orders
                              .Include(x => x.Store)
                              .Include(x => x.Partner)
-                             .Include(x => x.ShipperPayments)
+                             .Include(x => x.ShipperPayments).ThenInclude(x => x.BankingAccount)
                              .Include(x => x.OrderHistories)
                              .Include(o => o.OrderDetails).ThenInclude(x => x.MasterOrderDetail)
                              .Include(o => o.OrderDetails).ThenInclude(x => x.Product)
