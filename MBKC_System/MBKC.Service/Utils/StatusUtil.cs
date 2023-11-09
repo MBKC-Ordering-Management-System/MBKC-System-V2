@@ -277,6 +277,19 @@ namespace MBKC.Service.Utils
             }
             return (int)ShipperPaymentEnum.Status.FAIL;
         }
+
+        public static string ChangeMoneyExchangeType(string status)
+        {
+            if (status.ToUpper().Equals(MoneyExchangeEnum.ExchangeType.SEND.ToString()))
+            {
+                return char.ToUpper(MoneyExchangeEnum.ExchangeType.SEND.ToString()[0]) + MoneyExchangeEnum.ExchangeType.SEND.ToString().ToLower().Substring(1);
+            }
+            else if (status.ToUpper().Equals(MoneyExchangeEnum.ExchangeType.RECEIVE.ToString()))
+            {
+                return char.ToUpper(MoneyExchangeEnum.ExchangeType.RECEIVE.ToString()[0]) + MoneyExchangeEnum.ExchangeType.RECEIVE.ToString().ToLower().Substring(1);
+            }
+            return char.ToUpper(MoneyExchangeEnum.ExchangeType.WITHDRAW.ToString()[0]) + MoneyExchangeEnum.ExchangeType.WITHDRAW.ToString().ToLower().Substring(1);
+        }
     }
 }
 
