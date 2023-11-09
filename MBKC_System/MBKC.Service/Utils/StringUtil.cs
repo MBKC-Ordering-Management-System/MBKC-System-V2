@@ -313,5 +313,25 @@ namespace MBKC.Service.Utils
             }
             return false;
         }
+
+        public static bool CheckPaymentMethod(string paymentMethod)
+        {
+            if (paymentMethod.Trim().ToLower().Equals(ShipperPaymentEnum.PaymentMethod.CASH.ToString().ToLower()) ||
+                paymentMethod.Trim().ToLower().Equals(ShipperPaymentEnum.PaymentMethod.CASHLESS.ToString().ToLower()))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public static bool CheckShipperPaymentStatus(string status)
+        {
+            if (status.Trim().ToLower().Equals(ShipperPaymentEnum.Status.SUCCESS.ToString().ToLower()) ||
+                status.Trim().ToLower().Equals(ShipperPaymentEnum.Status.FAIL.ToString().ToLower()))
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

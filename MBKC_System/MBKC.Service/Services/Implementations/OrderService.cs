@@ -566,6 +566,9 @@ namespace MBKC.Service.Services.Implementations
                                                                                                                   getOrdersRequest.PartnerOrderStatus);
                 }
 
+
+
+
                 // Search by date from - date to
                 if (getOrdersRequest.SearchDateFrom != null && getOrdersRequest.SearchDateTo != null)
                 {
@@ -668,7 +671,7 @@ namespace MBKC.Service.Services.Implementations
                         throw new BadRequestException(MessageConstant.OrderMessage.OrderIdNotBelongToKitchenCenter);
                     }
                 }
-               
+
                 GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(existedOrder);
                 return getOrderResponse;
 

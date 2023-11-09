@@ -14,6 +14,6 @@ namespace MBKC.Service.DTOs.Transactions
         public DateTime TransactionTime { get; set; }
         public string Status { get; set; }
         public GetMoneyExchangeResponse? MoneyExchange { get; set; }
-        public GetShipperPaymentWalletResponse? ShipperPayment { get; set; }
+        public GetShipperPaymentResponse? ShipperPayment { get; set; }
     }
 }

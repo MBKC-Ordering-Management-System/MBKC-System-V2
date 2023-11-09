@@ -244,11 +244,11 @@ namespace MBKC.Repository.Repositories
                                                            .Include(x => x.Wallet)
                                                            .ThenInclude(x => x.Transactions)
                                                            .ThenInclude(x => x.ShipperPayment)
-                                                           .ThenInclude(x => x.BankingAccount)
                                                            .Include(x => x.Wallet)
                                                            .ThenInclude(x => x.Transactions)
                                                            .ThenInclude(x => x.ShipperPayment)
                                                            .ThenInclude(x => x.Order)
+                                                           .Include(x => x.BankingAccounts).ThenInclude(x => x.ShipperPayments)
                                                            .FirstOrDefaultAsync(x => x.Manager.Email.Equals(managerEmail)
                                                                                   && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE);
             }

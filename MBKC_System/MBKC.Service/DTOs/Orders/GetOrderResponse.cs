@@ -37,7 +37,7 @@ namespace MBKC.Service.DTOs.Orders
         public int TotalQuantity { get; set; }
         public GetStoreResponse Store { get; set; }
         public GetPartnerResponse Partner { get; set; }
-        public List<GetShipperPayemtResponse> ShipperPayments { get; set; }
+        public List<GetShipperPaymentOrderResponse> ShipperPayments { get; set; }
         public List<GetOrderDetailResponse> OrderDetails { get; set; }
         public List<OrderHistoryResponse> OrderHistories { get; set; }
     }

@@ -334,7 +334,7 @@ namespace MBKC.Repository.Repositories
             }
         }
 
-        public async Task<Cashier> GetCashierMoneyExchangeAsync(string email)
+        public async Task<Cashier> GetCashierMoneyExchangeShipperPaymentAsync(string email)
         {
             try
             {
@@ -343,7 +343,7 @@ namespace MBKC.Repository.Repositories
                                                      .Include(x => x.Wallet)
                                                      .Include(x => x.KitchenCenter).ThenInclude(kc => kc.Manager)
                                                      .Include(x => x.KitchenCenter).ThenInclude(kc => kc.Stores)
-                                                     .Include(x => x.KitchenCenter).ThenInclude(kc => kc.BankingAccounts)
+                                                     .Include(x => x.KitchenCenter).ThenInclude(kc => kc.BankingAccounts).ThenInclude(x => x.ShipperPayments)
                                                      .Include(x => x.KitchenCenter).ThenInclude(kc => kc.Wallet)
                                                      .Include(x => x.CashierMoneyExchanges).ThenInclude(x => x.MoneyExchange).ThenInclude(x => x.Transactions)
                                                      .SingleOrDefaultAsync(x => x.Account.Email.Equals(email));

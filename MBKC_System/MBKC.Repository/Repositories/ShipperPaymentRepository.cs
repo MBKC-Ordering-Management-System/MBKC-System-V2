@@ -1,5 +1,6 @@
 ﻿using MBKC.Repository.DBContext;
 using MBKC.Repository.Models;
+using MBKC.Repository.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,5 +28,65 @@ namespace MBKC.Repository.Repositories
                 throw new Exception(ex.Message);
             }
         }
+
+        #region Get Number Shipper Payment
+        public int GetNumberShipperPaymentsAsync(List<ShipperPayment> shipperPayments, string? paymentMethod, int? status, string? searchDateFrom, string? searchDateTo)
+        {
+            try
+            {
+                DateTime startDate = new DateTime();
+                DateTime endDate = new DateTime();
+                if (searchDateFrom != null && searchDateTo != null)
+                {
+                    startDate = DateTime.ParseExact(searchDateFrom, "dd/MM/yyyy", null);
+                    endDate = DateTime.ParseExact(searchDateTo, "dd/MM/yyyy", null);
+                }
+                return shipperPayments
+                    .Where(x => (paymentMethod != null ? x.PaymentMethod.Equals(paymentMethod.ToUpper()) : true) &&
+                                                 (status != null ? x.Status == status : true) &&
+                                                 (searchDateFrom != null && searchDateTo != null ? x.CreateDate >= startDate && x.CreateDate <= endDate : true)).Count();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        #region Get shipper payments
+        public List<ShipperPayment> GetShipperPaymentsAsync(List<ShipperPayment> shipperPayments,
+           int currentPage, int itemsPerPage, string? sortByASC, string? sortByDESC, string? paymentMethod, int? status, string? searchDateFrom, string? searchDateTo)
+        {
+            try
+            {
+                DateTime startDate = new DateTime();
+                DateTime endDate = new DateTime();
+                if (searchDateFrom != null && searchDateTo != null)
+                {
+                    startDate = DateTime.ParseExact(searchDateFrom, "dd/MM/yyyy", null);
+                    endDate = DateTime.ParseExact(searchDateTo, "dd/MM/yyyy", null);
+                }
+                if (sortByASC != null && sortByDESC != null)
+
+                    return shipperPayments.Where(x => (paymentMethod != null ? x.PaymentMethod.Equals(paymentMethod.ToUpper()) : true) &&
+                                                     (status != null ? x.Status == status : true) &&
+                                                     (searchDateFrom != null && searchDateTo != null ? x.CreateDate >= startDate && x.CreateDate <= endDate : true))
+                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+
+                return (List<ShipperPayment>)shipperPayments.Where(x => (paymentMethod != null ? x.PaymentMethod.Equals(paymentMethod.ToUpper()) : true) &&
+                                                 (status != null ? x.Status == status : true) &&
+                                                 (searchDateFrom != null && searchDateTo != null ? x.CreateDate >= startDate && x.CreateDate <= endDate : true))
+                                                 .If(sortByASC != null && sortByASC.ToLower().Equals("amount"),
+                                                           then => then.OrderBy(x => x.Amount))
+                                                 .If(sortByDESC != null && sortByDESC.ToLower().Equals("amount"),
+                                                           then => then.OrderByDescending(x => x.Amount))
+                                                 .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
     }
 }

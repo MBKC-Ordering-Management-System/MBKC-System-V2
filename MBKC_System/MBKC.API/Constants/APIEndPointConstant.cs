@@ -135,5 +135,10 @@
             public const string WalletsEndpoint = ApiEndpoint + "/wallets";
             public const string WalletEndpoint = WalletsEndpoint + "/transaction-money-exchange-shipper-payment-information";
         }
+
+        public static class ShipperPayment
+        {
+            public const string ShipperPaymentsEndpoint = ApiEndpoint + "/shipper-payments";
+        }
     }
 }

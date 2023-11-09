@@ -274,7 +274,7 @@ namespace MBKC.Service.Services.Implementations
         }
         #endregion
 
-        #region Get money exchange
+        #region Get money exchanges
         public async Task<GetMoneyExchangesResponse> GetMoneyExchanges(IEnumerable<Claim> claims, GetMoneyExchangesRequest getMoneyExchangesRequest)
         {
             try
@@ -291,7 +291,7 @@ namespace MBKC.Service.Services.Implementations
                 // Check role when user login
                 if (role.ToLower().Equals(RoleConstant.Cashier.ToLower()))
                 {
-                    existedCashier = await this._unitOfWork.CashierRepository.GetCashierMoneyExchangeAsync(email);
+                    existedCashier = await this._unitOfWork.CashierRepository.GetCashierMoneyExchangeShipperPaymentAsync(email);
                     existedMoneyExchanges = existedCashier.CashierMoneyExchanges.Select(x => x.MoneyExchange).ToList();
                 }
                 else if (role.ToLower().Equals(RoleConstant.Store_Manager.ToLower()))
@@ -305,7 +305,7 @@ namespace MBKC.Service.Services.Implementations
                     existedMoneyExchanges = existedKitchenCenter.KitchenCenterMoneyExchanges.Select(x => x.MoneyExchange).ToList();
                 }
 
-                // Change status int to string
+                // Change status string to int
                 int? status = null;
                 if (getMoneyExchangesRequest.Status != null)
                 {
@@ -319,7 +319,7 @@ namespace MBKC.Service.Services.Implementations
                                                                          getMoneyExchangesRequest.SearchDateFrom,
                                                                          getMoneyExchangesRequest.SearchDateTo);
 
-                listMoneyExchanges = this._unitOfWork.MoneyExchangeRepository.GetMoneyExchangesAsync(existedMoneyExchanges, 
+                listMoneyExchanges = this._unitOfWork.MoneyExchangeRepository.GetMoneyExchangesAsync(existedMoneyExchanges,
                                                                                  getMoneyExchangesRequest.CurrentPage, getMoneyExchangesRequest.ItemsPerPage,
                                                                                  getMoneyExchangesRequest.SortBy != null && getMoneyExchangesRequest.SortBy.ToLower().EndsWith("asc") ? getMoneyExchangesRequest.SortBy.Split("_")[0] : null,
                                                                                  getMoneyExchangesRequest.SortBy != null && getMoneyExchangesRequest.SortBy.ToLower().EndsWith("desc") ? getMoneyExchangesRequest.SortBy.Split("_")[0] : null,
@@ -388,7 +388,8 @@ namespace MBKC.Service.Services.Implementations
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                string error = ErrorUtil.GetErrorString("Exception", ex.InnerException != null ? ex.InnerException.Message : ex.Message);
+                throw new Exception(error);
             }
         }
         #endregion

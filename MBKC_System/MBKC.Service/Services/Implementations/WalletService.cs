@@ -57,7 +57,7 @@ namespace MBKC.Service.Services.Implementations
             List<GetTransactionWalletResponse> getTransactionWalletsResponse = new List<GetTransactionWalletResponse>();
             GetWalletResponse? getWalletResponse = null;
             GetMoneyExchangeResponse? getMoneyExchangeResponse = null;
-            GetShipperPaymentWalletResponse? getShipperPaymentWalletResponse = null;
+            GetShipperPaymentResponse? getShipperPaymentWalletResponse = null;
 
             // Get wallet when user login with role kitchen center manager
             if (kitchenCenter != null)
@@ -66,7 +66,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     if (transaction.ShipperPayment != null)
                     {
-                        getShipperPaymentWalletResponse = new GetShipperPaymentWalletResponse()
+                        getShipperPaymentWalletResponse = new GetShipperPaymentResponse()
                         {
                             PaymentId = transaction.ShipperPayment.PaymentId,
                             Amount = transaction.ShipperPayment.Amount,
@@ -124,7 +124,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     if (transaction.ShipperPayment != null)
                     {
-                        getShipperPaymentWalletResponse = new GetShipperPaymentWalletResponse()
+                        getShipperPaymentWalletResponse = new GetShipperPaymentResponse()
                         {
                             PaymentId = transaction.ShipperPayment.PaymentId,
                             Amount = transaction.ShipperPayment.Amount,
@@ -179,7 +179,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     if (transaction.ShipperPayment != null)
                     {
-                        getShipperPaymentWalletResponse = new GetShipperPaymentWalletResponse()
+                        getShipperPaymentWalletResponse = new GetShipperPaymentResponse()
                         {
                             PaymentId = transaction.ShipperPayment.PaymentId,
                             Amount = transaction.ShipperPayment.Amount,

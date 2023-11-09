@@ -92,7 +92,7 @@ namespace MBKC.Repository.Repositories
         }
         #endregion
 
-        #region Get Number Brands
+        #region Get Number Money Exchanges
         public int GetNumberMoneyExchangesAsync(List<MoneyExchange> moneyExchanges, string? exchangeType, int? status, string? searchDateFrom, string? searchDateTo)
         {
             try

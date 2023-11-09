@@ -268,6 +268,15 @@ namespace MBKC.Service.Utils
             }
             return (int)MoneyExchangeEnum.Status.FAIL;
         }
+
+        public static int ChangeShipperPaymentStatus(string status)
+        {
+            if (status.ToUpper().Equals(ShipperPaymentEnum.Status.SUCCESS.ToString()))
+            {
+                return (int)ShipperPaymentEnum.Status.SUCCESS;
+            }
+            return (int)ShipperPaymentEnum.Status.FAIL;
+        }
     }
 }
 
