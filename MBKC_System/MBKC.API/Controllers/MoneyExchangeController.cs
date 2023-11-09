@@ -31,6 +31,7 @@ namespace MBKC.API.Controllers
         {
             this._moneyExchangeService = moneyExchangeService;
             this._withdrawMoneyValidator = withdrawMoneyValidator;
+            this._getMoneyExchangesValidator = getMoneyExchangesValidator;
         }
 
         #region money exchange to kitchen center
@@ -114,9 +115,9 @@ namespace MBKC.API.Controllers
         }
         #endregion
 
-        #region Get specific money exchanges by cashier id, kitchencenter id or store id.
+        #region Get money exchanges by cashier id, kitchencenter id or store id.
         /// <summary>
-        ///  Get specific money exchanges by cashier id, kitchencenter id or store id.
+        ///  Get money exchanges by cashier id, kitchencenter id or store id.
         /// </summary>
         /// <param name="getMoneyExchangesRequest">
         /// An object include  ItemsPerPage, CurrentPage, SortBy, 
@@ -144,7 +145,7 @@ namespace MBKC.API.Controllers
         /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
         /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
         /// <exception cref="Exception">Throw Error about the system.</exception>
-        [ProducesResponseType(typeof(GetMoneyExchangeResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GetMoneyExchangesResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
