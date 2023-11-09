@@ -11,6 +11,6 @@ namespace MBKC.Service.DTOs.MoneyExchanges
     {
         public int TotalPages { get; set; }
         public int NumberItems { get; set; }
-        public IEnumerable<GetMoneyExchangeResponse> KitchenCenters { get; set; }
+        public IEnumerable<GetMoneyExchangeResponse> MoneyExchanges { get; set; }
     }
 }

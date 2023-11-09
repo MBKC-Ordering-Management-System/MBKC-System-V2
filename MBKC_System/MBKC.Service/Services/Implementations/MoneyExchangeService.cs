@@ -383,7 +383,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     TotalPages = totalPages,
                     NumberItems = numberItems,
-                    KitchenCenters = getMoneyExchangeResponse
+                    MoneyExchanges = getMoneyExchangeResponse
                 };
             }
             catch (Exception ex)
