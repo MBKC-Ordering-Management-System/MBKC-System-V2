@@ -155,6 +155,11 @@ namespace MBKC.Service.Services.Implementations
                 string email = claims.First(x => x.Type == ClaimTypes.Email).Value;
                 var existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(email);
                 var existedStore = await this._unitOfWork.StoreRepository.GetStoreByIdAsync(withdrawMoneyRequest.StoreId);
+                if(existedKitchenCenter == null)
+                {
+                    throw new NotFoundException(MessageConstant.CommonMessage.NotExistKitchenCenterId);
+                }
+
                 if (existedStore == null)
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistStoreId);
@@ -165,7 +170,7 @@ namespace MBKC.Service.Services.Implementations
                     throw new BadRequestException(MessageConstant.MoneyExchangeMessage.StoreIdNotBelogToKitchenCenter);
                 }
 
-                if (existedStore.Wallet.Balance <= 0)
+                if (existedStore!.Wallet!.Balance <= 0)
                 {
                     throw new BadRequestException(MessageConstant.MoneyExchangeMessage.BalanceIsInvalid);
                 }
