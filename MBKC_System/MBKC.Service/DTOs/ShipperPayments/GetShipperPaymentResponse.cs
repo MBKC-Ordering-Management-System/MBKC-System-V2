@@ -11,6 +11,7 @@ namespace MBKC.Service.DTOs.ShipperPayments
         public int PaymentId { get; set; }
         public string Status { get; set; }
         public string Content { get; set; }
+        public decimal FinalTotalPrice { get; set; }
         public decimal Amount { get; set; }
         public DateTime CreateDate { get; set; }
         public string CashierCreated { get; set; }

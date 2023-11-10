@@ -1,6 +1,7 @@
 ﻿using MBKC.Repository.DBContext;
 using MBKC.Repository.Models;
 using MBKC.Repository.Utils;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,7 +45,13 @@ namespace MBKC.Repository.Repositories
                 return shipperPayments
                     .Where(x => (paymentMethod != null ? x.PaymentMethod.Equals(paymentMethod.ToUpper()) : true) &&
                                                  (status != null ? x.Status == status : true) &&
-                                                 (searchDateFrom != null && searchDateTo != null ? x.CreateDate >= startDate && x.CreateDate <= endDate : true)).Count();
+                                                 (searchDateFrom != null && searchDateTo != null ?
+                                                 x.CreateDate.Date >= startDate.Date &&
+                                                 x.CreateDate.Month >= startDate.Month &&
+                                                 x.CreateDate.Year >= startDate.Year &&
+                                                 x.CreateDate.Date <= endDate.Date &&
+                                                 x.CreateDate.Month <= endDate.Month &&
+                                                 x.CreateDate.Year <= endDate.Year : true)).Count();
             }
             catch (Exception ex)
             {
@@ -70,17 +77,29 @@ namespace MBKC.Repository.Repositories
 
                     return shipperPayments.Where(x => (paymentMethod != null ? x.PaymentMethod.Equals(paymentMethod.ToUpper()) : true) &&
                                                      (status != null ? x.Status == status : true) &&
-                                                     (searchDateFrom != null && searchDateTo != null ? x.CreateDate >= startDate && x.CreateDate <= endDate : true))
-                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+                                                     (searchDateFrom != null && searchDateTo != null ?
+                                                      x.CreateDate.Date >= startDate.Date &&
+                                                      x.CreateDate.Month >= startDate.Month &&
+                                                      x.CreateDate.Year >= startDate.Year &&
+                                                      x.CreateDate.Date <= endDate.Date &&
+                                                      x.CreateDate.Month <= endDate.Month &&
+                                                      x.CreateDate.Year <= endDate.Year : true))
+                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).Reverse().ToList();
 
                 return (List<ShipperPayment>)shipperPayments.Where(x => (paymentMethod != null ? x.PaymentMethod.Equals(paymentMethod.ToUpper()) : true) &&
                                                  (status != null ? x.Status == status : true) &&
-                                                 (searchDateFrom != null && searchDateTo != null ? x.CreateDate >= startDate && x.CreateDate <= endDate : true))
+                                                 (searchDateFrom != null && searchDateTo != null ?
+                                                 x.CreateDate.Date >= startDate.Date &&
+                                                 x.CreateDate.Month >= startDate.Month &&
+                                                 x.CreateDate.Year >= startDate.Year &&
+                                                 x.CreateDate.Date <= endDate.Date &&
+                                                 x.CreateDate.Month <= endDate.Month &&
+                                                 x.CreateDate.Year <= endDate.Year : true))
                                                  .If(sortByASC != null && sortByASC.ToLower().Equals("amount"),
                                                            then => then.OrderBy(x => x.Amount))
                                                  .If(sortByDESC != null && sortByDESC.ToLower().Equals("amount"),
                                                            then => then.OrderByDescending(x => x.Amount))
-                                                 .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+                                                 .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).Reverse().ToList();
             }
             catch (Exception ex)
             {
@@ -88,5 +107,10 @@ namespace MBKC.Repository.Repositories
             }
         }
         #endregion
+
+        public async Task<List<ShipperPayment>> GetShiperPaymentsByCashierIdAsync(int cashierId)
+        {
+            return await this._dbContext.ShipperPayments.Where(x => x.CreateBy == cashierId).ToListAsync();
+        }
     }
 }

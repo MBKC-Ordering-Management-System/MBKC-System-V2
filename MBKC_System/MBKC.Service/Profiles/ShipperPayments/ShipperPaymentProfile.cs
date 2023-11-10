@@ -17,6 +17,7 @@ namespace MBKC.Service.Profiles.ShipperPayments
             CreateMap<ShipperPayment, GetShipperPaymentOrderResponse>();
             CreateMap<ShipperPayment, GetShipperPaymentResponse>()
                 .ForMember(dept => dept.KCBankingAccountName, opt => opt.MapFrom(src => src.BankingAccount.Name))
+                .ForMember(dept => dept.FinalTotalPrice, opt => opt.MapFrom(src => src.Order.FinalTotalPrice))
                 .ForMember(dept => dept.Status, opt => opt.MapFrom(src => StatusUtil.ChangeShipperPaymentStatus(src.Status)));
 
         }

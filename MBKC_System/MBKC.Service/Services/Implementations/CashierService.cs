@@ -507,12 +507,8 @@ namespace MBKC.Service.Services.Implementations
                                                                                             .Any(x => x.SystemStatus.Equals(OrderEnum.SystemStatus.COMPLETED.ToString()) &&
                                                                                                         x.PartnerOrderStatus.Equals(OrderEnum.Status.COMPLETED.ToString()) && x.CreatedDate.Date == currentDate.Date && x.CreatedDate.Month == currentDate.Month && x.CreatedDate.Year == currentDate.Year));
 
-
-                    var orders = cashier.KitchenCenter.Stores.SelectMany(x => x.Orders).ToList();
-
-                    var ordersWithCompletedStatus = orders.Where(x => x.OrderHistories.Any(x => x.SystemStatus.Equals(OrderEnum.SystemStatus.COMPLETED.ToString()) &&
-                                                                                                        x.PartnerOrderStatus.Equals(OrderEnum.Status.COMPLETED.ToString()) && x.CreatedDate.Date == currentDate.Date && x.CreatedDate.Month == currentDate.Month && x.CreatedDate.Year == currentDate.Year)).ToList();
-                    totalMoneyToday = ordersWithCompletedStatus.Select(x => x.FinalTotalPrice).Sum();
+                    var listShipperPayments = await _unitOfWork.ShipperPaymentRepository.GetShiperPaymentsByCashierIdAsync(cashier.AccountId);
+                    totalMoneyToday = listShipperPayments.Select(x => x.Amount).Sum();
                 }
                 if (cashier.Wallet != null)
                 {
