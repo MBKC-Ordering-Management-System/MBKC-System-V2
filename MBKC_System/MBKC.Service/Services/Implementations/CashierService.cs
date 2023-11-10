@@ -236,7 +236,7 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistCashierId) || 
+                if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistCashierId) ||
                     ex.Message.Equals(MessageConstant.CashierMessage.CashierIdNotBelongToKitchenCenter) ||
                     ex.Message.Equals(MessageConstant.CashierMessage.CashierIdNotBelogToCashier))
                 {
@@ -265,7 +265,7 @@ namespace MBKC.Service.Services.Implementations
                 string email = registeredEmailClaim.Value;
                 string role = registeredRoleClaim.Value;
 
-                if(updateCashierRequest.Status == null && role.ToLower().Equals(RoleConstant.Kitchen_Center_Manager.ToLower()))
+                if (updateCashierRequest.Status == null && role.ToLower().Equals(RoleConstant.Kitchen_Center_Manager.ToLower()))
                 {
                     throw new BadRequestException(MessageConstant.CashierMessage.StatusIsRequiredWithKitchenCenterManager);
                 }
@@ -351,13 +351,14 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistCashierId) || 
+                if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistCashierId) ||
                     ex.Message.Equals(MessageConstant.CashierMessage.CashierIdNotBelongToKitchenCenter) ||
                     ex.Message.Equals(MessageConstant.CashierMessage.CashierIdNotBelogToCashier))
                 {
                     fieldName = "Cashier id";
-                } else if (ex.Message.Equals(MessageConstant.CashierMessage.StatusIsRequiredWithKitchenCenterManager) ||
-                    ex.Message.Equals(MessageConstant.CashierMessage.StatusIsNotRequiredWithCashier))
+                }
+                else if (ex.Message.Equals(MessageConstant.CashierMessage.StatusIsRequiredWithKitchenCenterManager) ||
+                  ex.Message.Equals(MessageConstant.CashierMessage.StatusIsNotRequiredWithCashier))
                 {
                     fieldName = "Status";
                 }
@@ -488,5 +489,56 @@ namespace MBKC.Service.Services.Implementations
             }
         }
 
+        public async Task<GetCashierReportResponse> GetCashierReportAsync(IEnumerable<Claim> claims)
+        {
+            try
+            {
+                Claim registeredEmailClaim = claims.First(x => x.Type == ClaimTypes.Email);
+                var cashier = await _unitOfWork.CashierRepository.GetCashierReportAsync(registeredEmailClaim.Value);
+                int? totalOrderToday = null;
+                decimal? totalMoneyToday = null;
+                decimal? balance = null;
+                string? kitchenCenterName = null;
+                DateTime currentDate = DateTime.Now.Date;
+
+                if (cashier.KitchenCenter.Stores.Select(x => x.Orders).Any())
+                {
+                    totalOrderToday = cashier.KitchenCenter.Stores.SelectMany(x => x.Orders).Count(x => x.OrderHistories
+                                                                                            .Any(x => x.SystemStatus.Equals(OrderEnum.SystemStatus.COMPLETED.ToString()) &&
+                                                                                                        x.PartnerOrderStatus.Equals(OrderEnum.Status.COMPLETED.ToString()) && x.CreatedDate == currentDate));
+
+
+                    var orders = cashier.KitchenCenter.Stores.SelectMany(x => x.Orders).ToList();
+
+                    var ordersWithCompletedStatus = orders.Where(x => x.OrderHistories.Any(x => x.SystemStatus.Equals(OrderEnum.SystemStatus.COMPLETED.ToString()) &&
+                                                                                                        x.PartnerOrderStatus.Equals(OrderEnum.Status.COMPLETED.ToString()) && x.CreatedDate == currentDate)).ToList();
+                    totalMoneyToday = ordersWithCompletedStatus.Select(x => x.FinalTotalPrice).Sum();
+
+                }
+                if (cashier.Wallet != null)
+                {
+                    balance = cashier.Wallet.Balance;
+                }
+                if (cashier.KitchenCenter != null)
+                {
+                    kitchenCenterName = cashier.KitchenCenter.Name;
+                }
+
+                return new GetCashierReportResponse
+                {
+                    CashierName = cashier.FullName,
+                    KitchenCenterName = kitchenCenterName,
+                    TotalMoneyToday = totalMoneyToday,
+                    TotalOrderToday = totalOrderToday,
+                    Balance = balance.Value
+                };
+            }
+            catch (Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                throw new Exception(error);
+            }
+
+        }
     }
 }

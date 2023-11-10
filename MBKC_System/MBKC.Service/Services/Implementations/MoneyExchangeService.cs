@@ -302,7 +302,9 @@ namespace MBKC.Service.Services.Implementations
                 else if (role.ToLower().Equals(RoleConstant.Kitchen_Center_Manager.ToLower()))
                 {
                     existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(email);
+                    var getMoneyExchangeWithdraw = await this._unitOfWork.MoneyExchangeRepository.GetMoneyExchangesBySendIdAsync(existedKitchenCenter.KitchenCenterId);
                     existedMoneyExchanges = existedKitchenCenter.KitchenCenterMoneyExchanges.Select(x => x.MoneyExchange).ToList();
+                    existedMoneyExchanges.AddRange(getMoneyExchangeWithdraw);
                 }
 
                 // Change status string to int

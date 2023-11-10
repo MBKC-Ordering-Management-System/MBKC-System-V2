@@ -353,5 +353,21 @@ namespace MBKC.Repository.Repositories
                 throw new Exception(ex.Message);
             }
         }
+
+        public async Task<Cashier> GetCashierReportAsync(string email)
+        {
+            try
+            {
+                return await this._dbContext.Cashiers.Include(x => x.Account)
+                                                     .Include(x => x.Wallet)
+                                                     .Include(x => x.KitchenCenter).ThenInclude(kc => kc.Manager)
+                                                     .Include(x => x.KitchenCenter).ThenInclude(kc => kc.Stores).ThenInclude(x => x.Orders).ThenInclude(x => x.OrderHistories)
+                                                     .SingleOrDefaultAsync(x => x.Account.Email.Equals(email));
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }

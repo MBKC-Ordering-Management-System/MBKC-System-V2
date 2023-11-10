@@ -1,6 +1,8 @@
 ﻿using MBKC.Repository.DBContext;
+using MBKC.Repository.Enums;
 using MBKC.Repository.Models;
 using MBKC.Repository.Utils;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -115,5 +117,15 @@ namespace MBKC.Repository.Repositories
             }
         }
         #endregion
+
+        #region Get Money Exchanges By Sender Id
+        public async Task<List<MoneyExchange>> GetMoneyExchangesBySendIdAsync(int senderId)
+        {
+            return await this._dbContext.MoneyExchanges
+                .Include(x => x.Transactions)
+                .Where(x => x.SenderId == senderId && x.ExchangeType.Equals(MoneyExchangeEnum.ExchangeType.WITHDRAW.ToString())).ToListAsync();
+        }
+        #endregion
     }
 }
+

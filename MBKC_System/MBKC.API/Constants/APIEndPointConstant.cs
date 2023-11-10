@@ -83,6 +83,7 @@
             public const string CashierEndpoint = CashiersEndpoint + "/{id}";
             public const string CashierProfileEndpoint = CashierEndpoint + "/profile";
             public const string UpdatingCashierStatusEndpoint = CashierEndpoint + "/updating-status";
+            public const string CashierReportEndpoint = CashiersEndpoint + "/report";
         }
 
         public static class Account
