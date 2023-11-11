@@ -586,7 +586,6 @@ namespace MBKC.Service.Services.Implementations
                     int totalQuantity = listQuantity.Sum();
                     order.TotalQuantity = totalQuantity;
                 }
-                getOrdersResponse.Reverse();
                 GetOrdersResponse getKitchenCenters = new GetOrdersResponse()
                 {
                     NumberItems = numberItems,

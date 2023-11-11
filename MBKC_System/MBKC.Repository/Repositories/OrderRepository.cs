@@ -195,7 +195,7 @@ namespace MBKC.Repository.Repositories
                 if (searchValue == null && searchValueWithoutUnicode != null)
                 {
                     if (sortByASC is not null)
-                        return this._dbContext.Orders.Include(x => x.Store)
+                        return this._dbContext.Orders.OrderByDescending(x => x.Id).Include(x => x.Store)
                                                      .Include(x => x.Partner)
                                                      .Include(x => x.ShipperPayments).ThenInclude(x => x.BankingAccount)
                                                                                      .ThenInclude(x => x.KitchenCenter).ThenInclude(x => x.Cashiers)
@@ -251,7 +251,7 @@ namespace MBKC.Repository.Repositories
                                                               .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
 
                     else if (sortByDESC is not null)
-                        return this._dbContext.Orders.Include(x => x.Store)
+                        return this._dbContext.Orders.OrderByDescending(x => x.Id).Include(x => x.Store)
                                                      .Include(x => x.Partner)
                                                      .Include(x => x.ShipperPayments)
                                                      .Include(o => o.OrderHistories)
@@ -302,7 +302,7 @@ namespace MBKC.Repository.Repositories
                                                                          then => then.OrderByDescending(x => x.Address))
                                                               .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
 
-                    return this._dbContext.Orders.Include(x => x.Store)
+                    return this._dbContext.Orders.OrderByDescending(x => x.Id).Include(x => x.Store)
                                                  .Include(x => x.Partner)
                                                  .Include(o => o.OrderHistories)
                                                  .Include(o => o.OrderDetails).ThenInclude(x => x.MasterOrderDetail)
@@ -342,7 +342,7 @@ namespace MBKC.Repository.Repositories
                 else if (searchValue != null && searchValueWithoutUnicode == null)
                 {
                     if (sortByASC is not null)
-                        return this._dbContext.Orders.Include(x => x.Store)
+                        return this._dbContext.Orders.OrderByDescending(x => x.Id).Include(x => x.Store)
                                                      .Include(x => x.Partner)
                                                      .Include(o => o.OrderHistories)
                                                      .Include(x => x.ShipperPayments)
@@ -387,7 +387,7 @@ namespace MBKC.Repository.Repositories
                                                            .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
 
                     else if (sortByDESC is not null)
-                        return this._dbContext.Orders.Include(x => x.Store)
+                        return this._dbContext.Orders.OrderByDescending(x => x.Id).Include(x => x.Store)
                                                      .Include(x => x.Partner)
                                                      .Include(o => o.OrderHistories)
                                                      .Include(x => x.ShipperPayments)
@@ -431,7 +431,7 @@ namespace MBKC.Repository.Repositories
                                                                          then => then.OrderByDescending(x => x.Address))
                                                               .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
 
-                    return this._dbContext.Orders.Include(x => x.Store)
+                    return this._dbContext.Orders.OrderByDescending(x => x.Id).Include(x => x.Store)
                                                      .Include(x => x.Partner)
                                                      .Include(x => x.ShipperPayments)
                                                      .Include(o => o.OrderHistories)
@@ -462,7 +462,7 @@ namespace MBKC.Repository.Repositories
                                                               .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
                 }
                 if (sortByASC is not null)
-                    return this._dbContext.Orders.Include(x => x.Store)
+                    return this._dbContext.Orders.OrderByDescending(x => x.Id).Include(x => x.Store)
                                                      .Include(x => x.Partner)
                                                      .Include(x => x.ShipperPayments)
                                                      .Include(o => o.OrderHistories)
@@ -506,7 +506,7 @@ namespace MBKC.Repository.Repositories
                                                            .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
 
                 else if (sortByDESC is not null)
-                    return this._dbContext.Orders.Include(x => x.Store)
+                    return this._dbContext.Orders.OrderByDescending(x => x.Id).Include(x => x.Store)
                                                      .Include(x => x.Partner)
                                                      .Include(x => x.ShipperPayments)
                                                      .Include(o => o.OrderHistories)
@@ -549,7 +549,7 @@ namespace MBKC.Repository.Repositories
                                                                          then => then.OrderByDescending(x => x.Address))
                                                            .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
 
-                return this._dbContext.Orders.Include(x => x.Store)
+                return this._dbContext.Orders.OrderByDescending(x => x.Id).Include(x => x.Store)
                                                      .Include(x => x.Partner)
                                                      .Include(x => x.ShipperPayments)
                                                      .Include(o => o.OrderHistories)
@@ -576,7 +576,7 @@ namespace MBKC.Repository.Repositories
                                                       x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date &&
                                                       x.OrderHistories.Select(x => x.CreatedDate.Month).SingleOrDefault() <= endDate.Month &&
                                                       x.OrderHistories.Select(x => x.CreatedDate.Year).SingleOrDefault() <= endDate.Year : true))
-                                                              .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
+                                                              .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
             }
             catch (Exception ex)
             {
