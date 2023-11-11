@@ -53,6 +53,8 @@ namespace MBKC.Repository.Repositories
                     .ThenInclude(x => x.ShipperPayment)
                     .ThenInclude(x => x.BankingAccount)
                     .Include(x => x.Store).ThenInclude(x => x.KitchenCenter).ThenInclude(x => x.Cashiers)
+                    .Include(x => x.Store).ThenInclude(x => x.Orders).ThenInclude(x => x.OrderHistories)
+                    .Include(x => x.Store).ThenInclude(x => x.Orders).ThenInclude(x => x.ShipperPayments)
                     .SingleOrDefaultAsync(x => x.AccountId == accountId);
             }
             catch (Exception ex)
