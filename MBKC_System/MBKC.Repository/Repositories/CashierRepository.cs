@@ -342,7 +342,7 @@ namespace MBKC.Repository.Repositories
                                                      .Include(x => x.Wallet)
                                                      .Include(x => x.Wallet)
                                                      .Include(x => x.KitchenCenter).ThenInclude(kc => kc.Manager)
-                                                     .Include(x => x.KitchenCenter).ThenInclude(kc => kc.Stores)
+                                                     .Include(x => x.KitchenCenter).ThenInclude(kc => kc.Stores).ThenInclude(x => x.Orders).ThenInclude(x => x.OrderHistories)
                                                      .Include(x => x.KitchenCenter).ThenInclude(kc => kc.BankingAccounts).ThenInclude(x => x.ShipperPayments)
                                                      .Include(x => x.KitchenCenter).ThenInclude(kc => kc.Wallet)
                                                      .Include(x => x.CashierMoneyExchanges).ThenInclude(x => x.MoneyExchange).ThenInclude(x => x.Transactions)
