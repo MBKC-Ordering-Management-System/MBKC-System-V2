@@ -343,10 +343,9 @@ namespace MBKC.Service.Services.Implementations
                     TotalDiscount = postOrderRequest.TotalDiscount,
                     Store = existedStore,
                     Tax = postOrderRequest.Tax,
-                    OrderDetails = new List<OrderDetail>(),
                     OrderHistories = new List<OrderHistory>() { orderHistory }
                 };
-
+                List<OrderDetail> newOrderDetails = new List<OrderDetail>();
                 foreach (var orderDetail in postOrderRequest.OrderDetails)
                 {
                     Product existedProduct = await this._unitOfWork.ProductRepository.GetProductAsync(orderDetail.ProductId);
@@ -375,8 +374,8 @@ namespace MBKC.Service.Services.Implementations
                         Product = existedProduct,
                         Quantity = orderDetail.Quantity
                     };
-                    newOrder.OrderDetails.ToList().Add(newOrderDetail);
-                    if (orderDetail.ExtraOrderDetails is not null)
+                    newOrderDetails.Add(newOrderDetail);
+                    if (orderDetail.ExtraOrderDetails is not null && orderDetail.ExtraOrderDetails.Count() > 0)
                     {
                         foreach (var extraOrderDetail in orderDetail.ExtraOrderDetails)
                         {
@@ -405,10 +404,11 @@ namespace MBKC.Service.Services.Implementations
                                 Product = existedProductExtra,
                                 Quantity = extraOrderDetail.Quantity
                             };
-                            newOrder.OrderDetails.ToList().Add(newOrderDetailExtra);
+                            newOrderDetails.Add(newOrderDetailExtra);
                         }
                     }
                 }
+                newOrder.OrderDetails = newOrderDetails;
                 await this._unitOfWork.OrderRepository.InsertOrderAsync(newOrder);
                 await this._unitOfWork.CommitAsync();
             }
