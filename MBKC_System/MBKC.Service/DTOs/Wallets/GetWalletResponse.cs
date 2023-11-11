@@ -11,6 +11,9 @@ namespace MBKC.Service.DTOs.Wallets
     {
         public int WalletId { get; set; }
         public decimal Balance { get; set; }
-        public virtual IEnumerable<GetTransactionWalletResponse> Transactions { get; set; }
+        public decimal? TotalDailyMoneyExchange { get; set; }
+        public decimal? TotalDailyShipperPayment { get; set; }
+        public int? ToTalOrderDaily { get; set; }
+        public decimal? TotalRevenueDaily { get; set; }
     }
 }
