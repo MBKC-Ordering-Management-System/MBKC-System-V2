@@ -54,181 +54,22 @@ namespace MBKC.Service.Services.Implementations
             {
                 storeAccount = await this._unitOfWork.StoreAccountRepository.GetStoreAccountAsync(int.Parse(accountId.Value));
             }
-            List<GetTransactionWalletResponse> getTransactionWalletsResponse = new List<GetTransactionWalletResponse>();
-            GetWalletResponse? getWalletResponse = null;
-            GetMoneyExchangeResponse? getMoneyExchangeResponse = null;
-            GetShipperPaymentResponse? getShipperPaymentWalletResponse = null;
-
-            // Get wallet when user login with role kitchen center manager
-            if (kitchenCenter != null)
+            GetWalletResponse getWalletResponse = null;
+            if (cashier != null)
             {
-                foreach (var transaction in kitchenCenter.Wallet.Transactions)
-                {
-                    if (transaction.ShipperPayment != null)
-                    {
-                        getShipperPaymentWalletResponse = new GetShipperPaymentResponse()
-                        {
-                            PaymentId = transaction.ShipperPayment.PaymentId,
-                            Amount = transaction.ShipperPayment.Amount,
-                            Content = transaction.ShipperPayment.Content,
-                            CreateDate = transaction.ShipperPayment.CreateDate,
-                            KCBankingAccountId = transaction.ShipperPayment.KCBankingAccountId,
-                            OrderId = transaction.ShipperPayment.OrderId,
-                            PaymentMethod = transaction.ShipperPayment.PaymentMethod,
-                            Status = StatusUtil.ChangeShipperPaymentStatus(transaction.ShipperPayment.Status),
-                            KCBankingAccountName = transaction.ShipperPayment.BankingAccount.Name
-                        };
-                    }
-
-                    if (transaction.MoneyExchange != null)
-                    {
-                        getMoneyExchangeResponse = new GetMoneyExchangeResponse()
-                        {
-                            ExchangeId = transaction.MoneyExchange.ExchangeId,
-                            Amount = transaction.MoneyExchange.Amount,
-                            Content = transaction.MoneyExchange.Content,
-                            ExchangeImage = transaction.MoneyExchange.ExchangeImage,
-                            ExchangeType = transaction.MoneyExchange.ExchangeType,
-                            ReceiveId = transaction.MoneyExchange.ReceiveId,
-                            SenderId = transaction.MoneyExchange.SenderId,
-                            SenderName = kitchenCenter.Name,
-                            Status = StatusUtil.ChangeMoneyExchangeStatus(transaction.Status),
-                            ReceiveName = kitchenCenter.Stores
-                        .Where(store => store.StoreId == transaction.MoneyExchange.ReceiveId)
-                        .Select(store => store.Name)
-                        .SingleOrDefault()
-                        };
-                    }
-
-                    GetTransactionWalletResponse trans = new GetTransactionWalletResponse()
-                    {
-                        TracsactionId = transaction.TracsactionId,
-                        Status = StatusUtil.ChangeTransactionStatus(transaction.Status),
-                        TransactionTime = transaction.TransactionTime,
-                        MoneyExchange = getMoneyExchangeResponse,
-                        ShipperPayment = getShipperPaymentWalletResponse
-                    };
-                    getTransactionWalletsResponse.Add(trans);
-                }
                 getWalletResponse = new GetWalletResponse()
                 {
                     WalletId = kitchenCenter.WalletId,
                     Balance = kitchenCenter.Wallet.Balance,
-                    Transactions = getTransactionWalletsResponse
-                };
-            }
-            // Get wallet when user login with role cashier
-            if (cashier != null)
-            {
-                foreach (var transaction in cashier.Wallet.Transactions)
-                {
-                    if (transaction.ShipperPayment != null)
-                    {
-                        getShipperPaymentWalletResponse = new GetShipperPaymentResponse()
-                        {
-                            PaymentId = transaction.ShipperPayment.PaymentId,
-                            Amount = transaction.ShipperPayment.Amount,
-                            Content = transaction.ShipperPayment.Content,
-                            CreateDate = transaction.ShipperPayment.CreateDate,
-                            KCBankingAccountId = transaction.ShipperPayment.KCBankingAccountId,
-                            OrderId = transaction.ShipperPayment.OrderId,
-                            PaymentMethod = transaction.ShipperPayment.PaymentMethod,
-                            Status = StatusUtil.ChangeShipperPaymentStatus(transaction.ShipperPayment.Status),
-                            KCBankingAccountName = transaction.ShipperPayment.BankingAccount.Name
-                        };
-                    }
-
-                    if (transaction.MoneyExchange != null)
-                    {
-                        getMoneyExchangeResponse = new GetMoneyExchangeResponse()
-                        {
-                            ExchangeId = transaction.MoneyExchange.ExchangeId,
-                            Amount = transaction.MoneyExchange.Amount,
-                            Content = transaction.MoneyExchange.Content,
-                            ExchangeImage = transaction.MoneyExchange.ExchangeImage,
-                            ExchangeType = transaction.MoneyExchange.ExchangeType,
-                            ReceiveId = transaction.MoneyExchange.ReceiveId,
-                            SenderId = transaction.MoneyExchange.SenderId,
-                            SenderName = cashier.FullName,
-                            ReceiveName = cashier.KitchenCenter.Name,
-                            Status = StatusUtil.ChangeMoneyExchangeStatus(transaction.MoneyExchange.Status),
-                        };
-                    }
-                    GetTransactionWalletResponse trans = new GetTransactionWalletResponse()
-                    {
-                        TracsactionId = transaction.TracsactionId,
-                        Status = StatusUtil.ChangeTransactionStatus(transaction.Status),
-                        TransactionTime = transaction.TransactionTime,
-                        MoneyExchange = getMoneyExchangeResponse,
-                        ShipperPayment = getShipperPaymentWalletResponse
-                    };
-                    getTransactionWalletsResponse.Add(trans);
-                }
-                getWalletResponse = new GetWalletResponse()
-                {
-                    WalletId = cashier.Wallet.WalletId,
-                    Balance = cashier.Wallet.Balance,
-                    Transactions = getTransactionWalletsResponse
+                    TotalDailyMoneyExchange = kitchenCenter.KitchenCenterMoneyExchanges.Select(x => x.MoneyExchange.Amount).Sum(),
+                    TotalDailyShipperPayment = kitchenCenter.BankingAccounts.Select(x => x.ShipperPayments.Select(x => x.Amount).Sum());
                 };
             }
 
-            // Get wallet when user login with role store manager
-            if (storeAccount != null)
-            {
-                foreach (var transaction in storeAccount.Store.Wallet.Transactions)
-                {
-                    if (transaction.ShipperPayment != null)
-                    {
-                        getShipperPaymentWalletResponse = new GetShipperPaymentResponse()
-                        {
-                            PaymentId = transaction.ShipperPayment.PaymentId,
-                            Amount = transaction.ShipperPayment.Amount,
-                            Content = transaction.ShipperPayment.Content,
-                            CreateDate = transaction.ShipperPayment.CreateDate,
-                            KCBankingAccountId = transaction.ShipperPayment.KCBankingAccountId,
-                            OrderId = transaction.ShipperPayment.OrderId,
-                            PaymentMethod = transaction.ShipperPayment.PaymentMethod,
-                            Status = StatusUtil.ChangeShipperPaymentStatus(transaction.ShipperPayment.Status),
-                            KCBankingAccountName = transaction.ShipperPayment.BankingAccount.Name
-                        };
-                    }
-
-                    if (transaction.MoneyExchange != null)
-                    {
-                        getMoneyExchangeResponse = new GetMoneyExchangeResponse()
-                        {
-                            ExchangeId = transaction.MoneyExchange.ExchangeId,
-                            Amount = transaction.MoneyExchange.Amount,
-                            Status = StatusUtil.ChangeMoneyExchangeStatus(transaction.Status),
-                            Content = transaction.MoneyExchange.Content,
-                            ExchangeImage = transaction.MoneyExchange.ExchangeImage,
-                            ExchangeType = transaction.MoneyExchange.ExchangeType,
-                            ReceiveId = transaction.MoneyExchange.ReceiveId,
-                            SenderId = transaction.MoneyExchange.SenderId,
-                            SenderName = storeAccount.Store.KitchenCenter.Name,
-                            ReceiveName = storeAccount.Store.Name
-                        };
-                    }
-
-                    GetTransactionWalletResponse trans = new GetTransactionWalletResponse()
-                    {
-                        TracsactionId = transaction.TracsactionId,
-                        Status = StatusUtil.ChangeTransactionStatus(transaction.Status),
-                        TransactionTime = transaction.TransactionTime,
-                        MoneyExchange = getMoneyExchangeResponse,
-                        ShipperPayment = getShipperPaymentWalletResponse
-                    };
-                    getTransactionWalletsResponse.Add(trans);
-                }
-                getWalletResponse = new GetWalletResponse()
-                {
-                    WalletId = storeAccount.Store.Wallet.WalletId,
-                    Balance = storeAccount.Store.Wallet.Balance,
-                    Transactions = getTransactionWalletsResponse
-                };
-            }
             return getWalletResponse;
         }
-        #endregion
     }
 }
+
+
+#endregion
