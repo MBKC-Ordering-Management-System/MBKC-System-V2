@@ -76,12 +76,8 @@ namespace MBKC.Repository.Repositories
                     return (List<MoneyExchange>)moneyExchanges.OrderByDescending(x => x.ExchangeId).Where(x => (exchangeType != null ? x.ExchangeType.Equals(exchangeType.ToUpper()) : true) &&
                                                                     (status != null ? x.Status == status : true) &&
                                                                     (searchDateFrom != null && searchDateTo != null ?
-                                                                         x.Transactions.Select(x => x.TransactionTime.Date).SingleOrDefault() >= startDate.Date &&
-                                                                         x.Transactions.Select(x => x.TransactionTime.Month).SingleOrDefault() >= startDate.Month &&
-                                                                         x.Transactions.Select(x => x.TransactionTime.Year).SingleOrDefault() >= startDate.Year &&
-                                                                         x.Transactions.Select(x => x.TransactionTime.Date).SingleOrDefault() <= endDate.Date &&
-                                                                         x.Transactions.Select(x => x.TransactionTime.Month).SingleOrDefault() <= endDate.Month &&
-                                                                         x.Transactions.Select(x => x.TransactionTime.Year).SingleOrDefault() <= endDate.Year : true))
+                                                                     x.Transactions.Select(x => x.TransactionTime.Date).SingleOrDefault() >= startDate.Date &&
+                                                                     x.Transactions.Select(x => x.TransactionTime.Date).SingleOrDefault() <= endDate.Date : true))
                                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("amount"),
                                                                               then => then.OrderBy(x => x.Amount))
                                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("amount"),
@@ -93,11 +89,7 @@ namespace MBKC.Repository.Repositories
                                                      (status != null ? x.Status == status : true) &&
                                                      (searchDateFrom != null && searchDateTo != null ?
                                                       x.Transactions.Select(x => x.TransactionTime.Date).SingleOrDefault() >= startDate.Date &&
-                                                      x.Transactions.Select(x => x.TransactionTime.Month).SingleOrDefault() >= startDate.Month &&
-                                                      x.Transactions.Select(x => x.TransactionTime.Year).SingleOrDefault() >= startDate.Year &&
-                                                      x.Transactions.Select(x => x.TransactionTime.Date).SingleOrDefault() <= endDate.Date &&
-                                                      x.Transactions.Select(x => x.TransactionTime.Month).SingleOrDefault() <= endDate.Month &&
-                                                      x.Transactions.Select(x => x.TransactionTime.Year).SingleOrDefault() <= endDate.Year : true))
+                                                      x.Transactions.Select(x => x.TransactionTime.Date).SingleOrDefault() <= endDate.Date : true))
                                                      .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
             }
             catch (Exception ex)
@@ -124,11 +116,7 @@ namespace MBKC.Repository.Repositories
                                                  (status != null ? x.Status == status : true) &&
                                                  (searchDateFrom != null && searchDateTo != null ?
                                                       x.Transactions.Select(x => x.TransactionTime.Date).SingleOrDefault() >= startDate.Date &&
-                                                      x.Transactions.Select(x => x.TransactionTime.Month).SingleOrDefault() >= startDate.Month &&
-                                                      x.Transactions.Select(x => x.TransactionTime.Year).SingleOrDefault() >= startDate.Year &&
-                                                      x.Transactions.Select(x => x.TransactionTime.Date).SingleOrDefault() <= endDate.Date &&
-                                                      x.Transactions.Select(x => x.TransactionTime.Month).SingleOrDefault() <= endDate.Month &&
-                                                      x.Transactions.Select(x => x.TransactionTime.Year).SingleOrDefault() <= endDate.Year : true)).Count();
+                                                      x.Transactions.Select(x => x.TransactionTime.Date).SingleOrDefault() <= endDate.Date : true)).Count();
             }
             catch (Exception ex)
             {

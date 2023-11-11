@@ -47,11 +47,7 @@ namespace MBKC.Repository.Repositories
                                                  (status != null ? x.Status == status : true) &&
                                                  (searchDateFrom != null && searchDateTo != null ?
                                                  x.CreateDate.Date >= startDate.Date &&
-                                                 x.CreateDate.Month >= startDate.Month &&
-                                                 x.CreateDate.Year >= startDate.Year &&
-                                                 x.CreateDate.Date <= endDate.Date &&
-                                                 x.CreateDate.Month <= endDate.Month &&
-                                                 x.CreateDate.Year <= endDate.Year : true)).Count();
+                                                 x.CreateDate.Date <= endDate.Date : true)).Count();
             }
             catch (Exception ex)
             {
@@ -73,33 +69,28 @@ namespace MBKC.Repository.Repositories
                     startDate = DateTime.ParseExact(searchDateFrom, "dd/MM/yyyy", null);
                     endDate = DateTime.ParseExact(searchDateTo, "dd/MM/yyyy", null);
                 }
-                if (sortByASC != null && sortByDESC != null)
+                if (sortByASC != null || sortByDESC != null)
+                {
+                    return (List<ShipperPayment>)shipperPayments.OrderByDescending(x => x.PaymentId).Where(x => (paymentMethod != null ? x.PaymentMethod.Equals(paymentMethod.ToUpper()) : true) &&
+                                                                     (status != null ? x.Status == status : true) &&
+                                                                     (searchDateFrom != null && searchDateTo != null ?
+                                                                     x.CreateDate.Date >= startDate.Date &&
+                                                                     x.CreateDate.Date <= endDate.Date : true))
+                                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("amount"),
+                                                                               then => then.OrderBy(x => x.Amount))
+                                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("amount"),
+                                                                               then => then.OrderByDescending(x => x.Amount))
+                                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+                }
 
-                    return shipperPayments.OrderByDescending(x => x.PaymentId).Where(x => (paymentMethod != null ? x.PaymentMethod.Equals(paymentMethod.ToUpper()) : true) &&
-                                                     (status != null ? x.Status == status : true) &&
-                                                     (searchDateFrom != null && searchDateTo != null ?
-                                                      x.CreateDate.Date >= startDate.Date &&
-                                                      x.CreateDate.Month >= startDate.Month &&
-                                                      x.CreateDate.Year >= startDate.Year &&
-                                                      x.CreateDate.Date <= endDate.Date &&
-                                                      x.CreateDate.Month <= endDate.Month &&
-                                                      x.CreateDate.Year <= endDate.Year : true))
-                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
-
-                return (List<ShipperPayment>)shipperPayments.OrderByDescending(x => x.PaymentId).Where(x => (paymentMethod != null ? x.PaymentMethod.Equals(paymentMethod.ToUpper()) : true) &&
+                return shipperPayments.OrderByDescending(x => x.PaymentId).Where(x => (paymentMethod != null ? x.PaymentMethod.Equals(paymentMethod.ToUpper()) : true) &&
                                                  (status != null ? x.Status == status : true) &&
                                                  (searchDateFrom != null && searchDateTo != null ?
-                                                 x.CreateDate.Date >= startDate.Date &&
-                                                 x.CreateDate.Month >= startDate.Month &&
-                                                 x.CreateDate.Year >= startDate.Year &&
-                                                 x.CreateDate.Date <= endDate.Date &&
-                                                 x.CreateDate.Month <= endDate.Month &&
-                                                 x.CreateDate.Year <= endDate.Year : true))
-                                                 .If(sortByASC != null && sortByASC.ToLower().Equals("amount"),
-                                                           then => then.OrderBy(x => x.Amount))
-                                                 .If(sortByDESC != null && sortByDESC.ToLower().Equals("amount"),
-                                                           then => then.OrderByDescending(x => x.Amount))
+                                             x.CreateDate.Date >= startDate.Date &&
+                                             x.CreateDate.Date <= endDate.Date : true))
                                                  .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
+
+
             }
             catch (Exception ex)
             {
