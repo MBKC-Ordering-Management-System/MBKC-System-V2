@@ -510,8 +510,7 @@ namespace MBKC.Service.Services.Implementations
         public async Task<GetOrdersResponse> GetOrdersAsync(GetOrdersRequest getOrdersRequest, IEnumerable<Claim> claims)
         {
             try
-            {
-                // Get email, role, account id from claims
+            {                // Get email, role, account id from claims
                 Claim registeredEmailClaim = claims.First(x => x.Type == ClaimTypes.Email);
                 Claim registeredRoleClaim = claims.First(x => x.Type.ToLower().Equals("role"));
                 Claim accountId = claims.First(x => x.Type.ToLower().Equals("sid"));

@@ -84,7 +84,7 @@ namespace MBKC.Service.Services.Implementations
                         item.CashierCreated = existedStore.KitchenCenter.Cashiers
                                                           .Where(x => x.KitchenCenter.KitchenCenterId == existedStore.KitchenCenter.KitchenCenterId)
                                                           .Select(x => x.FullName)
-                                                          .SingleOrDefault();
+                                                          .FirstOrDefault();
                     }
                 }
                 if (existedCashier != null)
@@ -102,7 +102,7 @@ namespace MBKC.Service.Services.Implementations
                         item.CashierCreated = existedKitchenCenter.Cashiers
                                                                   .Where(x => x.KitchenCenter.KitchenCenterId == existedKitchenCenter.KitchenCenterId)
                                                                   .Select(x => x.FullName)
-                                                                  .SingleOrDefault();
+                                                                  .FirstOrDefault();
                     }
                 }
                 int totalPages = 0;
