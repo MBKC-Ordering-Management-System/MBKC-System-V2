@@ -56,7 +56,7 @@ namespace MBKC.Repository.Repositories
                                                            .ThenInclude(x => x.MoneyExchange)
                                                            .ThenInclude(x => x.Transactions)
                                                            .ThenInclude(x => x.ShipperPayment).ThenInclude(x => x.BankingAccount)
-                                                           .FirstOrDefaultAsync(x => x.KitchenCenterId == id && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE);
+                                                           .FirstOrDefaultAsync(x => x.KitchenCenterId == id && x.Status != (int)KitchenCenterEnum.Status.DISABLE);
             }
             catch (Exception ex)
             {
@@ -80,14 +80,14 @@ namespace MBKC.Repository.Repositories
                         {
                             return false;
                         }
-                    }).Where(x => x.Status != (int)KitchenCenterEnum.Status.DEACTIVE).AsQueryable().Count();
+                    }).Where(x => x.Status != (int)KitchenCenterEnum.Status.DISABLE).AsQueryable().Count();
                 }
                 else if (searchValue != null && searchValueWithoutUnicode == null)
                 {
                     return await this._dbContext.KitchenCenters.Where(x => x.Name.ToLower().Contains(searchValue.ToLower()) &&
-                                                                           x.Status != (int)KitchenCenterEnum.Status.DEACTIVE).CountAsync();
+                                                                           x.Status != (int)KitchenCenterEnum.Status.DISABLE).CountAsync();
                 }
-                return await this._dbContext.KitchenCenters.Where(x => x.Status != (int)KitchenCenterEnum.Status.DEACTIVE).CountAsync();
+                return await this._dbContext.KitchenCenters.Where(x => x.Status != (int)KitchenCenterEnum.Status.DISABLE).CountAsync();
             }
             catch (Exception ex)
             {
@@ -103,7 +103,7 @@ namespace MBKC.Repository.Repositories
                 if (isGetAll != null && isGetAll == true)
                 {
                     return this._dbContext.KitchenCenters.Include(x => x.Manager)
-                   .Where(x => x.Status != (int)KitchenCenterEnum.Status.DEACTIVE).ToList();
+                   .Where(x => x.Status != (int)KitchenCenterEnum.Status.DISABLE).ToList();
                 }
                 if (searchValue == null && searchValueWithoutUnicode != null)
                 {
@@ -127,7 +127,7 @@ namespace MBKC.Repository.Repositories
                                  then => then.OrderBy(x => x.Status).Reverse())
                         .If(sortByASC != null && sortByASC.ToLower().Equals("kitchencentermanageremail"),
                                  then => then.OrderBy(x => x.Manager.Email))
-                        .Where(x => x.Status != (int)KitchenCenterEnum.Status.DEACTIVE).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
+                        .Where(x => x.Status != (int)KitchenCenterEnum.Status.DISABLE).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
                     else if (sortByDESC is not null)
                         return this._dbContext.KitchenCenters.Include(x => x.Manager).Where(delegate (KitchenCenter kitchenCenter)
                         {
@@ -148,7 +148,7 @@ namespace MBKC.Repository.Repositories
                                  then => then.OrderByDescending(x => x.Status).Reverse())
                         .If(sortByDESC != null && sortByDESC.ToLower().Equals("kitchencentermanageremail"),
                                  then => then.OrderByDescending(x => x.Manager.Email))
-                        .Where(x => x.Status != (int)KitchenCenterEnum.Status.DEACTIVE).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
+                        .Where(x => x.Status != (int)KitchenCenterEnum.Status.DISABLE).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
 
                     return this._dbContext.KitchenCenters.Include(x => x.Manager).Where(delegate (KitchenCenter kitchenCenter)
                     {
@@ -160,13 +160,13 @@ namespace MBKC.Repository.Repositories
                         {
                             return false;
                         }
-                    }).Where(x => x.Status != (int)KitchenCenterEnum.Status.DEACTIVE).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
+                    }).Where(x => x.Status != (int)KitchenCenterEnum.Status.DISABLE).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
                 }
                 else if (searchValue != null && searchValueWithoutUnicode == null)
                 {
                     if (sortByASC is not null)
                         return this._dbContext.KitchenCenters.Include(x => x.Manager)
-                        .Where(x => x.Name.ToLower().Contains(searchValue.ToLower()) && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE)
+                        .Where(x => x.Name.ToLower().Contains(searchValue.ToLower()) && x.Status != (int)KitchenCenterEnum.Status.DISABLE)
                         .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
                                  then => then.OrderBy(x => x.Name))
                         .If(sortByASC != null && sortByASC.ToLower().Equals("address"),
@@ -179,7 +179,7 @@ namespace MBKC.Repository.Repositories
 
                     else if (sortByDESC is not null)
                         return this._dbContext.KitchenCenters.Include(x => x.Manager)
-                       .Where(x => x.Name.ToLower().Contains(searchValue.ToLower()) && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE)
+                       .Where(x => x.Name.ToLower().Contains(searchValue.ToLower()) && x.Status != (int)KitchenCenterEnum.Status.DISABLE)
                        .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
                                  then => then.OrderByDescending(x => x.Name))
                        .If(sortByDESC != null && sortByDESC.ToLower().Equals("address"),
@@ -191,12 +191,12 @@ namespace MBKC.Repository.Repositories
                        .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
 
                     return this._dbContext.KitchenCenters.Include(x => x.Manager)
-                       .Where(x => x.Name.ToLower().Contains(searchValue.ToLower()) && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE)
+                       .Where(x => x.Name.ToLower().Contains(searchValue.ToLower()) && x.Status != (int)KitchenCenterEnum.Status.DISABLE)
                        .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
                 }
                 if (sortByASC is not null)
                     return this._dbContext.KitchenCenters.Include(x => x.Manager)
-                    .Where(x => x.Status != (int)KitchenCenterEnum.Status.DEACTIVE)
+                    .Where(x => x.Status != (int)KitchenCenterEnum.Status.DISABLE)
                     .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
                                  then => then.OrderBy(x => x.Name))
                         .If(sortByASC != null && sortByASC.ToLower().Equals("address"),
@@ -209,7 +209,7 @@ namespace MBKC.Repository.Repositories
 
                 else if (sortByDESC is not null)
                     return this._dbContext.KitchenCenters.Include(x => x.Manager)
-                   .Where(x => x.Status != (int)KitchenCenterEnum.Status.DEACTIVE)
+                   .Where(x => x.Status != (int)KitchenCenterEnum.Status.DISABLE)
                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
                               then => then.OrderByDescending(x => x.Name))
                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("address"),
@@ -221,7 +221,7 @@ namespace MBKC.Repository.Repositories
                    .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
 
                 return await this._dbContext.KitchenCenters.Include(x => x.Manager)
-                  .Where(x => x.Status != (int)KitchenCenterEnum.Status.DEACTIVE)
+                  .Where(x => x.Status != (int)KitchenCenterEnum.Status.DISABLE)
                   .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
             }
             catch (Exception ex)
@@ -249,7 +249,7 @@ namespace MBKC.Repository.Repositories
                                                            .ThenInclude(x => x.Order)
                                                            .Include(x => x.BankingAccounts).ThenInclude(x => x.ShipperPayments)
                                                            .FirstOrDefaultAsync(x => x.Manager.Email.Equals(managerEmail)
-                                                                                  && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE);
+                                                                                  && x.Status != (int)KitchenCenterEnum.Status.DISABLE);
             }
             catch (Exception ex)
             {

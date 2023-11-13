@@ -185,7 +185,7 @@ namespace MBKC.Repository.SMTPs.Repositories
             }
         }
 
-        public async Task SendEmailAndPasswordToEmail(string reciever, string message)
+        public async Task SendAccountToEmailAsync(string reciever, string message)
         {
             try
             {

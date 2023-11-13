@@ -75,19 +75,19 @@ namespace MBKC.Repository.Repositories
                         {
                             return false;
                         }
-                    }).Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true)).AsQueryable().Count();
+                    }).Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Status != (int)KitchenCenterEnum.Status.DISABLE && (statusParam != null ? x.Status == statusParam : true)).AsQueryable().Count();
                 }
                 else if (searchValue != null && searchValueWithoutUnicode == null && brandId == null && kitchenCenterId != null)
                 {
                     return await this._dbContext.Stores.Include(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId)
                                                        .Where(x => x.Name.ToLower().Contains(searchValue.ToLower())
                                                                 && x.KitchenCenter.KitchenCenterId == kitchenCenterId
-                                                                && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true)).CountAsync();
+                                                                && x.Status != (int)KitchenCenterEnum.Status.DISABLE && (statusParam != null ? x.Status == statusParam : true)).CountAsync();
                 }
                 else if (searchValue == null && searchValueWithoutUnicode == null && brandId == null && kitchenCenterId != null)
                 {
                     return await this._dbContext.Stores.Include(x => x.KitchenCenter)
-                                                       .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                       .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Status != (int)KitchenCenterEnum.Status.DISABLE && (statusParam != null ? x.Status == statusParam : true))
                                                        .CountAsync();
                 }
                 else if (searchValue == null && searchValueWithoutUnicode == null && brandId != null && kitchenCenterId != null)
@@ -95,13 +95,13 @@ namespace MBKC.Repository.Repositories
                     return await this._dbContext.Stores.Include(x => x.Brand).Include(x => x.KitchenCenter)
                                                  .Where(x => x.Brand.BrandId == brandId
                                                           && x.KitchenCenter.KitchenCenterId == kitchenCenterId
-                                                          && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                          && x.Status != (int)KitchenCenterEnum.Status.DISABLE && (statusParam != null ? x.Status == statusParam : true))
                                                  .CountAsync();
                 }
                 else if (searchValue == null && searchValueWithoutUnicode != null && brandId != null && kitchenCenterId != null)
                 {
                     return this._dbContext.Stores.Include(x => x.Brand).Include(x => x.KitchenCenter)
-                        .Where(x => x.Brand.BrandId == brandId && x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                        .Where(x => x.Brand.BrandId == brandId && x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Status != (int)KitchenCenterEnum.Status.DISABLE && (statusParam != null ? x.Status == statusParam : true))
                         .Where(delegate (Store store)
                     {
                         if (StringUtil.RemoveSign4VietnameseString(store.Name.ToLower()).Contains(searchValueWithoutUnicode.ToLower()))
@@ -119,10 +119,10 @@ namespace MBKC.Repository.Repositories
                     return await this._dbContext.Stores.Include(x => x.Brand).Where(x => x.Name.ToLower().Contains(searchValue.ToLower()) &&
                                                                                          x.Brand.BrandId == brandId &&
                                                                                          x.KitchenCenter.KitchenCenterId == kitchenCenterId &&
-                                                                                         x.Status != (int)KitchenCenterEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
+                                                                                         x.Status != (int)KitchenCenterEnum.Status.DISABLE && (statusParam != null ? x.Status == statusParam : true))
                                                                              .CountAsync();
                 }
-                return await this._dbContext.Stores.Where(x => x.Status != (int)KitchenCenterEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true)).CountAsync();
+                return await this._dbContext.Stores.Where(x => x.Status != (int)KitchenCenterEnum.Status.DISABLE && (statusParam != null ? x.Status == statusParam : true)).CountAsync();
             }
             catch (Exception ex)
             {

@@ -21,13 +21,13 @@ namespace MBKC.API.Controllers
         private IValidator<UpdateKitchenCenterRequest> _updateKitchenCenterValidator;
         private IValidator<UpdateKitchenCenterStatusRequest> _updateKitchenCenterStatusValidator;
         private IValidator<GetKitchenCentersRequest> _getKitchenCentersValidator;
-        private IValidator<KitchenCenterRequest> _getKitchenCenterValidator;
+        private IValidator<KitchenCenterIdRequest> _getKitchenCenterValidator;
 
         public KitchenCentersController(IKitchenCenterService kitchenCenterService,
             IValidator<CreateKitchenCenterRequest> createKitchenCenterValidator,
             IValidator<GetKitchenCentersRequest> getKitchenCentersValidator,
             IValidator<UpdateKitchenCenterRequest> updateKitchenCenterValidator,
-            IValidator<KitchenCenterRequest> getKitchenCenterValidator,
+            IValidator<KitchenCenterIdRequest> getKitchenCenterValidator,
             IValidator<UpdateKitchenCenterStatusRequest> updateKitchenCenterStatusValidator)
         {
             this._kitchenCenterService = kitchenCenterService;
@@ -84,7 +84,7 @@ namespace MBKC.API.Controllers
         /// <summary>
         /// Get a specific kitchen center by kitchen center id in the system.
         /// </summary>
-        /// <param name="getKitchenCenterRequest">An object include id of kitchen center</param>
+        /// <param name="kitchenCenterId">An object include id of kitchen center</param>
         /// <returns>
         /// An object about a specific kitchen center
         /// </returns>
@@ -108,15 +108,15 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin)]
         [HttpGet(APIEndPointConstant.KitchenCenter.KitchenCenterEndpoint)]
-        public async Task<IActionResult> GetKitchenCenterAsync([FromRoute] KitchenCenterRequest getKitchenCenterRequest)
+        public async Task<IActionResult> GetKitchenCenterAsync([FromRoute] KitchenCenterIdRequest kitchenCenterId)
         {
-            ValidationResult validationResult = await this._getKitchenCenterValidator.ValidateAsync(getKitchenCenterRequest);
+            ValidationResult validationResult = await this._getKitchenCenterValidator.ValidateAsync(kitchenCenterId);
             if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
-            GetKitchenCenterResponse getKitchenCenterResponse = await this._kitchenCenterService.GetKitchenCenterAsync(getKitchenCenterRequest.Id);
+            GetKitchenCenterResponse getKitchenCenterResponse = await this._kitchenCenterService.GetKitchenCenterAsync(kitchenCenterId.Id);
             return Ok(getKitchenCenterResponse);
         }
         #endregion
@@ -148,7 +148,7 @@ namespace MBKC.API.Controllers
         /// <summary>
         /// Create new kitchen center.
         /// </summary>
-        /// <param name="kitchenCenter">A kitchen center object contains created information.</param>
+        /// <param name="newKitchenCenter">A kitchen center object contains created information.</param>
         /// <returns>
         /// A success message about creating kitchen center information.
         /// </returns>
@@ -178,15 +178,15 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin)]
         [HttpPost(APIEndPointConstant.KitchenCenter.KitchenCentersEndpoint)]
-        public async Task<IActionResult> PostCreateKitchenCenterAsync([FromForm] CreateKitchenCenterRequest kitchenCenter)
+        public async Task<IActionResult> PostCreateKitchenCenterAsync([FromForm] CreateKitchenCenterRequest newKitchenCenter)
         {
-            ValidationResult validationResult = await this._createKitchenCenterValidator.ValidateAsync(kitchenCenter);
+            ValidationResult validationResult = await this._createKitchenCenterValidator.ValidateAsync(newKitchenCenter);
             if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
-            await this._kitchenCenterService.CreateKitchenCenterAsync(kitchenCenter);
+            await this._kitchenCenterService.CreateKitchenCenterAsync(newKitchenCenter);
             return Ok(new
             {
                 Message = MessageConstant.KitchenCenterMessage.CreatedNewKitchenCenterSuccessfully
@@ -198,8 +198,8 @@ namespace MBKC.API.Controllers
         /// <summary>
         /// Update information of an existed kitchen center.
         /// </summary>
-        /// <param name="getKitchenCenterRequest">An object include id of kitchen center.</param>
-        /// <param name="kitchenCenter">An kitchen center object contains updated information.</param>
+        /// <param name="updatedKitchenCenter">An object include id of kitchen center.</param>
+        /// <param name="kitchenCenterId">An kitchen center object contains updated information.</param>
         /// <returns> 
         /// A success message about updating kitchen center information.  
         /// </returns>
@@ -229,12 +229,12 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin)]
         [HttpPut(APIEndPointConstant.KitchenCenter.KitchenCenterEndpoint)]
-        public async Task<IActionResult> PutUpdateKitchenCenterAsync([FromRoute] KitchenCenterRequest getKitchenCenterRequest, [FromForm] UpdateKitchenCenterRequest kitchenCenter)
+        public async Task<IActionResult> PutUpdateKitchenCenterAsync([FromRoute] KitchenCenterIdRequest kitchenCenterId, [FromForm] UpdateKitchenCenterRequest updatedKitchenCenter)
         {
 
 
-            ValidationResult validationResultKCId = await this._getKitchenCenterValidator.ValidateAsync(getKitchenCenterRequest);
-            ValidationResult validationResult = await this._updateKitchenCenterValidator.ValidateAsync(kitchenCenter);
+            ValidationResult validationResultKCId = await this._getKitchenCenterValidator.ValidateAsync(kitchenCenterId);
+            ValidationResult validationResult = await this._updateKitchenCenterValidator.ValidateAsync(updatedKitchenCenter);
             if (validationResultKCId.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResultKCId);
@@ -245,7 +245,7 @@ namespace MBKC.API.Controllers
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
-            await this._kitchenCenterService.UpdateKitchenCenterAsync(getKitchenCenterRequest.Id, kitchenCenter);
+            await this._kitchenCenterService.UpdateKitchenCenterAsync(kitchenCenterId.Id, updatedKitchenCenter);
             return Ok(new
             {
                 Message = MessageConstant.KitchenCenterMessage.UpdatedKitchenCenterSuccessfully
@@ -257,8 +257,8 @@ namespace MBKC.API.Controllers
         /// <summary>
         /// Update status of an existed kitchen center.
         /// </summary>
-        /// <param name="getKitchenCenterRequest">An object include id of kitchen center.</param>
-        /// <param name="updateKitchenCenterStatusRequest">An kitchen center object contains updated status.</param>
+        /// <param name="kitchenCenterId">An object include id of kitchen center.</param>
+        /// <param name="updatedKitchenCenterStatus">An kitchen center object contains updated status.</param>
         /// <returns>
         /// A success message about updating kitchen center's status.  
         /// </returns>
@@ -286,10 +286,10 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin)]
         [HttpPut(APIEndPointConstant.KitchenCenter.UpdatingStatusKitchenCenter)]
-        public async Task<IActionResult> PutUpdateKitchenCenterStatus([FromRoute] KitchenCenterRequest getKitchenCenterRequest, [FromBody] UpdateKitchenCenterStatusRequest updateKitchenCenterStatusRequest)
+        public async Task<IActionResult> PutUpdateKitchenCenterStatusAsync([FromRoute] KitchenCenterIdRequest kitchenCenterId, [FromBody] UpdateKitchenCenterStatusRequest updatedKitchenCenterStatus)
         {
-            ValidationResult validationResult = await this._updateKitchenCenterStatusValidator.ValidateAsync(updateKitchenCenterStatusRequest);
-            ValidationResult validationResultKCId = await this._getKitchenCenterValidator.ValidateAsync(getKitchenCenterRequest);
+            ValidationResult validationResult = await this._updateKitchenCenterStatusValidator.ValidateAsync(updatedKitchenCenterStatus);
+            ValidationResult validationResultKCId = await this._getKitchenCenterValidator.ValidateAsync(kitchenCenterId);
 
             if (validationResult.IsValid == false)
             {
@@ -301,7 +301,7 @@ namespace MBKC.API.Controllers
                 string errors = ErrorUtil.GetErrorsString(validationResultKCId);
                 throw new BadRequestException(errors);
             }
-            await this._kitchenCenterService.UpdateKitchenCenterStatusAsync(getKitchenCenterRequest.Id, updateKitchenCenterStatusRequest);
+            await this._kitchenCenterService.UpdateKitchenCenterStatusAsync(kitchenCenterId.Id, updatedKitchenCenterStatus);
             return Ok(new
             {
                 Message = MessageConstant.KitchenCenterMessage.UpdatedKitchenCenterStatusSuccessfully
@@ -313,7 +313,7 @@ namespace MBKC.API.Controllers
         /// <summary>
         /// Delete an existed kitchen center.
         /// </summary>
-        /// <param name="getKitchenCenterRequest">An object include id of kitchen center.</param>
+        /// <param name="kitchenCenterId">An object include id of kitchen center.</param>
         /// <returns>
         /// A success message about deleting exsited kitchen center.
         /// </returns>
@@ -337,16 +337,16 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin)]
         [HttpDelete(APIEndPointConstant.KitchenCenter.KitchenCenterEndpoint)]
-        public async Task<IActionResult> DeleteKitchenCenterAsync([FromRoute] KitchenCenterRequest getKitchenCenterRequest)
+        public async Task<IActionResult> DeleteKitchenCenterAsync([FromRoute] KitchenCenterIdRequest kitchenCenterId)
         {
-            ValidationResult validationResult = await this._getKitchenCenterValidator.ValidateAsync(getKitchenCenterRequest);
+            ValidationResult validationResult = await this._getKitchenCenterValidator.ValidateAsync(kitchenCenterId);
 
             if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
-            await this._kitchenCenterService.DeleteKitchenCenterAsync(getKitchenCenterRequest.Id);
+            await this._kitchenCenterService.DeleteKitchenCenterAsync(kitchenCenterId.Id);
             return Ok(new
             {
                 Message = MessageConstant.KitchenCenterMessage.DeletedKitchenCenterSuccessfully

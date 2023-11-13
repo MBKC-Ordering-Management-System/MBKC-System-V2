@@ -10,7 +10,7 @@ namespace MBKC.Service.Services.Interfaces
         public Task<GetKitchenCentersResponse> GetKitchenCentersAsync(GetKitchenCentersRequest getKitchenCentersRequest);
         public Task UpdateKitchenCenterAsync(int kitchenCenterId, UpdateKitchenCenterRequest updatedKitchenCenter);
         public Task DeleteKitchenCenterAsync(int kitchenCenterId);
-        public Task UpdateKitchenCenterStatusAsync(int kitchenCenterId, UpdateKitchenCenterStatusRequest updateKitchenCenterStatusRequest);
+        public Task UpdateKitchenCenterStatusAsync(int kitchenCenterId, UpdateKitchenCenterStatusRequest updatedKitchenCenterStatus);
         public Task<GetKitchenCenterResponse> GetKitchenCenterProfileAsync(IEnumerable<Claim> claims);
     }
 }

@@ -3,7 +3,7 @@ using MBKC.Service.DTOs.KitchenCenters;
 
 namespace MBKC.API.Validators.KitchenCenters
 {
-    public class GetKitchenCenterValidator : AbstractValidator<KitchenCenterRequest>
+    public class GetKitchenCenterValidator : AbstractValidator<KitchenCenterIdRequest>
     {
         public GetKitchenCenterValidator()
         {

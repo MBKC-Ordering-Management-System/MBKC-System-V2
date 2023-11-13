@@ -32,7 +32,7 @@ namespace MBKC.Service.Utils
             {
                 return char.ToUpper(KitchenCenterEnum.Status.ACTIVE.ToString()[0]) + KitchenCenterEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
             }
-            return char.ToUpper(KitchenCenterEnum.Status.DEACTIVE.ToString()[0]) + KitchenCenterEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
+            return char.ToUpper(KitchenCenterEnum.Status.DISABLE.ToString()[0]) + KitchenCenterEnum.Status.DISABLE.ToString().ToLower().Substring(1);
         }
 
         public static string ChangeStoreStatus(int status)

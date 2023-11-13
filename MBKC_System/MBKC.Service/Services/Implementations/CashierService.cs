@@ -123,7 +123,7 @@ namespace MBKC.Service.Services.Implementations
                     Balance = 0
                 };
                 Role cashierRole = await this._unitOfWork.RoleRepository.GetRoleById((int)RoleEnum.Role.CASHIER);
-                string password = RandomPasswordUtil.CreateRandomPassword();
+                string password = PasswordUtil.CreateRandomPassword();
                 Account cashierAccount = new Account()
                 {
                     Email = createCashierRequest.Email,
@@ -159,7 +159,7 @@ namespace MBKC.Service.Services.Implementations
 
                 string messageBody = EmailMessageConstant.Cashier.Message + $" {existedKitchenCenter.Name}. " + EmailMessageConstant.CommonMessage.Message;
                 string message = this._unitOfWork.EmailRepository.GetMessageToRegisterAccount(createCashierRequest.Email, password, messageBody);
-                await this._unitOfWork.EmailRepository.SendEmailAndPasswordToEmail(createCashierRequest.Email, message);
+                await this._unitOfWork.EmailRepository.SendAccountToEmailAsync(createCashierRequest.Email, message);
             }
             catch (BadRequestException ex)
             {

@@ -1,4 +1,5 @@
-﻿using MBKC.Repository.Models;
+﻿using MBKC.Repository.Enums;
+using MBKC.Repository.Models;
 using MBKC.Service.DTOs.Accounts;
 using MBKC.Service.Errors;
 using MBKC.Service.Services.Interfaces;
@@ -25,7 +26,7 @@ namespace MBKC.Service.Authorization
             this._roles = roles;
         }
 
-        public async void OnAuthorization(AuthorizationFilterContext context)
+        public void OnAuthorization(AuthorizationFilterContext context)
         {
             
             if (context.HttpContext.User.Identity.IsAuthenticated)
@@ -35,7 +36,6 @@ namespace MBKC.Service.Authorization
                 var currentActionName = context.RouteData.Values["action"];
                 string email = context.HttpContext.User.Claims.First(x => x.Type.ToLower() == ClaimTypes.Email).Value;
                 string accountId = context.HttpContext.User.Claims.First(x => x.Type.ToLower() == JwtRegisteredClaimNames.Sid).Value;
-                bool isActiveAccount = accountService.IsActiveAccountAsync(email).Result;
 
                 GetAccountResponse existedAccount = accountService.GetAccountAsync(int.Parse(accountId), context.HttpContext.User.Claims).Result;
                 if(existedAccount.IsConfirmed == false && currentController.ToString().ToLower().Equals("accounts") && currentActionName.ToString().ToLower().Equals("updateaccount"))
@@ -55,7 +55,10 @@ namespace MBKC.Service.Authorization
                         }
                     };
                 }
-                if(isActiveAccount == false)
+
+                bool isActiveAccount = existedAccount.Status.ToLower().Equals(AccountEnum.Status.ACTIVE.ToString().ToLower()) ? true : false;
+
+                if (isActiveAccount == false)
                 {
                     context.Result = new ObjectResult("Unauthorized")
                     {

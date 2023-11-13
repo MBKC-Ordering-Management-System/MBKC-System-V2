@@ -115,7 +115,7 @@ namespace MBKC.Service.Services.Implementations
                     throw new BadRequestException(MessageConstant.KitchenCenterMessage.ManagerEmailExisted);
                 }
                 Role role = await this._unitOfWork.RoleRepository.GetRoleAsync((int)RoleEnum.Role.KITCHEN_CENTER_MANAGER);
-                string password = RandomPasswordUtil.CreateRandomPassword();
+                string password = PasswordUtil.CreateRandomPassword();
                 Account managerAccount = new Account()
                 {
                     Email = newKitchenCenter.ManagerEmail,
@@ -150,7 +150,7 @@ namespace MBKC.Service.Services.Implementations
                 await this._unitOfWork.CommitAsync();
                 string messageBody = EmailMessageConstant.KitchenCenter.Message + $" \"{newKitchenCenter.Name}\". " + EmailMessageConstant.CommonMessage.Message;
                 string message = this._unitOfWork.EmailRepository.GetMessageToRegisterAccount(newKitchenCenter.ManagerEmail, password, messageBody);
-                await this._unitOfWork.EmailRepository.SendEmailAndPasswordToEmail(newKitchenCenter.ManagerEmail, message);
+                await this._unitOfWork.EmailRepository.SendAccountToEmailAsync(newKitchenCenter.ManagerEmail, message);
             }
             catch (BadRequestException ex)
             {
@@ -183,7 +183,7 @@ namespace MBKC.Service.Services.Implementations
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistKitchenCenterId);
                 }
 
-                if (existedKitchenCenter.Status == (int)KitchenCenterEnum.Status.DEACTIVE)
+                if (existedKitchenCenter.Status == (int)KitchenCenterEnum.Status.DISABLE)
                 {
                     throw new BadRequestException(MessageConstant.KitchenCenterMessage.DeactiveKitchenCenter_Update);
                 }
@@ -201,7 +201,7 @@ namespace MBKC.Service.Services.Implementations
                     this._unitOfWork.AccountRepository.UpdateAccount(existedKitchenCenter.Manager);
 
                     Role kitchenCenterManagerRole = await this._unitOfWork.RoleRepository.GetRoleAsync((int)RoleEnum.Role.KITCHEN_CENTER_MANAGER);
-                    password = RandomPasswordUtil.CreateRandomPassword();
+                    password = PasswordUtil.CreateRandomPassword();
                     Account newManagerAccount = new Account()
                     {
                         Email = updatedKitchenCenter.ManagerEmail,
@@ -247,7 +247,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     string messageBody = EmailMessageConstant.KitchenCenter.Message + $" \"{existedKitchenCenter.Name}\". " + EmailMessageConstant.CommonMessage.Message;
                     string message = this._unitOfWork.EmailRepository.GetMessageToRegisterAccount(updatedKitchenCenter.ManagerEmail, password, messageBody);
-                    await this._unitOfWork.EmailRepository.SendEmailAndPasswordToEmail(updatedKitchenCenter.ManagerEmail, message);
+                    await this._unitOfWork.EmailRepository.SendAccountToEmailAsync(updatedKitchenCenter.ManagerEmail, message);
                 }
             }
             catch (NotFoundException ex)
@@ -280,7 +280,7 @@ namespace MBKC.Service.Services.Implementations
             }
         }
 
-        public async Task UpdateKitchenCenterStatusAsync(int kitchenCenterId, UpdateKitchenCenterStatusRequest updateKitchenCenterStatusRequest)
+        public async Task UpdateKitchenCenterStatusAsync(int kitchenCenterId, UpdateKitchenCenterStatusRequest updateKitchenCenterStatus)
         {
             try
             {
@@ -289,15 +289,15 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistKitchenCenterId);
                 }
-                else if (existedKitchenCenter.Status == (int)KitchenCenterEnum.Status.DEACTIVE)
+                else if (existedKitchenCenter.Status == (int)KitchenCenterEnum.Status.DISABLE)
                 {
                     throw new BadRequestException(MessageConstant.KitchenCenterMessage.DeactiveKitchenCenter_Update);
                 }
-                if (updateKitchenCenterStatusRequest.Status.Trim().ToLower().Equals(KitchenCenterEnum.Status.ACTIVE.ToString().ToLower()))
+                if (updateKitchenCenterStatus.Status.Trim().ToLower().Equals(KitchenCenterEnum.Status.ACTIVE.ToString().ToLower()))
                 {
                     existedKitchenCenter.Status = (int)KitchenCenterEnum.Status.ACTIVE;
                 }
-                else if (updateKitchenCenterStatusRequest.Status.Trim().ToLower().Equals(KitchenCenterEnum.Status.INACTIVE.ToString().ToLower()))
+                else if (updateKitchenCenterStatus.Status.Trim().ToLower().Equals(KitchenCenterEnum.Status.INACTIVE.ToString().ToLower()))
                 {
                     existedKitchenCenter.Status = (int)KitchenCenterEnum.Status.INACTIVE;
                 }
@@ -342,7 +342,7 @@ namespace MBKC.Service.Services.Implementations
                     throw new BadRequestException(MessageConstant.KitchenCenterMessage.ExistedActiveStores_Delete);
                 }
                 // Deactive kitchen center.
-                existedKitchenCenter.Status = (int)KitchenCenterEnum.Status.DEACTIVE;
+                existedKitchenCenter.Status = (int)KitchenCenterEnum.Status.DISABLE;
                 // Deactive kitchen center manger.
                 existedKitchenCenter.Manager.Status = (int)AccountEnum.Status.DEACTIVE;
                 this._unitOfWork.KitchenCenterRepository.UpdateKitchenCenter(existedKitchenCenter);

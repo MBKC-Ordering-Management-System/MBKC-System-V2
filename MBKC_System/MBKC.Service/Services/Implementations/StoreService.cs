@@ -303,7 +303,7 @@ namespace MBKC.Service.Services.Implementations
                 logoLink += $"&logoId={logoId}";
 
                 Role storeManagerRole = await this._unitOfWork.RoleRepository.GetRoleAsync((int)RoleEnum.Role.STORE_MANAGER);
-                string password = RandomPasswordUtil.CreateRandomPassword();
+                string password = PasswordUtil.CreateRandomPassword();
                 Account managerAccount = new Account()
                 {
                     Email = registerStoreRequest.StoreManagerEmail,
@@ -425,7 +425,7 @@ namespace MBKC.Service.Services.Implementations
                     this._unitOfWork.AccountRepository.UpdateAccount(oldStoreManagerAccount);
 
                     Role storeManagerRole = await this._unitOfWork.RoleRepository.GetRoleAsync((int)RoleEnum.Role.STORE_MANAGER);
-                    password = RandomPasswordUtil.CreateRandomPassword();
+                    password = PasswordUtil.CreateRandomPassword();
                     Account newStoreManagerAccount = new Account()
                     {
                         Email = updateStoreRequest.StoreManagerEmail,
@@ -482,7 +482,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     string messageBody = EmailMessageConstant.Store.Message + $" {updateStoreRequest.Name}. " + EmailMessageConstant.CommonMessage.Message;
                     string message = this._unitOfWork.EmailRepository.GetMessageToRegisterAccount(updateStoreRequest.StoreManagerEmail, password, messageBody);
-                    await this._unitOfWork.EmailRepository.SendEmailAndPasswordToEmail(updateStoreRequest.StoreManagerEmail, message);
+                    await this._unitOfWork.EmailRepository.SendAccountToEmailAsync(updateStoreRequest.StoreManagerEmail, message);
                 }
             }
             catch (NotFoundException ex)
@@ -720,7 +720,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     string messageBody = EmailMessageConstant.Store.Message + $" {existedStore.Name}. " + EmailMessageConstant.CommonMessage.Message;
                     string message = this._unitOfWork.EmailRepository.GetMessageToRegisterAccount(existedStore.StoreManagerEmail, password, messageBody);
-                    await this._unitOfWork.EmailRepository.SendEmailAndPasswordToEmail(existedStore.StoreManagerEmail, message);
+                    await this._unitOfWork.EmailRepository.SendAccountToEmailAsync(existedStore.StoreManagerEmail, message);
                 }
             }
             catch (BadRequestException ex)

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MBKC.Service.DTOs.KitchenCenters
 {
-    public class KitchenCenterRequest
+    public class KitchenCenterIdRequest
     {
         [FromRoute(Name = "id")]
         public int Id { get; set; }

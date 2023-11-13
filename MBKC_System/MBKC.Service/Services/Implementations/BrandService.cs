@@ -163,7 +163,7 @@ namespace MBKC.Service.Services.Implementations
                     uploaded = true;
                 }
                 // Create account
-                string unEncryptedPassword = RandomPasswordUtil.CreateRandomPassword();
+                string unEncryptedPassword = PasswordUtil.CreateRandomPassword();
                 var account = new Account
                 {
                     Email = postBrandRequest.ManagerEmail,
@@ -197,7 +197,7 @@ namespace MBKC.Service.Services.Implementations
                 //Send password to email of Brand Manager
                 string messageBody = EmailMessageConstant.Brand.Message + $" \"{brand.Name}\" " + EmailMessageConstant.CommonMessage.Message;
                 string message = this._unitOfWork.EmailRepository.GetMessageToRegisterAccount(account.Email, unEncryptedPassword, messageBody);
-                await this._unitOfWork.EmailRepository.SendEmailAndPasswordToEmail(account.Email, message);
+                await this._unitOfWork.EmailRepository.SendAccountToEmailAsync(account.Email, message);
             }
             catch (BadRequestException ex)
             {
@@ -273,7 +273,7 @@ namespace MBKC.Service.Services.Implementations
                         _unitOfWork.BrandAccountRepository.UpdateBrandAccount(getBrandAccountById);
                     }
                     Role brandManagerRole = await this._unitOfWork.RoleRepository.GetRoleById((int)RoleEnum.Role.BRAND_MANAGER);
-                    password = RandomPasswordUtil.CreateRandomPassword();
+                    password = PasswordUtil.CreateRandomPassword();
                     Account newBrandManagerAccount = new Account()
                     {
                         Email = updateBrandRequest.BrandManagerEmail,
@@ -333,7 +333,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     string messageBody = EmailMessageConstant.Brand.Message + $" \"{brand.Name}\" " + EmailMessageConstant.CommonMessage.Message;
                     string message = this._unitOfWork.EmailRepository.GetMessageToRegisterAccount(updateBrandRequest.BrandManagerEmail, password, messageBody);
-                    await this._unitOfWork.EmailRepository.SendEmailAndPasswordToEmail(updateBrandRequest.BrandManagerEmail, message);
+                    await this._unitOfWork.EmailRepository.SendAccountToEmailAsync(updateBrandRequest.BrandManagerEmail, message);
                 }
             }
             catch (BadRequestException ex)

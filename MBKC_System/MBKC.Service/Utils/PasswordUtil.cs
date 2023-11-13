@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MBKC.Service.Utils
 {
-    public static class RandomPasswordUtil
+    public static class PasswordUtil
     {
         public static string CreateRandomPassword(int length = 8)
         {
