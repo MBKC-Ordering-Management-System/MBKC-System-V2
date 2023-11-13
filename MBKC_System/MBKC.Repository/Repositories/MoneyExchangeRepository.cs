@@ -82,6 +82,8 @@ namespace MBKC.Repository.Repositories
                                                                               then => then.OrderBy(x => x.Amount))
                                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("amount"),
                                                                               then => then.OrderByDescending(x => x.Amount))
+                                                                    .If(sortByDESC != null && sortByDESC.ToLower().Equals("transactiontime"),
+                                                                              then => then.OrderByDescending(x => x.Transactions.Select(x => x.TransactionTime)))
                                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
                 }
 

@@ -271,7 +271,7 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await this._dbContext.Brands.Include(x => x.Stores)
+                return await this._dbContext.Brands.Include(x => x.Stores).ThenInclude(x => x.Orders).ThenInclude(x => x.ShipperPayments)
                                                    .Include(x => x.Products)
                                                    .Include(x => x.Categories)
                                                    .FirstOrDefaultAsync(x => x.BrandManagerEmail.Equals(managerEmail) &&

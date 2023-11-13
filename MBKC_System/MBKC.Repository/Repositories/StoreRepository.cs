@@ -753,6 +753,7 @@ namespace MBKC.Repository.Repositories
                                                    .ThenInclude(x => x.MoneyExchange)
                                                    .ThenInclude(x => x.Transactions)
                                                    .Include(x => x.Orders).ThenInclude(x => x.ShipperPayments).ThenInclude(x => x.BankingAccount)
+                                                   .Include(x => x.Orders).ThenInclude(x => x.OrderHistories)
                                                    .SingleOrDefaultAsync(x => x.StoreManagerEmail.Equals(managerEmail));
             }
             catch (Exception ex)

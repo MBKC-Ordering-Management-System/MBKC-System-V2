@@ -41,7 +41,7 @@ namespace MBKC.Service.Services.Implementations
                 if (role.ToLower().Equals(RoleConstant.Cashier.ToLower()))
                 {
                     existedCashier = await this._unitOfWork.CashierRepository.GetCashierMoneyExchangeShipperPaymentAsync(email);
-                    existedShipperPayments = existedCashier.KitchenCenter.BankingAccounts.SelectMany(x => x.ShipperPayments).ToList();
+                    existedShipperPayments = await this._unitOfWork.ShipperPaymentRepository.GetShiperPaymentsByCashierIdAsync(existedCashier.AccountId);
                 }
                 else if (role.ToLower().Equals(RoleConstant.Store_Manager.ToLower()))
                 {
