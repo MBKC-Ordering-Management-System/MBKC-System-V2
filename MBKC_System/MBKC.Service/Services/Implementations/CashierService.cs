@@ -303,7 +303,7 @@ namespace MBKC.Service.Services.Implementations
 
                 if (role.ToLower().Equals(RoleConstant.Cashier.ToLower()))
                 {
-                    if (existedCashier.Account.Email.Equals(email))
+                    if (existedCashier.Account.Email.Equals(email) == false)
                     {
                         throw new BadRequestException(MessageConstant.CashierMessage.CashierIdNotBelogToCashier);
                     }
