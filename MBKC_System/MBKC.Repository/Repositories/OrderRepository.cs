@@ -35,6 +35,7 @@ namespace MBKC.Repository.Repositories
                                                    .Include(o => o.ShipperPayments).ThenInclude(o => o.BankingAccount)
                                                    .Include(o => o.ShipperPayments).ThenInclude(o => o.Transactions)
                                                    .Include(o => o.Store).ThenInclude(o => o.KitchenCenter)
+                                                   .Include(o => o.Store).ThenInclude(o => o.StorePartners)
                                                    .Include(o => o.OrderHistories)
                                                    .FirstOrDefaultAsync(o => o.OrderPartnerId.Equals(orderPartnerId));
             }
@@ -104,6 +105,14 @@ namespace MBKC.Repository.Repositories
                     startDate = DateTime.ParseExact(searchDateFrom, "dd/MM/yyyy", null);
                     endDate = DateTime.ParseExact(searchDateTo, "dd/MM/yyyy", null);
                 }
+                else if (searchDateFrom != null && searchDateTo == null)
+                {
+                    startDate = DateTime.ParseExact(searchDateFrom, "dd/MM/yyyy", null);
+                }
+                else if (searchDateFrom == null && searchDateTo != null)
+                {
+                    endDate = DateTime.ParseExact(searchDateTo, "dd/MM/yyyy", null);
+                }
                 if (searchName == null && searchValueWithoutUnicode != null)
                 {
                     return this._dbContext.Orders.Include(x => x.Store)
@@ -119,6 +128,10 @@ namespace MBKC.Repository.Repositories
                                                                      ? x.PartnerOrderStatus.Equals(partnerOrderStatus)
                                                                      : true) && (searchDateFrom != null && searchDateTo != null ?
                                                       x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date &&
+                                                      x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true)
+                                                      && (searchDateFrom != null && searchDateTo == null ?
+                                                      x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date : true)
+                                                      && (searchDateFrom == null && searchDateTo != null ?
                                                       x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true))
                                                          .Where(delegate (Order order)
                                                          {
@@ -143,8 +156,12 @@ namespace MBKC.Repository.Repositories
                                                                      : true) && (partnerOrderStatus != null
                                                                      ? x.PartnerOrderStatus.Equals(partnerOrderStatus)
                                                                      : true) && (searchDateFrom != null && searchDateTo != null ?
-                                                      x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date &&
-                                                      x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true) &&
+                                                                     x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date &&
+                                                                     x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true)
+                                                                     && (searchDateFrom != null && searchDateTo == null ?
+                                                                     x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date : true)
+                                                                     && (searchDateFrom == null && searchDateTo != null ?
+                                                                     x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true) &&
                                                                      x.OrderPartnerId.ToLower().Contains(searchName.ToLower())).CountAsync();
                 }
                 return await this._dbContext.Orders.Include(x => x.Store)
@@ -159,8 +176,12 @@ namespace MBKC.Repository.Repositories
                                                                      : true) && (partnerOrderStatus != null
                                                                      ? x.PartnerOrderStatus.Equals(partnerOrderStatus)
                                                                      : true) && (searchDateFrom != null && searchDateTo != null ?
-                                                      x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date &&
-                                                      x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true)).CountAsync();
+                                                                                x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date &&
+                                                                                x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true)
+                                                                                && (searchDateFrom != null && searchDateTo == null ?
+                                                                                x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date : true)
+                                                                                && (searchDateFrom == null && searchDateTo != null ?
+                                                                                x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true)).CountAsync();
             }
             catch (Exception ex)
             {
@@ -181,6 +202,14 @@ namespace MBKC.Repository.Repositories
                 if (searchDateFrom != null && searchDateTo != null)
                 {
                     startDate = DateTime.ParseExact(searchDateFrom, "dd/MM/yyyy", null);
+                    endDate = DateTime.ParseExact(searchDateTo, "dd/MM/yyyy", null);
+                }
+                else if (searchDateFrom != null && searchDateTo == null)
+                {
+                    startDate = DateTime.ParseExact(searchDateFrom, "dd/MM/yyyy", null);
+                }
+                else if (searchDateFrom == null && searchDateTo != null)
+                {
                     endDate = DateTime.ParseExact(searchDateTo, "dd/MM/yyyy", null);
                 }
                 if (searchValue == null && searchValueWithoutUnicode != null)
@@ -210,8 +239,12 @@ namespace MBKC.Repository.Repositories
                                                                     ? x.PartnerOrderStatus.ToUpper().Equals(partnerOrderStatus.Trim().ToUpper())
                                                                     : true) &&
                                                                      (searchDateFrom != null && searchDateTo != null ?
-                                                      x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date &&
-                                                      x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true))
+                                                                     x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date &&
+                                                                     x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true)
+                                                                     && (searchDateFrom != null && searchDateTo == null ?
+                                                                     x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date : true)
+                                                                     && (searchDateFrom == null && searchDateTo != null ?
+                                                                     x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true))
                                                         .Where(delegate (Order order)
                                                         {
                                                             if (StringUtil.RemoveSign4VietnameseString(order.OrderPartnerId).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
@@ -261,8 +294,12 @@ namespace MBKC.Repository.Repositories
                                                                     (partnerOrderStatus != null
                                                                     ? x.PartnerOrderStatus.ToUpper().Equals(partnerOrderStatus.Trim().ToUpper())
                                                                     : true) && (searchDateFrom != null && searchDateTo != null ?
-                                                      x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date &&
-                                                      x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true))
+                                                                               x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date &&
+                                                                               x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true)
+                                                                               && (searchDateFrom != null && searchDateTo == null ?
+                                                                               x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date : true)
+                                                                               && (searchDateFrom == null && searchDateTo != null ?
+                                                                               x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true))
                                                         .Where(delegate (Order order)
                                                         {
                                                             if (StringUtil.RemoveSign4VietnameseString(order.OrderPartnerId).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
@@ -317,8 +354,12 @@ namespace MBKC.Repository.Repositories
                                                                     (partnerOrderStatus != null
                                                                     ? x.PartnerOrderStatus.ToUpper().Equals(partnerOrderStatus.Trim().ToUpper())
                                                                     : true) && (searchDateFrom != null && searchDateTo != null ?
-                                                      x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date &&
-                                                      x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true))
+                                                                               x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date &&
+                                                                               x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true)
+                                                                               && (searchDateFrom != null && searchDateTo == null ?
+                                                                               x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date : true)
+                                                                               && (searchDateFrom == null && searchDateTo != null ?
+                                                                               x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true))
                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
                 }
                 else if (searchValue != null && searchValueWithoutUnicode == null)
@@ -347,8 +388,12 @@ namespace MBKC.Repository.Repositories
                                                                     ? x.PartnerOrderStatus.ToUpper().Equals(partnerOrderStatus.Trim().ToUpper())
                                                                     : true) &&
                                                                      x.OrderPartnerId.ToLower().Contains(searchValue.ToLower()) && (searchDateFrom != null && searchDateTo != null ?
-                                                      x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date &&
-                                                      x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true))
+                                                                     x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date &&
+                                                                     x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true)
+                                                                     && (searchDateFrom != null && searchDateTo == null ?
+                                                                     x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date : true)
+                                                                     && (searchDateFrom == null && searchDateTo != null ?
+                                                                     x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true))
                                                            .If(sortByASC != null && sortByASC.ToLower().Equals("shippername"),
                                                                       then => then.OrderBy(x => x.ShipperName))
                                                            .If(sortByASC != null && sortByASC.ToLower().Equals("customername"),
@@ -390,6 +435,10 @@ namespace MBKC.Repository.Repositories
                                                                     : true) &&
                                                                      x.OrderPartnerId.ToLower().Contains(searchValue.ToLower()) && (searchDateFrom != null && searchDateTo != null ?
                                                       x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date &&
+                                                      x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true)
+                                                      && (searchDateFrom != null && searchDateTo == null ?
+                                                      x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date : true)
+                                                      && (searchDateFrom == null && searchDateTo != null ?
                                                       x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true))
                                                               .If(sortByDESC != null && sortByDESC.ToLower().Equals("shippername"),
                                                                   then => then.OrderByDescending(x => x.ShipperName))
@@ -431,6 +480,10 @@ namespace MBKC.Repository.Repositories
                                                                     : true) &&
                                                                      x.OrderPartnerId.ToLower().Contains(searchValue.ToLower()) && (searchDateFrom != null && searchDateTo != null ?
                                                       x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date &&
+                                                      x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true)
+                                                      && (searchDateFrom != null && searchDateTo == null ?
+                                                      x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date : true)
+                                                      && (searchDateFrom == null && searchDateTo != null ?
                                                       x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true))
                                                               .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
                 }
@@ -458,6 +511,10 @@ namespace MBKC.Repository.Repositories
                                                                     ? x.PartnerOrderStatus.ToUpper().Equals(partnerOrderStatus.Trim().ToUpper())
                                                                     : true) && (searchDateFrom != null && searchDateTo != null ?
                                                       x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date &&
+                                                      x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true)
+                                                      && (searchDateFrom != null && searchDateTo == null ?
+                                                      x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date : true)
+                                                      && (searchDateFrom == null && searchDateTo != null ?
                                                       x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true))
                                                            .If(sortByASC != null && sortByASC.ToLower().Equals("shippername"),
                                                                       then => then.OrderBy(x => x.ShipperName))
@@ -498,8 +555,12 @@ namespace MBKC.Repository.Repositories
                                                                     (partnerOrderStatus != null
                                                                     ? x.PartnerOrderStatus.ToUpper().Equals(partnerOrderStatus.Trim().ToUpper())
                                                                     : true) && (searchDateFrom != null && searchDateTo != null ?
-                                                      x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date &&
-                                                      x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true))
+                                                                    x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date &&
+                                                                    x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true)
+                                                                    && (searchDateFrom != null && searchDateTo == null ?
+                                                                    x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date : true)
+                                                                    && (searchDateFrom == null && searchDateTo != null ?
+                                                                    x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true))
                                                               .If(sortByDESC != null && sortByDESC.ToLower().Equals("shippername"),
                                                                   then => then.OrderByDescending(x => x.ShipperName))
                                                               .If(sortByDESC != null && sortByDESC.ToLower().Equals("customername"),
@@ -538,8 +599,12 @@ namespace MBKC.Repository.Repositories
                                                                     (partnerOrderStatus != null
                                                                     ? x.PartnerOrderStatus.ToUpper().Equals(partnerOrderStatus.Trim().ToUpper())
                                                                     : true) && (searchDateFrom != null && searchDateTo != null ?
-                                                      x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date &&
-                                                      x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true))
+                                                                    x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date &&
+                                                                    x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true)
+                                                                    && (searchDateFrom != null && searchDateTo == null ?
+                                                                    x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date : true)
+                                                                    && (searchDateFrom == null && searchDateTo != null ?
+                                                                    x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true))
                                                               .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
             }
             catch (Exception ex)

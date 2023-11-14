@@ -146,12 +146,12 @@ namespace MBKC.Service.Services.Implementations
                 #region shipper payment and transaction and wallet (Cash only)
                 if (existedOrder.PaymentMethod.ToUpper().Equals(OrderEnum.PaymentMethod.CASH.ToString()))
                 {
-                    decimal finalToTalPriceSubstractDeliveryFee = existedOrder.FinalTotalPrice - existedOrder.DeliveryFee;
-                    decimal finalPrice = finalToTalPriceSubstractDeliveryFee - (finalToTalPriceSubstractDeliveryFee * (decimal)existedOrder.Commission / 100);
+                    //decimal finalToTalPriceSubstractDeliveryFee = existedOrder.FinalTotalPrice - existedOrder.DeliveryFee;
+                    decimal finalPrice = existedOrder.SubTotalPrice - (existedOrder.SubTotalPrice * (decimal)(existedOrder.Store.StorePartners.FirstOrDefault(x => x.PartnerId == existedOrder.PartnerId && x.Status == (int)StorePartnerEnum.Status.ACTIVE).Commission / 100));
                     ShipperPayment shipperPayment = new ShipperPayment()
                     {
                         Status = (int)ShipperPaymentEnum.Status.SUCCESS,
-                        Content = $"Payment for the order[orderId:{existedOrder.Id}] with {existedOrder.Commission}% commission {StringUtil.GetContentAmountAndTime(finalPrice)}",
+                        Content = $"Payment for the order[orderId:{existedOrder.Id}] with {existedOrder.Store.StorePartners.FirstOrDefault(x => x.PartnerId == existedOrder.PartnerId && x.Status == (int)StorePartnerEnum.Status.ACTIVE).Commission}% commission {StringUtil.GetContentAmountAndTime(finalPrice)}",
                         OrderId = existedOrder.Id,
                         Amount = finalPrice,
                         CreateDate = DateTime.Now,
@@ -572,17 +572,19 @@ namespace MBKC.Service.Services.Implementations
                 {
                     totalPages = 0;
                 }
-
+                decimal? collectedPrice = null;
                 List<GetOrderResponse> getOrdersResponse = new List<GetOrderResponse>();
                 if (numberItems > 0)
                 {
                     // Get totalQuantity of each order
                     foreach (var order in orders)
                     {
-                        float storePartnerComission = order.Store.StorePartners.FirstOrDefault(x => x.PartnerId == order.PartnerId).Commission;
+                        if (order.Store.StorePartners.Any())
+                        {
+                            float storePartnerComission = order.Store.StorePartners.FirstOrDefault(x => x.PartnerId == order.PartnerId).Commission;
 
-                        decimal collectedPrice = order.SubTotalPrice - (order.SubTotalPrice * decimal.Parse(storePartnerComission.ToString()));
-
+                            collectedPrice = order.SubTotalPrice - (order.SubTotalPrice * decimal.Parse(storePartnerComission.ToString()));
+                        }
                         GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(order);
                         getOrderResponse.IsPaid = getOrderResponse.PaymentMethod.ToLower().Equals(OrderEnum.PaymentMethod.CASH.ToString().ToLower()) ? true : false;
                         getOrderResponse.CollectedPrice = collectedPrice;
