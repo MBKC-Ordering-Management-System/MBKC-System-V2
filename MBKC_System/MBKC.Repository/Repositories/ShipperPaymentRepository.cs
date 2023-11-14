@@ -78,6 +78,8 @@ namespace MBKC.Repository.Repositories
                                                                      x.CreateDate.Date <= endDate.Date : true))
                                                                      .If(sortByASC != null && sortByASC.ToLower().Equals("amount"),
                                                                                then => then.OrderBy(x => x.Amount))
+                                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("createdate"),
+                                                                               then => then.OrderBy(x => x.CreateDate))
                                                                      .If(sortByDESC != null && sortByDESC.ToLower().Equals("amount"),
                                                                                then => then.OrderByDescending(x => x.Amount))
                                                                      .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();

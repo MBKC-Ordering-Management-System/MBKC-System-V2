@@ -346,17 +346,41 @@ namespace MBKC.Service.Services.Implementations
                 // Assign sender name and receiver name, transaction time role Kitchen Center
                 if (existedKitchenCenter != null)
                 {
-                    foreach (var item in getMoneyExchangeResponse)
+                    foreach (var item in listMoneyExchanges)
                     {
-                        item.SenderName = existedKitchenCenter.Name;
-                        item.ReceiveName = existedKitchenCenter.Stores
-                                          .Where(store => store.StoreId == item.ReceiveId)
-                                          .Select(store => store.Name)
-                                          .SingleOrDefault();
-                        item.TransactionTime = existedMoneyExchanges
-                            .SelectMany(x => x.Transactions.Where(x => x.ExchangeId == item.ExchangeId)
-                            .Select(x => x.TransactionTime))
-                            .SingleOrDefault();
+                        if (item.ExchangeType.Equals(MoneyExchangeEnum.ExchangeType.RECEIVE.ToString()))
+                        {
+                            var cashierSender = await this._unitOfWork.CashierRepository.GetCashierAsync(item.SenderId);
+
+                            foreach (var itemResponse in getMoneyExchangeResponse)
+                            {
+                                if (itemResponse.ExchangeId == item.ExchangeId)
+                                {
+                                    itemResponse.SenderName = cashierSender.FullName;
+                                    itemResponse.ReceiveName = existedKitchenCenter.Name;
+                                    itemResponse.TransactionTime = existedMoneyExchanges
+                                        .SelectMany(x => x.Transactions.Where(x => x.ExchangeId == item.ExchangeId)
+                                        .Select(x => x.TransactionTime))
+                                        .SingleOrDefault();
+                                }
+                            }
+                        }
+                        else
+                        {
+                            var storeRecieve = await _unitOfWork.StoreRepository.GetStoreAsync(item.ReceiveId);
+                            foreach (var itemResponse in getMoneyExchangeResponse)
+                            {
+                                if (itemResponse.ExchangeId == item.ExchangeId)
+                                {
+                                    itemResponse.SenderName = existedKitchenCenter.Name;
+                                    itemResponse.ReceiveName = storeRecieve.Name;
+                                    itemResponse.TransactionTime = existedMoneyExchanges
+                                        .SelectMany(x => x.Transactions.Where(x => x.ExchangeId == item.ExchangeId)
+                                        .Select(x => x.TransactionTime))
+                                        .SingleOrDefault();
+                                }
+                            }
+                        }
                     }
                 }
 

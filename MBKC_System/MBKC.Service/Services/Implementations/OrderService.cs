@@ -510,8 +510,7 @@ namespace MBKC.Service.Services.Implementations
         public async Task<GetOrdersResponse> GetOrdersAsync(GetOrdersRequest getOrdersRequest, IEnumerable<Claim> claims)
         {
             try
-            {
-                // Get email, role, account id from claims
+            {                // Get email, role, account id from claims
                 Claim registeredEmailClaim = claims.First(x => x.Type == ClaimTypes.Email);
                 Claim registeredRoleClaim = claims.First(x => x.Type.ToLower().Equals("role"));
                 Claim accountId = claims.First(x => x.Type.ToLower().Equals("sid"));
@@ -573,18 +572,29 @@ namespace MBKC.Service.Services.Implementations
                 {
                     totalPages = 0;
                 }
-                List<GetOrderResponse> getOrdersResponse = this._mapper.Map<List<GetOrderResponse>>(orders);
 
-                // Get totalQuantity of each order
-                foreach (GetOrderResponse order in getOrdersResponse)
+                List<GetOrderResponse> getOrdersResponse = new List<GetOrderResponse>();
+                if (numberItems > 0)
                 {
-                    List<int> listQuantity = new List<int>();
-                    foreach (var orderDetail in order.OrderDetails)
+                    // Get totalQuantity of each order
+                    foreach (var order in orders)
                     {
-                        listQuantity.Add(orderDetail.Quantity);
+                        float storePartnerComission = order.Store.StorePartners.FirstOrDefault(x => x.PartnerId == order.PartnerId).Commission;
+
+                        decimal collectedPrice = order.SubTotalPrice - (order.SubTotalPrice * decimal.Parse(storePartnerComission.ToString()));
+
+                        GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(order);
+                        getOrderResponse.IsPaid = getOrderResponse.PaymentMethod.ToLower().Equals(OrderEnum.PaymentMethod.CASH.ToString().ToLower()) ? true : false;
+                        getOrderResponse.CollectedPrice = collectedPrice;
+                        List<int> listQuantity = new List<int>();
+                        foreach (var orderDetail in getOrderResponse.OrderDetails)
+                        {
+                            listQuantity.Add(orderDetail.Quantity);
+                        }
+                        int totalQuantity = listQuantity.Sum();
+                        getOrderResponse.TotalQuantity = totalQuantity;
+                        getOrdersResponse.Add(getOrderResponse);
                     }
-                    int totalQuantity = listQuantity.Sum();
-                    order.TotalQuantity = totalQuantity;
                 }
                 GetOrdersResponse getKitchenCenters = new GetOrdersResponse()
                 {
@@ -656,10 +666,14 @@ namespace MBKC.Service.Services.Implementations
                         throw new BadRequestException(MessageConstant.OrderMessage.OrderIdNotBelongToKitchenCenter);
                     }
                 }
+                float storePartnerComission = existedOrder.Store.StorePartners.FirstOrDefault(x => x.PartnerId == existedOrder.PartnerId).Commission;
+
+                decimal collectedPrice = existedOrder.SubTotalPrice - (existedOrder.SubTotalPrice * decimal.Parse(storePartnerComission.ToString()));
 
                 GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(existedOrder);
+                getOrderResponse.IsPaid = getOrderResponse.PaymentMethod.ToLower().Equals(OrderEnum.PaymentMethod.CASH.ToString().ToLower()) ? true : false;
+                getOrderResponse.CollectedPrice = collectedPrice;
                 return getOrderResponse;
-
             }
             catch (NotFoundException ex)
             {

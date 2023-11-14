@@ -17,6 +17,7 @@ namespace MBKC.Service.DTOs.ShipperPayments
         public string CashierCreated { get; set; }
         public string PaymentMethod { get; set; }
         public int OrderId { get; set; }
+        public string OrderPartnerId { get; set; }
         public int? KCBankingAccountId { get; set; }
         public string?KCBankingAccountName { get; set; }
     }

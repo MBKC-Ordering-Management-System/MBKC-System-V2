@@ -1,5 +1,6 @@
 ﻿using MBKC.Repository.DBContext;
 using MBKC.Repository.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,19 @@ namespace MBKC.Repository.Repositories
             try
             {
                 await this._dbContext.AddAsync(cashierMoneyExchange);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<CashierMoneyExchange> GetCashierMoneyExchangeByExchangeIdAsync(int moneyExchangeId)
+        {
+            try
+            {
+                return await this._dbContext.CashierMoneyExchanges
+                     .Include(x => x.Cashier).FirstOrDefaultAsync(x => x.ExchangeId == moneyExchangeId);
             }
             catch (Exception ex)
             {

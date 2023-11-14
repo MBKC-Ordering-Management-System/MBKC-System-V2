@@ -141,5 +141,12 @@
         {
             public const string ShipperPaymentsEndpoint = ApiEndpoint + "/shipper-payments";
         }
+
+        public static class DashBoard
+        {
+            public const string DashBoardsEndpoint = ApiEndpoint + "/dashboards";
+            public const string StoreDashBoardEndpoint = DashBoardsEndpoint + "/store";
+            public const string BrandDashBoardEndpoint = DashBoardsEndpoint + "/brand";
+        }
     }
 }
