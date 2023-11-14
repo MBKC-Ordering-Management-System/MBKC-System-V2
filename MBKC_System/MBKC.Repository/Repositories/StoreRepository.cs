@@ -808,24 +808,6 @@ namespace MBKC.Repository.Repositories
         }
         #endregion
 
-        #region get 5 store with status active by kitchen center id
-        public async Task<List<Store>> GetFiveStoreSortByActiveFindByKitchenCenterIdAsync(int kitchenCenterId)
-        {
-            try
-            {
-                return await _dbContext.Stores.Where(s => (s.Status == (int)StoreEnum.Status.ACTIVE || s.Status == (int)StoreEnum.Status.INACTIVE) 
-                                                  && s.KitchenCenter.KitchenCenterId == kitchenCenterId)
-                                                      .OrderByDescending(s => s.Status)
-                                                      .Take(5)
-                                                      .ToListAsync();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-        #endregion
-
         #region get 5 store with status active
         public async Task<List<Store>> GetFiveStoreSortByActiveAsync()
         {

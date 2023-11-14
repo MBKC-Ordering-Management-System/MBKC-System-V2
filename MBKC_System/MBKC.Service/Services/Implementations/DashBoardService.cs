@@ -78,12 +78,12 @@ namespace MBKC.Service.Services.Implementations
             try
             {
                 string email = claims.First(x => x.Type == ClaimTypes.Email).Value;
-                var existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(email);
+                var existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterForDashBoardAsync(email);
                 var columnChartMoneyExchangeInLastSevenDay = new List<GetColumnChartMoneyExchangesResponse>();
                 Dictionary<DateTime, decimal> amountOfEachDay;
 
                 // total
-                var totalStoreParticipating = await this._unitOfWork.StoreRepository.CountStoreNumberIsActiveFindByKitchenCenterIdAsync(existedKitchenCenter.KitchenCenterId);
+                var totalStoreParticipating = await this._unitOfWork.StoreRepository.CountStoreNumberIsActiveFindByKitchenCenterIdAsync(existedKitchenCenter!.KitchenCenterId);
                 var totalCashierInSystem = await this._unitOfWork.CashierRepository.CountCashierInSystemFindByKitchenCenterIdAsync(existedKitchenCenter.KitchenCenterId);
 
                 // money exchange
@@ -121,18 +121,14 @@ namespace MBKC.Service.Services.Implementations
                     if (amountOfEachDay.ContainsKey(DateTime.Now.Date)) TotalMoneyExchangesOfKitchenCenterDaily = amountOfEachDay[DateTime.Now.Date];
                 }
 
-                // list
-                var stores = await this._unitOfWork.StoreRepository.GetFiveStoreSortByActiveFindByKitchenCenterIdAsync(existedKitchenCenter.KitchenCenterId);
-                var cashiers = await this._unitOfWork.CashierRepository.GetFiveCashierSortByActiveFindByKitchenCenterIdAsync(existedKitchenCenter.KitchenCenterId);
-
                 GetKitchenCenterDashBoardResponse getKitchenCenterDashBoardResponse = new GetKitchenCenterDashBoardResponse()
                 {
                     TotalStore = totalStoreParticipating,
                     TotalCashier = totalCashierInSystem,
                     TotalBalanceDaily = TotalMoneyExchangesOfKitchenCenterDaily,
                     ColumnChartMoneyExchanges = columnChartMoneyExchangeInLastSevenDay,
-                    Stores = this._mapper.Map<List<GetStoreResponse>>(stores),
-                    Cashiers = this._mapper.Map<List<GetCashierResponse>>(cashiers),
+                    Stores = this._mapper.Map<List<GetStoreResponse>>(existedKitchenCenter.Stores),
+                    Cashiers = this._mapper.Map<List<GetCashierResponse>>(existedKitchenCenter.Cashiers),
                 };
 
                 return getKitchenCenterDashBoardResponse;

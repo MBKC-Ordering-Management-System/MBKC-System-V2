@@ -383,22 +383,5 @@ namespace MBKC.Repository.Repositories
             }
         }
         #endregion
-
-        #region get 5 cashier sort by status active find by kitchen center id
-        public async Task<List<Cashier>> GetFiveCashierSortByActiveFindByKitchenCenterIdAsync(int kitchenCenterId)
-        {
-            try
-            {
-                return await _dbContext.Cashiers.Where(c => (c.Account.Status == (int)StoreEnum.Status.ACTIVE || c.Account.Status == (int)StoreEnum.Status.INACTIVE) && c.KitchenCenter.KitchenCenterId == kitchenCenterId)
-                                                      .OrderByDescending(c => c.Account.Status)
-                                                      .Take(5)
-                                                      .ToListAsync();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-        #endregion
     }
 }

@@ -258,6 +258,24 @@ namespace MBKC.Repository.Repositories
             }
         }
 
+        public async Task<KitchenCenter?> GetKitchenCenterForDashBoardAsync(string managerEmail)
+        {
+            try
+            {
+                return await this._dbContext.KitchenCenters.Include(kc => kc.Stores.Where(s => s.Status == (int)StoreEnum.Status.ACTIVE || s.Status == (int)StoreEnum.Status.INACTIVE)
+                                                                                   .OrderByDescending(s => s.Status)
+                                                                                   .Take(5))
+                                                           .Include(kc => kc.Cashiers.Where(c => c.Account.Status != (int)AccountEnum.Status.DEACTIVE)
+                                                                                     .OrderByDescending(c => c.Account.Status)
+                                                                                     .Take(5))
+                                                           .FirstOrDefaultAsync(kc => kc.Manager.Email.Equals(managerEmail) && kc.Status == (int)KitchenCenterEnum.Status.ACTIVE);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task<List<KitchenCenter>> GetKitchenCentersIncludeOrderAsync()
         {
             try
