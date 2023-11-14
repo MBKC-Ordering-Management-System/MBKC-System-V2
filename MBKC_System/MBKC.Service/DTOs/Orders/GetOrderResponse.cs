@@ -27,8 +27,8 @@ namespace MBKC.Service.DTOs.Orders
         public decimal SubTotalPrice { get; set; }
         public decimal TotalDiscount { get; set; }
         public decimal FinalTotalPrice { get; set; }
-        public decimal CollectedPrice { get; set; }
-        public bool IsPaid { get; set; }  
+        public decimal? CollectedPrice { get; set; }
+        public bool? IsPaid { get; set; }  
         public decimal Commission { get; set; }
         public float Tax { get; set; }
         public string SystemStatus { get; set; }

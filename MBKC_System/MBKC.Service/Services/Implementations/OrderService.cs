@@ -579,7 +579,7 @@ namespace MBKC.Service.Services.Implementations
                     // Get totalQuantity of each order
                     foreach (var order in orders)
                     {
-                        if (order.Store.StorePartners.Count() == 0)
+                        if (order.Store.StorePartners.Any())
                         {
                             float storePartnerComission = order.Store.StorePartners.FirstOrDefault(x => x.PartnerId == order.PartnerId).Commission;
 
@@ -587,7 +587,7 @@ namespace MBKC.Service.Services.Implementations
                         }
                         GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(order);
                         getOrderResponse.IsPaid = getOrderResponse.PaymentMethod.ToLower().Equals(OrderEnum.PaymentMethod.CASH.ToString().ToLower()) ? true : false;
-                        getOrderResponse.CollectedPrice = collectedPrice.Value;
+                        getOrderResponse.CollectedPrice = collectedPrice;
                         List<int> listQuantity = new List<int>();
                         foreach (var orderDetail in getOrderResponse.OrderDetails)
                         {
