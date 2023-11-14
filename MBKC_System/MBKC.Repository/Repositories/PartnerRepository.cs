@@ -249,5 +249,19 @@ namespace MBKC.Repository.Repositories
                 throw new Exception(ex.Message);
             }
         }
+
+        #region count number of partner
+        public async Task<int> CountPartnerNumberAsync()
+        {
+            try
+            {
+                return await _dbContext.Partners.Where(p => p.Status != (int)PartnerEnum.Status.DEACTIVE).CountAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
     }
 }

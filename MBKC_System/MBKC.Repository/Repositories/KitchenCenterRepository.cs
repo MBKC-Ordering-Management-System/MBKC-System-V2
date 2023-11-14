@@ -283,5 +283,36 @@ namespace MBKC.Repository.Repositories
                 throw new Exception(ex.Message);
             }
         }
+
+        #region count number of kitchen center
+        public async Task<int> CountKitchenCenterNumberAsync()
+        {
+            try
+            {
+                return await _dbContext.KitchenCenters.Where(kc => kc.Status != (int)KitchenCenterEnum.Status.DEACTIVE).CountAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        #region get 5 kitchen center with status active
+        public async Task<List<KitchenCenter>> GetFiveKitchenterSortByActiveAsync()
+        {
+            try
+            {
+                return await _dbContext.KitchenCenters.Where(kc => kc.Status != (int)KitchenCenterEnum.Status.DEACTIVE)
+                                                      .OrderByDescending(kc => kc.Status)
+                                                      .Take(5)
+                                                      .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
     }
 }

@@ -74,11 +74,11 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.KitchenCenterManager)]
         [HttpGet(APIEndPointConstant.DashBoard.KitchenCenterDashBoardEndpoint)]
-        public async Task<IActionResult> GetKitchenCenterDashBoardAsync([FromQuery] GetSearchDateDashBoardRequest getSearchDateDashBoardRequest)
+        public async Task<IActionResult> GetKitchenCenterDashBoardAsync()
         {
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            var getBrandDashBoard = await this._dashBoardService.GetKitchenCenterDashBoardAsync(claims);
-            return Ok(getBrandDashBoard);
+            var getKitchenCenterDashBoard = await this._dashBoardService.GetKitchenCenterDashBoardAsync(claims);
+            return Ok(getKitchenCenterDashBoard);
         }
         #endregion
 

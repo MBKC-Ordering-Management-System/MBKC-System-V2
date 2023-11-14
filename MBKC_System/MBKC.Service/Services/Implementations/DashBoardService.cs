@@ -3,8 +3,13 @@ using MBKC.Repository.Enums;
 using MBKC.Repository.Infrastructures;
 using MBKC.Repository.Models;
 using MBKC.Service.Constants;
+using MBKC.Service.DTOs.Brands;
+using MBKC.Service.DTOs.Cashiers.Responses;
 using MBKC.Service.DTOs.DashBoards;
 using MBKC.Service.DTOs.DashBoards.Brand;
+using MBKC.Service.DTOs.DashBoards.KitchenCenter;
+using MBKC.Service.DTOs.KitchenCenters;
+using MBKC.Service.DTOs.PartnerProducts;
 using MBKC.Service.DTOs.Stores;
 using MBKC.Service.Exceptions;
 using MBKC.Service.Services.Interfaces;
@@ -30,16 +35,114 @@ namespace MBKC.Service.Services.Implementations
         }
 
         #region Dash board for admin
-        public Task<GetAdminDashBoardResponse> GetAdminDashBoardAsync()
+        public async Task<GetAdminDashBoardResponse> GetAdminDashBoardAsync()
         {
-            throw new NotImplementedException();
+            try
+            {
+                // total
+                var totalKitchenCenter = await this._unitOfWork.KitchenCenterRepository.CountKitchenCenterNumberAsync();
+                var totalBrand = await this._unitOfWork.BrandRepository.CountBrandNumberAsync();
+                var totalStore = await this._unitOfWork.StoreRepository.CountStoreNumberAsync();
+                var totalPartner = await this._unitOfWork.PartnerRepository.CountPartnerNumberAsync();
+
+                // list
+                var kitchenCenters = await this._unitOfWork.KitchenCenterRepository.GetFiveKitchenterSortByActiveAsync();
+                var brands = await this._unitOfWork.BrandRepository.GetFiveBrandSortByActiveAsync();
+                var stores = await this._unitOfWork.StoreRepository.GetFiveStoreSortByActiveAsync();
+
+                GetAdminDashBoardResponse getAdminDashBoardResponse = new GetAdminDashBoardResponse()
+                {
+                    TotalKitchenter = totalKitchenCenter,
+                    TotalBrand = totalBrand,
+                    TotalStore = totalStore,
+                    TotalPartner = totalPartner,
+                    KitchenCenters = this._mapper.Map<List<GetKitchenCenterResponse>>(kitchenCenters),
+                    Brands = this._mapper.Map<List<GetBrandResponse>>(brands),
+                    Stores = this._mapper.Map<List<GetStoreResponse>>(stores),
+                };
+
+                return getAdminDashBoardResponse;
+            }
+            catch (Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.InnerException != null ? ex.InnerException.Message : ex.Message);
+                throw new Exception(error);
+            }
+
         }
         #endregion
 
         #region Dash board for kitchen center
-        public Task<GetStoreDashBoardResponse> GetKitchenCenterDashBoardAsync(IEnumerable<Claim> claims)
+        public async Task<GetKitchenCenterDashBoardResponse> GetKitchenCenterDashBoardAsync(IEnumerable<Claim> claims)
         {
-            throw new NotImplementedException();
+            try
+            {
+                string email = claims.First(x => x.Type == ClaimTypes.Email).Value;
+                var existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(email);
+                var columnChartMoneyExchangeInLastSevenDay = new List<GetColumnChartMoneyExchangesResponse>();
+                Dictionary<DateTime, decimal> amountOfEachDay;
+
+                // total
+                var totalStoreParticipating = await this._unitOfWork.StoreRepository.CountStoreNumberIsActiveFindByKitchenCenterIdAsync(existedKitchenCenter.KitchenCenterId);
+                var totalCashierInSystem = await this._unitOfWork.CashierRepository.CountCashierInSystemFindByKitchenCenterIdAsync(existedKitchenCenter.KitchenCenterId);
+
+                // money exchange
+                decimal TotalMoneyExchangesOfKitchenCenterDaily = 0;
+                DateUtil.AddDateToDictionary(out amountOfEachDay);
+
+                var moneyExchangesInLastSevenDay = await this._unitOfWork.MoneyExchangeRepository.GetColumnChartMoneyExchangeInLastSevenDayAsync(existedKitchenCenter.KitchenCenterId);
+                if (moneyExchangesInLastSevenDay.Any())
+                {
+                    foreach (var moneyExchange in moneyExchangesInLastSevenDay.ToList())
+                    {
+                        var kitchenMoneyExchange = await this._unitOfWork.KitchenCenterMoneyExchangeRepository.GetKitchenCenterMoneyExchangeAsync(moneyExchange.ExchangeId);
+                        if (kitchenMoneyExchange is null) moneyExchangesInLastSevenDay.Remove(moneyExchange);
+                    }
+
+
+                    foreach (var moneyExchange in moneyExchangesInLastSevenDay)
+                    {
+                        if (amountOfEachDay.ContainsKey(moneyExchange.Transactions.Last().TransactionTime.Date))
+                        {
+                            amountOfEachDay[moneyExchange.Transactions.Last().TransactionTime.Date] += moneyExchange.Amount;
+                        }
+                    }
+
+                    foreach (var day in amountOfEachDay)
+                    {
+                        GetColumnChartMoneyExchangesResponse getColumnChartMoneyExchangesResponse = new GetColumnChartMoneyExchangesResponse()
+                        {
+                            Date = day.Key,
+                            Amount = day.Value,
+                        };
+                        columnChartMoneyExchangeInLastSevenDay.Add(getColumnChartMoneyExchangesResponse);
+                    }
+
+                    if (amountOfEachDay.ContainsKey(DateTime.Now.Date)) TotalMoneyExchangesOfKitchenCenterDaily = amountOfEachDay[DateTime.Now.Date];
+                }
+
+                // list
+                var stores = await this._unitOfWork.StoreRepository.GetFiveStoreSortByActiveFindByKitchenCenterIdAsync(existedKitchenCenter.KitchenCenterId);
+                var cashiers = await this._unitOfWork.CashierRepository.GetFiveCashierSortByActiveFindByKitchenCenterIdAsync(existedKitchenCenter.KitchenCenterId);
+
+                GetKitchenCenterDashBoardResponse getKitchenCenterDashBoardResponse = new GetKitchenCenterDashBoardResponse()
+                {
+                    TotalStore = totalStoreParticipating,
+                    TotalCashier = totalCashierInSystem,
+                    TotalBalanceDaily = TotalMoneyExchangesOfKitchenCenterDaily,
+                    ColumnChartMoneyExchanges = columnChartMoneyExchangeInLastSevenDay,
+                    Stores = this._mapper.Map<List<GetStoreResponse>>(stores),
+                    Cashiers = this._mapper.Map<List<GetCashierResponse>>(cashiers),
+                };
+
+                return getKitchenCenterDashBoardResponse;
+            }
+            catch (Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.InnerException != null ? ex.InnerException.Message : ex.Message);
+                throw new Exception(error);
+            }
+
         }
         #endregion
 
@@ -95,7 +198,7 @@ namespace MBKC.Service.Services.Implementations
                                                           .Where(x => x.PartnerOrderStatus.Equals(OrderEnum.Status.COMPLETED.ToString()) && x.SystemStatus.Equals(OrderEnum.SystemStatus.COMPLETED.ToString()))
                                                           .Select(x => x.OrderDetails.Select(x => x.Product.Name));
 
-                    
+
                     /*foreach (var order in orders)
                     {
                         numberOfProductsSoldResponse.Add(new NumberOfProductsSoldResponse

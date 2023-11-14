@@ -12,8 +12,8 @@ namespace MBKC.Service.DTOs.DashBoards.KitchenCenter
     {
         public int TotalStore { get; set; }
         public int TotalCashier { get; set; }
-        public decimal TotalBalance { get; set; }
-        public List<decimal>? Benefits { get; set; }
+        public decimal TotalBalanceDaily { get; set; }
+        public List<GetColumnChartMoneyExchangesResponse>? ColumnChartMoneyExchanges { get; set; }
         public List<GetStoreResponse>? Stores { get; set; }
         public List<GetCashierResponse>? Cashiers { get; set; }
     }

@@ -282,5 +282,36 @@ namespace MBKC.Repository.Repositories
                 throw new Exception(ex.Message);
             }
         }
+
+        #region count number of brand
+        public async Task<int> CountBrandNumberAsync()
+        {
+            try
+            {
+                return await _dbContext.Brands.Where(b => b.Status != (int)BrandEnum.Status.DEACTIVE).CountAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        #region get 5 brand with status active
+        public async Task<List<Brand>> GetFiveBrandSortByActiveAsync()
+        {
+            try
+            {
+                return await _dbContext.Brands.Where(b => b.Status != (int)BrandEnum.Status.DEACTIVE)
+                                                      .OrderByDescending(b => b.Status)
+                                                      .Take(5)
+                                                      .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
     }
 }
