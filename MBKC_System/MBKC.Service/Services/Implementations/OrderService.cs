@@ -583,7 +583,7 @@ namespace MBKC.Service.Services.Implementations
                         {
                             float storePartnerComission = order.Store.StorePartners.FirstOrDefault(x => x.PartnerId == order.PartnerId).Commission;
 
-                            collectedPrice = order.SubTotalPrice - (order.SubTotalPrice * decimal.Parse(storePartnerComission.ToString()));
+                            collectedPrice = order.SubTotalPrice - (order.SubTotalPrice * decimal.Parse(storePartnerComission.ToString())/100);
                         }
                         GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(order);
                         getOrderResponse.IsPaid = getOrderResponse.PaymentMethod.ToLower().Equals(OrderEnum.PaymentMethod.CASH.ToString().ToLower()) ? true : false;
