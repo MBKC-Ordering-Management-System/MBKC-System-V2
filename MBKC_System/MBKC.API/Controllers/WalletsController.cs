@@ -42,10 +42,10 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.Cashier, PermissionAuthorizeConstant.KitchenCenterManager, PermissionAuthorizeConstant.StoreManager)]
         [HttpGet(APIEndPointConstant.Wallet.WalletEndpoint)]
-        public async Task<IActionResult> GetWalletInformationAsync()
+        public async Task<IActionResult> GetWalletInformationAsync([FromQuery] GetSearchDateWalletRequest searchDateWalletRequest)
         {
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            var getOrderResponse = await this._walletService.GetWallet(claims);
+            var getOrderResponse = await this._walletService.GetWallet(searchDateWalletRequest, claims);
             return Ok(getOrderResponse);
         }
         #endregion

@@ -572,20 +572,22 @@ namespace MBKC.Service.Services.Implementations
                 {
                     totalPages = 0;
                 }
-
+                decimal? collectedPrice = null;
                 List<GetOrderResponse> getOrdersResponse = new List<GetOrderResponse>();
                 if (numberItems > 0)
                 {
                     // Get totalQuantity of each order
                     foreach (var order in orders)
                     {
-                        float storePartnerComission = order.Store.StorePartners.FirstOrDefault(x => x.PartnerId == order.PartnerId).Commission;
+                        if (order.Store.StorePartners.Count() == 0)
+                        {
+                            float storePartnerComission = order.Store.StorePartners.FirstOrDefault(x => x.PartnerId == order.PartnerId).Commission;
 
-                        decimal collectedPrice = order.SubTotalPrice - (order.SubTotalPrice * decimal.Parse(storePartnerComission.ToString()));
-
+                            collectedPrice = order.SubTotalPrice - (order.SubTotalPrice * decimal.Parse(storePartnerComission.ToString()));
+                        }
                         GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(order);
                         getOrderResponse.IsPaid = getOrderResponse.PaymentMethod.ToLower().Equals(OrderEnum.PaymentMethod.CASH.ToString().ToLower()) ? true : false;
-                        getOrderResponse.CollectedPrice = collectedPrice;
+                        getOrderResponse.CollectedPrice = collectedPrice.Value;
                         List<int> listQuantity = new List<int>();
                         foreach (var orderDetail in getOrderResponse.OrderDetails)
                         {

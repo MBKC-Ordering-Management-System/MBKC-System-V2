@@ -15,6 +15,7 @@ using MBKC.Repository.Enums;
 using MBKC.Service.DTOs.Cashiers.Requests;
 using MBKC.Service.DTOs.Cashiers.Responses;
 using MBKC.Repository.Redis.Models;
+using MBKC.Service.DTOs.KitchenCenters;
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -498,31 +499,27 @@ namespace MBKC.Service.Services.Implementations
                 int? totalOrderToday = null;
                 decimal? totalMoneyToday = null;
                 decimal? balance = null;
-                string? kitchenCenterName = null;
+                KitchenCenter? kitchenCenter = null;
                 DateTime currentDate = DateTime.Now.Date;
 
                 if (cashier.KitchenCenter.Stores.Select(x => x.Orders).Any())
                 {
                     totalOrderToday = cashier.KitchenCenter.Stores.SelectMany(x => x.Orders).Count(x => x.OrderHistories
                                                                                             .Any(x => x.SystemStatus.Equals(OrderEnum.SystemStatus.COMPLETED.ToString()) &&
-                                                                                                        x.PartnerOrderStatus.Equals(OrderEnum.Status.COMPLETED.ToString()) && x.CreatedDate.Date == currentDate.Date && x.CreatedDate.Month == currentDate.Month && x.CreatedDate.Year == currentDate.Year));
+                                                                                                        x.PartnerOrderStatus.Equals(OrderEnum.Status.COMPLETED.ToString()) && x.CreatedDate.Date == currentDate.Date));
 
                     var listShipperPayments = await _unitOfWork.ShipperPaymentRepository.GetShiperPaymentsByCashierIdAsync(cashier.AccountId);
-                    totalMoneyToday = listShipperPayments.Select(x => x.Amount).Sum();
+                    totalMoneyToday = listShipperPayments.Where(x => x.CreateDate.Date == currentDate).Select(x => x.Amount).Sum();
                 }
                 if (cashier.Wallet != null)
                 {
                     balance = cashier.Wallet.Balance;
                 }
-                if (cashier.KitchenCenter != null)
-                {
-                    kitchenCenterName = cashier.KitchenCenter.Name;
-                }
-
+                GetCashierResponse getCashierResponse = _mapper.Map<GetCashierResponse>(cashier);
+                getCashierResponse.KitchenCenter.KitchenCenterManagerEmail = cashier.KitchenCenter.Manager.Email;
                 return new GetCashierReportResponse
                 {
-                    CashierName = cashier.FullName,
-                    KitchenCenterName = kitchenCenterName,
+                    Cashier = getCashierResponse,
                     TotalMoneyToday = totalMoneyToday,
                     TotalOrderToday = totalOrderToday,
                     Balance = balance.Value
@@ -533,7 +530,6 @@ namespace MBKC.Service.Services.Implementations
                 string error = ErrorUtil.GetErrorString("Exception", ex.Message);
                 throw new Exception(error);
             }
-
         }
     }
 }

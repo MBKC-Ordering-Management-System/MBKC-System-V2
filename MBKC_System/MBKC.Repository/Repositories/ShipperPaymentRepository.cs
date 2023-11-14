@@ -42,11 +42,23 @@ namespace MBKC.Repository.Repositories
                     startDate = DateTime.ParseExact(searchDateFrom, "dd/MM/yyyy", null);
                     endDate = DateTime.ParseExact(searchDateTo, "dd/MM/yyyy", null);
                 }
+                else if (searchDateFrom != null && searchDateTo == null)
+                {
+                    startDate = DateTime.ParseExact(searchDateFrom, "dd/MM/yyyy", null);
+                }
+                else if (searchDateFrom == null && searchDateTo != null)
+                {
+                    endDate = DateTime.ParseExact(searchDateTo, "dd/MM/yyyy", null);
+                }
                 return shipperPayments
                     .Where(x => (paymentMethod != null ? x.PaymentMethod.Equals(paymentMethod.ToUpper()) : true) &&
                                                  (status != null ? x.Status == status : true) &&
                                                  (searchDateFrom != null && searchDateTo != null ?
                                                  x.CreateDate.Date >= startDate.Date &&
+                                                 x.CreateDate.Date <= endDate.Date : true)
+                                                 && (searchDateFrom != null && searchDateTo == null ?
+                                                 x.CreateDate.Date >= startDate.Date : true)
+                                                 && (searchDateFrom == null && searchDateTo != null ?
                                                  x.CreateDate.Date <= endDate.Date : true)).Count();
             }
             catch (Exception ex)
@@ -69,12 +81,24 @@ namespace MBKC.Repository.Repositories
                     startDate = DateTime.ParseExact(searchDateFrom, "dd/MM/yyyy", null);
                     endDate = DateTime.ParseExact(searchDateTo, "dd/MM/yyyy", null);
                 }
+                else if (searchDateFrom != null && searchDateTo == null)
+                {
+                    startDate = DateTime.ParseExact(searchDateFrom, "dd/MM/yyyy", null);
+                }
+                else if (searchDateFrom == null && searchDateTo != null)
+                {
+                    endDate = DateTime.ParseExact(searchDateTo, "dd/MM/yyyy", null);
+                }
                 if (sortByASC != null || sortByDESC != null)
                 {
                     return (List<ShipperPayment>)shipperPayments.OrderByDescending(x => x.PaymentId).Where(x => (paymentMethod != null ? x.PaymentMethod.Equals(paymentMethod.ToUpper()) : true) &&
                                                                      (status != null ? x.Status == status : true) &&
                                                                      (searchDateFrom != null && searchDateTo != null ?
                                                                      x.CreateDate.Date >= startDate.Date &&
+                                                                     x.CreateDate.Date <= endDate.Date : true)
+                                                                     && (searchDateFrom != null && searchDateTo == null ?
+                                                                     x.CreateDate.Date >= startDate.Date : true)
+                                                                     && (searchDateFrom == null && searchDateTo != null ?
                                                                      x.CreateDate.Date <= endDate.Date : true))
                                                                      .If(sortByASC != null && sortByASC.ToLower().Equals("amount"),
                                                                                then => then.OrderBy(x => x.Amount))
@@ -88,8 +112,12 @@ namespace MBKC.Repository.Repositories
                 return shipperPayments.OrderByDescending(x => x.PaymentId).Where(x => (paymentMethod != null ? x.PaymentMethod.Equals(paymentMethod.ToUpper()) : true) &&
                                                  (status != null ? x.Status == status : true) &&
                                                  (searchDateFrom != null && searchDateTo != null ?
-                                             x.CreateDate.Date >= startDate.Date &&
-                                             x.CreateDate.Date <= endDate.Date : true))
+                                                 x.CreateDate.Date >= startDate.Date &&
+                                                 x.CreateDate.Date <= endDate.Date : true)
+                                                 && (searchDateFrom != null && searchDateTo == null ?
+                                                 x.CreateDate.Date >= startDate.Date : true)
+                                                 && (searchDateFrom == null && searchDateTo != null ?
+                                                 x.CreateDate.Date <= endDate.Date : true))
                                                  .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
 
 
