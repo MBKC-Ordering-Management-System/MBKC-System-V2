@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MBKC.Service.DTOs.DashBoards
+namespace MBKC.Service.DTOs.DashBoards.Brand
 {
     public class GetBrandDashBoardResponse
     {

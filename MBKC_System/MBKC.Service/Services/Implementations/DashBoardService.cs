@@ -4,6 +4,7 @@ using MBKC.Repository.Infrastructures;
 using MBKC.Repository.Models;
 using MBKC.Service.Constants;
 using MBKC.Service.DTOs.DashBoards;
+using MBKC.Service.DTOs.DashBoards.Brand;
 using MBKC.Service.DTOs.Stores;
 using MBKC.Service.Exceptions;
 using MBKC.Service.Services.Interfaces;
@@ -28,44 +29,21 @@ namespace MBKC.Service.Services.Implementations
             this._mapper = mapper;
         }
 
-        public async Task<GetStoreDashBoardResponse> GetStoreDashBoardAsync(IEnumerable<Claim> claims)
+        #region Dash board for admin
+        public Task<GetAdminDashBoardResponse> GetAdminDashBoardAsync()
         {
-            try
-            {
-                Claim registeredEmailClaim = claims.First(x => x.Type == ClaimTypes.Email);
-                DateTime currentDate = DateTime.Now.Date;
-                var storeExisted = await _unitOfWork.StoreRepository.GetStoreAsync(registeredEmailClaim.Value);
-
-                int totalUpcomingOrder = storeExisted.Orders.Where(order => order.SystemStatus.Equals(OrderEnum.SystemStatus.IN_STORE.ToString()) &&
-                                                                      order.PartnerOrderStatus.Equals(OrderEnum.Status.UPCOMING.ToString())).Count();
-
-                int totalPreparingOrder = storeExisted.Orders.Where(order => order.SystemStatus.Equals(OrderEnum.SystemStatus.IN_STORE.ToString()) &&
-                                                                      order.PartnerOrderStatus.Equals(OrderEnum.Status.PREPARING.ToString())).Count();
-
-                int totalReadyOrder = storeExisted.Orders.Where(order => order.SystemStatus.Equals(OrderEnum.SystemStatus.IN_STORE.ToString()) &&
-                                                                      order.PartnerOrderStatus.Equals(OrderEnum.Status.READY.ToString())).Count();
-
-                int totalCompletedOrder = storeExisted.Orders.Where(order => order.SystemStatus.Equals(OrderEnum.SystemStatus.COMPLETED.ToString()) &&
-                                                                      order.PartnerOrderStatus.Equals(OrderEnum.Status.COMPLETED.ToString())).Count();
-
-                decimal totalRevenueDaily = storeExisted.Orders.SelectMany(x => x.ShipperPayments).Where(x => x.CreateDate.Date == currentDate).Select(x => x.Amount).Sum();
-
-                return new GetStoreDashBoardResponse
-                {
-                    TotalCompletedOrder = totalCompletedOrder,
-                    TotalPreparingOrder = totalPreparingOrder,
-                    TotalReadyOrder = totalReadyOrder,
-                    TotalUpcomingOrder = totalUpcomingOrder,
-                    TotalRevenueDaily = totalRevenueDaily
-                };
-            }
-            catch (Exception ex)
-            {
-                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
-                throw new Exception(error);
-            }
+            throw new NotImplementedException();
         }
+        #endregion
 
+        #region Dash board for kitchen center
+        public Task<GetStoreDashBoardResponse> GetKitchenCenterDashBoardAsync(IEnumerable<Claim> claims)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
+
+        #region Dash board for brand
         public async Task<GetBrandDashBoardResponse> GetBrandDashBoardAsync(IEnumerable<Claim> claims, GetSearchDateDashBoardRequest getSearchDateDashBoardRequest)
         {
             try
@@ -145,5 +123,53 @@ namespace MBKC.Service.Services.Implementations
                 throw new Exception(error);
             }
         }
+        #endregion
+
+        #region Dash board for store
+        public async Task<GetStoreDashBoardResponse> GetStoreDashBoardAsync(IEnumerable<Claim> claims)
+        {
+            try
+            {
+                Claim registeredEmailClaim = claims.First(x => x.Type == ClaimTypes.Email);
+                DateTime currentDate = DateTime.Now.Date;
+                var storeExisted = await _unitOfWork.StoreRepository.GetStoreAsync(registeredEmailClaim.Value);
+
+                int totalUpcomingOrder = storeExisted.Orders.Where(order => order.SystemStatus.Equals(OrderEnum.SystemStatus.IN_STORE.ToString()) &&
+                                                                      order.PartnerOrderStatus.Equals(OrderEnum.Status.UPCOMING.ToString())).Count();
+
+                int totalPreparingOrder = storeExisted.Orders.Where(order => order.SystemStatus.Equals(OrderEnum.SystemStatus.IN_STORE.ToString()) &&
+                                                                      order.PartnerOrderStatus.Equals(OrderEnum.Status.PREPARING.ToString())).Count();
+
+                int totalReadyOrder = storeExisted.Orders.Where(order => order.SystemStatus.Equals(OrderEnum.SystemStatus.IN_STORE.ToString()) &&
+                                                                      order.PartnerOrderStatus.Equals(OrderEnum.Status.READY.ToString())).Count();
+
+                int totalCompletedOrder = storeExisted.Orders.Where(order => order.SystemStatus.Equals(OrderEnum.SystemStatus.COMPLETED.ToString()) &&
+                                                                      order.PartnerOrderStatus.Equals(OrderEnum.Status.COMPLETED.ToString())).Count();
+
+                decimal totalRevenueDaily = storeExisted.Orders.SelectMany(x => x.ShipperPayments).Where(x => x.CreateDate.Date == currentDate).Select(x => x.Amount).Sum();
+
+                return new GetStoreDashBoardResponse
+                {
+                    TotalCompletedOrder = totalCompletedOrder,
+                    TotalPreparingOrder = totalPreparingOrder,
+                    TotalReadyOrder = totalReadyOrder,
+                    TotalUpcomingOrder = totalUpcomingOrder,
+                    TotalRevenueDaily = totalRevenueDaily
+                };
+            }
+            catch (Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                throw new Exception(error);
+            }
+        }
+        #endregion
+
+        #region Dash board for cashier
+        public Task<GetStoreDashBoardResponse> GetCashierDashBoardAsync(IEnumerable<Claim> claims)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
     }
 }
