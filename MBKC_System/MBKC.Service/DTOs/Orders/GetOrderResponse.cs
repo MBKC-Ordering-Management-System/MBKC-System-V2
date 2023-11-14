@@ -29,7 +29,7 @@ namespace MBKC.Service.DTOs.Orders
         public decimal FinalTotalPrice { get; set; }
         public decimal CollectedPrice { get; set; }
         public bool IsPaid { get; set; }  
-        public float Commission { get; set; }
+        public decimal Commission { get; set; }
         public float Tax { get; set; }
         public string SystemStatus { get; set; }
         public string DisplayId { get; set; }
