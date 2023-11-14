@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MBKC.Repository.Migrations
 {
     [DbContext(typeof(MBKCDbContext))]
-    [Migration("20231103030045_Update commission Row in Order Table")]
-    partial class UpdatecommissionRowinOrderTable
+    [Migration("20231114101036_Update Commission Column in Order Table")]
+    partial class UpdateCommissionColumninOrderTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -451,8 +451,8 @@ namespace MBKC.Repository.Migrations
                         .IsUnicode(true)
                         .HasColumnType("nvarchar(250)");
 
-                    b.Property<float>("Commission")
-                        .HasColumnType("real");
+                    b.Property<decimal>("Commission")
+                        .HasColumnType("decimal(9,2)");
 
                     b.Property<string>("CustomerName")
                         .HasMaxLength(100)

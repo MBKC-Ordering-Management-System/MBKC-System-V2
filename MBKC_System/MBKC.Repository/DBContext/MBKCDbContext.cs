@@ -212,7 +212,7 @@ namespace MBKC.Repository.DBContext
                 order.Property(prop => prop.SubTotalPrice).HasColumnType("decimal(9,2)").IsRequired(true);
                 order.Property(prop => prop.TotalDiscount).HasColumnType("decimal(9,2)").IsRequired(true);
                 order.Property(prop => prop.FinalTotalPrice).HasColumnType("decimal(9,2)").IsRequired(true);
-                order.Property(prop => prop.Commission).IsRequired(true);
+                order.Property(prop => prop.Commission).HasColumnType("decimal(9,2)").IsRequired(true);
                 order.Property(prop => prop.Tax).IsRequired(true);
                 order.Property(prop => prop.SystemStatus).IsUnicode(false).HasMaxLength(20).IsRequired(false);
                 order.Property(prop => prop.PartnerOrderStatus).IsUnicode(false).HasMaxLength(20).IsRequired(false);

@@ -35,6 +35,7 @@ namespace MBKC.Repository.Repositories
                                                    .Include(o => o.ShipperPayments).ThenInclude(o => o.BankingAccount)
                                                    .Include(o => o.ShipperPayments).ThenInclude(o => o.Transactions)
                                                    .Include(o => o.Store).ThenInclude(o => o.KitchenCenter)
+                                                   .Include(o => o.Store).ThenInclude(o => o.StorePartners)
                                                    .Include(o => o.OrderHistories)
                                                    .FirstOrDefaultAsync(o => o.OrderPartnerId.Equals(orderPartnerId));
             }
