@@ -258,6 +258,37 @@ namespace MBKC.Repository.Repositories
             }
         }
 
+        public async Task<KitchenCenter> GetKitchenCenterWalletAsync(string managerEmail)
+        {
+            try
+            {
+                return await this._dbContext.KitchenCenters
+                                                           .Include(x => x.Wallet)
+                                                           .Include(x => x.KitchenCenterMoneyExchanges).ThenInclude(x => x.MoneyExchange).ThenInclude(x => x.Transactions)
+                                                           .Include(x => x.BankingAccounts).ThenInclude(x => x.ShipperPayments)
+                                                           .FirstOrDefaultAsync(x => x.Manager.Email.Equals(managerEmail)
+                                                                                  && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<KitchenCenter> GetKitchenCenterIncludeCashierAsync(string managerEmail)
+        {
+            try
+            {
+                return await this._dbContext.KitchenCenters.Include(x => x.Cashiers)
+                                                           .FirstOrDefaultAsync(x => x.Manager.Email.Equals(managerEmail)
+                                                                                  && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task<List<KitchenCenter>> GetKitchenCentersIncludeOrderAsync()
         {
             try
@@ -283,6 +314,23 @@ namespace MBKC.Repository.Repositories
                                                            .Include(kc => kc.Stores)
                                                            .ThenInclude(s => s.Wallet)
                                                            .Where(kc => kc.Status == (int)KitchenCenterEnum.Status.ACTIVE && kc.Wallet.Balance > 0).ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<KitchenCenter> GetKitchenCenterMoneyExchangeAsync(string managerEmail)
+        {
+            try
+            {
+                return await this._dbContext.KitchenCenters
+                                                           .Include(x => x.KitchenCenterMoneyExchanges)
+                                                           .ThenInclude(x => x.MoneyExchange)
+                                                           .ThenInclude(x => x.Transactions)
+                                                           .FirstOrDefaultAsync(x => x.Manager.Email.Equals(managerEmail)
+                                                                                  && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE);
             }
             catch (Exception ex)
             {

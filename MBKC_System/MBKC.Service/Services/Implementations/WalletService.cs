@@ -47,15 +47,15 @@ namespace MBKC.Service.Services.Implementations
                 // Check role when user login 
                 if (registeredRoleClaim.Value.Equals(RoleConstant.Kitchen_Center_Manager))
                 {
-                    kitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(email);
+                    kitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterWalletAsync(email);
                 }
                 else if (registeredRoleClaim.Value.Equals(RoleConstant.Cashier))
                 {
-                    cashier = await this._unitOfWork.CashierRepository.GetCashierAsync(int.Parse(accountId.Value));
+                    cashier = await this._unitOfWork.CashierRepository.GetCashierWalletAsync(int.Parse(accountId.Value));
                 }
                 else if (registeredRoleClaim.Value.Equals(RoleConstant.Store_Manager))
                 {
-                    storeAccount = await this._unitOfWork.StoreAccountRepository.GetStoreAccountAsync(int.Parse(accountId.Value));
+                    storeAccount = await this._unitOfWork.StoreAccountRepository.GetStoreAccountWalletAsync(int.Parse(accountId.Value));
                 }
                 GetWalletResponse getWalletResponse = null;
                 DateTime currentDate = DateTime.Now.Date;

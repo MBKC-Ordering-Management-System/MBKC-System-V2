@@ -35,23 +35,31 @@ namespace MBKC.Service.Services.Implementations
                 Cashier? existedCashier = null;
                 Store? existedStore = null;
                 KitchenCenter? existedKitchenCenter = null;
-                List<ShipperPayment>? existedShipperPayments = null;
+                List<ShipperPayment>? existedShipperPayments = new List<ShipperPayment>();
 
                 // Check role when user login
                 if (role.ToLower().Equals(RoleConstant.Cashier.ToLower()))
                 {
-                    existedCashier = await this._unitOfWork.CashierRepository.GetCashierMoneyExchangeShipperPaymentAsync(email);
+                    existedCashier = await this._unitOfWork.CashierRepository.GetCashierShipperPaymentAsync(email);
                     existedShipperPayments = await this._unitOfWork.ShipperPaymentRepository.GetShiperPaymentsByCashierIdAsync(existedCashier.AccountId);
                 }
                 else if (role.ToLower().Equals(RoleConstant.Store_Manager.ToLower()))
                 {
-                    existedStore = await this._unitOfWork.StoreRepository.GetStoreAsync(email);
-                    existedShipperPayments = existedStore.Orders.SelectMany(x => x.ShipperPayments).ToList();
+                    existedStore = await this._unitOfWork.StoreRepository.GetStoreIncludeCashierAsync(email);
+                    foreach (var cashier in existedStore.KitchenCenter.Cashiers)
+                    {
+                        var shipperPayments = await this._unitOfWork.ShipperPaymentRepository.GetShiperPaymentsByCashierIdAsync(cashier.AccountId);
+                        existedShipperPayments.AddRange(shipperPayments);
+                    }
                 }
                 else if (role.ToLower().Equals(RoleConstant.Kitchen_Center_Manager.ToLower()))
                 {
-                    existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(email);
-                    existedShipperPayments = existedKitchenCenter.BankingAccounts.SelectMany(x => x.ShipperPayments).ToList();
+                    existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterIncludeCashierAsync(email);
+                    foreach (var cashier in existedKitchenCenter.Cashiers)
+                    {
+                        var shipperPayments = await this._unitOfWork.ShipperPaymentRepository.GetShiperPaymentsByCashierIdAsync(cashier.AccountId);
+                        existedShipperPayments.AddRange(shipperPayments);
+                    }
                 }
 
                 // Change status string to int

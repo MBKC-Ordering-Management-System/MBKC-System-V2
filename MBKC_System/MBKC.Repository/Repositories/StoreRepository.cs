@@ -763,6 +763,21 @@ namespace MBKC.Repository.Repositories
             }
         }
 
+        public async Task<Store> GetStoreIncludeCashierAsync(string managerEmail)
+        {
+            try
+            {
+                return await this._dbContext.Stores.Include(x => x.KitchenCenter)
+                                                   .ThenInclude(x => x.Cashiers)
+                                                   .SingleOrDefaultAsync(x => x.StoreManagerEmail.Equals(managerEmail));
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task<List<Store>> GetStoresAsync()
         {
             try
@@ -773,6 +788,22 @@ namespace MBKC.Repository.Repositories
                                       .Include(x => x.StorePartners.Where(x => x.Status == (int)StorePartnerEnum.Status.ACTIVE))
                                       .ThenInclude(x => x.PartnerProducts).ThenInclude(x => x.Product).ThenInclude(x => x.ChildrenProducts)
                                       .Where(x => x.Status == (int)StoreEnum.Status.ACTIVE).ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<Store> GetStoreMoneyExchangeAsync(string managerEmail)
+        {
+            try
+            {
+                return await this._dbContext.Stores
+                                                   .Include(x => x.StoreMoneyExchanges)
+                                                   .ThenInclude(x => x.MoneyExchange)
+                                                   .ThenInclude(x => x.Transactions)
+                                                   .SingleOrDefaultAsync(x => x.StoreManagerEmail.Equals(managerEmail));
             }
             catch (Exception ex)
             {
