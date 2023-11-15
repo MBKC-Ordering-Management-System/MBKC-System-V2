@@ -586,7 +586,7 @@ namespace MBKC.Service.Services.Implementations
                             collectedPrice = order.SubTotalPrice - (order.SubTotalPrice * decimal.Parse(storePartnerComission.ToString())/100);
                         }
                         GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(order);
-                        getOrderResponse.IsPaid = getOrderResponse.PaymentMethod.ToLower().Equals(OrderEnum.PaymentMethod.CASH.ToString().ToLower()) ? true : false;
+                        getOrderResponse.IsPaid = getOrderResponse.PaymentMethod.ToLower().Equals(OrderEnum.PaymentMethod.CASH.ToString().ToLower()) ? false : true;
                         getOrderResponse.CollectedPrice = collectedPrice;
                         List<int> listQuantity = new List<int>();
                         foreach (var orderDetail in getOrderResponse.OrderDetails)
@@ -673,7 +673,7 @@ namespace MBKC.Service.Services.Implementations
                 decimal collectedPrice = existedOrder.SubTotalPrice - (existedOrder.SubTotalPrice * decimal.Parse(storePartnerComission.ToString()) / 100);
 
                 GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(existedOrder);
-                getOrderResponse.IsPaid = getOrderResponse.PaymentMethod.ToLower().Equals(OrderEnum.PaymentMethod.CASH.ToString().ToLower()) ? true : false;
+                getOrderResponse.IsPaid = getOrderResponse.PaymentMethod.ToLower().Equals(OrderEnum.PaymentMethod.CASH.ToString().ToLower()) ? false : true;
                 getOrderResponse.CollectedPrice = collectedPrice;
                 return getOrderResponse;
             }
