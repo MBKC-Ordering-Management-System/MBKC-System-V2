@@ -130,6 +130,7 @@ namespace MBKC.Service.Services.Implementations
                 #region orders
                 existedOrder.PartnerOrderStatus = OrderEnum.Status.COMPLETED.ToString();
                 existedOrder.SystemStatus = OrderEnum.SystemStatus.COMPLETED.ToString();
+                existedOrder.ConfirmedBy = existedCashier.AccountId;
                 this._unitOfWork.OrderRepository.UpdateOrder(existedOrder);
 
                 OrderHistory orderHistory = new OrderHistory()
