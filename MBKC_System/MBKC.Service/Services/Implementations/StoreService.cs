@@ -308,7 +308,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     Email = registerStoreRequest.StoreManagerEmail,
                     Password = password,
-                    Status = (int)AccountEnum.Status.ACTIVE,
+                    Status = (int)AccountEnum.Status.INACTIVE,
                     Role = storeManagerRole,
                 };
 
@@ -712,6 +712,7 @@ namespace MBKC.Service.Services.Implementations
                     password = storeManagerAccount.Password;
                     storeManagerAccount.Password = StringUtil.EncryptData(password);
                     storeManagerAccount.IsConfirmed = false;
+                    storeManagerAccount.Status = (int)AccountEnum.Status.ACTIVE;
                     this._unitOfWork.AccountRepository.UpdateAccount(storeManagerAccount);
                 }
                 await this._unitOfWork.CommitAsync();
