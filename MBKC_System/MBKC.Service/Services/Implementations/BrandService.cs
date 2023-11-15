@@ -172,7 +172,6 @@ namespace MBKC.Service.Services.Implementations
                     Role = brandManagerRole,
                     IsConfirmed = false
                 };
-                await _unitOfWork.AccountRepository.CreateAccountAsync(account);
 
                 // Create brand
                 Brand brand = new Brand
@@ -183,7 +182,6 @@ namespace MBKC.Service.Services.Implementations
                     Status = (int)BrandEnum.Status.ACTIVE,
                     BrandManagerEmail = postBrandRequest.ManagerEmail,
                 };
-                await _unitOfWork.BrandRepository.CreateBrandAsync(brand);
 
                 // Create brand account
                 BrandAccount brandAccount = new BrandAccount
@@ -191,7 +189,11 @@ namespace MBKC.Service.Services.Implementations
                     Account = account,
                     Brand = brand,
                 };
-                await _unitOfWork.BrandAccountRepository.CreateBrandAccount(brandAccount);
+
+                brand.BrandAccounts = new List<BrandAccount>() { brandAccount };
+
+                await _unitOfWork.BrandRepository.CreateBrandAsync(brand);
+
                 await _unitOfWork.CommitAsync();
 
                 //Send password to email of Brand Manager
