@@ -147,11 +147,11 @@ namespace MBKC.Service.Services.Implementations
                 if (existedOrder.PaymentMethod.ToUpper().Equals(OrderEnum.PaymentMethod.CASH.ToString()))
                 {
                     //decimal finalToTalPriceSubstractDeliveryFee = existedOrder.FinalTotalPrice - existedOrder.DeliveryFee;
-                    decimal finalPrice = existedOrder.SubTotalPrice - (existedOrder.SubTotalPrice * (decimal)(existedOrder.Store.StorePartners.FirstOrDefault(x => x.PartnerId == existedOrder.PartnerId && x.Status == (int)StorePartnerEnum.Status.ACTIVE).Commission / 100));
+                    decimal finalPrice = existedOrder.SubTotalPrice - (existedOrder.SubTotalPrice * (decimal)(existedOrder.Store.StorePartners.FirstOrDefault(x => x.PartnerId == existedOrder.PartnerId && x.Status == (int)StorePartnerEnum.Status.ACTIVE)!.Commission / 100));
                     ShipperPayment shipperPayment = new ShipperPayment()
                     {
                         Status = (int)ShipperPaymentEnum.Status.SUCCESS,
-                        Content = $"Payment for the order[orderId:{existedOrder.Id}] with {existedOrder.Store.StorePartners.FirstOrDefault(x => x.PartnerId == existedOrder.PartnerId && x.Status == (int)StorePartnerEnum.Status.ACTIVE).Commission}% commission {StringUtil.GetContentAmountAndTime(finalPrice)}",
+                        Content = $"Payment for the order[orderId:{existedOrder.Id}] with {existedOrder.Store.StorePartners.FirstOrDefault(x => x.PartnerId == existedOrder.PartnerId && x.Status == (int)StorePartnerEnum.Status.ACTIVE)!.Commission}% commission {StringUtil.GetContentAmountAndTime(finalPrice)}",
                         OrderId = existedOrder.Id,
                         Amount = finalPrice,
                         CreateDate = DateTime.Now,

@@ -265,21 +265,15 @@ namespace MBKC.Repository.Repositories
                 return await this._dbContext.KitchenCenters.Include(kc => kc.Manager)
                                                            .Include(kc => kc.Wallet)
                                                            .Include(kc => kc.KitchenCenterMoneyExchanges.Where(kc => kc.MoneyExchange.ExchangeType.ToUpper().Equals(MoneyExchangeEnum.ExchangeType.SEND.ToString())
-                                                                                                                  && kc.MoneyExchange.Transactions.Any(ts => ts.TransactionTime.Day == DateTime.Now.Day
-                                                                                                                                                          && ts.TransactionTime.Month == DateTime.Now.Month
-                                                                                                                                                          && ts.TransactionTime.Year == DateTime.Now.Year)))
+                                                                                                                  && kc.MoneyExchange.Transactions.Any(ts => ts.TransactionTime.Date == DateTime.Now.Date)))
+
                                                            .Include(kc => kc.Stores.Where(s => s.Status == (int)StoreEnum.Status.ACTIVE))
                                                            .ThenInclude(s => s.Orders.Where(o => o.PartnerOrderStatus.Equals(OrderEnum.Status.COMPLETED.ToString())
                                                                                               && o.PaymentMethod.ToUpper().Equals(OrderEnum.PaymentMethod.CASH.ToString())
-                                                                                              && o.ShipperPayments.Any(sp => sp.CreateDate.Day == DateTime.Now.Day
-                                                                                                                          && sp.CreateDate.Month == DateTime.Now.Month
-                                                                                                                          && sp.CreateDate.Year == DateTime.Now.Year))).ThenInclude(x => x.Store).ThenInclude(x => x.StorePartners)
+                                                                                              && o.ShipperPayments.Any(sp => sp.CreateDate.Date == DateTime.Now.Date)))
+
                                                            .Include(kc => kc.Stores.Where(s => s.Status == (int)StoreEnum.Status.ACTIVE))
-                                                           .ThenInclude(s => s.Orders.Where(o => o.PartnerOrderStatus.Equals(OrderEnum.Status.COMPLETED.ToString())
-                                                                                              && o.PaymentMethod.ToUpper().Equals(OrderEnum.PaymentMethod.CASH.ToString())
-                                                                                              && o.ShipperPayments.Any(sp => sp.CreateDate.Day == DateTime.Now.Day
-                                                                                                                          && sp.CreateDate.Month == DateTime.Now.Month
-                                                                                                                          && sp.CreateDate.Year == DateTime.Now.Year))).ThenInclude(x => x.Partner)
+                                                           .ThenInclude(s => s.StorePartners)
                                                            .Include(kc => kc.Stores)
                                                            .ThenInclude(s => s.Wallet)
                                                            .Where(kc => kc.Status == (int)KitchenCenterEnum.Status.ACTIVE && kc.Wallet.Balance > 0).ToListAsync();
