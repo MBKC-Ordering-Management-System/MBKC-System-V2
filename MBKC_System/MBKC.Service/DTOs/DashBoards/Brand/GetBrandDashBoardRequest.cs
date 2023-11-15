@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MBKC.Service.DTOs.DashBoards.Brand
 {
-    public class GetSearchDateDashBoardRequest
+    public class GetBrandDashBoardRequest
     {
         public int? StoreId { get; set; }
         public string? StoreSearchDateFrom { get; set; }

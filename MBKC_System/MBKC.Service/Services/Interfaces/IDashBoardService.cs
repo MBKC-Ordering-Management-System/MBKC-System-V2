@@ -14,7 +14,7 @@ namespace MBKC.Service.Services.Interfaces
     {
         public Task<GetAdminDashBoardResponse> GetAdminDashBoardAsync();
         public Task<GetKitchenCenterDashBoardResponse> GetKitchenCenterDashBoardAsync(IEnumerable<Claim> claims);
-        public Task<GetBrandDashBoardResponse> GetBrandDashBoardAsync(IEnumerable<Claim> claims, GetSearchDateDashBoardRequest getSearchDateDashBoardRequest);
+        public Task<GetBrandDashBoardResponse> GetBrandDashBoardAsync(IEnumerable<Claim> claims, GetBrandDashBoardRequest getBrandDashBoardRequest);
         public Task<GetStoreDashBoardResponse> GetStoreDashBoardAsync(IEnumerable<Claim> claims);
         public Task<GetStoreDashBoardResponse> GetCashierDashBoardAsync(IEnumerable<Claim> claims);
 

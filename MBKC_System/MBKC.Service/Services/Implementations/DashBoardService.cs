@@ -143,18 +143,25 @@ namespace MBKC.Service.Services.Implementations
         #endregion
 
         #region Dash board for brand
-        public async Task<GetBrandDashBoardResponse> GetBrandDashBoardAsync(IEnumerable<Claim> claims, GetSearchDateDashBoardRequest getSearchDateDashBoardRequest)
+        public async Task<GetBrandDashBoardResponse> GetBrandDashBoardAsync(IEnumerable<Claim> claims, GetBrandDashBoardRequest getBrandDashBoardRequest)
         {
             try
             {
                 string email = claims.First(x => x.Type == ClaimTypes.Email).Value;
                 var existedBrand = await _unitOfWork.BrandRepository.GetBrandForDashBoardAsync(email);
 
+                if (existedBrand.Stores.Any())
+                {
+
+                }
+
                 // total
                 var totalStore = await this._unitOfWork.StoreRepository.CountStoreNumberByBrandIdAsync(existedBrand!.BrandId);
                 var totalNormalCategory = await this._unitOfWork.CategoryRepository.CountTypeCategoryNumberByBrandIdAsync(existedBrand!.BrandId, CategoryEnum.Type.NORMAL);
                 var totalExtraCategory = await this._unitOfWork.CategoryRepository.CountTypeCategoryNumberByBrandIdAsync(existedBrand!.BrandId, CategoryEnum.Type.EXTRA);
                 var totalProduct = await this._unitOfWork.ProductRepository.CountProductNumberByBrandIdAsync(existedBrand.BrandId);
+
+                // store revenue
 
 
                 GetBrandDashBoardResponse getBrandDashBoardResponse = new GetBrandDashBoardResponse()
@@ -163,11 +170,27 @@ namespace MBKC.Service.Services.Implementations
                     TotalNormalCategory = totalNormalCategory,
                     TotalExtraCategory = totalExtraCategory,
                     TotalProduct = totalProduct,
-                    Stores = this._mapper.Map<List<GetStoreResponse>>(existedBrand!.Stores),
+                    Stores = this._mapper.Map<List<GetStoreResponse>>(existedBrand!.Stores.Take(5)),
                 };
 
                 return getBrandDashBoardResponse;
               
+            }
+            catch (BadRequestException ex)
+            {
+                string fieldName = "";
+                switch (ex.Message)
+                {
+                    case MessageConstant.WalletMessage.BalanceIsInvalid:
+                        fieldName = "Wallet balance";
+                        break;
+
+                    default:
+                        fieldName = "Exception";
+                        break;
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new BadRequestException(error);
             }
             catch (Exception ex)
             {
