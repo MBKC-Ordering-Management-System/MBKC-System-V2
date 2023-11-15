@@ -13,5 +13,6 @@ namespace MBKC.Service.DTOs.Cashiers.Responses
         public int? TotalOrderToday { get; set; }
         public decimal? TotalMoneyToday { get; set; }
         public decimal Balance { get; set; }
+        public bool IsShiftEnded { get; set; }
     }
 }

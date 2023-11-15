@@ -345,7 +345,7 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await this._dbContext.Cashiers
+                return await this._dbContext.Cashiers.Include(x => x.KitchenCenter)
                                                      .Include(x => x.CashierMoneyExchanges).ThenInclude(x => x.MoneyExchange).ThenInclude(x => x.Transactions)
                                                      .SingleOrDefaultAsync(x => x.Account.Email.Equals(email));
             }
@@ -373,10 +373,12 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await this._dbContext.Cashiers.Include(x => x.Account)
+                return await this._dbContext.Cashiers.Include(x => x.CashierMoneyExchanges).ThenInclude(x => x.MoneyExchange).ThenInclude(x => x.Transactions)
+                                                     .Include(x => x.Account)
                                                      .Include(x => x.Wallet)
                                                      .Include(x => x.KitchenCenter).ThenInclude(kc => kc.Manager)
                                                      .Include(x => x.KitchenCenter).ThenInclude(kc => kc.Stores).ThenInclude(x => x.Orders).ThenInclude(x => x.OrderHistories)
+                                                     .Include(x => x.KitchenCenter).ThenInclude(kc => kc.Stores).ThenInclude(x => x.Orders).ThenInclude(x => x.ShipperPayments)
                                                      .SingleOrDefaultAsync(x => x.Account.Email.Equals(email));
             }
             catch (Exception ex)
