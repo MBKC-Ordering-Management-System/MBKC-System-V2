@@ -278,7 +278,7 @@ namespace MBKC.Repository.Repositories
             }
         }
 
-        public async Task<Cashier> GetCashierAsync(int idCashier)
+        public async Task<Cashier> GetCashierAsync(int idCashier) 
         {
             try
             {
