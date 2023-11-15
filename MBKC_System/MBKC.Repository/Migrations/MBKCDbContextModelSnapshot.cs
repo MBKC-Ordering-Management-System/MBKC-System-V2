@@ -452,6 +452,9 @@ namespace MBKC.Repository.Migrations
                     b.Property<decimal>("Commission")
                         .HasColumnType("decimal(9,2)");
 
+                    b.Property<int?>("ConfirmedBy")
+                        .HasColumnType("int");
+
                     b.Property<string>("CustomerName")
                         .HasMaxLength(100)
                         .IsUnicode(true)
