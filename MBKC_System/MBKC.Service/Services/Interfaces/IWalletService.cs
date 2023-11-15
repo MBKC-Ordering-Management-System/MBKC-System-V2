@@ -10,6 +10,6 @@ namespace MBKC.Service.Services.Interfaces
 {
     public interface IWalletService
     {
-        public Task<GetWalletResponse> GetWallet(IEnumerable<Claim> claims);
+        public Task<GetWalletResponse> GetWallet(GetSearchDateWalletRequest searchDateWallet,IEnumerable<Claim> claims);
     }
 }

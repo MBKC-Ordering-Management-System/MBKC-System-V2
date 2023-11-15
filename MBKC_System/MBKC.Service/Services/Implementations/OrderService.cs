@@ -146,12 +146,12 @@ namespace MBKC.Service.Services.Implementations
                 #region shipper payment and transaction and wallet (Cash only)
                 if (existedOrder.PaymentMethod.ToUpper().Equals(OrderEnum.PaymentMethod.CASH.ToString()))
                 {
-                    decimal finalToTalPriceSubstractDeliveryFee = existedOrder.FinalTotalPrice - existedOrder.DeliveryFee;
-                    decimal finalPrice = finalToTalPriceSubstractDeliveryFee - (finalToTalPriceSubstractDeliveryFee * (decimal)existedOrder.Commission / 100);
+                    //decimal finalToTalPriceSubstractDeliveryFee = existedOrder.FinalTotalPrice - existedOrder.DeliveryFee;
+                    decimal finalPrice = existedOrder.SubTotalPrice - (existedOrder.SubTotalPrice * (decimal)(existedOrder.Store.StorePartners.FirstOrDefault(x => x.PartnerId == existedOrder.PartnerId && x.Status == (int)StorePartnerEnum.Status.ACTIVE).Commission / 100));
                     ShipperPayment shipperPayment = new ShipperPayment()
                     {
                         Status = (int)ShipperPaymentEnum.Status.SUCCESS,
-                        Content = $"Payment for the order[orderId:{existedOrder.Id}] with {existedOrder.Commission}% commission {StringUtil.GetContentAmountAndTime(finalPrice)}",
+                        Content = $"Payment for the order[orderId:{existedOrder.Id}] with {existedOrder.Store.StorePartners.FirstOrDefault(x => x.PartnerId == existedOrder.PartnerId && x.Status == (int)StorePartnerEnum.Status.ACTIVE).Commission}% commission {StringUtil.GetContentAmountAndTime(finalPrice)}",
                         OrderId = existedOrder.Id,
                         Amount = finalPrice,
                         CreateDate = DateTime.Now,
@@ -327,20 +327,20 @@ namespace MBKC.Service.Services.Implementations
                     CustomerName = postOrderRequest.CustomerName,
                     CustomerPhone = postOrderRequest.CustomerPhone,
                     Address = postOrderRequest.Address,
-                    Commission = postOrderRequest.Commission,
+                    Commission = decimal.Parse(postOrderRequest.Commission.ToString().Replace(".", ",")),
                     Cutlery = postOrderRequest.Cutlery,
-                    DeliveryFee = postOrderRequest.DeliveryFee,
+                    DeliveryFee = decimal.Parse(postOrderRequest.DeliveryFee.ToString().Replace(".", ",")),
                     DisplayId = postOrderRequest.DisplayId,
-                    FinalTotalPrice = postOrderRequest.FinalTotalPrice,
+                    FinalTotalPrice = decimal.Parse(postOrderRequest.FinalTotalPrice.ToString().Replace(".", ",")),
                     Note = postOrderRequest.Note,
                     PartnerId = postOrderRequest.PartnerId,
                     Partner = existedPartner,
                     StoreId = postOrderRequest.StoreId,
                     PaymentMethod = postOrderRequest.PaymentMethod,
                     PartnerOrderStatus = postOrderRequest.Status.ToUpper(),
-                    SystemStatus = OrderEnum.SystemStatus.IN_STORE.ToString().Split("_")[0] + " " + OrderEnum.SystemStatus.IN_STORE.ToString().Split("_")[1],
-                    SubTotalPrice = postOrderRequest.SubTotalPrice,
-                    TotalDiscount = postOrderRequest.TotalDiscount,
+                    SystemStatus = OrderEnum.SystemStatus.IN_STORE.ToString().ToUpper(),
+                    SubTotalPrice = decimal.Parse(postOrderRequest.SubTotalPrice.ToString().Replace(".", ",")),
+                    TotalDiscount = decimal.Parse(postOrderRequest.TotalDiscount.ToString().Replace(".", ",")),
                     Store = existedStore,
                     Tax = postOrderRequest.Tax,
                     OrderHistories = new List<OrderHistory>() { orderHistory }
@@ -572,17 +572,19 @@ namespace MBKC.Service.Services.Implementations
                 {
                     totalPages = 0;
                 }
-
+                decimal? collectedPrice = null;
                 List<GetOrderResponse> getOrdersResponse = new List<GetOrderResponse>();
                 if (numberItems > 0)
                 {
                     // Get totalQuantity of each order
                     foreach (var order in orders)
                     {
-                        float storePartnerComission = order.Store.StorePartners.FirstOrDefault(x => x.PartnerId == order.PartnerId).Commission;
+                        if (order.Store.StorePartners.Any())
+                        {
+                            float storePartnerComission = order.Store.StorePartners.FirstOrDefault(x => x.PartnerId == order.PartnerId).Commission;
 
-                        decimal collectedPrice = order.SubTotalPrice - (order.SubTotalPrice * decimal.Parse(storePartnerComission.ToString()));
-
+                            collectedPrice = order.SubTotalPrice - (order.SubTotalPrice * decimal.Parse(storePartnerComission.ToString())/100);
+                        }
                         GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(order);
                         getOrderResponse.IsPaid = getOrderResponse.PaymentMethod.ToLower().Equals(OrderEnum.PaymentMethod.CASH.ToString().ToLower()) ? true : false;
                         getOrderResponse.CollectedPrice = collectedPrice;
@@ -668,7 +670,7 @@ namespace MBKC.Service.Services.Implementations
                 }
                 float storePartnerComission = existedOrder.Store.StorePartners.FirstOrDefault(x => x.PartnerId == existedOrder.PartnerId).Commission;
 
-                decimal collectedPrice = existedOrder.SubTotalPrice - (existedOrder.SubTotalPrice * decimal.Parse(storePartnerComission.ToString()));
+                decimal collectedPrice = existedOrder.SubTotalPrice - (existedOrder.SubTotalPrice * decimal.Parse(storePartnerComission.ToString()) / 100);
 
                 GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(existedOrder);
                 getOrderResponse.IsPaid = getOrderResponse.PaymentMethod.ToLower().Equals(OrderEnum.PaymentMethod.CASH.ToString().ToLower()) ? true : false;

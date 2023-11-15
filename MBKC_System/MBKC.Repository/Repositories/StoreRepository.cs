@@ -707,6 +707,7 @@ namespace MBKC.Repository.Repositories
             try
             {
                 return await this._dbContext.Stores.Include(x => x.Wallet)
+                                                   .Include(x => x.StorePartners)   
                                                    .FirstOrDefaultAsync(x => x.StoreId == id && x.Status == (int)StoreEnum.Status.ACTIVE);
             }
             catch (Exception ex)

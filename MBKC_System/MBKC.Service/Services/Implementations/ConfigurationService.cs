@@ -332,14 +332,14 @@ namespace MBKC.Service.Services.Implementations
 
                         foreach (var order in store.Orders)
                         {
-                            decimal finalToTalPriceSubstractDeliveryFee = order.FinalTotalPrice - order.DeliveryFee;
+                            //decimal finalToTalPriceSubstractDeliveryFee = order.FinalTotalPrice - order.DeliveryFee;
                             if (exchangeWallets.ContainsKey(store.StoreId))
                             {
-                                exchangeWallets[store.StoreId] += finalToTalPriceSubstractDeliveryFee - (finalToTalPriceSubstractDeliveryFee * (decimal)order.Commission / 100);
+                                exchangeWallets[store.StoreId] += order.SubTotalPrice - (order.SubTotalPrice * (decimal)(order.Store.StorePartners.FirstOrDefault(x => x.PartnerId == order.PartnerId && x.Status == (int)StorePartnerEnum.Status.ACTIVE).Commission / 100));
                             }
                             else
                             {
-                                exchangeWallets.Add(store.StoreId, finalToTalPriceSubstractDeliveryFee - (finalToTalPriceSubstractDeliveryFee * (decimal)order.Commission / 100));
+                                exchangeWallets.Add(store.StoreId, order.SubTotalPrice - (order.SubTotalPrice * (decimal)(order.Store.StorePartners.FirstOrDefault(x => x.PartnerId == order.PartnerId && x.Status == (int)StorePartnerEnum.Status.ACTIVE).Commission / 100)));
                             }
                         }
                     }
