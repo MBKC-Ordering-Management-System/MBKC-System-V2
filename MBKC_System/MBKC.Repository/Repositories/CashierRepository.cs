@@ -278,13 +278,13 @@ namespace MBKC.Repository.Repositories
             }
         }
 
-        public async Task<Cashier> GetCashierAsync(int idCashier)
+        public async Task<Cashier> GetCashierAsync(int idCashier) 
         {
             try
             {
                 return await this._dbContext.Cashiers.Include(x => x.Account)
-                                                     .Include(x => x.CashierMoneyExchanges)
-                                                     .Include(x => x.KitchenCenter)
+                                                     .Include(x => x.CashierMoneyExchanges).ThenInclude(x => x.MoneyExchange).ThenInclude(x => x.Transactions)
+                                                     .Include(x => x.KitchenCenter).ThenInclude(x => x.BankingAccounts).ThenInclude(x => x.ShipperPayments)
                                                      .Include(x => x.Wallet)
                                                      .ThenInclude(x => x.Transactions)
                                                      .ThenInclude(x => x.MoneyExchange)

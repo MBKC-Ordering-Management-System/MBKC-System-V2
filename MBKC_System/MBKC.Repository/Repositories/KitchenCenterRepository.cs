@@ -231,11 +231,11 @@ namespace MBKC.Repository.Repositories
         }
 
         public async Task<KitchenCenter> GetKitchenCenterAsync(string managerEmail)
-        {
+        { 
             try
             {
                 return await this._dbContext.KitchenCenters.Include(x => x.Manager)
-                                                           .Include(x => x.KitchenCenterMoneyExchanges)
+                                                           .Include(x => x.KitchenCenterMoneyExchanges).ThenInclude(x => x.MoneyExchange).ThenInclude(x => x.Transactions)
                                                            .Include(x => x.Cashiers).ThenInclude(x => x.CashierMoneyExchanges)
                                                            .Include(x => x.Stores).ThenInclude(x => x.StoreMoneyExchanges)
                                                            .Include(x => x.Wallet)
