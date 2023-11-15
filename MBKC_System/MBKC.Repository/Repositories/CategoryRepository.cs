@@ -508,5 +508,21 @@ namespace MBKC.Repository.Repositories
                 throw new Exception(ex.Message);
             }
         }
+
+        #region Count number of type category by id brand
+        public async Task<int> CountTypeCategoryNumberByBrandIdAsync(int brandId, CategoryEnum.Type type)
+        {
+            try
+            {
+                return await _dbContext.Categories.Where(c => c.Type.ToUpper().Equals(type.ToString()) 
+                                                           && (c.Status == (int)CategoryEnum.Status.ACTIVE || c.Status == (int)CategoryEnum.Status.INACTIVE)
+                                                           && c.Brand.BrandId == brandId).CountAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
     }
 }

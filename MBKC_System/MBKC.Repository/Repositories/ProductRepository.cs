@@ -517,5 +517,21 @@ namespace MBKC.Repository.Repositories
                 throw new Exception(ex.Message);
             }
         }
+
+        #region Count product number id brand id
+        public async Task<int> CountProductNumberByBrandIdAsync(int brandId)
+        {
+            try
+            {
+                return await this._dbContext.Products.Where(p => (p.Status == (int)ProductEnum.Status.ACTIVE || p.Status == (int)ProductEnum.Status.INACTIVE)
+                                                               && p.Brand.BrandId == brandId)
+                                                     .CountAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
     }
 }

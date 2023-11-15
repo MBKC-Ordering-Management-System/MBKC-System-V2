@@ -145,8 +145,11 @@
         public static class DashBoard
         {
             public const string DashBoardsEndpoint = ApiEndpoint + "/dashboards";
-            public const string StoreDashBoardEndpoint = DashBoardsEndpoint + "/store";
+            public const string AdminDashBoardEndpoint = DashBoardsEndpoint + "/admin";
+            public const string KitchenCenterDashBoardEndpoint = DashBoardsEndpoint + "/kitchen-center";
             public const string BrandDashBoardEndpoint = DashBoardsEndpoint + "/brand";
+            public const string StoreDashBoardEndpoint = DashBoardsEndpoint + "/store";
+            public const string CashierDashBoardEndpoint = DashBoardsEndpoint + "/cashier";
         }
     }
 }

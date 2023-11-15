@@ -384,5 +384,19 @@ namespace MBKC.Repository.Repositories
                 throw new Exception(ex.Message);
             }
         }
+
+        #region count cashier in system
+        public async Task<int> CountCashierInSystemFindByKitchenCenterIdAsync(int kitchenCenterId)
+        {
+            try
+            {
+                return await this._dbContext.Cashiers.Where(c => c.Account.Status != (int)AccountEnum.Status.DEACTIVE && c.KitchenCenter.KitchenCenterId == kitchenCenterId).CountAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
     }
 }

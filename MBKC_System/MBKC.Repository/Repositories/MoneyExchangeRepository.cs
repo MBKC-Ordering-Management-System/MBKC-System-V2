@@ -165,6 +165,27 @@ namespace MBKC.Repository.Repositories
                 .Where(x => x.SenderId == senderId && x.ExchangeType.Equals(MoneyExchangeEnum.ExchangeType.WITHDRAW.ToString())).ToListAsync();
         }
         #endregion
+
+        #region Get money exchange in last 7 day for kitchen center (receive)
+        public async Task<List<MoneyExchange>> GetColumnChartMoneyExchangeInLastSevenDayAsync(int kitchenCenterId)
+        {
+            try
+            {
+                return await _dbContext.MoneyExchanges.Include(me => me.Transactions)
+                                                      .Where(me => me.ExchangeType.ToUpper().Equals(MoneyExchangeEnum.ExchangeType.RECEIVE.ToString())
+                                                          && me.ReceiveId == kitchenCenterId
+                                                          && me.Transactions.Any(t => t.Status == (int)TransactionEnum.Status.SUCCESS
+                                                                              && t.TransactionTime.Date <= DateTime.Now.Date
+                                                                              && t.TransactionTime.Date >= DateTime.Now.AddDays(-6).Date))
+                                                      .ToListAsync();
+                                                     
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
     }
 }
 

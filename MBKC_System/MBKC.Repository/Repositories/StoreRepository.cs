@@ -795,6 +795,65 @@ namespace MBKC.Repository.Repositories
             }
         }
 
+        #region count number of store
+        public async Task<int> CountStoreNumberAsync()
+        {
+            try
+            {
+                return await _dbContext.Stores.Where(s => s.Status == (int)StoreEnum.Status.ACTIVE || s.Status == (int)StoreEnum.Status.INACTIVE).CountAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        #region count number of store by id brand
+        public async Task<int> CountStoreNumberByBrandIdAsync(int brandId)
+        {
+            try
+            {
+                return await _dbContext.Stores.Where(s => (s.Status == (int)StoreEnum.Status.ACTIVE || s.Status == (int)StoreEnum.Status.INACTIVE) && s.Brand.BrandId == brandId).CountAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        #region count number of store is active
+        public async Task<int> CountStoreNumberIsActiveFindByKitchenCenterIdAsync(int kitchenCenterId)
+        {
+            try
+            {
+                return await _dbContext.Stores.Where(s => s.Status == (int)StoreEnum.Status.ACTIVE && s.KitchenCenter.KitchenCenterId == kitchenCenterId).CountAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        #region get 5 store with status active
+        public async Task<List<Store>> GetFiveStoreSortByActiveAsync()
+        {
+            try
+            {
+                return await _dbContext.Stores.Where(s => s.Status == (int)StoreEnum.Status.ACTIVE || s.Status == (int)StoreEnum.Status.INACTIVE)
+                                                      .OrderByDescending(s => s.Status)
+                                                      .Take(5)
+                                                      .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
         public async Task<Store> GetStoreMoneyExchangeAsync(string managerEmail)
         {
             try
