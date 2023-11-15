@@ -264,8 +264,8 @@ namespace MBKC.Repository.Repositories
             {
                 return await this._dbContext.KitchenCenters
                                                            .Include(x => x.Wallet)
+                                                           .Include(x => x.Cashiers)
                                                            .Include(x => x.KitchenCenterMoneyExchanges).ThenInclude(x => x.MoneyExchange).ThenInclude(x => x.Transactions)
-                                                           .Include(x => x.BankingAccounts).ThenInclude(x => x.ShipperPayments)
                                                            .FirstOrDefaultAsync(x => x.Manager.Email.Equals(managerEmail)
                                                                                   && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE);
             }
@@ -365,8 +365,6 @@ namespace MBKC.Repository.Repositories
             }
         }
         #endregion
-    }
-        }
 
         public async Task<KitchenCenter> GetKitchenCenterMoneyExchangeAsync(string managerEmail)
         {
@@ -386,3 +384,5 @@ namespace MBKC.Repository.Repositories
         }
     }
 }
+
+

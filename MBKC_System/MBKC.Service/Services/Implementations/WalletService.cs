@@ -43,15 +43,22 @@ namespace MBKC.Service.Services.Implementations
                 KitchenCenter? kitchenCenter = null;
                 StoreAccount? storeAccount = null;
                 Cashier? cashier = null;
-
+                List<ShipperPayment> shipperPaymentOfCashier = null;
+                List<ShipperPayment> shipperPaymentOfKitchenCenter = new List<ShipperPayment>();
                 // Check role when user login 
                 if (registeredRoleClaim.Value.Equals(RoleConstant.Kitchen_Center_Manager))
                 {
                     kitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterWalletAsync(email);
+                    foreach (var c in kitchenCenter.Cashiers)
+                    {
+                        var shipperPayments = await _unitOfWork.ShipperPaymentRepository.GetShiperPaymentsByCashierIdAsync(c.AccountId);
+                        shipperPaymentOfKitchenCenter.AddRange(shipperPayments);
+                    }
                 }
                 else if (registeredRoleClaim.Value.Equals(RoleConstant.Cashier))
                 {
                     cashier = await this._unitOfWork.CashierRepository.GetCashierWalletAsync(int.Parse(accountId.Value));
+                    shipperPaymentOfCashier = await _unitOfWork.ShipperPaymentRepository.GetShiperPaymentsByCashierIdAsync(cashier.AccountId);
                 }
                 else if (registeredRoleClaim.Value.Equals(RoleConstant.Store_Manager))
                 {
@@ -71,13 +78,13 @@ namespace MBKC.Service.Services.Implementations
                         WalletId = cashier.WalletId,
                         Balance = cashier.Wallet.Balance,
                         TotalDailyMoneyExchange = cashier.CashierMoneyExchanges.Where(x => x.MoneyExchange.Transactions.Any(x => x.TransactionTime.Date == searchDate.Date)).Select(x => x.MoneyExchange.Amount).Sum(),
-                        TotalDailyShipperPayment = cashier.KitchenCenter.BankingAccounts.Select(x => x.ShipperPayments.Where(x => x.CreateDate.Date == searchDate.Date).Select(x => x.Amount).Sum()).SingleOrDefault()
+                        TotalDailyShipperPayment = shipperPaymentOfCashier.Where(x => x.CreateDate.Date == searchDate.Date).Select(x => x.Amount).Sum()
                     };
                 }
 
                 if (storeAccount != null)
                 {
-                   
+
                     getWalletResponse = new GetWalletResponse()
                     {
                         WalletId = storeAccount.Store.Wallet.WalletId,
@@ -102,15 +109,15 @@ namespace MBKC.Service.Services.Implementations
                         WalletId = kitchenCenter.WalletId,
                         Balance = kitchenCenter.Wallet.Balance,
                         TotalDailySend = kitchenCenter.KitchenCenterMoneyExchanges
-                        .Where(x => x.MoneyExchange.Transactions.Any(x => x.TransactionTime.Date == searchDate.Date)
-                        && x.MoneyExchange.ExchangeType.Equals(MoneyExchangeEnum.ExchangeType.SEND.ToString()))
-                        .Select(x => x.MoneyExchange.Amount).Sum(),
+                                                      .Where(x => x.MoneyExchange.Transactions.Any(x => x.TransactionTime.Date == searchDate.Date)
+                                                                                                  && x.MoneyExchange.ExchangeType.Equals(MoneyExchangeEnum.ExchangeType.SEND.ToString()))
+                                                                                                  .Select(x => x.MoneyExchange.Amount).Sum(),
                         TotalDailyReceive = kitchenCenter.KitchenCenterMoneyExchanges
-                        .Where(x => x.MoneyExchange.Transactions.Any(x => x.TransactionTime.Date == searchDate.Date)
-                        && x.MoneyExchange.ExchangeType.Equals(MoneyExchangeEnum.ExchangeType.RECEIVE.ToString()))
-                        .Select(x => x.MoneyExchange.Amount).Sum(),
+                                                         .Where(x => x.MoneyExchange.Transactions.Any(x => x.TransactionTime.Date == searchDate.Date)
+                                                                                                      && x.MoneyExchange.ExchangeType.Equals(MoneyExchangeEnum.ExchangeType.RECEIVE.ToString()))
+                                                                                                     .Select(x => x.MoneyExchange.Amount).Sum(),
                         TotalDailyMoneyExchange = kitchenCenter.KitchenCenterMoneyExchanges.Where(x => x.MoneyExchange.Transactions.Any(x => x.TransactionTime.Date == currentDate)).Select(x => x.MoneyExchange.Amount).Sum(),
-                        TotalDailyShipperPayment = kitchenCenter.BankingAccounts.Select(x => x.ShipperPayments.Where(x => x.CreateDate.Date == currentDate).Select(x => x.Amount).Sum()).SingleOrDefault()
+                        TotalDailyShipperPayment = shipperPaymentOfKitchenCenter.Where(x => x.CreateDate.Date == currentDate).Select(x => x.Amount).Sum()
                     };
                 }
 
