@@ -236,7 +236,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistBrandId);
                 }
-                if (brand.Status == (int)BrandEnum.Status.DEACTIVE)
+                if (brand.Status == (int)BrandEnum.Status.DISABLE)
                 {
                     throw new BadRequestException(MessageConstant.BrandMessage.DeactiveBrand_Update);
                 }
@@ -392,13 +392,13 @@ namespace MBKC.Service.Services.Implementations
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistBrandId);
                 }
 
-                if (brand.Status == (int)BrandEnum.Status.DEACTIVE)
+                if (brand.Status == (int)BrandEnum.Status.DISABLE)
                 {
                     throw new BadRequestException(MessageConstant.BrandMessage.DeactiveBrand_Delete);
                 }
 
                 // Deactive status of brand
-                brand.Status = (int)BrandEnum.Status.DEACTIVE;
+                brand.Status = (int)BrandEnum.Status.DISABLE;
 
                 // Deactive Manager Account of brand
                 foreach (var brandAccount in brand.BrandAccounts)
@@ -485,7 +485,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistBrandId);
                 }
-                if (brand.Status == (int)BrandEnum.Status.DEACTIVE)
+                if (brand.Status == (int)BrandEnum.Status.DISABLE)
                 {
                     throw new BadRequestException(MessageConstant.BrandMessage.DeactiveBrand_Update);
                 }
@@ -542,7 +542,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistBrandId);
                 }
-                if (existedBrand.Status == (int)BrandEnum.Status.DEACTIVE)
+                if (existedBrand.Status == (int)BrandEnum.Status.DISABLE)
                 {
                     throw new BadRequestException(MessageConstant.BrandMessage.DeactiveBrand_Update);
                 }

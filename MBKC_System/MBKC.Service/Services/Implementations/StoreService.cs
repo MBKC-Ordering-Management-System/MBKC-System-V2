@@ -318,7 +318,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     Name = registerStoreRequest.Name,
                     Logo = logoLink,
-                    Status = (int)StoreEnum.Status.BE_CONFIRMING,
+                    Status = (int)StoreEnum.Status.CONFIRMING,
                     Brand = existedBrand,
                     KitchenCenter = existedKitchenCenter,
                     Wallet = null,
@@ -403,7 +403,7 @@ namespace MBKC.Service.Services.Implementations
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistStoreId);
                 }
 
-                if (existedStore.Status == (int)StoreEnum.Status.DEACTIVE)
+                if (existedStore.Status == (int)StoreEnum.Status.DISABLE)
                 {
                     throw new BadRequestException(MessageConstant.StoreMessage.DeactiveStore_Update);
                 }
@@ -548,12 +548,12 @@ namespace MBKC.Service.Services.Implementations
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistStoreId);
                 }
 
-                if (existedStore.Status == (int)StoreEnum.Status.DEACTIVE)
+                if (existedStore.Status == (int)StoreEnum.Status.DISABLE)
                 {
                     throw new BadRequestException(MessageConstant.StoreMessage.DeactiveStore_Delete);
                 }
 
-                existedStore.Status = (int)StoreEnum.Status.DEACTIVE;
+                existedStore.Status = (int)StoreEnum.Status.DISABLE;
                 foreach (var storeAccount in existedStore.StoreAccounts)
                 {
                     if (storeAccount.Account.Status == (int)AccountEnum.Status.ACTIVE)
@@ -620,7 +620,7 @@ namespace MBKC.Service.Services.Implementations
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistStoreId);
                 }
 
-                if (existedStore.Status == (int)StoreEnum.Status.DEACTIVE)
+                if (existedStore.Status == (int)StoreEnum.Status.DISABLE)
                 {
                     throw new BadRequestException(MessageConstant.StoreMessage.DeactiveStore_Update);
                 }
@@ -673,7 +673,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistStoreId);
                 }
-                if (existedStore.Status != (int)StoreEnum.Status.BE_CONFIRMING)
+                if (existedStore.Status != (int)StoreEnum.Status.CONFIRMING)
                 {
                     throw new BadRequestException(MessageConstant.StoreMessage.NotConfirmingStore);
                 }

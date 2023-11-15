@@ -19,7 +19,7 @@ namespace MBKC.Service.Utils
             {
                 return char.ToUpper(BrandEnum.Status.ACTIVE.ToString()[0]) + BrandEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
             }
-            return char.ToUpper(BrandEnum.Status.DEACTIVE.ToString()[0]) + BrandEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
+            return char.ToUpper(BrandEnum.Status.DISABLE.ToString()[0]) + BrandEnum.Status.DISABLE.ToString().ToLower().Substring(1);
         }
 
         public static string ChangeKitchenCenterStatus(int status)
@@ -45,16 +45,15 @@ namespace MBKC.Service.Utils
             {
                 return char.ToUpper(StoreEnum.Status.ACTIVE.ToString()[0]) + StoreEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
             }
-            else if (status == (int)StoreEnum.Status.BE_CONFIRMING)
+            else if (status == (int)StoreEnum.Status.CONFIRMING)
             {
-                string[] statusNameParts = StoreEnum.Status.BE_CONFIRMING.ToString().Split("_");
-                return char.ToUpper(statusNameParts[0][0]) + statusNameParts[0].ToLower().Substring(1) + " " + char.ToUpper(statusNameParts[1][0]) + statusNameParts[1].ToLower().Substring(1);
+                return char.ToUpper(StoreEnum.Status.CONFIRMING.ToString()[0]) + StoreEnum.Status.CONFIRMING.ToString().ToLower().Substring(1);
             }
             else if (status == (int)StoreEnum.Status.REJECTED)
             {
                 return char.ToUpper(StoreEnum.Status.REJECTED.ToString()[0]) + StoreEnum.Status.REJECTED.ToString().ToLower().Substring(1);
             }
-            return char.ToUpper(StoreEnum.Status.DEACTIVE.ToString()[0]) + StoreEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
+            return char.ToUpper(StoreEnum.Status.DISABLE.ToString()[0]) + StoreEnum.Status.DISABLE.ToString().ToLower().Substring(1);
         }
 
         public static string ChangeCategoryStatus(int status)
@@ -173,7 +172,7 @@ namespace MBKC.Service.Utils
 
         public static int? ChangeStoreStatus(string status)
         {
-            string[] statusNameParts = StoreEnum.Status.BE_CONFIRMING.ToString().Split("_");
+            string[] statusNameParts = StoreEnum.Status.CONFIRMING.ToString().Split("_");
             if (status.ToLower().Equals(StoreEnum.Status.INACTIVE.ToString().ToLower()))
             {
                 return (int)StoreEnum.Status.INACTIVE;
@@ -188,7 +187,7 @@ namespace MBKC.Service.Utils
             }
             else if (status.ToLower().Equals($"{statusNameParts[0]} {statusNameParts[1]}".ToLower()))
             {
-                return (int)StoreEnum.Status.BE_CONFIRMING;
+                return (int)StoreEnum.Status.CONFIRMING;
             }
             return null;
         }

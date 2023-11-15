@@ -59,7 +59,7 @@ namespace MBKC.Repository.Repositories
                                               .ThenInclude(category => category.ExtraCategoryProductCategories)
                                               .Include(brand => brand.Products)
                                               .Include(brand => brand.Stores).ThenInclude(store => store.KitchenCenter)
-                                              .SingleOrDefaultAsync(b => b.BrandId == id && b.Status != (int)BrandEnum.Status.DEACTIVE);
+                                              .SingleOrDefaultAsync(b => b.BrandId == id && b.Status != (int)BrandEnum.Status.DISABLE);
             }
             catch (Exception ex)
             {
@@ -90,7 +90,7 @@ namespace MBKC.Repository.Repositories
                                                          {
                                                              return false;
                                                          }
-                                                     }).Where(x => x.Status != (int)BrandEnum.Status.DEACTIVE)
+                                                     }).Where(x => x.Status != (int)BrandEnum.Status.DISABLE)
                                                        .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
                                                                     then => then.OrderBy(x => x.Name))
                                                        .If(sortByASC != null && sortByASC.ToLower().Equals("address"),
@@ -114,7 +114,7 @@ namespace MBKC.Repository.Repositories
                                                          {
                                                              return false;
                                                          }
-                                                     }).Where(x => x.Status != (int)BrandEnum.Status.DEACTIVE)
+                                                     }).Where(x => x.Status != (int)BrandEnum.Status.DISABLE)
                                                        .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
                                                                     then => then.OrderByDescending(x => x.Name))
                                                        .If(sortByDESC != null && sortByDESC.ToLower().Equals("address"),
@@ -140,7 +140,7 @@ namespace MBKC.Repository.Repositories
                                                          {
                                                              return false;
                                                          }
-                                                     }).Where(x => x.Status != (int)BrandEnum.Status.DEACTIVE)
+                                                     }).Where(x => x.Status != (int)BrandEnum.Status.DISABLE)
                                                        .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
                 }
 
@@ -150,7 +150,7 @@ namespace MBKC.Repository.Repositories
                         return this._dbContext.Brands.Include(brand => brand.BrandAccounts)
                                                        .ThenInclude(brandAccount => brandAccount.Account)
                                                        .ThenInclude(account => account.Role)
-                                                       .Where(x => x.Name.ToLower().Contains(searchValue.ToLower()) && x.Status != (int)BrandEnum.Status.DEACTIVE)
+                                                       .Where(x => x.Name.ToLower().Contains(searchValue.ToLower()) && x.Status != (int)BrandEnum.Status.DISABLE)
                                                        .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
                                                                     then => then.OrderBy(x => x.Name))
                                                        .If(sortByASC != null && sortByASC.ToLower().Equals("address"),
@@ -167,7 +167,7 @@ namespace MBKC.Repository.Repositories
                         return this._dbContext.Brands.Include(brand => brand.BrandAccounts)
                                                       .ThenInclude(brandAccount => brandAccount.Account)
                                                       .ThenInclude(account => account.Role)
-                                                      .Where(x => x.Name.ToLower().Contains(searchValue.ToLower()) && x.Status != (int)BrandEnum.Status.DEACTIVE)
+                                                      .Where(x => x.Name.ToLower().Contains(searchValue.ToLower()) && x.Status != (int)BrandEnum.Status.DISABLE)
                                                       .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
                                                                     then => then.OrderByDescending(x => x.Name))
                                                       .If(sortByDESC != null && sortByDESC.ToLower().Equals("address"),
@@ -184,7 +184,7 @@ namespace MBKC.Repository.Repositories
                     return await this._dbContext.Brands.Include(brand => brand.BrandAccounts)
                                                        .ThenInclude(brandAccount => brandAccount.Account)
                                                        .ThenInclude(account => account.Role)
-                                                       .Where(x => x.Name.ToLower().Contains(searchValue.ToLower()) && x.Status != (int)BrandEnum.Status.DEACTIVE)
+                                                       .Where(x => x.Name.ToLower().Contains(searchValue.ToLower()) && x.Status != (int)BrandEnum.Status.DISABLE)
                                                        .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
                 }
 
@@ -192,7 +192,7 @@ namespace MBKC.Repository.Repositories
                     return this._dbContext.Brands.Include(brand => brand.BrandAccounts)
                                                  .ThenInclude(brandAccount => brandAccount.Account)
                                                  .ThenInclude(account => account.Role)
-                                                 .Where(x => x.Status != (int)BrandEnum.Status.DEACTIVE)
+                                                 .Where(x => x.Status != (int)BrandEnum.Status.DISABLE)
                                                  .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
                                                               then => then.OrderBy(x => x.Name))
                                                  .If(sortByASC != null && sortByASC.ToLower().Equals("address"),
@@ -209,7 +209,7 @@ namespace MBKC.Repository.Repositories
                     return this._dbContext.Brands.Include(brand => brand.BrandAccounts)
                                                  .ThenInclude(brandAccount => brandAccount.Account)
                                                  .ThenInclude(account => account.Role)
-                                                 .Where(x => x.Status != (int)BrandEnum.Status.DEACTIVE)
+                                                 .Where(x => x.Status != (int)BrandEnum.Status.DISABLE)
                                                  .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
                                                                then => then.OrderByDescending(x => x.Name))
                                                  .If(sortByDESC != null && sortByDESC.ToLower().Equals("address"),
@@ -225,7 +225,7 @@ namespace MBKC.Repository.Repositories
                 return await this._dbContext.Brands.Include(brand => brand.BrandAccounts)
                                                    .ThenInclude(brandAccount => brandAccount.Account)
                                                    .ThenInclude(account => account.Role)
-                                                   .Where(x => x.Status != (int)BrandEnum.Status.DEACTIVE)
+                                                   .Where(x => x.Status != (int)BrandEnum.Status.DISABLE)
                                                    .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
             }
             catch (Exception ex)
@@ -252,13 +252,13 @@ namespace MBKC.Repository.Repositories
                         {
                             return false;
                         }
-                    }).Where(x => x.Status != (int)BrandEnum.Status.DEACTIVE).AsQueryable().Count();
+                    }).Where(x => x.Status != (int)BrandEnum.Status.DISABLE).AsQueryable().Count();
                 }
                 else if (keySearchUniCode != null && keySearchNotUniCode == null)
                 {
-                    return await this._dbContext.Brands.Where(x => x.Name.ToLower().Contains(keySearchUniCode.ToLower()) && x.Status != (int)BrandEnum.Status.DEACTIVE).CountAsync();
+                    return await this._dbContext.Brands.Where(x => x.Name.ToLower().Contains(keySearchUniCode.ToLower()) && x.Status != (int)BrandEnum.Status.DISABLE).CountAsync();
                 }
-                return await this._dbContext.Brands.Where(x => x.Status != (int)BrandEnum.Status.DEACTIVE).CountAsync();
+                return await this._dbContext.Brands.Where(x => x.Status != (int)BrandEnum.Status.DISABLE).CountAsync();
             }
             catch (Exception ex)
             {
@@ -275,7 +275,7 @@ namespace MBKC.Repository.Repositories
                                                    .Include(x => x.Products)
                                                    .Include(x => x.Categories)
                                                    .FirstOrDefaultAsync(x => x.BrandManagerEmail.Equals(managerEmail) &&
-                                                                              x.Status != (int)BrandEnum.Status.DEACTIVE);
+                                                                              x.Status != (int)BrandEnum.Status.DISABLE);
             }
             catch (Exception ex)
             {

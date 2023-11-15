@@ -12,8 +12,8 @@ namespace MBKC.Repository.Enums
         {
             INACTIVE = 0,
             ACTIVE = 1,
-            DEACTIVE = 2,
-            BE_CONFIRMING = 3,
+            DISABLE = 2,
+            CONFIRMING = 3,
             REJECTED = 4
         }
     }

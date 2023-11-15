@@ -54,7 +54,7 @@ namespace MBKC.Service.Services.Implementations
                     {
                         throw new BadRequestException(MessageConstant.StorePartnerMessage.StoreNotBelongToBrand);
                     }
-                    else if (store.Brand.BrandId == brandId && store.Status == (int)StoreEnum.Status.INACTIVE || store.Brand.BrandId == brandId && store.Status == (int)StoreEnum.Status.DEACTIVE)
+                    else if (store.Brand.BrandId == brandId && store.Status == (int)StoreEnum.Status.INACTIVE || store.Brand.BrandId == brandId && store.Status == (int)StoreEnum.Status.DISABLE)
                     {
                         throw new BadRequestException(MessageConstant.StorePartnerMessage.InactiveStore_Create);
                     }

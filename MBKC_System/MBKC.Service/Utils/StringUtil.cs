@@ -87,11 +87,10 @@ namespace MBKC.Service.Utils
 
         public static bool CheckStoreStatusNameParam(string statusName)
         {
-            string[] statusNameParts = StoreEnum.Status.BE_CONFIRMING.ToString().Split("_");
             if (statusName.ToLower().Trim().Equals(StoreEnum.Status.ACTIVE.ToString().ToLower()) ||
                 statusName.ToLower().Trim().Equals(StoreEnum.Status.INACTIVE.ToString().ToLower()) ||
                 statusName.ToLower().Trim().Equals(StoreEnum.Status.REJECTED.ToString().ToLower()) ||
-                statusName.ToLower().Trim().Equals($"{statusNameParts[0]} {statusNameParts[1]}".ToLower()))
+                statusName.ToLower().Trim().Equals(StoreEnum.Status.CONFIRMING.ToString().ToLower()))
             {
                 return true;
             }
