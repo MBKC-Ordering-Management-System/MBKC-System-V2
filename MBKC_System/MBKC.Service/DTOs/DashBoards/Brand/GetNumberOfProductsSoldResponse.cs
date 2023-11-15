@@ -11,5 +11,9 @@ namespace MBKC.Service.DTOs.DashBoards.Brand
         public int ProductId { get; set; }
         public string? ProductName { get; set; }
         public int Quantity { get; set; }
+        public string? StoreSearchDateFrom { get; set; }
+        public string? StoreSearchDateTo { get; set; }
+        public string? ProductSearchDateFrom { get; set; }
+        public string? ProductSearchDateTo { get; set; }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using MBKC.Service.DTOs.DashBoards;
 using MBKC.Service.DTOs.DashBoards.Brand;
-using MBKC.Service.DTOs.DashBoards.KitchenCenter;
 using System;
 using System.Collections.Generic;
 using System.Linq;

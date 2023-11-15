@@ -289,7 +289,7 @@ namespace MBKC.Repository.Repositories
             try
             {
                 return await this._dbContext.Brands.Include(x => x.Stores.Where(s => s.Status == (int)StoreEnum.Status.ACTIVE || s.Status == (int)StoreEnum.Status.INACTIVE)
-                                                                         .OrderByDescending(s => s.Status))
+                                                                         .OrderByDescending(s => s.Status))              
                                                    .FirstOrDefaultAsync(b => b.BrandManagerEmail.Equals(managerEmail) && b.Status == (int)BrandEnum.Status.ACTIVE);
             }
             catch (Exception ex)

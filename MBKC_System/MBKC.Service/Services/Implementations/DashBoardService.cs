@@ -7,13 +7,13 @@ using MBKC.Service.DTOs.Brands;
 using MBKC.Service.DTOs.Cashiers.Responses;
 using MBKC.Service.DTOs.DashBoards;
 using MBKC.Service.DTOs.DashBoards.Brand;
-using MBKC.Service.DTOs.DashBoards.KitchenCenter;
 using MBKC.Service.DTOs.KitchenCenters;
 using MBKC.Service.DTOs.PartnerProducts;
 using MBKC.Service.DTOs.Stores;
 using MBKC.Service.Exceptions;
 using MBKC.Service.Services.Interfaces;
 using MBKC.Service.Utils;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -50,7 +50,7 @@ namespace MBKC.Service.Services.Implementations
                 var brands = await this._unitOfWork.BrandRepository.GetFiveBrandSortByActiveAsync();
                 var stores = await this._unitOfWork.StoreRepository.GetFiveStoreSortByActiveAsync();
 
-                GetAdminDashBoardResponse getAdminDashBoardResponse = new GetAdminDashBoardResponse()
+                var getAdminDashBoardResponse = new GetAdminDashBoardResponse()
                 {
                     TotalKitchenter = totalKitchenCenter,
                     TotalBrand = totalBrand,
@@ -77,9 +77,9 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
-                string email = claims.First(x => x.Type == ClaimTypes.Email).Value;
+                var email = claims.First(x => x.Type == ClaimTypes.Email).Value;
                 var existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterForDashBoardAsync(email);
-                var columnChartMoneyExchangeInLastSevenDay = new List<GetColumnChartMoneyExchangesResponse>();
+                var columnChartMoneyExchangeInLastSevenDay = new List<GetColumnChartResponse>();
                 Dictionary<DateTime, decimal> amountOfEachDay;
 
                 // total
@@ -99,18 +99,14 @@ namespace MBKC.Service.Services.Implementations
                         if (kitchenMoneyExchange is null) moneyExchangesInLastSevenDay.Remove(moneyExchange);
                     }
 
-
                     foreach (var moneyExchange in moneyExchangesInLastSevenDay)
                     {
-                        if (amountOfEachDay.ContainsKey(moneyExchange.Transactions.Last().TransactionTime.Date))
-                        {
-                            amountOfEachDay[moneyExchange.Transactions.Last().TransactionTime.Date] += moneyExchange.Amount;
-                        }
+                        amountOfEachDay[moneyExchange.Transactions.Last().TransactionTime.Date] += moneyExchange.Amount;
                     }
 
                     foreach (var day in amountOfEachDay)
                     {
-                        GetColumnChartMoneyExchangesResponse getColumnChartMoneyExchangesResponse = new GetColumnChartMoneyExchangesResponse()
+                        var getColumnChartMoneyExchangesResponse = new GetColumnChartResponse()
                         {
                             Date = day.Key,
                             Amount = day.Value,
@@ -121,7 +117,7 @@ namespace MBKC.Service.Services.Implementations
                     if (amountOfEachDay.ContainsKey(DateTime.Now.Date)) TotalMoneyExchangesOfKitchenCenterDaily = amountOfEachDay[DateTime.Now.Date];
                 }
 
-                GetKitchenCenterDashBoardResponse getKitchenCenterDashBoardResponse = new GetKitchenCenterDashBoardResponse()
+                var getKitchenCenterDashBoardResponse = new GetKitchenCenterDashBoardResponse()
                 {
                     TotalStore = totalStoreParticipating,
                     TotalCashier = totalCashierInSystem,
@@ -149,10 +145,12 @@ namespace MBKC.Service.Services.Implementations
             {
                 string email = claims.First(x => x.Type == ClaimTypes.Email).Value;
                 var existedBrand = await _unitOfWork.BrandRepository.GetBrandForDashBoardAsync(email);
+                Dictionary<DateTime, decimal> revenueInLastSevenDay;
+                var columnChartRevenueInLastSevenDay = new List<GetColumnChartResponse>();
 
-                if (existedBrand.Stores.Any())
+                if (!existedBrand!.Stores.Any(s => s.StoreId == getBrandDashBoardRequest.StoreId))
                 {
-
+                    throw new BadRequestException(MessageConstant.StoreMessage.StoreIdNotBelongToBrand);
                 }
 
                 // total
@@ -162,27 +160,53 @@ namespace MBKC.Service.Services.Implementations
                 var totalProduct = await this._unitOfWork.ProductRepository.CountProductNumberByBrandIdAsync(existedBrand.BrandId);
 
                 // store revenue
+                DateUtil.AddDateToDictionary(out revenueInLastSevenDay);
+                var orders = await this._unitOfWork.OrderRepository.GetOrderByStoreIdAsync(getBrandDashBoardRequest.StoreId!.Value);
+                if (orders.Any())
+                {
+                    foreach (var order in orders)
+                    {
+                        revenueInLastSevenDay[order.ShipperPayments.Last().CreateDate.Date] += order.ShipperPayments.Last().Amount;
+                    }
+                }
 
+                foreach (var day in revenueInLastSevenDay)
+                {
+                    GetColumnChartResponse columnChartResponse = new GetColumnChartResponse()
+                    {
+                        Date = day.Key,
+                        Amount = day.Value,
+                    };
+                    columnChartRevenueInLastSevenDay.Add(columnChartResponse);
+                }
+
+                var getStoreRevenueResponse = new GetStoreRevenueResponse()
+                {
+                    StoreId = getBrandDashBoardRequest.StoreId.Value,
+                    StoreName = existedBrand.Stores.FirstOrDefault(s => s.StoreId == getBrandDashBoardRequest.StoreId)!.Name,
+                    Revenues = columnChartRevenueInLastSevenDay,
+                };
 
                 GetBrandDashBoardResponse getBrandDashBoardResponse = new GetBrandDashBoardResponse()
-                {   
+                {
                     TotalStore = totalStore,
                     TotalNormalCategory = totalNormalCategory,
                     TotalExtraCategory = totalExtraCategory,
                     TotalProduct = totalProduct,
+                    StoreRevenues = getStoreRevenueResponse,
                     Stores = this._mapper.Map<List<GetStoreResponse>>(existedBrand!.Stores.Take(5)),
                 };
 
                 return getBrandDashBoardResponse;
-              
+
             }
             catch (BadRequestException ex)
             {
                 string fieldName = "";
                 switch (ex.Message)
                 {
-                    case MessageConstant.WalletMessage.BalanceIsInvalid:
-                        fieldName = "Wallet balance";
+                    case MessageConstant.StoreMessage.StoreIdNotBelongToBrand:
+                        fieldName = "Store id";
                         break;
 
                     default:
@@ -194,7 +218,7 @@ namespace MBKC.Service.Services.Implementations
             }
             catch (Exception ex)
             {
-                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                string error = ErrorUtil.GetErrorString("Exception", ex.InnerException != null ? ex.InnerException.Message : ex.Message);
                 throw new Exception(error);
             }
         }

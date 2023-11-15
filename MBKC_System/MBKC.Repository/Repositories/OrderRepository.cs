@@ -629,5 +629,26 @@ namespace MBKC.Repository.Repositories
 
         }
         #endregion
+
+        #region Get order by store id
+        public async Task<List<Order>> GetOrderByStoreIdAsync(int storeId)
+        {
+            try
+            {
+                return await this._dbContext.Orders.Where(o => o.PaymentMethod.ToUpper() == OrderEnum.PaymentMethod.CASH.ToString() 
+                                                       && o.StoreId == storeId
+                                                       && o.ShipperPayments.Any(sp => sp.Status == (int)ShipperPaymentEnum.Status.SUCCESS
+                                                                                   && sp.CreateDate.Date <= DateTime.Now.Date
+                                                                                   && sp.CreateDate.Date >= DateTime.Now.AddDays(-6).Date))
+                                                   .Include(o => o.ShipperPayments)
+                                                   .ToListAsync();
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
     }
 }
