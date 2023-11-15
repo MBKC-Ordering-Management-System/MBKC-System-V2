@@ -291,17 +291,17 @@ namespace MBKC.Service.Services.Implementations
                 // Check role when user login
                 if (role.ToLower().Equals(RoleConstant.Cashier.ToLower()))
                 {
-                    existedCashier = await this._unitOfWork.CashierRepository.GetCashierMoneyExchangeShipperPaymentAsync(email);
+                    existedCashier = await this._unitOfWork.CashierRepository.GetCashierMoneyExchangeAsync(email);
                     existedMoneyExchanges = existedCashier.CashierMoneyExchanges.Select(x => x.MoneyExchange).ToList();
                 }
                 else if (role.ToLower().Equals(RoleConstant.Store_Manager.ToLower()))
                 {
-                    existedStore = await this._unitOfWork.StoreRepository.GetStoreAsync(email);
+                    existedStore = await this._unitOfWork.StoreRepository.GetStoreMoneyExchangeAsync(email);
                     existedMoneyExchanges = existedStore.StoreMoneyExchanges.Select(x => x.MoneyExchange).ToList();
                 }
                 else if (role.ToLower().Equals(RoleConstant.Kitchen_Center_Manager.ToLower()))
                 {
-                    existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(email);
+                    existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterMoneyExchangeAsync(email);
                     /*var getMoneyExchangeWithdraw = await this._unitOfWork.MoneyExchangeRepository.GetMoneyExchangesBySendIdAsync(existedKitchenCenter.KitchenCenterId);*/
                     existedMoneyExchanges = existedKitchenCenter.KitchenCenterMoneyExchanges.Select(x => x.MoneyExchange).ToList();
                 }

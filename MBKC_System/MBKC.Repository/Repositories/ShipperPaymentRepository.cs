@@ -131,7 +131,10 @@ namespace MBKC.Repository.Repositories
 
         public async Task<List<ShipperPayment>> GetShiperPaymentsByCashierIdAsync(int cashierId)
         {
-            return await this._dbContext.ShipperPayments.Where(x => x.CreateBy == cashierId).ToListAsync();
+            return await this._dbContext.ShipperPayments
+                .Include(x => x.Order)
+                .Include(x => x.BankingAccount)
+                .Where(x => x.CreateBy == cashierId).ToListAsync();
         }
     }
 }
