@@ -587,6 +587,10 @@ namespace MBKC.Service.Services.Implementations
                         }
                         GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(order);
                         getOrderResponse.IsPaid = getOrderResponse.PaymentMethod.ToLower().Equals(OrderEnum.PaymentMethod.CASH.ToString().ToLower()) ? false : true;
+                        if(getOrderResponse.IsPaid == true)
+                        {
+                            collectedPrice = 0;
+                        }
                         getOrderResponse.CollectedPrice = collectedPrice;
                         List<int> listQuantity = new List<int>();
                         foreach (var orderDetail in getOrderResponse.OrderDetails)
@@ -674,6 +678,10 @@ namespace MBKC.Service.Services.Implementations
 
                 GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(existedOrder);
                 getOrderResponse.IsPaid = getOrderResponse.PaymentMethod.ToLower().Equals(OrderEnum.PaymentMethod.CASH.ToString().ToLower()) ? false : true;
+                if (getOrderResponse.IsPaid == true)
+                {
+                    collectedPrice = 0;
+                }
                 getOrderResponse.CollectedPrice = collectedPrice;
                 return getOrderResponse;
             }
