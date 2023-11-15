@@ -81,7 +81,7 @@ namespace MBKC.Repository.Repositories
                 }
                 if (sortByASC != null || sortByDESC != null)
                 {
-                    return (List<MoneyExchange>)moneyExchanges.OrderByDescending(x => x.ExchangeId).Where(x => (exchangeType != null ? x.ExchangeType.Equals(exchangeType.ToUpper()) : true) &&
+                    return moneyExchanges.OrderByDescending(x => x.ExchangeId).Where(x => (exchangeType != null ? x.ExchangeType.Equals(exchangeType.ToUpper()) : true) &&
                                                                     (status != null ? x.Status == status : true) &&
                                                                     (searchDateFrom != null && searchDateTo != null ?
                                                                     x.Transactions.Select(x => x.TransactionTime.Date).SingleOrDefault() >= startDate.Date &&
@@ -98,7 +98,7 @@ namespace MBKC.Repository.Repositories
                                                                               then => then.OrderBy(x => x.Transactions.Select(x => x.TransactionTime))
                                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("transactiontime"),
                                                                               then => then.OrderByDescending(x => x.Transactions.Select(x => x.TransactionTime)))
-                                                                    .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList());
+                                                                    .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage)).ToList();
                 }
 
                 return moneyExchanges.OrderByDescending(x => x.ExchangeId).Where(x => (exchangeType != null ? x.ExchangeType.Equals(exchangeType.ToUpper()) : true) &&
