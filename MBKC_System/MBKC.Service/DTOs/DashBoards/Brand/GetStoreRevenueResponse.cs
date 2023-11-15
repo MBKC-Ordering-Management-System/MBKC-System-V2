@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MBKC.Service.DTOs.DashBoards.KitchenCenter;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,8 @@ namespace MBKC.Service.DTOs.DashBoards.Brand
 {
     public class GetStoreRevenueResponse
     {
+        public int StoreId { get; set; }
         public string? StoreName { get; set; }
-        public decimal? Revenue { get; set; }
+        public List<GetColumnChartMoneyExchangesResponse>? Revenues { get; set; }
     }
 }

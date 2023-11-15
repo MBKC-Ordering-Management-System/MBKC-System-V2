@@ -147,74 +147,27 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
-                Claim registeredEmailClaim = claims.First(x => x.Type == ClaimTypes.Email);
-                var brandExisted = await _unitOfWork.BrandRepository.GetBrandAsync(registeredEmailClaim.Value);
+                string email = claims.First(x => x.Type == ClaimTypes.Email).Value;
+                var existedBrand = await _unitOfWork.BrandRepository.GetBrandForDashBoardAsync(email);
 
-                int? totalStore = brandExisted.Stores.Where(x => x.Status == (int)StoreEnum.Status.ACTIVE).Count();
-                int? totalNormalCategory = brandExisted.Categories.Where(x => x.Type.Equals(CategoryEnum.Type.NORMAL.ToString()) &&
-                                                                              x.Status == (int)CategoryEnum.Status.ACTIVE).Count();
-                int? totalExtraCategory = brandExisted.Categories.Where(x => x.Type.Equals(CategoryEnum.Type.EXTRA.ToString()) &&
-                                                                              x.Status == (int)CategoryEnum.Status.ACTIVE).Count();
-                int? totalProduct = brandExisted.Products.Where(x => x.Status == (int)ProductEnum.Status.ACTIVE).Count();
-
-                List<GetStoreResponse> getStoreResponses = _mapper.Map<List<GetStoreResponse>>(brandExisted.Stores);
-                DateTime startDateStore = DateTime.Now.Date;
-                DateTime endDateStore = DateTime.Now.Date;
-                DateTime startDateProduct = DateTime.Now.Date;
-                DateTime endDateProduct = DateTime.Now.Date;
-                if (getSearchDateDashBoardRequest.StoreSearchDateTo != null && getSearchDateDashBoardRequest.StoreSearchDateFrom != null)
-                {
-                    startDateStore = DateTime.ParseExact(getSearchDateDashBoardRequest.StoreSearchDateFrom, "dd/MM/yyyy", null);
-                    endDateStore = DateTime.ParseExact(getSearchDateDashBoardRequest.StoreSearchDateTo, "dd/MM/yyyy", null);
-                }
-                if (getSearchDateDashBoardRequest.ProductSearchDateFrom != null && getSearchDateDashBoardRequest.ProductSearchDateTo != null)
-                {
-                    startDateProduct = DateTime.ParseExact(getSearchDateDashBoardRequest.ProductSearchDateFrom, "dd/MM/yyyy", null);
-                    endDateProduct = DateTime.ParseExact(getSearchDateDashBoardRequest.ProductSearchDateTo, "dd/MM/yyyy", null);
-                }
-                var store = brandExisted.Stores.SingleOrDefault(x => x.StoreId == getSearchDateDashBoardRequest.StoreId && x.Status == (int)StoreEnum.Status.ACTIVE);
-                GetStoreRevenueResponse? getStoreRevenueResponse = null;
-                if (getSearchDateDashBoardRequest.StoreId != null && brandExisted.Stores.SingleOrDefault(x => x.StoreId == getSearchDateDashBoardRequest.StoreId).Orders.Any() && store != null)
-                {
-                    var totalRevenueOfStore = brandExisted.Stores.SingleOrDefault(x => x.StoreId == getSearchDateDashBoardRequest.StoreId)
-                                                             .Orders.Where(x => x.PartnerOrderStatus.Equals(OrderEnum.Status.COMPLETED.ToString()) && x.SystemStatus.Equals(OrderEnum.SystemStatus.COMPLETED.ToString()))
-                                                             .SelectMany(x => x.ShipperPayments)
-                                                             .Where(x => x.CreateDate.Date >= startDateStore.Date && x.CreateDate.Date <= endDateStore.Date).ToList().Select(x => x.Amount).Sum();
-                    // Get Store revenue
-                    getStoreRevenueResponse = new GetStoreRevenueResponse
-                    {
-                        StoreName = store.Name,
-                        Revenue = totalRevenueOfStore
-                    };
-                }
-                List<NumberOfProductsSoldResponse> numberOfProductsSoldResponse = new List<NumberOfProductsSoldResponse>();
-                if (brandExisted.Stores.SelectMany(x => x.Orders).Any())
-                {
-                    var orders = brandExisted.Stores.SelectMany(x => x.Orders)
-                                                          .Where(x => x.PartnerOrderStatus.Equals(OrderEnum.Status.COMPLETED.ToString()) && x.SystemStatus.Equals(OrderEnum.SystemStatus.COMPLETED.ToString()))
-                                                          .Select(x => x.OrderDetails.Select(x => x.Product.Name));
+                // total
+                var totalStore = await this._unitOfWork.StoreRepository.CountStoreNumberByBrandIdAsync(existedBrand!.BrandId);
+                var totalNormalCategory = await this._unitOfWork.CategoryRepository.CountTypeCategoryNumberByBrandIdAsync(existedBrand!.BrandId, CategoryEnum.Type.NORMAL);
+                var totalExtraCategory = await this._unitOfWork.CategoryRepository.CountTypeCategoryNumberByBrandIdAsync(existedBrand!.BrandId, CategoryEnum.Type.EXTRA);
+                var totalProduct = await this._unitOfWork.ProductRepository.CountProductNumberByBrandIdAsync(existedBrand.BrandId);
 
 
-                    /*foreach (var order in orders)
-                    {
-                        numberOfProductsSoldResponse.Add(new NumberOfProductsSoldResponse
-                        {
-                            ProductName = order.OrderDetails.Select(x => x.Product.Name).SingleOrDefault(),
-                            Quantity = 
-                        });
-                    }*/
-                }
-                return new GetBrandDashBoardResponse
-                {
+                GetBrandDashBoardResponse getBrandDashBoardResponse = new GetBrandDashBoardResponse()
+                {   
+                    TotalStore = totalStore,
                     TotalNormalCategory = totalNormalCategory,
                     TotalExtraCategory = totalExtraCategory,
-                    TotalStore = totalStore,
                     TotalProduct = totalProduct,
-                    GetStoreResponse = getStoreResponses,
-                    GetStoreRevenueResponses = getStoreRevenueResponse,
-                    NumberOfProductsSoldResponses = numberOfProductsSoldResponse
+                    Stores = this._mapper.Map<List<GetStoreResponse>>(existedBrand!.Stores),
                 };
 
+                return getBrandDashBoardResponse;
+              
             }
             catch (Exception ex)
             {
