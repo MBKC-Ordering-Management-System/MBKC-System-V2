@@ -515,7 +515,7 @@ namespace MBKC.Service.Services.Implementations
 
                 if (cashier.KitchenCenter.Stores.Select(x => x.Orders).Any())
                 {
-                    totalOrderToday = cashier.KitchenCenter.Stores.SelectMany(x => x.Orders).Where(x => x.ShipperPayments.Any(x => x.CreateBy == cashier.AccountId)).Count(x => x.OrderHistories
+                    totalOrderToday = cashier.KitchenCenter.Stores.SelectMany(x => x.Orders).Where(x => x.confirmedBy == cashier.AccountId).Count(x => x.OrderHistories
                                                                                             .Any(x => x.SystemStatus.Equals(OrderEnum.SystemStatus.COMPLETED.ToString()) &&
                                                                                                         x.PartnerOrderStatus.Equals(OrderEnum.Status.COMPLETED.ToString()) && x.CreatedDate.Date == currentDate.Date));
 
