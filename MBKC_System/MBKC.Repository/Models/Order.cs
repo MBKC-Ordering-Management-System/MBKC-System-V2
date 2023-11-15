@@ -32,7 +32,7 @@ namespace MBKC.Repository.Models
         public string Address { get; set; }
         public int? Cutlery { get; set; }
         public string PartnerOrderStatus { get; set; }
-        public int? confirmedBy { get; set; }
+        public int? ConfirmedBy { get; set; }
 
         [ForeignKey("StoreId")]
         public virtual Store Store { get; set; }

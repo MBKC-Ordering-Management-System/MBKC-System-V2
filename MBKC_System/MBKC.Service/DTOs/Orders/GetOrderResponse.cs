@@ -37,7 +37,7 @@ namespace MBKC.Service.DTOs.Orders
         public int? Cutlery { get; set; }
         public string PartnerOrderStatus { get; set; }
         public int TotalQuantity { get; set; }
-        public int? confirmedBy { get; set; }
+        public int? ConfirmedBy { get; set; }
         public GetStoreResponse Store { get; set; }
         public GetPartnerResponse Partner { get; set; }
         public List<GetShipperPaymentOrderResponse> ShipperPayments { get; set; }
