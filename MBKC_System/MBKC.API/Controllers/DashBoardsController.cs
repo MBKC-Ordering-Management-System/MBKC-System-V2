@@ -21,10 +21,14 @@ namespace MBKC.API.Controllers
     {
         private IDashBoardService _dashBoardService;
         private IValidator<GetBrandDashBoardRequest> _getBrandDashBoardValidator;
-        public DashBoardsController(IDashBoardService dashBoardService, IValidator<GetBrandDashBoardRequest> getBrandDashBoardValidator)
+        private IValidator<GetCashierDashBoardRequest> _getCashierDashBoardValidator;
+        public DashBoardsController(IDashBoardService dashBoardService, 
+                                    IValidator<GetBrandDashBoardRequest> getBrandDashBoardValidator,
+                                    IValidator<GetCashierDashBoardRequest> getCashierDashBoardValidator)
         {
             _dashBoardService = dashBoardService;
             _getBrandDashBoardValidator = getBrandDashBoardValidator;
+            _getCashierDashBoardValidator = getCashierDashBoardValidator;
         }
 
         #region Get admin dash board
@@ -180,11 +184,19 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.Cashier)]
         [HttpGet(APIEndPointConstant.DashBoard.CashierDashBoardEndpoint)]
-        public async Task<IActionResult> GetCashierDashBoardAsync([FromQuery] GetBrandDashBoardRequest getSearchDateDashBoardRequest)
+        public async Task<IActionResult> GetCashierDashBoardAsync([FromQuery] GetCashierDashBoardRequest getCashierDashBoardRequest)
         {
+
+            ValidationResult validationResult = await this._getCashierDashBoardValidator.ValidateAsync(getCashierDashBoardRequest);
+            if (validationResult.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
+            }
+
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            var getBrandDashBoard = await this._dashBoardService.GetCashierDashBoardAsync(claims);
-            return Ok(getBrandDashBoard);
+            var getCashierDashBoard = await this._dashBoardService.GetCashierDashBoardAsync(claims, getCashierDashBoardRequest);
+            return Ok(getCashierDashBoard);
         }
         #endregion
     }

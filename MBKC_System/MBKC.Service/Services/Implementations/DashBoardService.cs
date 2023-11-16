@@ -7,8 +7,12 @@ using MBKC.Service.DTOs.Brands;
 using MBKC.Service.DTOs.Cashiers.Responses;
 using MBKC.Service.DTOs.DashBoards;
 using MBKC.Service.DTOs.DashBoards.Brand;
+using MBKC.Service.DTOs.DashBoards.Cashier;
 using MBKC.Service.DTOs.KitchenCenters;
+using MBKC.Service.DTOs.MoneyExchanges;
+using MBKC.Service.DTOs.Orders;
 using MBKC.Service.DTOs.PartnerProducts;
+using MBKC.Service.DTOs.ShipperPayments;
 using MBKC.Service.DTOs.Stores;
 using MBKC.Service.Exceptions;
 using MBKC.Service.Services.Interfaces;
@@ -204,20 +208,20 @@ namespace MBKC.Service.Services.Implementations
                 if (getBrandDashBoardRequest.ProductSearchDateFrom is null
                  && getBrandDashBoardRequest.ProductSearchDateTo is null)
                 {
-                    ordersForProductSold = await this._unitOfWork.OrderRepository.GetOrderByDateFromAndDateToAsync(DateTime.Now.AddDays(-6), DateTime.Now);
+                    ordersForProductSold = await this._unitOfWork.OrderRepository.GetOrderByDateFromAndDateToAsync(DateTime.Now.AddDays(-6), DateTime.Now, existedBrand.BrandId);
                 }
                 else if (getBrandDashBoardRequest.ProductSearchDateFrom is not null
                       && getBrandDashBoardRequest.ProductSearchDateTo is not null)
                 {
-                    ordersForProductSold = await this._unitOfWork.OrderRepository.GetOrderByDateFromAndDateToAsync(DateUtil.ConvertStringToDateTime(getBrandDashBoardRequest.ProductSearchDateFrom), DateUtil.ConvertStringToDateTime(getBrandDashBoardRequest.ProductSearchDateTo));
+                    ordersForProductSold = await this._unitOfWork.OrderRepository.GetOrderByDateFromAndDateToAsync(DateUtil.ConvertStringToDateTime(getBrandDashBoardRequest.ProductSearchDateFrom), DateUtil.ConvertStringToDateTime(getBrandDashBoardRequest.ProductSearchDateTo), existedBrand.BrandId);
                 }
                 else if (getBrandDashBoardRequest.ProductSearchDateFrom is not null)
                 {
-                    ordersForProductSold = await this._unitOfWork.OrderRepository.GetOrderByDateFromAndDateToAsync(DateUtil.ConvertStringToDateTime(getBrandDashBoardRequest.ProductSearchDateFrom), null);
+                    ordersForProductSold = await this._unitOfWork.OrderRepository.GetOrderByDateFromAndDateToAsync(DateUtil.ConvertStringToDateTime(getBrandDashBoardRequest.ProductSearchDateFrom), null, existedBrand.BrandId);
                 }
                 else if (getBrandDashBoardRequest.ProductSearchDateTo is not null)
                 {
-                    ordersForProductSold = await this._unitOfWork.OrderRepository.GetOrderByDateFromAndDateToAsync(null, DateUtil.ConvertStringToDateTime(getBrandDashBoardRequest.ProductSearchDateTo));
+                    ordersForProductSold = await this._unitOfWork.OrderRepository.GetOrderByDateFromAndDateToAsync(null, DateUtil.ConvertStringToDateTime(getBrandDashBoardRequest.ProductSearchDateTo), existedBrand.BrandId);
                 }
 
                 foreach (var order in ordersForProductSold)
@@ -235,7 +239,7 @@ namespace MBKC.Service.Services.Implementations
                     }
                 }
 
-                foreach(var product in existedBrand.Products)
+                foreach (var product in existedBrand.Products)
                 {
                     var getNumberOfProductsSoldResponse = new GetNumberOfProductsSoldResponse()
                     {
@@ -326,9 +330,58 @@ namespace MBKC.Service.Services.Implementations
         #endregion
 
         #region Dash board for cashier
-        public Task<GetStoreDashBoardResponse> GetCashierDashBoardAsync(IEnumerable<Claim> claims)
+        public async Task<GetCashierDashBoardResponse> GetCashierDashBoardAsync(IEnumerable<Claim> claims, GetCashierDashBoardRequest getCashierDashBoardRequest)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var email = claims.First(x => x.Type == ClaimTypes.Email).Value;
+                var existedCashier = await this._unitOfWork.CashierRepository.GetCashierForDashBoardAsync(email);
+
+                // count
+                var totalRevenueDaily = await this._unitOfWork.ShipperPaymentRepository.CountTotalRevenueDailyByCashierIdAsync(existedCashier!.AccountId);
+                var totalOrderDaily = await this._unitOfWork.OrderRepository.CountNumberOfOrderTodayByCashierId(existedCashier!.AccountId);
+                
+                // list
+                var shipperPayments = await this._unitOfWork.ShipperPaymentRepository.GetFiveShiperPaymentsSoryByCreatDateFindByCashierIdAsync(existedCashier!.AccountId);
+
+                #region list order
+                var ordersHasPaid = new List<Order>();
+                if (getCashierDashBoardRequest.OrderSearchDateFrom is null
+                 && getCashierDashBoardRequest.OrderSearchDateTo is null)
+                {
+                    ordersHasPaid = await this._unitOfWork.OrderRepository.GetOrderPaidByDateFormAndDateToByCashierId(DateTime.Now.AddDays(-6), DateTime.Now, existedCashier.AccountId);
+                }
+                else if (getCashierDashBoardRequest.OrderSearchDateFrom is not null
+                      && getCashierDashBoardRequest.OrderSearchDateTo is not null)
+                {
+                    ordersHasPaid = await this._unitOfWork.OrderRepository.GetOrderPaidByDateFormAndDateToByCashierId(DateUtil.ConvertStringToDateTime(getCashierDashBoardRequest.OrderSearchDateFrom), DateUtil.ConvertStringToDateTime(getCashierDashBoardRequest.OrderSearchDateTo), existedCashier.AccountId);
+                }
+                else if (getCashierDashBoardRequest.OrderSearchDateFrom is not null)
+                {
+                    ordersHasPaid = await this._unitOfWork.OrderRepository.GetOrderPaidByDateFormAndDateToByCashierId(DateUtil.ConvertStringToDateTime(getCashierDashBoardRequest.OrderSearchDateFrom), null, existedCashier.AccountId);
+                }
+                else if (getCashierDashBoardRequest.OrderSearchDateTo is not null)
+                {
+                    ordersHasPaid = await this._unitOfWork.OrderRepository.GetOrderByDateFromAndDateToAsync(null, DateUtil.ConvertStringToDateTime(getCashierDashBoardRequest.OrderSearchDateTo), existedCashier.AccountId);
+                }
+                #endregion
+
+                var getCashierDashBoardResponse = new GetCashierDashBoardResponse()
+                {
+                    TotalRevenueDaily = totalRevenueDaily,
+                    TotalOrderDaily = totalOrderDaily,
+                    Orders = this._mapper.Map<List<GetOrderResponse>>(ordersHasPaid),
+                    MoneyExchanges  = this._mapper.Map<List<GetMoneyExchangeResponse>>(existedCashier!.CashierMoneyExchanges.Select(c => c.MoneyExchange)),
+                    ShipperPayments = this._mapper.Map<List<GetShipperPaymentResponse>>(shipperPayments),
+                };
+
+                return getCashierDashBoardResponse;
+            }
+            catch (Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.InnerException != null ? ex.InnerException.Message : ex.Message);
+                throw new Exception(error);
+            }
         }
         #endregion
     }
