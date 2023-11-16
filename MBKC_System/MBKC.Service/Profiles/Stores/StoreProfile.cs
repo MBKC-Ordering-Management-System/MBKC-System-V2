@@ -16,8 +16,9 @@ namespace MBKC.Service.Profiles.Stores
     {
         public StoreProfile()
         {
-            CreateMap<Store, GetStoreResponse>()
-                                                .ForMember(x => x.Status, opt => opt.MapFrom(src => StatusUtil.ChangeStoreStatus(src.Status)));
+            CreateMap<Store, GetStoreResponse>().ForMember(x => x.Status, opt => opt.MapFrom(src => StatusUtil.ChangeStoreStatus(src.Status)))
+                                                .ForMember(x => x.WalletBalance, opt => opt.MapFrom(src => src.Wallet.Balance));
+
             CreateMap<Store, GetStoreResponseForPrivateAPI>();
         }
     }

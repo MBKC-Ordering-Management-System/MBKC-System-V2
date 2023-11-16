@@ -18,6 +18,7 @@ namespace MBKC.Service.DTOs.Stores
         public string Logo { get; set; }
         public string StoreManagerEmail { get; set; }
         public string? RejectedReason { get; set; }
+        public decimal? WalletBalance { get; set; }
         public GetKitchenCenterResponse KitchenCenter { get; set; }
         public GetBrandResponse Brand { get; set; }
         public List<GetStorePartnerWithPartnerOnlyResponse> StorePartners { get; set; }

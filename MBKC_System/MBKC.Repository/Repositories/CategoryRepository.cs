@@ -16,11 +16,11 @@ namespace MBKC.Repository.Repositories
         }
 
         #region Get Category By Code
-        public async Task<Category> GetCategoryByCodeAsync(string code)
+        public async Task<Category> GetCategoryByCodeAsync(string code, int brandId)
         {
             try
             {
-                return await _dbContext.Categories.SingleOrDefaultAsync(c => c.Code.Equals(code));
+                return await _dbContext.Categories.SingleOrDefaultAsync(c => c.Code.Equals(code) && c.Brand.BrandId == brandId);
             }
             catch (Exception ex)
             {

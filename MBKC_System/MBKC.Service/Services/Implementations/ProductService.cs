@@ -357,10 +357,10 @@ namespace MBKC.Service.Services.Implementations
                 string email = registeredEmailClaim.Value;
                 Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandAsync(email);
 
-                Product existedProduct = await this._unitOfWork.ProductRepository.GetProductAsync(createProductRequest.Code);
+                Product existedProduct = await this._unitOfWork.ProductRepository.CheckProductCodeInBrandAsync(createProductRequest.Code, existedBrand.BrandId);
                 if (existedProduct != null && existedProduct.Status != (int)ProductEnum.Status.DEACTIVE)
                 {
-                    throw new BadRequestException(MessageConstant.ProductMessage.ProductCodeExisted);
+                    throw new BadRequestException(MessageConstant.ProductMessage.ProductCodeExistedInBrand);
                 }
 
                 Product existedParentProduct = null;
@@ -460,7 +460,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     fieldName = "Parent product id";
                 }
-                else if (ex.Message.Equals(MessageConstant.ProductMessage.ProductCodeExisted))
+                else if (ex.Message.Equals(MessageConstant.ProductMessage.ProductCodeExistedInBrand))
                 {
                     fieldName = "Code";
                 }

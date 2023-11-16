@@ -113,7 +113,7 @@ namespace MBKC.Service.Constants
 
         public static class CategoryMessage
         {
-
+            public const string CategoryCodeExistedInBrand = "Category code already exist in brand.";
             public const string CategoryCodeExisted = "Category code already exist in the system.";
             public const string DeactiveCategory_Delete = "Category cannot delete because that was deleted before.";
             public const string DeactiveCategory_Update = "Category was deleted before, so this category cannot update.";
@@ -138,6 +138,7 @@ namespace MBKC.Service.Constants
 
         public static class ProductMessage
         {
+            public const string ProductCodeExistedInBrand = "Code already exist in brand.";
             public const string ProductCodeExisted = "Code already exist in the system.";
             public const string ParentProductIdNotExist = "Parent product id does not exist in the system.";
             public const string ParentProductIdNotBelongToBrand = "Parent product id does not belong to your brand.";
