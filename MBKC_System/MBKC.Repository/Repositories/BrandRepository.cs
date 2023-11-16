@@ -305,7 +305,7 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await _dbContext.Brands.Where(b => b.Status != (int)BrandEnum.Status.DEACTIVE).CountAsync();
+                return await _dbContext.Brands.Where(b => b.Status != (int)BrandEnum.Status.DISABLE).CountAsync();
             }
             catch (Exception ex)
             {
@@ -319,7 +319,7 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await _dbContext.Brands.Where(b => b.Status != (int)BrandEnum.Status.DEACTIVE)
+                return await _dbContext.Brands.Where(b => b.Status != (int)BrandEnum.Status.DISABLE)
                                                       .OrderByDescending(b => b.Status)
                                                       .Take(5)
                                                       .ToListAsync();

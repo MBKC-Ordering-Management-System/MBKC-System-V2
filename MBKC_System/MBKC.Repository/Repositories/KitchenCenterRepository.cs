@@ -267,7 +267,7 @@ namespace MBKC.Repository.Repositories
                                                            .Include(x => x.Cashiers)
                                                            .Include(x => x.KitchenCenterMoneyExchanges).ThenInclude(x => x.MoneyExchange).ThenInclude(x => x.Transactions)
                                                            .FirstOrDefaultAsync(x => x.Manager.Email.Equals(managerEmail)
-                                                                                  && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE);
+                                                                                  && x.Status != (int)KitchenCenterEnum.Status.DISABLE);
             }
             catch (Exception ex)
             {
@@ -281,7 +281,7 @@ namespace MBKC.Repository.Repositories
             {
                 return await this._dbContext.KitchenCenters.Include(x => x.Cashiers)
                                                            .FirstOrDefaultAsync(x => x.Manager.Email.Equals(managerEmail)
-                                                                                  && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE);
+                                                                                  && x.Status != (int)KitchenCenterEnum.Status.DISABLE);
             }
             catch (Exception ex)
             {
@@ -340,7 +340,7 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await _dbContext.KitchenCenters.Where(kc => kc.Status != (int)KitchenCenterEnum.Status.DEACTIVE).CountAsync();
+                return await _dbContext.KitchenCenters.Where(kc => kc.Status != (int)KitchenCenterEnum.Status.DISABLE).CountAsync();
             }
             catch (Exception ex)
             {
@@ -354,7 +354,7 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await _dbContext.KitchenCenters.Where(kc => kc.Status != (int)KitchenCenterEnum.Status.DEACTIVE)
+                return await _dbContext.KitchenCenters.Where(kc => kc.Status != (int)KitchenCenterEnum.Status.DISABLE)
                                                       .OrderByDescending(kc => kc.Status)
                                                       .Take(5)
                                                       .ToListAsync();
@@ -375,7 +375,7 @@ namespace MBKC.Repository.Repositories
                                                            .ThenInclude(x => x.MoneyExchange)
                                                            .ThenInclude(x => x.Transactions)
                                                            .FirstOrDefaultAsync(x => x.Manager.Email.Equals(managerEmail)
-                                                                                  && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE);
+                                                                                  && x.Status != (int)KitchenCenterEnum.Status.DISABLE);
             }
             catch (Exception ex)
             {

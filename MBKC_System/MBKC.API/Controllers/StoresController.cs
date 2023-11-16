@@ -401,7 +401,7 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin)]
         [HttpPut(APIEndPointConstant.Store.ConfirmRegistrationStore)]
-        public async Task<IActionResult> PutConfirmRegistrationStore([FromRoute] StoreRequest getStoreRequest, [FromBody] ConfirmStoreRegistrationRequest confirmStoreRegistrationRequest)
+        public async Task<IActionResult> PutConfirmRegistrationStoreAsync([FromRoute] StoreRequest getStoreRequest, [FromBody] ConfirmStoreRegistrationRequest confirmStoreRegistrationRequest)
         {
             ValidationResult validationResult = await this._confirmStoreRegistrationValidator.ValidateAsync(confirmStoreRegistrationRequest);
             ValidationResult validationResultStoreId = await this._getStoreValidator.ValidateAsync(getStoreRequest);
