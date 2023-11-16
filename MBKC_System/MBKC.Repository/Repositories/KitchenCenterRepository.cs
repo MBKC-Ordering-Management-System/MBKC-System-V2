@@ -231,11 +231,11 @@ namespace MBKC.Repository.Repositories
         }
 
         public async Task<KitchenCenter> GetKitchenCenterAsync(string managerEmail)
-        {
+        { 
             try
             {
                 return await this._dbContext.KitchenCenters.Include(x => x.Manager)
-                                                           .Include(x => x.KitchenCenterMoneyExchanges)
+                                                           .Include(x => x.KitchenCenterMoneyExchanges).ThenInclude(x => x.MoneyExchange).ThenInclude(x => x.Transactions)
                                                            .Include(x => x.Cashiers).ThenInclude(x => x.CashierMoneyExchanges)
                                                            .Include(x => x.Stores).ThenInclude(x => x.StoreMoneyExchanges)
                                                            .Include(x => x.Wallet)
@@ -258,6 +258,37 @@ namespace MBKC.Repository.Repositories
             }
         }
 
+        public async Task<KitchenCenter> GetKitchenCenterWalletAsync(string managerEmail)
+        {
+            try
+            {
+                return await this._dbContext.KitchenCenters
+                                                           .Include(x => x.Wallet)
+                                                           .Include(x => x.Cashiers)
+                                                           .Include(x => x.KitchenCenterMoneyExchanges).ThenInclude(x => x.MoneyExchange).ThenInclude(x => x.Transactions)
+                                                           .FirstOrDefaultAsync(x => x.Manager.Email.Equals(managerEmail)
+                                                                                  && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<KitchenCenter> GetKitchenCenterIncludeCashierAsync(string managerEmail)
+        {
+            try
+            {
+                return await this._dbContext.KitchenCenters.Include(x => x.Cashiers)
+                                                           .FirstOrDefaultAsync(x => x.Manager.Email.Equals(managerEmail)
+                                                                                  && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task<List<KitchenCenter>> GetKitchenCentersIncludeOrderAsync()
         {
             try
@@ -265,21 +296,15 @@ namespace MBKC.Repository.Repositories
                 return await this._dbContext.KitchenCenters.Include(kc => kc.Manager)
                                                            .Include(kc => kc.Wallet)
                                                            .Include(kc => kc.KitchenCenterMoneyExchanges.Where(kc => kc.MoneyExchange.ExchangeType.ToUpper().Equals(MoneyExchangeEnum.ExchangeType.SEND.ToString())
-                                                                                                                  && kc.MoneyExchange.Transactions.Any(ts => ts.TransactionTime.Day == DateTime.Now.Day
-                                                                                                                                                          && ts.TransactionTime.Month == DateTime.Now.Month
-                                                                                                                                                          && ts.TransactionTime.Year == DateTime.Now.Year)))
+                                                                                                                  && kc.MoneyExchange.Transactions.Any(ts => ts.TransactionTime.Date == DateTime.Now.Date)))
+
                                                            .Include(kc => kc.Stores.Where(s => s.Status == (int)StoreEnum.Status.ACTIVE))
                                                            .ThenInclude(s => s.Orders.Where(o => o.PartnerOrderStatus.Equals(OrderEnum.Status.COMPLETED.ToString())
                                                                                               && o.PaymentMethod.ToUpper().Equals(OrderEnum.PaymentMethod.CASH.ToString())
-                                                                                              && o.ShipperPayments.Any(sp => sp.CreateDate.Day == DateTime.Now.Day
-                                                                                                                          && sp.CreateDate.Month == DateTime.Now.Month
-                                                                                                                          && sp.CreateDate.Year == DateTime.Now.Year))).ThenInclude(x => x.Store).ThenInclude(x => x.StorePartners)
+                                                                                              && o.ShipperPayments.Any(sp => sp.CreateDate.Date == DateTime.Now.Date)))
+
                                                            .Include(kc => kc.Stores.Where(s => s.Status == (int)StoreEnum.Status.ACTIVE))
-                                                           .ThenInclude(s => s.Orders.Where(o => o.PartnerOrderStatus.Equals(OrderEnum.Status.COMPLETED.ToString())
-                                                                                              && o.PaymentMethod.ToUpper().Equals(OrderEnum.PaymentMethod.CASH.ToString())
-                                                                                              && o.ShipperPayments.Any(sp => sp.CreateDate.Day == DateTime.Now.Day
-                                                                                                                          && sp.CreateDate.Month == DateTime.Now.Month
-                                                                                                                          && sp.CreateDate.Year == DateTime.Now.Year))).ThenInclude(x => x.Partner)
+                                                           .ThenInclude(s => s.StorePartners)
                                                            .Include(kc => kc.Stores)
                                                            .ThenInclude(s => s.Wallet)
                                                            .Where(kc => kc.Status == (int)KitchenCenterEnum.Status.ACTIVE && kc.Wallet.Balance > 0).ToListAsync();
@@ -289,5 +314,75 @@ namespace MBKC.Repository.Repositories
                 throw new Exception(ex.Message);
             }
         }
+
+        #region Get kitchen center for dash board
+        public async Task<KitchenCenter?> GetKitchenCenterForDashBoardAsync(string managerEmail)
+        {
+            try
+            {
+                return await this._dbContext.KitchenCenters.Include(kc => kc.Stores.Where(s => s.Status == (int)StoreEnum.Status.ACTIVE || s.Status == (int)StoreEnum.Status.INACTIVE)
+                                                                                   .OrderByDescending(s => s.Status)
+                                                                                   .Take(5))
+                                                           .Include(kc => kc.Cashiers.Where(c => c.Account.Status != (int)AccountEnum.Status.DEACTIVE)
+                                                                                     .OrderByDescending(c => c.Account.Status)
+                                                                                     .Take(5))
+                                                           .FirstOrDefaultAsync(kc => kc.Manager.Email.Equals(managerEmail) && kc.Status == (int)KitchenCenterEnum.Status.ACTIVE);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        #region count number of kitchen center
+        public async Task<int> CountKitchenCenterNumberAsync()
+        {
+            try
+            {
+                return await _dbContext.KitchenCenters.Where(kc => kc.Status != (int)KitchenCenterEnum.Status.DEACTIVE).CountAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        #region get 5 kitchen center with status active
+        public async Task<List<KitchenCenter>> GetFiveKitchenterSortByActiveAsync()
+        {
+            try
+            {
+                return await _dbContext.KitchenCenters.Where(kc => kc.Status != (int)KitchenCenterEnum.Status.DEACTIVE)
+                                                      .OrderByDescending(kc => kc.Status)
+                                                      .Take(5)
+                                                      .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        public async Task<KitchenCenter> GetKitchenCenterMoneyExchangeAsync(string managerEmail)
+        {
+            try
+            {
+                return await this._dbContext.KitchenCenters
+                                                           .Include(x => x.KitchenCenterMoneyExchanges)
+                                                           .ThenInclude(x => x.MoneyExchange)
+                                                           .ThenInclude(x => x.Transactions)
+                                                           .FirstOrDefaultAsync(x => x.Manager.Email.Equals(managerEmail)
+                                                                                  && x.Status != (int)KitchenCenterEnum.Status.DEACTIVE);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }
+
+

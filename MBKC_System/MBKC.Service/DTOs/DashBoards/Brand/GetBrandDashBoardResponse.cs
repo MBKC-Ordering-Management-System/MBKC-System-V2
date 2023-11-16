@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MBKC.Service.DTOs.DashBoards
+namespace MBKC.Service.DTOs.DashBoards.Brand
 {
     public class GetBrandDashBoardResponse
     {
@@ -13,8 +13,7 @@ namespace MBKC.Service.DTOs.DashBoards
         public int? TotalNormalCategory { get; set; }
         public int? TotalExtraCategory { get; set; }
         public int? TotalProduct { get; set; }
-        public GetStoreRevenueResponse? GetStoreRevenueResponses { get; set; }
-        public List<GetStoreResponse>? GetStoreResponse { get; set; }
-        public List<NumberOfProductsSoldResponse>? NumberOfProductsSoldResponses { get; set; }
+        public List<GetStoreRevenueResponse>? StoreRevenues{ get; set; }
+        public List<GetStoreResponse>? Stores { get; set; }
     }
 }

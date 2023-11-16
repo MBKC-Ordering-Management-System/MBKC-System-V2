@@ -278,24 +278,31 @@ namespace MBKC.Repository.Repositories
             }
         }
 
-        public async Task<Cashier> GetCashierAsync(int idCashier)
+        public async Task<Cashier> GetCashierAsync(int idCashier) 
         {
             try
             {
                 return await this._dbContext.Cashiers.Include(x => x.Account)
                                                      .Include(x => x.CashierMoneyExchanges)
                                                      .Include(x => x.KitchenCenter)
-                                                     .Include(x => x.Wallet)
-                                                     .ThenInclude(x => x.Transactions)
-                                                     .ThenInclude(x => x.MoneyExchange)
-                                                     .Include(x => x.Wallet)
-                                                     .ThenInclude(x => x.Transactions)
-                                                     .ThenInclude(x => x.ShipperPayment)
-                                                      .ThenInclude(x => x.Order)
-                                                      .Include(x => x.Wallet)
-                                                     .ThenInclude(x => x.Transactions)
-                                                     .ThenInclude(x => x.ShipperPayment)
-                                                      .ThenInclude(x => x.BankingAccount)
+                                                     .Include(x => x.Wallet).ThenInclude(x => x.Transactions).ThenInclude(x => x.MoneyExchange)
+                                                     .Include(x => x.Wallet).ThenInclude(x => x.Transactions).ThenInclude(x => x.ShipperPayment).ThenInclude(x => x.Order)
+                                                     .Include(x => x.Wallet).ThenInclude(x => x.Transactions).ThenInclude(x => x.ShipperPayment).ThenInclude(x => x.BankingAccount)
+                                                     .SingleOrDefaultAsync(x => x.AccountId == idCashier && x.Account.Status != (int)AccountEnum.Status.DEACTIVE);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<Cashier> GetCashierWalletAsync(int idCashier)
+        {
+            try
+            {
+                return await this._dbContext.Cashiers.Include(x => x.Wallet)
+                                                     .Include(x => x.CashierMoneyExchanges).ThenInclude(x => x.MoneyExchange).ThenInclude(x => x.Transactions)
+                                                     .Include(x => x.KitchenCenter).ThenInclude(x => x.BankingAccounts).ThenInclude(x => x.ShipperPayments)
                                                      .SingleOrDefaultAsync(x => x.AccountId == idCashier && x.Account.Status != (int)AccountEnum.Status.DEACTIVE);
             }
             catch (Exception ex)
@@ -334,19 +341,27 @@ namespace MBKC.Repository.Repositories
             }
         }
 
-        public async Task<Cashier> GetCashierMoneyExchangeShipperPaymentAsync(string email)
+        public async Task<Cashier> GetCashierMoneyExchangeAsync(string email)
         {
             try
             {
-                return await this._dbContext.Cashiers.Include(x => x.Account)
-                                                     .Include(x => x.Wallet)
-                                                     .Include(x => x.Wallet)
-                                                     .Include(x => x.KitchenCenter).ThenInclude(kc => kc.Manager)
-                                                     .Include(x => x.KitchenCenter).ThenInclude(kc => kc.Stores).ThenInclude(x => x.Orders).ThenInclude(x => x.OrderHistories)
-                                                     .Include(x => x.KitchenCenter).ThenInclude(kc => kc.BankingAccounts).ThenInclude(x => x.ShipperPayments)
-                                                     .Include(x => x.KitchenCenter).ThenInclude(kc => kc.Wallet)
+                return await this._dbContext.Cashiers.Include(x => x.KitchenCenter)
                                                      .Include(x => x.CashierMoneyExchanges).ThenInclude(x => x.MoneyExchange).ThenInclude(x => x.Transactions)
                                                      .SingleOrDefaultAsync(x => x.Account.Email.Equals(email));
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<Cashier> GetCashierShipperPaymentAsync(string email)
+        {
+            try
+            {
+                return await this._dbContext.Cashiers.SingleOrDefaultAsync(x => x.Account.Email.Equals(email));
+
+
             }
             catch (Exception ex)
             {
@@ -358,10 +373,12 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await this._dbContext.Cashiers.Include(x => x.Account)
+                return await this._dbContext.Cashiers.Include(x => x.CashierMoneyExchanges).ThenInclude(x => x.MoneyExchange).ThenInclude(x => x.Transactions)
+                                                     .Include(x => x.Account)
                                                      .Include(x => x.Wallet)
                                                      .Include(x => x.KitchenCenter).ThenInclude(kc => kc.Manager)
                                                      .Include(x => x.KitchenCenter).ThenInclude(kc => kc.Stores).ThenInclude(x => x.Orders).ThenInclude(x => x.OrderHistories)
+                                                     .Include(x => x.KitchenCenter).ThenInclude(kc => kc.Stores).ThenInclude(x => x.Orders).ThenInclude(x => x.ShipperPayments)
                                                      .SingleOrDefaultAsync(x => x.Account.Email.Equals(email));
             }
             catch (Exception ex)
@@ -369,5 +386,19 @@ namespace MBKC.Repository.Repositories
                 throw new Exception(ex.Message);
             }
         }
+
+        #region count cashier in system
+        public async Task<int> CountCashierInSystemFindByKitchenCenterIdAsync(int kitchenCenterId)
+        {
+            try
+            {
+                return await this._dbContext.Cashiers.Where(c => c.Account.Status != (int)AccountEnum.Status.DEACTIVE && c.KitchenCenter.KitchenCenterId == kitchenCenterId).CountAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
     }
 }

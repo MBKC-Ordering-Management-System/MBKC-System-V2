@@ -496,6 +496,17 @@ namespace MBKC.Service.Services.Implementations
             {
                 Claim registeredEmailClaim = claims.First(x => x.Type == ClaimTypes.Email);
                 var cashier = await _unitOfWork.CashierRepository.GetCashierReportAsync(registeredEmailClaim.Value);
+                // Check cashier end shift or not
+                var cashierMoneyExchangeSendToKitchenCenter = cashier.CashierMoneyExchanges.Select(x => x.MoneyExchange)
+                                                                .Where(x => x.ExchangeType.Equals(MoneyExchangeEnum.ExchangeType.SEND.ToString()) && x.Transactions
+                                                                .Any(x => x.TransactionTime.Date == DateTime.Now.Date)).SingleOrDefault();
+
+                // if cashier ended set isShiftEnded == true => cashier cannot make any more transactions.
+                bool isShiftEnded = false;
+                if (cashierMoneyExchangeSendToKitchenCenter != null)
+                {
+                    isShiftEnded = true;
+                }
                 int? totalOrderToday = null;
                 decimal? totalMoneyToday = null;
                 decimal? balance = null;
@@ -504,7 +515,7 @@ namespace MBKC.Service.Services.Implementations
 
                 if (cashier.KitchenCenter.Stores.Select(x => x.Orders).Any())
                 {
-                    totalOrderToday = cashier.KitchenCenter.Stores.SelectMany(x => x.Orders).Count(x => x.OrderHistories
+                    totalOrderToday = cashier.KitchenCenter.Stores.SelectMany(x => x.Orders).Where(x => x.ConfirmedBy == cashier.AccountId).Count(x => x.OrderHistories
                                                                                             .Any(x => x.SystemStatus.Equals(OrderEnum.SystemStatus.COMPLETED.ToString()) &&
                                                                                                         x.PartnerOrderStatus.Equals(OrderEnum.Status.COMPLETED.ToString()) && x.CreatedDate.Date == currentDate.Date));
 
@@ -522,7 +533,8 @@ namespace MBKC.Service.Services.Implementations
                     Cashier = getCashierResponse,
                     TotalMoneyToday = totalMoneyToday,
                     TotalOrderToday = totalOrderToday,
-                    Balance = balance.Value
+                    Balance = balance.Value,
+                    IsShiftEnded = isShiftEnded
                 };
             }
             catch (Exception ex)

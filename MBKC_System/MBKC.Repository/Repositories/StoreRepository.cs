@@ -763,6 +763,21 @@ namespace MBKC.Repository.Repositories
             }
         }
 
+        public async Task<Store> GetStoreIncludeCashierAsync(string managerEmail)
+        {
+            try
+            {
+                return await this._dbContext.Stores.Include(x => x.KitchenCenter)
+                                                   .ThenInclude(x => x.Cashiers)
+                                                   .SingleOrDefaultAsync(x => x.StoreManagerEmail.Equals(managerEmail));
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task<List<Store>> GetStoresAsync()
         {
             try
@@ -773,6 +788,81 @@ namespace MBKC.Repository.Repositories
                                       .Include(x => x.StorePartners.Where(x => x.Status == (int)StorePartnerEnum.Status.ACTIVE))
                                       .ThenInclude(x => x.PartnerProducts).ThenInclude(x => x.Product).ThenInclude(x => x.ChildrenProducts)
                                       .Where(x => x.Status == (int)StoreEnum.Status.ACTIVE).ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        #region count number of store
+        public async Task<int> CountStoreNumberAsync()
+        {
+            try
+            {
+                return await _dbContext.Stores.Where(s => s.Status == (int)StoreEnum.Status.ACTIVE || s.Status == (int)StoreEnum.Status.INACTIVE).CountAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        #region count number of store by id brand
+        public async Task<int> CountStoreNumberByBrandIdAsync(int brandId)
+        {
+            try
+            {
+                return await _dbContext.Stores.Where(s => (s.Status == (int)StoreEnum.Status.ACTIVE || s.Status == (int)StoreEnum.Status.INACTIVE) && s.Brand.BrandId == brandId).CountAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        #region count number of store is active
+        public async Task<int> CountStoreNumberIsActiveFindByKitchenCenterIdAsync(int kitchenCenterId)
+        {
+            try
+            {
+                return await _dbContext.Stores.Where(s => s.Status == (int)StoreEnum.Status.ACTIVE && s.KitchenCenter.KitchenCenterId == kitchenCenterId).CountAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        #region get 5 store with status active
+        public async Task<List<Store>> GetFiveStoreSortByActiveAsync()
+        {
+            try
+            {
+                return await _dbContext.Stores.Where(s => s.Status == (int)StoreEnum.Status.ACTIVE || s.Status == (int)StoreEnum.Status.INACTIVE)
+                                                      .OrderByDescending(s => s.Status)
+                                                      .Take(5)
+                                                      .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        public async Task<Store> GetStoreMoneyExchangeAsync(string managerEmail)
+        {
+            try
+            {
+                return await this._dbContext.Stores
+                                                   .Include(x => x.StoreMoneyExchanges)
+                                                   .ThenInclude(x => x.MoneyExchange)
+                                                   .ThenInclude(x => x.Transactions)
+                                                   .SingleOrDefaultAsync(x => x.StoreManagerEmail.Equals(managerEmail));
             }
             catch (Exception ex)
             {

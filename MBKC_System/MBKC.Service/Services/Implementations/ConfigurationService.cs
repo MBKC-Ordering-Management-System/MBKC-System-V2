@@ -335,11 +335,11 @@ namespace MBKC.Service.Services.Implementations
                             //decimal finalToTalPriceSubstractDeliveryFee = order.FinalTotalPrice - order.DeliveryFee;
                             if (exchangeWallets.ContainsKey(store.StoreId))
                             {
-                                exchangeWallets[store.StoreId] += order.SubTotalPrice - (order.SubTotalPrice * (decimal)(order.Store.StorePartners.FirstOrDefault(x => x.PartnerId == order.PartnerId && x.Status == (int)StorePartnerEnum.Status.ACTIVE).Commission / 100));
+                                exchangeWallets[store.StoreId] += order.SubTotalPrice - (order.SubTotalPrice * (decimal)(store.StorePartners.FirstOrDefault(sp => sp.PartnerId == order.PartnerId && sp.Status == (int)StorePartnerEnum.Status.ACTIVE)!.Commission / 100));
                             }
                             else
                             {
-                                exchangeWallets.Add(store.StoreId, order.SubTotalPrice - (order.SubTotalPrice * (decimal)(order.Store.StorePartners.FirstOrDefault(x => x.PartnerId == order.PartnerId && x.Status == (int)StorePartnerEnum.Status.ACTIVE).Commission / 100)));
+                                exchangeWallets.Add(store.StoreId, order.SubTotalPrice - (order.SubTotalPrice * (decimal)(store.StorePartners.FirstOrDefault(sp => sp.PartnerId == order.PartnerId && sp.Status == (int)StorePartnerEnum.Status.ACTIVE)!.Commission / 100)));
                             }
                         }
                     }
@@ -415,7 +415,7 @@ namespace MBKC.Service.Services.Implementations
                                     new Transaction()
                                     {
                                         TransactionTime = DateTime.Now,
-                                        Wallet = store.Wallet,
+                                        Wallet = store.Wallet!,
                                         Status = (int)TransactionEnum.Status.SUCCESS,
                                     },
                                 }
@@ -425,7 +425,7 @@ namespace MBKC.Service.Services.Implementations
                         #endregion
 
                         #region update balance of kitchen center and store wallet
-                        store.Wallet.Balance += exchangeWalletValue;
+                        store.Wallet!.Balance += exchangeWalletValue;
                         kitchenCenter.Wallet.Balance -= exchangeWalletValue;
                         wallets.Add(store.Wallet);
                         #endregion

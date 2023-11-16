@@ -38,7 +38,8 @@ namespace MBKC.Service.Authorization
                 string accountId = context.HttpContext.User.Claims.First(x => x.Type.ToLower() == JwtRegisteredClaimNames.Sid).Value;
 
                 GetAccountResponse existedAccount = accountService.GetAccountAsync(int.Parse(accountId), context.HttpContext.User.Claims).Result;
-                if(existedAccount.IsConfirmed == false && currentController.ToString().ToLower().Equals("accounts") && currentActionName.ToString().ToLower().Equals("updateaccount"))
+                if(existedAccount.IsConfirmed == false && currentController.ToString().ToLower().Equals("accounts") && currentActionName.ToString().ToLower().Equals("updateaccount") ||
+                    existedAccount.IsConfirmed == false && currentController.ToString().ToLower().Equals("stores") && currentActionName.ToString().ToLower().Equals("getstoreprofile"))
                 {
                     return;
                 }

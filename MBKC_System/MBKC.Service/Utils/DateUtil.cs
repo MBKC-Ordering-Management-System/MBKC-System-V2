@@ -23,5 +23,20 @@ namespace MBKC.Service.Utils
             // Check if the difference is at least condition minute.
             return difference.TotalHours >= condition;
         }
+
+        public static void AddDateToDictionary(out Dictionary<DateTime, decimal> dates)
+        {
+            dates = new Dictionary<DateTime, decimal>();
+            for (var i = 0; i <= 6; i++)
+            {
+                if(i == 0)
+                {
+                    dates.Add(DateTime.Now.Date, 0);
+                    continue;
+                }
+
+                dates.Add(DateTime.Now.AddDays(-i).Date, 0);
+            }
+        }
     }
 }

@@ -78,10 +78,17 @@ namespace MBKC.Repository.Repositories
 
         #region Get Categories
         public async Task<List<Category>> GetCategoriesAsync(string? searchValue, string? searchValueWithoutUnicode,
-            int currentPage, int itemsPerPage, string? sortByASC, string? sortByDESC, string type, int brandId)
+            int currentPage, int itemsPerPage, string? sortByASC, string? sortByDESC, string type, int brandId, bool? isGetAll)
         {
             try
             {
+                if (isGetAll != null && isGetAll == true)
+                {
+                    return await this._dbContext.Categories
+                   .Include(x => x.Brand)
+                   .Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                   .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name).ToListAsync();
+                }
                 if (searchValue == null && searchValueWithoutUnicode is not null)
                 {
                     if (sortByASC is not null)
@@ -508,5 +515,21 @@ namespace MBKC.Repository.Repositories
                 throw new Exception(ex.Message);
             }
         }
+
+        #region Count number of type category by id brand
+        public async Task<int> CountTypeCategoryNumberByBrandIdAsync(int brandId, CategoryEnum.Type type)
+        {
+            try
+            {
+                return await _dbContext.Categories.Where(c => c.Type.ToUpper().Equals(type.ToString())
+                                                           && (c.Status == (int)CategoryEnum.Status.ACTIVE || c.Status == (int)CategoryEnum.Status.INACTIVE)
+                                                           && c.Brand.BrandId == brandId).CountAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
     }
 }
