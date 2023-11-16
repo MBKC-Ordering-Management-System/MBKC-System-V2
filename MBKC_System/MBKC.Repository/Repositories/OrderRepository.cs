@@ -615,5 +615,81 @@ namespace MBKC.Repository.Repositories
 
         }
         #endregion
+
+        #region Get order by store id
+        public async Task<List<Order>> GetOrderByStoreIdAsync(int storeId)
+        {
+            try
+            {
+                return await this._dbContext.Orders.Where(o => o.PaymentMethod.ToUpper() == OrderEnum.PaymentMethod.CASH.ToString() 
+                                                       && o.StoreId == storeId
+                                                       && o.ShipperPayments.Any(sp => sp.Status == (int)ShipperPaymentEnum.Status.SUCCESS
+                                                                                   && sp.CreateDate.Date <= DateTime.Now.Date
+                                                                                   && sp.CreateDate.Date >= DateTime.Now.AddDays(-6).Date))
+                                                   .Include(o => o.ShipperPayments)
+                                                   .ToListAsync();
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        #region Get order by dateFrom and dateTo
+        public async Task<List<Order>> GetOrderByDateFromAndDateToAsync(DateTime? dateFrom, DateTime? dateTo, int brandId)
+        {
+            try
+            {
+                return await this._dbContext.Orders.Where(o => o.OrderHistories.Any(oh => oh.SystemStatus.ToUpper().Equals(OrderEnum.SystemStatus.COMPLETED.ToString())
+                                                                                       && (dateFrom != null ? oh.CreatedDate.Date >= dateFrom.Value.Date : true)
+                                                                                       && (dateTo != null ? oh.CreatedDate.Date <= dateTo.Value.Date : true))
+                                                       && o.Store.Brand.BrandId == brandId)
+                                                   .Include(o => o.OrderDetails).ThenInclude(od => od.Product)
+                                                   .ToListAsync();
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        #region Count number of order today by cashier id
+        public async Task<int> CountNumberOfOrderTodayByCashierId(int cashierId)
+        {
+            try
+            {
+                return await this._dbContext.Orders.Where(o => o.Store.KitchenCenter.Cashiers.Any(c => c.AccountId == cashierId)
+                                                       && o.OrderHistories.Any(oh => oh.CreatedDate.Date == DateTime.Now.Date))
+                                                   .CountAsync();  
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        #region Get list order have been paid by cashier id
+        public async Task<List<Order>> GetOrderPaidByDateFormAndDateToByCashierId(DateTime? dateFrom, DateTime? dateTo, int cashierId)
+        {
+            try
+            {
+                return await this._dbContext.Orders.Where(o => o.ShipperPayments.Any(sp => sp.CreateBy == cashierId
+                                                                                 && (dateFrom != null ? sp.CreateDate.Date >= dateFrom.Value.Date : true)
+                                                                                 && (dateTo != null ? sp.CreateDate.Date <= dateTo.Value.Date : true)))
+                                                   .ToListAsync();
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
     }
 }

@@ -276,7 +276,7 @@ namespace MBKC.Repository.Repositories
             }
         }
 
-        public async Task<Cashier> GetCashierAsync(int idCashier) 
+        public async Task<Cashier> GetCashierAsync(int idCashier)
         {
             try
             {
@@ -391,6 +391,22 @@ namespace MBKC.Repository.Repositories
             try
             {
                 return await this._dbContext.Cashiers.Where(c => c.Account.Status != (int)AccountEnum.Status.DEACTIVE && c.KitchenCenter.KitchenCenterId == kitchenCenterId).CountAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        #region get cashier for dashboard
+        public async Task<Cashier?> GetCashierForDashBoardAsync(string email)
+        {
+            try
+            {
+                return await this._dbContext.Cashiers.Include(c => c.CashierMoneyExchanges.OrderByDescending(cm => cm.ExchangeId).Take(5))
+                                                     .ThenInclude(cm => cm.MoneyExchange)
+                                                     .SingleOrDefaultAsync(x => x.Account.Email.Equals(email));
             }
             catch (Exception ex)
             {

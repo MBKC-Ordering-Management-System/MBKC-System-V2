@@ -1,4 +1,5 @@
 ﻿using MBKC.Service.DTOs.MoneyExchanges;
+using MBKC.Service.DTOs.Orders;
 using MBKC.Service.DTOs.ShipperPayments;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace MBKC.Service.DTOs.DashBoards.Cashier
     {
         public decimal TotalRevenueDaily { get; set; }
         public int TotalOrderDaily { get; set; }
-        public int TotalCompletedOrder { get; set; }
+        public List<GetOrderResponse>? Orders { get; set; }
         public List<GetMoneyExchangeResponse>? MoneyExchanges { get; set; }
         public List<GetShipperPaymentResponse>? ShipperPayments { get; set; }
     }

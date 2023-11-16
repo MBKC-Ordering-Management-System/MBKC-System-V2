@@ -1,11 +1,15 @@
-﻿using MBKC.API.Constants;
+﻿using FluentValidation;
+using FluentValidation.Results;
+using MBKC.API.Constants;
 using MBKC.Service.Authorization;
 using MBKC.Service.DTOs.DashBoards;
 using MBKC.Service.DTOs.DashBoards.Brand;
 using MBKC.Service.DTOs.DashBoards.Cashier;
-using MBKC.Service.DTOs.DashBoards.KitchenCenter;
+using MBKC.Service.DTOs.Orders.MBKC.Service.DTOs.Orders;
 using MBKC.Service.Errors;
+using MBKC.Service.Exceptions;
 using MBKC.Service.Services.Interfaces;
+using MBKC.Service.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -16,9 +20,15 @@ namespace MBKC.API.Controllers
     public class DashBoardsController : ControllerBase
     {
         private IDashBoardService _dashBoardService;
-        public DashBoardsController(IDashBoardService dashBoardService)
+        private IValidator<GetBrandDashBoardRequest> _getBrandDashBoardValidator;
+        private IValidator<GetCashierDashBoardRequest> _getCashierDashBoardValidator;
+        public DashBoardsController(IDashBoardService dashBoardService, 
+                                    IValidator<GetBrandDashBoardRequest> getBrandDashBoardValidator,
+                                    IValidator<GetCashierDashBoardRequest> getCashierDashBoardValidator)
         {
             _dashBoardService = dashBoardService;
+            _getBrandDashBoardValidator = getBrandDashBoardValidator;
+            _getCashierDashBoardValidator = getCashierDashBoardValidator;
         }
 
         #region Get admin dash board
@@ -105,10 +115,17 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
         [HttpGet(APIEndPointConstant.DashBoard.BrandDashBoardEndpoint)]
-        public async Task<IActionResult> GetBrandDashBoardAsync([FromQuery] GetSearchDateDashBoardRequest getSearchDateDashBoardRequest)
+        public async Task<IActionResult> GetBrandDashBoardAsync([FromQuery] GetBrandDashBoardRequest getBrandDashBoardRequest)
         {
+            ValidationResult validationResult = await this._getBrandDashBoardValidator.ValidateAsync(getBrandDashBoardRequest);
+            if (validationResult.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
+            }
+
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            var getBrandDashBoard = await this._dashBoardService.GetBrandDashBoardAsync(claims, getSearchDateDashBoardRequest);
+            var getBrandDashBoard = await this._dashBoardService.GetBrandDashBoardAsync(claims, getBrandDashBoardRequest);
             return Ok(getBrandDashBoard);
         }
         #endregion
@@ -167,11 +184,19 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.Cashier)]
         [HttpGet(APIEndPointConstant.DashBoard.CashierDashBoardEndpoint)]
-        public async Task<IActionResult> GetCashierDashBoardAsync([FromQuery] GetSearchDateDashBoardRequest getSearchDateDashBoardRequest)
+        public async Task<IActionResult> GetCashierDashBoardAsync([FromQuery] GetCashierDashBoardRequest getCashierDashBoardRequest)
         {
+
+            ValidationResult validationResult = await this._getCashierDashBoardValidator.ValidateAsync(getCashierDashBoardRequest);
+            if (validationResult.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
+            }
+
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            var getBrandDashBoard = await this._dashBoardService.GetCashierDashBoardAsync(claims);
-            return Ok(getBrandDashBoard);
+            var getCashierDashBoard = await this._dashBoardService.GetCashierDashBoardAsync(claims, getCashierDashBoardRequest);
+            return Ok(getCashierDashBoard);
         }
         #endregion
     }
