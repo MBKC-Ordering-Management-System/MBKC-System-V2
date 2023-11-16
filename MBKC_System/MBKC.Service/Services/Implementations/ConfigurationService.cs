@@ -49,7 +49,7 @@ namespace MBKC.Service.Services.Implementations
                                       new RecurringJobOptions
                                       {
                                           // sync time(utc +7)
-                                          TimeZone = TimeZoneInfo.Local,
+                                          TimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"),
                                       });
 
                 // kitchen center money exchange to store
@@ -59,7 +59,7 @@ namespace MBKC.Service.Services.Implementations
                                       new RecurringJobOptions
                                       {
                                           // sync time(utc +7)
-                                          TimeZone = TimeZoneInfo.Local,
+                                          TimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"),
                                       });
 
                 // update status for partner product
@@ -69,7 +69,7 @@ namespace MBKC.Service.Services.Implementations
                                       new RecurringJobOptions
                                       {
                                           // sync time(utc +7)
-                                          TimeZone = TimeZoneInfo.Local,
+                                          TimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"),
                                       });
             }
         }
@@ -127,7 +127,7 @@ namespace MBKC.Service.Services.Implementations
                                   new RecurringJobOptions
                                   {
                                       // sync time(utc +7)
-                                      TimeZone = TimeZoneInfo.Local,
+                                      TimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"),
                                   });
                 }
 
@@ -141,7 +141,7 @@ namespace MBKC.Service.Services.Implementations
                                   new RecurringJobOptions
                                   {
                                       // sync time(utc +7)
-                                      TimeZone = TimeZoneInfo.Local,
+                                      TimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"),
                                   });
                 }
 
@@ -166,7 +166,7 @@ namespace MBKC.Service.Services.Implementations
                                    new RecurringJobOptions
                                    {
                                        // sync time(utc +7)
-                                       TimeZone = TimeZoneInfo.Local,
+                                       TimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"),
                                    });
                 }
 
@@ -178,7 +178,7 @@ namespace MBKC.Service.Services.Implementations
                                   new RecurringJobOptions
                                   {
                                       // sync time(utc +7)
-                                      TimeZone = TimeZoneInfo.Local,
+                                      TimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"),
                                   });
                 }
 
