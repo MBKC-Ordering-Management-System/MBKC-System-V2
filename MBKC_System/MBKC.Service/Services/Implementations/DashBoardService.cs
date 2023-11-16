@@ -143,15 +143,26 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
+                #region validation
                 string email = claims.First(x => x.Type == ClaimTypes.Email).Value;
                 var existedBrand = await _unitOfWork.BrandRepository.GetBrandForDashBoardAsync(email);
                 Dictionary<DateTime, decimal> revenueInLastSevenDay;
+                Dictionary<int, int> numberOfProductSold = new Dictionary<int, int>();
                 var columnChartRevenueInLastSevenDay = new List<GetColumnChartResponse>();
+                var numberOfProductsSoldResponse = new List<GetNumberOfProductsSoldResponse>();
 
-                if (!existedBrand!.Stores.Any(s => s.StoreId == getBrandDashBoardRequest.StoreId))
+                var existedStore = await this._unitOfWork.StoreRepository.GetStoreExceptDeactiveByIdAsync(getBrandDashBoardRequest.StoreId!.Value);
+                if (existedStore is null)
+                {
+                    throw new BadRequestException(MessageConstant.CommonMessage.NotExistStoreId);
+
+                }
+
+                if (existedBrand!.BrandId != existedStore.Brand.BrandId)
                 {
                     throw new BadRequestException(MessageConstant.StoreMessage.StoreIdNotBelongToBrand);
                 }
+                #endregion
 
                 // total
                 var totalStore = await this._unitOfWork.StoreRepository.CountStoreNumberByBrandIdAsync(existedBrand!.BrandId);
@@ -159,12 +170,12 @@ namespace MBKC.Service.Services.Implementations
                 var totalExtraCategory = await this._unitOfWork.CategoryRepository.CountTypeCategoryNumberByBrandIdAsync(existedBrand!.BrandId, CategoryEnum.Type.EXTRA);
                 var totalProduct = await this._unitOfWork.ProductRepository.CountProductNumberByBrandIdAsync(existedBrand.BrandId);
 
-                // store revenue
+                #region store revenue
                 DateUtil.AddDateToDictionary(out revenueInLastSevenDay);
-                var orders = await this._unitOfWork.OrderRepository.GetOrderByStoreIdAsync(getBrandDashBoardRequest.StoreId!.Value);
-                if (orders.Any())
+                var ordersForRevenue = await this._unitOfWork.OrderRepository.GetOrderByStoreIdAsync(getBrandDashBoardRequest.StoreId!.Value);
+                if (ordersForRevenue.Any())
                 {
-                    foreach (var order in orders)
+                    foreach (var order in ordersForRevenue)
                     {
                         revenueInLastSevenDay[order.ShipperPayments.Last().CreateDate.Date] += order.ShipperPayments.Last().Amount;
                     }
@@ -182,19 +193,69 @@ namespace MBKC.Service.Services.Implementations
 
                 var getStoreRevenueResponse = new GetStoreRevenueResponse()
                 {
-                    StoreId = getBrandDashBoardRequest.StoreId.Value,
-                    StoreName = existedBrand.Stores.FirstOrDefault(s => s.StoreId == getBrandDashBoardRequest.StoreId)!.Name,
+                    StoreId = existedStore.StoreId,
+                    StoreName = existedStore.Name,
                     Revenues = columnChartRevenueInLastSevenDay,
                 };
+                #endregion
 
-                GetBrandDashBoardResponse getBrandDashBoardResponse = new GetBrandDashBoardResponse()
+                #region number of product sold
+                var ordersForProductSold = new List<Order>();
+                if (getBrandDashBoardRequest.ProductSearchDateFrom is null
+                 && getBrandDashBoardRequest.ProductSearchDateTo is null)
+                {
+                    ordersForProductSold = await this._unitOfWork.OrderRepository.GetOrderByDateFromAndDateToAsync(DateTime.Now.AddDays(-6), DateTime.Now);
+                }
+                else if (getBrandDashBoardRequest.ProductSearchDateFrom is not null
+                      && getBrandDashBoardRequest.ProductSearchDateTo is not null)
+                {
+                    ordersForProductSold = await this._unitOfWork.OrderRepository.GetOrderByDateFromAndDateToAsync(DateUtil.ConvertStringToDateTime(getBrandDashBoardRequest.ProductSearchDateFrom), DateUtil.ConvertStringToDateTime(getBrandDashBoardRequest.ProductSearchDateTo));
+                }
+                else if (getBrandDashBoardRequest.ProductSearchDateFrom is not null)
+                {
+                    ordersForProductSold = await this._unitOfWork.OrderRepository.GetOrderByDateFromAndDateToAsync(DateUtil.ConvertStringToDateTime(getBrandDashBoardRequest.ProductSearchDateFrom), null);
+                }
+                else if (getBrandDashBoardRequest.ProductSearchDateTo is not null)
+                {
+                    ordersForProductSold = await this._unitOfWork.OrderRepository.GetOrderByDateFromAndDateToAsync(null, DateUtil.ConvertStringToDateTime(getBrandDashBoardRequest.ProductSearchDateTo));
+                }
+
+                foreach (var order in ordersForProductSold)
+                {
+                    foreach (var orderDetail in order.OrderDetails)
+                    {
+                        if (numberOfProductSold.ContainsKey(orderDetail.Product.ProductId))
+                        {
+                            numberOfProductSold[orderDetail.Product.ProductId] += orderDetail.Quantity;
+                        }
+                        else
+                        {
+                            numberOfProductSold.Add(orderDetail.Product.ProductId, orderDetail.Quantity);
+                        }
+                    }
+                }
+
+                foreach(var product in existedBrand.Products)
+                {
+                    var getNumberOfProductsSoldResponse = new GetNumberOfProductsSoldResponse()
+                    {
+                        ProductId = product.ProductId,
+                        ProductName = product.Name,
+                        Quantity = numberOfProductSold.ContainsKey(product.ProductId) ? numberOfProductSold[product.ProductId] : 0,
+                    };
+                    numberOfProductsSoldResponse.Add(getNumberOfProductsSoldResponse);
+                }
+                #endregion
+
+                var getBrandDashBoardResponse = new GetBrandDashBoardResponse()
                 {
                     TotalStore = totalStore,
                     TotalNormalCategory = totalNormalCategory,
                     TotalExtraCategory = totalExtraCategory,
                     TotalProduct = totalProduct,
                     StoreRevenues = getStoreRevenueResponse,
-                    Stores = this._mapper.Map<List<GetStoreResponse>>(existedBrand!.Stores.Take(5)),
+                    NumberOfProductSolds = numberOfProductsSoldResponse,
+                    Stores = this._mapper.Map<List<GetStoreResponse>>(existedBrand.Stores),
                 };
 
                 return getBrandDashBoardResponse;

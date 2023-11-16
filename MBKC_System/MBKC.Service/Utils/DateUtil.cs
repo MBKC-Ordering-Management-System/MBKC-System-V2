@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MBKC.Service.DTOs.DashBoards.Brand;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -37,6 +38,11 @@ namespace MBKC.Service.Utils
 
                 dates.Add(DateTime.Now.AddDays(-i).Date, 0);
             }
+        }
+
+        public static DateTime ConvertStringToDateTime(string date)
+        {
+          return DateTime.ParseExact(date, "dd/MM/yyyy", null);
         }
     }
 }

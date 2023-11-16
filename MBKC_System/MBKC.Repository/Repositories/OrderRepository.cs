@@ -686,5 +686,24 @@ namespace MBKC.Repository.Repositories
             }
         }
         #endregion
+
+        #region Get order by dateFrom and dateTo
+        public async Task<List<Order>> GetOrderByDateFromAndDateToAsync(DateTime? dateFrom, DateTime? dateTo)
+        {
+            try
+            {
+                return await this._dbContext.Orders.Where(o => o.OrderHistories.Any(oh => oh.SystemStatus.ToUpper().Equals(OrderEnum.SystemStatus.COMPLETED.ToString())
+                                                                                       && (dateFrom != null ? oh.CreatedDate.Date >= dateFrom.Value.Date : true)
+                                                                                       && (dateTo != null ? oh.CreatedDate.Date <= dateTo.Value.Date : true)))
+                                                   .Include(o => o.OrderDetails).ThenInclude(od => od.Product)
+                                                   .ToListAsync();
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
     }
 }

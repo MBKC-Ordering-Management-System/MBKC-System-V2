@@ -707,8 +707,22 @@ namespace MBKC.Repository.Repositories
             try
             {
                 return await this._dbContext.Stores.Include(x => x.Wallet)
-                                                   .Include(x => x.StorePartners)   
+                                                   .Include(x => x.StorePartners)
+                                                   .Include(x => x.Brand)
                                                    .FirstOrDefaultAsync(x => x.StoreId == id && x.Status == (int)StoreEnum.Status.ACTIVE);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<Store?> GetStoreExceptDeactiveByIdAsync(int id)
+        {
+            try
+            {
+                return await this._dbContext.Stores.Include(s => s.Brand)
+                                                   .FirstOrDefaultAsync(s => s.StoreId == id && s.Status != (int)StoreEnum.Status.DEACTIVE);
             }
             catch (Exception ex)
             {

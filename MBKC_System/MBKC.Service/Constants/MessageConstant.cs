@@ -107,6 +107,7 @@ namespace MBKC.Service.Constants
             public const string ManageremailExisted = "Store manager email already existed in the system.";
             public const string NotConfirmingStore = "Store is not a new store to confirm to become an ACTIVE store.";
             public const string NotRejectedResonForNewStore = "Rejected store registration is required a reason.";
+            public const string StoreIdDoesNotExisted = "Store id does not existed in system.";
             public const string StoreIdNotBelongToStore = "Store id does not belong to your store.";
             public const string StoreIdNotBelongToBrand = "Store id does not belong to your brand.";
             public const string StoresWithStatusNameParam = "Status is required some type such as: Active, Inactive, Rejected, Be comfirming.";
