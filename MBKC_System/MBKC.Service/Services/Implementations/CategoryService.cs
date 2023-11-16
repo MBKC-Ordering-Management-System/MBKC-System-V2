@@ -359,7 +359,7 @@ namespace MBKC.Service.Services.Implementations
                     categories = await this._unitOfWork.CategoryRepository.GetCategoriesAsync(getCategoriesRequest.SearchValue, null, getCategoriesRequest.CurrentPage, getCategoriesRequest.ItemsPerPage,
                                                                                                               getCategoriesRequest.SortBy != null && getCategoriesRequest.SortBy.ToLower().EndsWith("asc") ? getCategoriesRequest.SortBy.Split("_")[0] : null,
                                                                                                               getCategoriesRequest.SortBy != null && getCategoriesRequest.SortBy.ToLower().EndsWith("desc") ? getCategoriesRequest.SortBy.Split("_")[0] : null,
-                                                                                                              getCategoriesRequest.Type, brandId.Value);
+                                                                                                              getCategoriesRequest.Type, brandId.Value, getCategoriesRequest.IsGetAll);
                 }
                 else if (getCategoriesRequest.SearchValue != null && StringUtil.IsUnicode(getCategoriesRequest.SearchValue) == false)
                 {
@@ -367,7 +367,7 @@ namespace MBKC.Service.Services.Implementations
                     categories = await this._unitOfWork.CategoryRepository.GetCategoriesAsync(null, getCategoriesRequest.SearchValue, getCategoriesRequest.CurrentPage, getCategoriesRequest.ItemsPerPage,
                                                                                                               getCategoriesRequest.SortBy != null && getCategoriesRequest.SortBy.ToLower().EndsWith("asc") ? getCategoriesRequest.SortBy.Split("_")[0] : null,
                                                                                                               getCategoriesRequest.SortBy != null && getCategoriesRequest.SortBy.ToLower().EndsWith("desc") ? getCategoriesRequest.SortBy.Split("_")[0] : null,
-                                                                                                              getCategoriesRequest.Type, brandId.Value);
+                                                                                                              getCategoriesRequest.Type, brandId.Value, getCategoriesRequest.IsGetAll);
                 }
                 else if (getCategoriesRequest.SearchValue == null)
                 {
@@ -375,13 +375,17 @@ namespace MBKC.Service.Services.Implementations
                     categories = await this._unitOfWork.CategoryRepository.GetCategoriesAsync(null, null, getCategoriesRequest.CurrentPage, getCategoriesRequest.ItemsPerPage,
                                                                                                               getCategoriesRequest.SortBy != null && getCategoriesRequest.SortBy.ToLower().EndsWith("asc") ? getCategoriesRequest.SortBy.Split("_")[0] : null,
                                                                                                               getCategoriesRequest.SortBy != null && getCategoriesRequest.SortBy.ToLower().EndsWith("desc") ? getCategoriesRequest.SortBy.Split("_")[0] : null,
-                                                                                                              getCategoriesRequest.Type, brandId.Value);
+                                                                                                              getCategoriesRequest.Type, brandId.Value, getCategoriesRequest.IsGetAll);
                 }
 
                 _mapper.Map(categories, categoryResponse);
 
                 int totalPages = 0;
-                totalPages = (int)((numberItems + getCategoriesRequest.ItemsPerPage) / getCategoriesRequest.ItemsPerPage);
+                if (numberItems > 0 && getCategoriesRequest.IsGetAll == null || numberItems > 0 && getCategoriesRequest.IsGetAll != null && getCategoriesRequest.IsGetAll == false)
+                {
+                    totalPages = (int)((numberItems + getCategoriesRequest.ItemsPerPage) / getCategoriesRequest.ItemsPerPage);
+                }
+
                 if (numberItems == 0)
                 {
                     totalPages = 0;
