@@ -688,7 +688,6 @@ namespace MBKC.Service.Services.Implementations
                     {
                         Balance = 0,
                     };
-                    await this._unitOfWork.WalletRepository.CreateWallet(storeWallet);
                     existedStore.Wallet = storeWallet;
                 }
                 else if (confirmStoreRegistrationRequest.Status.Trim().ToLower().Equals(StoreEnum.Status.REJECTED.ToString().ToLower()) &&
