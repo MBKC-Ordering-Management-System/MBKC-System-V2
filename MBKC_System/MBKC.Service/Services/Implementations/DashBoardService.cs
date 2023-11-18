@@ -366,13 +366,33 @@ namespace MBKC.Service.Services.Implementations
                 }
                 #endregion
 
+                var moneyExchangesResponse = this._mapper.Map<List<GetMoneyExchangeResponse>>(existedCashier!.CashierMoneyExchanges.Select(c => c.MoneyExchange));
+                foreach(var moneyExchange in moneyExchangesResponse)
+                {
+                    moneyExchange.SenderName = existedCashier.FullName;
+                    var existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetOnlyKitchenCenterAsync(moneyExchange.ReceiveId);
+                    moneyExchange.ReceiveName = existedKitchenCenter!.Name;
+                }
+
+                var shipperPaymentsResponse = new List<GetShipperPaymentResponse>();
+                foreach (var shipperPayment in shipperPayments)
+                {
+                   var shipperPaymentResponse =  this._mapper.Map<GetShipperPaymentResponse>(shipperPayment);
+                    shipperPaymentResponse.CashierCreated = existedCashier.FullName;
+                    if(shipperPayment.KCBankingAccountId is not null)
+                    {
+                        shipperPaymentResponse.KCBankingAccountName = shipperPayment.BankingAccount!.Name;
+                    }
+                    shipperPaymentsResponse.Add(shipperPaymentResponse);
+                }
+
                 var getCashierDashBoardResponse = new GetCashierDashBoardResponse()
                 {
                     TotalRevenueDaily = totalRevenueDaily,
                     TotalOrderDaily = totalOrderDaily,
                     Orders = this._mapper.Map<List<GetOrderResponse>>(ordersHasPaid),
-                    MoneyExchanges  = this._mapper.Map<List<GetMoneyExchangeResponse>>(existedCashier!.CashierMoneyExchanges.Select(c => c.MoneyExchange)),
-                    ShipperPayments = this._mapper.Map<List<GetShipperPaymentResponse>>(shipperPayments),
+                    MoneyExchanges  = moneyExchangesResponse,
+                    ShipperPayments = shipperPaymentsResponse,
                 };
 
                 return getCashierDashBoardResponse;

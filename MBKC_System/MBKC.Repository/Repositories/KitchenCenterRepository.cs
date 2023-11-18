@@ -366,6 +366,20 @@ namespace MBKC.Repository.Repositories
         }
         #endregion
 
+        #region Get only kitchen center by kichen center id
+        public async Task<KitchenCenter?> GetOnlyKitchenCenterAsync(int kitchenCenterId)
+        {
+            try
+            {
+                return await this._dbContext.KitchenCenters.FirstOrDefaultAsync(kc => kc.KitchenCenterId == kitchenCenterId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
         public async Task<KitchenCenter> GetKitchenCenterMoneyExchangeAsync(string managerEmail)
         {
             try
