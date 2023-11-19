@@ -56,10 +56,10 @@ namespace MBKC.Service.Services.Implementations
 
                 var getAdminDashBoardResponse = new GetAdminDashBoardResponse()
                 {
-                    TotalKitchenter = totalKitchenCenter,
-                    TotalBrand = totalBrand,
-                    TotalStore = totalStore,
-                    TotalPartner = totalPartner,
+                    TotalKitchenCenters = totalKitchenCenter,
+                    TotalBrands = totalBrand,
+                    TotalStores = totalStore,
+                    TotalPartners = totalPartner,
                     KitchenCenters = this._mapper.Map<List<GetKitchenCenterResponse>>(kitchenCenters),
                     Brands = this._mapper.Map<List<GetBrandResponse>>(brands),
                     Stores = this._mapper.Map<List<GetStoreResponse>>(stores),
@@ -123,9 +123,9 @@ namespace MBKC.Service.Services.Implementations
 
                 var getKitchenCenterDashBoardResponse = new GetKitchenCenterDashBoardResponse()
                 {
-                    TotalStore = totalStoreParticipating,
-                    TotalCashier = totalCashierInSystem,
-                    TotalBalanceDaily = TotalMoneyExchangesOfKitchenCenterDaily,
+                    TotalStores = totalStoreParticipating,
+                    TotalCashiers = totalCashierInSystem,
+                    TotalBalancesDaily = TotalMoneyExchangesOfKitchenCenterDaily,
                     ColumnChartMoneyExchanges = columnChartMoneyExchangeInLastSevenDay,
                     Stores = this._mapper.Map<List<GetStoreResponse>>(existedKitchenCenter.Stores),
                     Cashiers = this._mapper.Map<List<GetCashierResponse>>(existedKitchenCenter.Cashiers),
@@ -253,10 +253,10 @@ namespace MBKC.Service.Services.Implementations
 
                 var getBrandDashBoardResponse = new GetBrandDashBoardResponse()
                 {
-                    TotalStore = totalStore,
-                    TotalNormalCategory = totalNormalCategory,
-                    TotalExtraCategory = totalExtraCategory,
-                    TotalProduct = totalProduct,
+                    TotalStores = totalStore,
+                    TotalNormalCategories = totalNormalCategory,
+                    TotalExtraCategories = totalExtraCategory,
+                    TotalProducts = totalProduct,
                     StoreRevenues = getStoreRevenueResponse,
                     NumberOfProductSolds = numberOfProductsSoldResponse,
                     Stores = this._mapper.Map<List<GetStoreResponse>>(existedBrand.Stores),
@@ -314,11 +314,11 @@ namespace MBKC.Service.Services.Implementations
 
                 return new GetStoreDashBoardResponse
                 {
-                    TotalCompletedOrder = totalCompletedOrder,
-                    TotalPreparingOrder = totalPreparingOrder,
-                    TotalReadyOrder = totalReadyOrder,
-                    TotalUpcomingOrder = totalUpcomingOrder,
-                    TotalRevenueDaily = totalRevenueDaily
+                    TotalCompletedOrders = totalCompletedOrder,
+                    TotalPreparingOrders = totalPreparingOrder,
+                    TotalReadyOrders = totalReadyOrder,
+                    TotalUpcomingOrders = totalUpcomingOrder,
+                    TotalRevenuesDaily = totalRevenueDaily
                 };
             }
             catch (Exception ex)
@@ -388,8 +388,8 @@ namespace MBKC.Service.Services.Implementations
 
                 var getCashierDashBoardResponse = new GetCashierDashBoardResponse()
                 {
-                    TotalRevenueDaily = totalRevenueDaily,
-                    TotalOrderDaily = totalOrderDaily,
+                    TotalRevenuesDaily = totalRevenueDaily,
+                    TotalOrdersDaily = totalOrderDaily,
                     Orders = this._mapper.Map<List<GetOrderResponse>>(ordersHasPaid),
                     MoneyExchanges  = moneyExchangesResponse,
                     ShipperPayments = shipperPaymentsResponse,
