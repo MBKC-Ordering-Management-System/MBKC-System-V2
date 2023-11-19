@@ -299,8 +299,8 @@ namespace MBKC.Repository.Migrations
                             Id = 1,
                             ScrawlingMoneyExchangeToKitchenCenter = new TimeSpan(0, 22, 0, 0, 0),
                             ScrawlingMoneyExchangeToStore = new TimeSpan(0, 23, 0, 0, 0),
-                            ScrawlingOrderEndTime = new TimeSpan(0, 12, 0, 0, 0),
-                            ScrawlingOrderStartTime = new TimeSpan(0, 12, 0, 0, 0)
+                            ScrawlingOrderEndTime = new TimeSpan(0, 21, 50, 0, 0),
+                            ScrawlingOrderStartTime = new TimeSpan(0, 0, 0, 0, 0)
                         });
                 });
 
