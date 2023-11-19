@@ -120,5 +120,10 @@
         {
             public const string UpdatedConfigurationSuccessfully = "Updated Configuration Successfully.";
         }
+
+        public static class UserDevice
+        {
+            public const string CreatedUserDeviceSuccessfully = "Created User Device Successfully.";
+        }
     }
 }
