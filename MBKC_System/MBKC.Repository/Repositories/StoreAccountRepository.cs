@@ -52,6 +52,25 @@ namespace MBKC.Repository.Repositories
                     .ThenInclude(x => x.Transactions)
                     .ThenInclude(x => x.ShipperPayment)
                     .ThenInclude(x => x.BankingAccount)
+                    .Include(x => x.Store).ThenInclude(x => x.KitchenCenter).ThenInclude(x => x.Cashiers)
+                    .Include(x => x.Store).ThenInclude(x => x.Orders).ThenInclude(x => x.OrderHistories)
+                    .Include(x => x.Store).ThenInclude(x => x.Orders).ThenInclude(x => x.ShipperPayments)
+                    .SingleOrDefaultAsync(x => x.AccountId == accountId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<StoreAccount> GetStoreAccountWalletAsync(int accountId)
+        {
+            try
+            {
+                return await this._dbContext.StoreAccounts
+                    .Include(x => x.Store).ThenInclude(x => x.Wallet)
+                    .Include(x => x.Store).ThenInclude(x => x.Orders).ThenInclude(x => x.ShipperPayments)
+                    .Include(x => x.Store).ThenInclude(x => x.Orders).ThenInclude(x => x.OrderHistories)
                     .SingleOrDefaultAsync(x => x.AccountId == accountId);
             }
             catch (Exception ex)

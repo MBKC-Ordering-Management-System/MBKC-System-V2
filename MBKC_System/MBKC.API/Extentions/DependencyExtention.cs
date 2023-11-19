@@ -57,6 +57,9 @@ namespace MBKC.API.Extentions
             services.AddScoped<IStorePartnerService, StorePartnerService>();
             services.AddScoped<IWalletService, WalletService>();
             services.AddScoped<IConfigurationService, ConfigurationService>();
+            services.AddScoped<IShipperPaymentService, ShipperPaymentService>();
+            services.AddScoped<IDashBoardService, DashBoardService>();
+
             services.AddHangfire(config => config
                                 .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
                                 .UseSimpleAssemblyNameTypeSerializer()

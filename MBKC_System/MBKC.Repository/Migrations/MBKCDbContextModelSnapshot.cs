@@ -449,8 +449,11 @@ namespace MBKC.Repository.Migrations
                         .IsUnicode(true)
                         .HasColumnType("nvarchar(250)");
 
-                    b.Property<float>("Commission")
-                        .HasColumnType("real");
+                    b.Property<decimal>("Commission")
+                        .HasColumnType("decimal(9,2)");
+
+                    b.Property<int?>("ConfirmedBy")
+                        .HasColumnType("int");
 
                     b.Property<string>("CustomerName")
                         .HasMaxLength(100)

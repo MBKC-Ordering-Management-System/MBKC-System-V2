@@ -130,6 +130,7 @@ namespace MBKC.Service.Services.Implementations
                 #region orders
                 existedOrder.PartnerOrderStatus = OrderEnum.Status.COMPLETED.ToString();
                 existedOrder.SystemStatus = OrderEnum.SystemStatus.COMPLETED.ToString();
+                existedOrder.ConfirmedBy = existedCashier.AccountId;
                 this._unitOfWork.OrderRepository.UpdateOrder(existedOrder);
 
                 OrderHistory orderHistory = new OrderHistory()
@@ -146,12 +147,12 @@ namespace MBKC.Service.Services.Implementations
                 #region shipper payment and transaction and wallet (Cash only)
                 if (existedOrder.PaymentMethod.ToUpper().Equals(OrderEnum.PaymentMethod.CASH.ToString()))
                 {
-                    decimal finalToTalPriceSubstractDeliveryFee = existedOrder.FinalTotalPrice - existedOrder.DeliveryFee;
-                    decimal finalPrice = finalToTalPriceSubstractDeliveryFee - (finalToTalPriceSubstractDeliveryFee * (decimal)existedOrder.Commission / 100);
+                    //decimal finalToTalPriceSubstractDeliveryFee = existedOrder.FinalTotalPrice - existedOrder.DeliveryFee;
+                    decimal finalPrice = existedOrder.SubTotalPrice - (existedOrder.SubTotalPrice * (decimal)(existedOrder.Store.StorePartners.FirstOrDefault(x => x.PartnerId == existedOrder.PartnerId && x.Status == (int)StorePartnerEnum.Status.ACTIVE)!.Commission / 100));
                     ShipperPayment shipperPayment = new ShipperPayment()
                     {
                         Status = (int)ShipperPaymentEnum.Status.SUCCESS,
-                        Content = $"Payment for the order[orderId:{existedOrder.Id}] with {existedOrder.Commission}% commission {StringUtil.GetContentAmountAndTime(finalPrice)}",
+                        Content = $"Payment for the order[orderId:{existedOrder.Id}] with {existedOrder.Store.StorePartners.FirstOrDefault(x => x.PartnerId == existedOrder.PartnerId && x.Status == (int)StorePartnerEnum.Status.ACTIVE)!.Commission}% commission {StringUtil.GetContentAmountAndTime(finalPrice)}",
                         OrderId = existedOrder.Id,
                         Amount = finalPrice,
                         CreateDate = DateTime.Now,
@@ -327,26 +328,25 @@ namespace MBKC.Service.Services.Implementations
                     CustomerName = postOrderRequest.CustomerName,
                     CustomerPhone = postOrderRequest.CustomerPhone,
                     Address = postOrderRequest.Address,
-                    Commission = postOrderRequest.Commission,
+                    Commission = decimal.Parse(postOrderRequest.Commission.ToString().Replace(".", ",")),
                     Cutlery = postOrderRequest.Cutlery,
-                    DeliveryFee = postOrderRequest.DeliveryFee,
+                    DeliveryFee = decimal.Parse(postOrderRequest.DeliveryFee.ToString().Replace(".", ",")),
                     DisplayId = postOrderRequest.DisplayId,
-                    FinalTotalPrice = postOrderRequest.FinalTotalPrice,
+                    FinalTotalPrice = decimal.Parse(postOrderRequest.FinalTotalPrice.ToString().Replace(".", ",")),
                     Note = postOrderRequest.Note,
                     PartnerId = postOrderRequest.PartnerId,
                     Partner = existedPartner,
                     StoreId = postOrderRequest.StoreId,
                     PaymentMethod = postOrderRequest.PaymentMethod,
                     PartnerOrderStatus = postOrderRequest.Status.ToUpper(),
-                    SystemStatus = OrderEnum.SystemStatus.IN_STORE.ToString().Split("_")[0] + " " + OrderEnum.SystemStatus.IN_STORE.ToString().Split("_")[1],
-                    SubTotalPrice = postOrderRequest.SubTotalPrice,
-                    TotalDiscount = postOrderRequest.TotalDiscount,
+                    SystemStatus = OrderEnum.SystemStatus.IN_STORE.ToString().ToUpper(),
+                    SubTotalPrice = decimal.Parse(postOrderRequest.SubTotalPrice.ToString().Replace(".", ",")),
+                    TotalDiscount = decimal.Parse(postOrderRequest.TotalDiscount.ToString().Replace(".", ",")),
                     Store = existedStore,
                     Tax = postOrderRequest.Tax,
-                    OrderDetails = new List<OrderDetail>(),
                     OrderHistories = new List<OrderHistory>() { orderHistory }
                 };
-
+                List<OrderDetail> newOrderDetails = new List<OrderDetail>();
                 foreach (var orderDetail in postOrderRequest.OrderDetails)
                 {
                     Product existedProduct = await this._unitOfWork.ProductRepository.GetProductAsync(orderDetail.ProductId);
@@ -359,7 +359,7 @@ namespace MBKC.Service.Services.Implementations
                     {
                         throw new NotFoundException(MessageConstant.OrderMessage.ProductPartnerNotMappingBefore);
                     }
-                    if (existedProduct.PartnerProducts.FirstOrDefault(x => x.StoreId == existedStore.StoreId && x.PartnerId == existedPartner.PartnerId && x.CreatedDate == activeStorePartner.CreatedDate && x.ProductId == existedProduct.ProductId).Status == (int)GrabFoodItemEnum.AvailableStatus.AVAILABLE)
+                    if (existedProduct.PartnerProducts.FirstOrDefault(x => x.StoreId == existedStore.StoreId && x.PartnerId == existedPartner.PartnerId && x.CreatedDate == activeStorePartner.CreatedDate && x.ProductId == existedProduct.ProductId).Status != (int)GrabFoodItemEnum.AvailableStatus.AVAILABLE)
                     {
                         throw new BadRequestException(MessageConstant.PartnerProductMessage.ProductPartnerNotAvailableNow);
                     }
@@ -375,8 +375,8 @@ namespace MBKC.Service.Services.Implementations
                         Product = existedProduct,
                         Quantity = orderDetail.Quantity
                     };
-                    newOrder.OrderDetails.ToList().Add(newOrderDetail);
-                    if (orderDetail.ExtraOrderDetails is not null)
+                    newOrderDetails.Add(newOrderDetail);
+                    if (orderDetail.ExtraOrderDetails is not null && orderDetail.ExtraOrderDetails.Count() > 0)
                     {
                         foreach (var extraOrderDetail in orderDetail.ExtraOrderDetails)
                         {
@@ -389,7 +389,7 @@ namespace MBKC.Service.Services.Implementations
                             {
                                 throw new NotFoundException(MessageConstant.OrderMessage.ProductExtraPartnerNotMappingBefore);
                             }
-                            if (existedProductExtra.PartnerProducts.FirstOrDefault(x => x.StoreId == existedStore.StoreId && x.PartnerId == existedPartner.PartnerId && x.CreatedDate == activeStorePartner.CreatedDate && x.ProductId == existedProductExtra.ProductId).Status == (int)GrabFoodItemEnum.AvailableStatus.AVAILABLE)
+                            if (existedProductExtra.PartnerProducts.FirstOrDefault(x => x.StoreId == existedStore.StoreId && x.PartnerId == existedPartner.PartnerId && x.CreatedDate == activeStorePartner.CreatedDate && x.ProductId == existedProductExtra.ProductId).Status != (int)GrabFoodItemEnum.AvailableStatus.AVAILABLE)
                             {
                                 throw new BadRequestException(MessageConstant.PartnerProductMessage.ProductPartnerNotAvailableNow);
                             }
@@ -405,10 +405,11 @@ namespace MBKC.Service.Services.Implementations
                                 Product = existedProductExtra,
                                 Quantity = extraOrderDetail.Quantity
                             };
-                            newOrder.OrderDetails.ToList().Add(newOrderDetailExtra);
+                            newOrderDetails.Add(newOrderDetailExtra);
                         }
                     }
                 }
+                newOrder.OrderDetails = newOrderDetails;
                 await this._unitOfWork.OrderRepository.InsertOrderAsync(newOrder);
                 await this._unitOfWork.CommitAsync();
             }
@@ -510,8 +511,7 @@ namespace MBKC.Service.Services.Implementations
         public async Task<GetOrdersResponse> GetOrdersAsync(GetOrdersRequest getOrdersRequest, IEnumerable<Claim> claims)
         {
             try
-            {
-                // Get email, role, account id from claims
+            {                // Get email, role, account id from claims
                 Claim registeredEmailClaim = claims.First(x => x.Type == ClaimTypes.Email);
                 Claim registeredRoleClaim = claims.First(x => x.Type.ToLower().Equals("role"));
                 Claim accountId = claims.First(x => x.Type.ToLower().Equals("sid"));
@@ -540,41 +540,30 @@ namespace MBKC.Service.Services.Implementations
                 List<Order>? orders = null;
                 if (getOrdersRequest.SearchValue != null && StringUtil.IsUnicode(getOrdersRequest.SearchValue))
                 {
-                    numberItems = await this._unitOfWork.OrderRepository.GetNumberOrdersAsync(getOrdersRequest.SearchValue, null, storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId, getOrdersRequest.SystemStatus, getOrdersRequest.PartnerOrderStatus);
+                    numberItems = await this._unitOfWork.OrderRepository.GetNumberOrdersAsync(getOrdersRequest.SearchValue, null, storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId, getOrdersRequest.SystemStatus, getOrdersRequest.PartnerOrderStatus, getOrdersRequest.SearchDateFrom, getOrdersRequest.SearchDateTo, cashier == null ? null : cashier.AccountId, getOrdersRequest.ConfirmedBy);
                     orders = await this._unitOfWork.OrderRepository.GetOrdersAsync(getOrdersRequest.SearchValue, null, getOrdersRequest.CurrentPage, getOrdersRequest.ItemsPerPage,
                                                                                                                   getOrdersRequest.SortBy != null && getOrdersRequest.SortBy.ToLower().EndsWith("asc") ? getOrdersRequest.SortBy.Split("_")[0] : null,
                                                                                                                   getOrdersRequest.SortBy != null && getOrdersRequest.SortBy.ToLower().EndsWith("desc") ? getOrdersRequest.SortBy.Split("_")[0] : null,
                                                                                                                   storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId, getOrdersRequest.SystemStatus,
-                                                                                                                  getOrdersRequest.PartnerOrderStatus);
+                                                                                                                  getOrdersRequest.PartnerOrderStatus, getOrdersRequest.SearchDateFrom, getOrdersRequest.SearchDateTo, cashier == null ? null : cashier.AccountId, getOrdersRequest.ConfirmedBy);
                 }
                 else if (getOrdersRequest.SearchValue != null && StringUtil.IsUnicode(getOrdersRequest.SearchValue) == false)
                 {
-                    numberItems = await this._unitOfWork.OrderRepository.GetNumberOrdersAsync(null, getOrdersRequest.SearchValue, storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId, getOrdersRequest.SystemStatus, getOrdersRequest.PartnerOrderStatus);
+                    numberItems = await this._unitOfWork.OrderRepository.GetNumberOrdersAsync(null, getOrdersRequest.SearchValue, storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId, getOrdersRequest.SystemStatus, getOrdersRequest.PartnerOrderStatus, getOrdersRequest.SearchDateFrom, getOrdersRequest.SearchDateTo, cashier == null ? null : cashier.AccountId, getOrdersRequest.ConfirmedBy);
                     orders = await this._unitOfWork.OrderRepository.GetOrdersAsync(null, getOrdersRequest.SearchValue, getOrdersRequest.CurrentPage, getOrdersRequest.ItemsPerPage,
                                                                                                                   getOrdersRequest.SortBy != null && getOrdersRequest.SortBy.ToLower().EndsWith("asc") ? getOrdersRequest.SortBy.Split("_")[0] : null,
                                                                                                                   getOrdersRequest.SortBy != null && getOrdersRequest.SortBy.ToLower().EndsWith("desc") ? getOrdersRequest.SortBy.Split("_")[0] : null,
                                                                                                                   storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId, getOrdersRequest.SystemStatus,
-                                                                                                                  getOrdersRequest.PartnerOrderStatus);
+                                                                                                                  getOrdersRequest.PartnerOrderStatus, getOrdersRequest.SearchDateFrom, getOrdersRequest.SearchDateTo, cashier == null ? null : cashier.AccountId, getOrdersRequest.ConfirmedBy);
                 }
                 else if (getOrdersRequest.SearchValue == null)
                 {
-                    numberItems = await this._unitOfWork.OrderRepository.GetNumberOrdersAsync(null, null, storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId, getOrdersRequest.SystemStatus, getOrdersRequest.PartnerOrderStatus);
+                    numberItems = await this._unitOfWork.OrderRepository.GetNumberOrdersAsync(null, null, storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId, getOrdersRequest.SystemStatus, getOrdersRequest.PartnerOrderStatus, getOrdersRequest.SearchDateFrom, getOrdersRequest.SearchDateTo, cashier == null ? null : cashier.AccountId, getOrdersRequest.ConfirmedBy);
                     orders = await this._unitOfWork.OrderRepository.GetOrdersAsync(null, null, getOrdersRequest.CurrentPage, getOrdersRequest.ItemsPerPage,
                                                                                                                   getOrdersRequest.SortBy != null && getOrdersRequest.SortBy.ToLower().EndsWith("asc") ? getOrdersRequest.SortBy.Split("_")[0] : null,
                                                                                                                   getOrdersRequest.SortBy != null && getOrdersRequest.SortBy.ToLower().EndsWith("desc") ? getOrdersRequest.SortBy.Split("_")[0] : null,
                                                                                                                   storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId, getOrdersRequest.SystemStatus,
-                                                                                                                  getOrdersRequest.PartnerOrderStatus);
-                }
-
-                // Search by date from - date to
-                if (getOrdersRequest.SearchDateFrom != null && getOrdersRequest.SearchDateTo != null)
-                {
-                    DateTime startDate = DateTime.ParseExact(getOrdersRequest.SearchDateFrom, "dd/MM/yyyy", null);
-                    DateTime endDate = DateTime.ParseExact(getOrdersRequest.SearchDateTo, "dd/MM/yyyy", null);
-                    if (orders is not null && orders.Any())
-                    {
-                        orders = orders.Where(x => x.OrderHistories.Any(o => o.CreatedDate >= startDate && o.CreatedDate <= endDate)).ToList();
-                    }
+                                                                                                                  getOrdersRequest.PartnerOrderStatus, getOrdersRequest.SearchDateFrom, getOrdersRequest.SearchDateTo, cashier == null ? null : cashier.AccountId, getOrdersRequest.ConfirmedBy);
                 }
 
                 int totalPages = 0;
@@ -584,20 +573,36 @@ namespace MBKC.Service.Services.Implementations
                 {
                     totalPages = 0;
                 }
-                List<GetOrderResponse> getOrdersResponse = this._mapper.Map<List<GetOrderResponse>>(orders);
-
-                // Get totalQuantity of each order
-                foreach (GetOrderResponse order in getOrdersResponse)
+                decimal? collectedPrice = null;
+                List<GetOrderResponse> getOrdersResponse = new List<GetOrderResponse>();
+                if (numberItems > 0)
                 {
-                    List<int> listQuantity = new List<int>();
-                    foreach (var orderDetail in order.OrderDetails)
+                    // Get totalQuantity of each order
+                    foreach (var order in orders)
                     {
-                        listQuantity.Add(orderDetail.Quantity);
-                    }
-                    int totalQuantity = listQuantity.Sum();
-                    order.TotalQuantity = totalQuantity;
-                }
+                        if (order.Store.StorePartners.Any())
+                        {
+                            float storePartnerComission = order.Store.StorePartners.FirstOrDefault(x => x.PartnerId == order.PartnerId).Commission;
 
+                            collectedPrice = order.SubTotalPrice - (order.SubTotalPrice * decimal.Parse(storePartnerComission.ToString())/100);
+                        }
+                        GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(order);
+                        getOrderResponse.IsPaid = getOrderResponse.PaymentMethod.ToLower().Equals(OrderEnum.PaymentMethod.CASH.ToString().ToLower()) ? false : true;
+                        if(getOrderResponse.IsPaid == true)
+                        {
+                            collectedPrice = 0;
+                        }
+                        getOrderResponse.CollectedPrice = collectedPrice;
+                        List<int> listQuantity = new List<int>();
+                        foreach (var orderDetail in getOrderResponse.OrderDetails)
+                        {
+                            listQuantity.Add(orderDetail.Quantity);
+                        }
+                        int totalQuantity = listQuantity.Sum();
+                        getOrderResponse.TotalQuantity = totalQuantity;
+                        getOrdersResponse.Add(getOrderResponse);
+                    }
+                }
                 GetOrdersResponse getKitchenCenters = new GetOrdersResponse()
                 {
                     NumberItems = numberItems,
@@ -668,10 +673,18 @@ namespace MBKC.Service.Services.Implementations
                         throw new BadRequestException(MessageConstant.OrderMessage.OrderIdNotBelongToKitchenCenter);
                     }
                 }
-               
-                GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(existedOrder);
-                return getOrderResponse;
+                float storePartnerComission = existedOrder.Store.StorePartners.FirstOrDefault(x => x.PartnerId == existedOrder.PartnerId).Commission;
 
+                decimal collectedPrice = existedOrder.SubTotalPrice - (existedOrder.SubTotalPrice * decimal.Parse(storePartnerComission.ToString()) / 100);
+
+                GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(existedOrder);
+                getOrderResponse.IsPaid = getOrderResponse.PaymentMethod.ToLower().Equals(OrderEnum.PaymentMethod.CASH.ToString().ToLower()) ? false : true;
+                if (getOrderResponse.IsPaid == true)
+                {
+                    collectedPrice = 0;
+                }
+                getOrderResponse.CollectedPrice = collectedPrice;
+                return getOrderResponse;
             }
             catch (NotFoundException ex)
             {
@@ -1068,6 +1081,7 @@ namespace MBKC.Service.Services.Implementations
             }
         }
         #endregion
+
     }
 }
 

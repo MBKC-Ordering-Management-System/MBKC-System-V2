@@ -49,7 +49,7 @@ namespace MBKC.Service.Services.Implementations
                                       new RecurringJobOptions
                                       {
                                           // sync time(utc +7)
-                                          TimeZone = TimeZoneInfo.Local,
+                                          TimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"),
                                       });
 
                 // kitchen center money exchange to store
@@ -59,7 +59,7 @@ namespace MBKC.Service.Services.Implementations
                                       new RecurringJobOptions
                                       {
                                           // sync time(utc +7)
-                                          TimeZone = TimeZoneInfo.Local,
+                                          TimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"),
                                       });
 
                 // update status for partner product
@@ -69,7 +69,7 @@ namespace MBKC.Service.Services.Implementations
                                       new RecurringJobOptions
                                       {
                                           // sync time(utc +7)
-                                          TimeZone = TimeZoneInfo.Local,
+                                          TimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"),
                                       });
             }
         }
@@ -127,7 +127,7 @@ namespace MBKC.Service.Services.Implementations
                                   new RecurringJobOptions
                                   {
                                       // sync time(utc +7)
-                                      TimeZone = TimeZoneInfo.Local,
+                                      TimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"),
                                   });
                 }
 
@@ -141,7 +141,7 @@ namespace MBKC.Service.Services.Implementations
                                   new RecurringJobOptions
                                   {
                                       // sync time(utc +7)
-                                      TimeZone = TimeZoneInfo.Local,
+                                      TimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"),
                                   });
                 }
 
@@ -166,7 +166,7 @@ namespace MBKC.Service.Services.Implementations
                                    new RecurringJobOptions
                                    {
                                        // sync time(utc +7)
-                                       TimeZone = TimeZoneInfo.Local,
+                                       TimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"),
                                    });
                 }
 
@@ -178,7 +178,7 @@ namespace MBKC.Service.Services.Implementations
                                   new RecurringJobOptions
                                   {
                                       // sync time(utc +7)
-                                      TimeZone = TimeZoneInfo.Local,
+                                      TimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"),
                                   });
                 }
 
@@ -332,14 +332,14 @@ namespace MBKC.Service.Services.Implementations
 
                         foreach (var order in store.Orders)
                         {
-                            decimal finalToTalPriceSubstractDeliveryFee = order.FinalTotalPrice - order.DeliveryFee;
+                            //decimal finalToTalPriceSubstractDeliveryFee = order.FinalTotalPrice - order.DeliveryFee;
                             if (exchangeWallets.ContainsKey(store.StoreId))
                             {
-                                exchangeWallets[store.StoreId] += finalToTalPriceSubstractDeliveryFee - (finalToTalPriceSubstractDeliveryFee * (decimal)order.Commission / 100);
+                                exchangeWallets[store.StoreId] += order.SubTotalPrice - (order.SubTotalPrice * (decimal)(store.StorePartners.FirstOrDefault(sp => sp.PartnerId == order.PartnerId && sp.Status == (int)StorePartnerEnum.Status.ACTIVE)!.Commission / 100));
                             }
                             else
                             {
-                                exchangeWallets.Add(store.StoreId, finalToTalPriceSubstractDeliveryFee - (finalToTalPriceSubstractDeliveryFee * (decimal)order.Commission / 100));
+                                exchangeWallets.Add(store.StoreId, order.SubTotalPrice - (order.SubTotalPrice * (decimal)(store.StorePartners.FirstOrDefault(sp => sp.PartnerId == order.PartnerId && sp.Status == (int)StorePartnerEnum.Status.ACTIVE)!.Commission / 100)));
                             }
                         }
                     }
@@ -415,7 +415,7 @@ namespace MBKC.Service.Services.Implementations
                                     new Transaction()
                                     {
                                         TransactionTime = DateTime.Now,
-                                        Wallet = store.Wallet,
+                                        Wallet = store.Wallet!,
                                         Status = (int)TransactionEnum.Status.SUCCESS,
                                     },
                                 }
@@ -425,7 +425,7 @@ namespace MBKC.Service.Services.Implementations
                         #endregion
 
                         #region update balance of kitchen center and store wallet
-                        store.Wallet.Balance += exchangeWalletValue;
+                        store.Wallet!.Balance += exchangeWalletValue;
                         kitchenCenter.Wallet.Balance -= exchangeWalletValue;
                         wallets.Add(store.Wallet);
                         #endregion

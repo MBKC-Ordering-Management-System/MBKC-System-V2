@@ -271,7 +271,7 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await this._dbContext.Brands.Include(x => x.Stores)
+                return await this._dbContext.Brands.Include(x => x.Stores).ThenInclude(x => x.Orders).ThenInclude(x => x.ShipperPayments)
                                                    .Include(x => x.Products)
                                                    .Include(x => x.Categories)
                                                    .FirstOrDefaultAsync(x => x.BrandManagerEmail.Equals(managerEmail) &&
@@ -282,5 +282,54 @@ namespace MBKC.Repository.Repositories
                 throw new Exception(ex.Message);
             }
         }
+
+        #region Get brand for dash board
+        public async Task<Brand?> GetBrandForDashBoardAsync(string managerEmail)
+        {
+            try
+            {
+                return await this._dbContext.Brands.Include(b => b.Stores.Where(s => s.Status == (int)StoreEnum.Status.ACTIVE || s.Status == (int)StoreEnum.Status.INACTIVE)
+                                                                         .OrderByDescending(s => s.Status))
+                                                                         .Take(5)
+                                                   .Include(b => b.Products)
+                                                   .FirstOrDefaultAsync(b => b.BrandManagerEmail.Equals(managerEmail) && b.Status == (int)BrandEnum.Status.ACTIVE);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        #region count number of brand
+        public async Task<int> CountBrandNumberAsync()
+        {
+            try
+            {
+                return await _dbContext.Brands.Where(b => b.Status != (int)BrandEnum.Status.DEACTIVE).CountAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        #region get 5 brand with status active
+        public async Task<List<Brand>> GetFiveBrandSortByActiveAsync()
+        {
+            try
+            {
+                return await _dbContext.Brands.Where(b => b.Status != (int)BrandEnum.Status.DEACTIVE)
+                                                      .OrderByDescending(b => b.Status)
+                                                      .Take(5)
+                                                      .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
     }
 }

@@ -6,15 +6,18 @@ using System.Threading.Tasks;
 
 namespace MBKC.Service.DTOs.ShipperPayments
 {
-    public class GetShipperPaymentWalletResponse
+    public class GetShipperPaymentResponse
     {
         public int PaymentId { get; set; }
         public string Status { get; set; }
         public string Content { get; set; }
+        public decimal FinalTotalPrice { get; set; }
         public decimal Amount { get; set; }
         public DateTime CreateDate { get; set; }
+        public string CashierCreated { get; set; }
         public string PaymentMethod { get; set; }
         public int OrderId { get; set; }
+        public string OrderPartnerId { get; set; }
         public int? KCBankingAccountId { get; set; }
         public string?KCBankingAccountName { get; set; }
     }

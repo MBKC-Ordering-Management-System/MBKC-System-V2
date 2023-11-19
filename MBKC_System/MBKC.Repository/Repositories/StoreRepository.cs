@@ -137,7 +137,8 @@ namespace MBKC.Repository.Repositories
             {
                 if (isGetAll != null && isGetAll == true)
                 {
-                    return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                    return await this._dbContext.Stores.Include(x => x.Wallet)
+                                                   .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                    .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                    .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                    .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
@@ -150,7 +151,8 @@ namespace MBKC.Repository.Repositories
                 if (searchValue == null && searchValueWithoutUnicode != null && brandId == null && kitchenCenterId == null)
                 {
                     if (sortByASC is not null)
-                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                        return this._dbContext.Stores.Include(x => x.Wallet)
+                            .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                      .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                      .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                      .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
@@ -175,7 +177,8 @@ namespace MBKC.Repository.Repositories
                                                      .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
 
                     else if (sortByDESC is not null)
-                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                        return this._dbContext.Stores.Include(x => x.Wallet)
+                            .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                      .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                      .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                      .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
@@ -199,7 +202,8 @@ namespace MBKC.Repository.Repositories
                                                                 then => then.OrderByDescending(x => x.Status).Reverse())
                                                      .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
 
-                    return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                    return this._dbContext.Stores.Include(x => x.Wallet)
+                        .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                  .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                  .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                  .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
@@ -220,7 +224,8 @@ namespace MBKC.Repository.Repositories
                 else if (searchValue != null && searchValueWithoutUnicode == null && brandId == null && kitchenCenterId == null)
                 {
                     if (sortByASC is not null)
-                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                        return this._dbContext.Stores.Include(x => x.Wallet)
+                            .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                      .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                      .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                      .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
@@ -234,7 +239,8 @@ namespace MBKC.Repository.Repositories
                                                      .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
 
                     else if (sortByDESC is not null)
-                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                        return this._dbContext.Stores.Include(x => x.Wallet)
+                            .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                      .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                      .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                      .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
@@ -247,7 +253,8 @@ namespace MBKC.Repository.Repositories
                                                               then => then.OrderByDescending(x => x.Status).Reverse())
                                                      .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
 
-                    return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                    return this._dbContext.Stores.Include(x => x.Wallet)
+                        .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                  .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                  .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                  .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
@@ -257,7 +264,8 @@ namespace MBKC.Repository.Repositories
                 else if (searchValue == null && searchValueWithoutUnicode != null && brandId != null && kitchenCenterId == null)
                 {
                     if (sortByASC is not null)
-                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                        return this._dbContext.Stores.Include(x => x.Wallet)
+                            .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                      .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                      .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                      .Where(x => x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
@@ -281,7 +289,8 @@ namespace MBKC.Repository.Repositories
                                                      .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
 
                     else if (sortByDESC is not null)
-                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                        return this._dbContext.Stores.Include(x => x.Wallet)
+                            .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                      .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                      .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                      .Where(x => x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
@@ -304,7 +313,8 @@ namespace MBKC.Repository.Repositories
                                                        then => then.OrderByDescending(x => x.Status).Reverse())
                                                  .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
 
-                    return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                    return this._dbContext.Stores.Include(x => x.Wallet)
+                        .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                  .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                  .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                  .Where(x => x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
@@ -323,7 +333,8 @@ namespace MBKC.Repository.Repositories
                 else if (searchValue != null && searchValueWithoutUnicode == null && brandId != null && kitchenCenterId == null)
                 {
                     if (sortByASC is not null)
-                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                        return this._dbContext.Stores.Include(x => x.Wallet)
+                            .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                      .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                      .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                      .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
@@ -337,7 +348,8 @@ namespace MBKC.Repository.Repositories
                                                      .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
 
                     else if (sortByDESC is not null)
-                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                        return this._dbContext.Stores.Include(x => x.Wallet)
+                            .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                      .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                      .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                      .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
@@ -350,7 +362,8 @@ namespace MBKC.Repository.Repositories
                                                            then => then.OrderByDescending(x => x.Status).Reverse())
                                                      .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
 
-                    return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                    return this._dbContext.Stores.Include(x => x.Wallet)
+                        .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                  .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                  .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                  .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
@@ -360,7 +373,8 @@ namespace MBKC.Repository.Repositories
                 else if (searchValue == null && searchValueWithoutUnicode == null && brandId != null && kitchenCenterId == null)
                 {
                     if (sortByASC is not null)
-                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                        return this._dbContext.Stores.Include(x => x.Wallet)
+                            .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                      .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                      .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                      .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
@@ -374,7 +388,8 @@ namespace MBKC.Repository.Repositories
                                                      .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
 
                     else if (sortByDESC is not null)
-                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                        return this._dbContext.Stores.Include(x => x.Wallet)
+                            .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                      .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                      .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                      .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
@@ -387,7 +402,8 @@ namespace MBKC.Repository.Repositories
                                                                then => then.OrderByDescending(x => x.Status).Reverse())
                                                      .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
 
-                    return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                    return this._dbContext.Stores.Include(x => x.Wallet)
+                        .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                  .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                  .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                  .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
@@ -397,7 +413,8 @@ namespace MBKC.Repository.Repositories
                 else if (searchValue == null && searchValueWithoutUnicode != null && brandId == null && kitchenCenterId != null)
                 {
                     if (sortByASC is not null)
-                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                        return this._dbContext.Stores.Include(x => x.Wallet)
+                            .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                      .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                      .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                      .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
@@ -421,7 +438,8 @@ namespace MBKC.Repository.Repositories
                                                      .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
 
                     else if (sortByDESC is not null)
-                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                        return this._dbContext.Stores.Include(x => x.Wallet)
+                            .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                      .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                      .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                      .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
@@ -444,7 +462,8 @@ namespace MBKC.Repository.Repositories
                                                                then => then.OrderByDescending(x => x.Status).Reverse())
                                                      .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
 
-                    return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                    return this._dbContext.Stores.Include(x => x.Wallet)
+                        .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                  .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                  .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                  .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
@@ -463,7 +482,8 @@ namespace MBKC.Repository.Repositories
                 else if (searchValue != null && searchValueWithoutUnicode == null && brandId == null && kitchenCenterId != null)
                 {
                     if (sortByASC is not null)
-                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                        return this._dbContext.Stores.Include(x => x.Wallet)
+                            .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                      .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                      .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                      .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
@@ -477,7 +497,8 @@ namespace MBKC.Repository.Repositories
                                                      .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
 
                     else if (sortByDESC is not null)
-                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                        return this._dbContext.Stores.Include(x => x.Wallet)
+                            .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                      .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                      .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                      .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
@@ -490,7 +511,8 @@ namespace MBKC.Repository.Repositories
                                                            then => then.OrderByDescending(x => x.Status).Reverse())
                                                      .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
 
-                    return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                    return this._dbContext.Stores.Include(x => x.Wallet)
+                        .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                  .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                  .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                  .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
@@ -500,7 +522,8 @@ namespace MBKC.Repository.Repositories
                 else if (searchValue == null && searchValueWithoutUnicode == null && brandId == null && kitchenCenterId != null)
                 {
                     if (sortByASC is not null)
-                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                        return this._dbContext.Stores.Include(x => x.Wallet)
+                            .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                      .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                      .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                      .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
@@ -513,7 +536,8 @@ namespace MBKC.Repository.Repositories
                                                              then => then.OrderBy(x => x.Status).Reverse())
                                                      .Take(itemsPerPage).Skip(itemsPerPage * (currentPage - 1)).ToList();
                     else if (sortByDESC is not null)
-                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                        return this._dbContext.Stores.Include(x => x.Wallet)
+                            .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                      .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                      .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                      .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
@@ -526,7 +550,8 @@ namespace MBKC.Repository.Repositories
                                                           then => then.OrderByDescending(x => x.Status).Reverse())
                                                      .Take(itemsPerPage).Skip(itemsPerPage * (currentPage - 1)).ToList();
 
-                    return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                    return this._dbContext.Stores.Include(x => x.Wallet)
+                        .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                  .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                  .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                  .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
@@ -536,7 +561,8 @@ namespace MBKC.Repository.Repositories
                 else if (searchValue == null && searchValueWithoutUnicode == null && brandId != null && kitchenCenterId != null)
                 {
                     if (sortByASC is not null)
-                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                        return this._dbContext.Stores.Include(x => x.Wallet)
+                            .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                      .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                      .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                      .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
@@ -550,7 +576,8 @@ namespace MBKC.Repository.Repositories
                                                      .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
 
                     else if (sortByDESC is not null)
-                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                        return this._dbContext.Stores.Include(x => x.Wallet)
+                            .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                      .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                      .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                      .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
@@ -563,7 +590,8 @@ namespace MBKC.Repository.Repositories
                                                           then => then.OrderByDescending(x => x.Status).Reverse())
                                                      .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
 
-                    return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                    return this._dbContext.Stores.Include(x => x.Wallet)
+                        .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                  .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                  .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                  .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
@@ -573,7 +601,8 @@ namespace MBKC.Repository.Repositories
                 else if (searchValue == null && searchValueWithoutUnicode != null && brandId != null && kitchenCenterId != null)
                 {
                     if (sortByASC is not null)
-                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                        return this._dbContext.Stores.Include(x => x.Wallet)
+                            .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                      .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                      .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                      .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
@@ -597,7 +626,8 @@ namespace MBKC.Repository.Repositories
                                                      .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
 
                     else if (sortByDESC is not null)
-                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                        return this._dbContext.Stores.Include(x => x.Wallet)
+                            .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                      .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                      .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                      .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
@@ -620,7 +650,8 @@ namespace MBKC.Repository.Repositories
                                                             then => then.OrderByDescending(x => x.Status).Reverse())
                                                      .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
 
-                    return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                    return this._dbContext.Stores.Include(x => x.Wallet)
+                        .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                  .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                  .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                  .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
@@ -639,7 +670,8 @@ namespace MBKC.Repository.Repositories
                 else if (searchValue != null && searchValueWithoutUnicode == null && brandId != null && kitchenCenterId != null)
                 {
                     if (sortByASC is not null)
-                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                        return this._dbContext.Stores.Include(x => x.Wallet)
+                            .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                      .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                      .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                      .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
@@ -653,7 +685,8 @@ namespace MBKC.Repository.Repositories
                                                      .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
 
                     else if (sortByDESC is not null)
-                        return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                        return this._dbContext.Stores.Include(x => x.Wallet)
+                            .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                      .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                      .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                      .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
@@ -666,14 +699,16 @@ namespace MBKC.Repository.Repositories
                                                            then => then.OrderByDescending(x => x.Status).Reverse())
                                                      .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
 
-                    return this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                    return this._dbContext.Stores.Include(x => x.Wallet)
+                        .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                  .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                  .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                  .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                  .Where(x => x.Name.ToLower().Contains(searchValue) && x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Brand.BrandId == brandId && x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
                                                  .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
                 }
-                return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
+                return await this._dbContext.Stores.Include(x => x.Wallet)
+                    .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                    .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                    .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                    .Where(x => x.Status != (int)StoreEnum.Status.DEACTIVE && (statusParam != null ? x.Status == statusParam : true))
@@ -707,7 +742,22 @@ namespace MBKC.Repository.Repositories
             try
             {
                 return await this._dbContext.Stores.Include(x => x.Wallet)
+                                                   .Include(x => x.StorePartners)
+                                                   .Include(x => x.Brand)
                                                    .FirstOrDefaultAsync(x => x.StoreId == id && x.Status == (int)StoreEnum.Status.ACTIVE);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<Store?> GetStoreExceptDeactiveByIdAsync(int id)
+        {
+            try
+            {
+                return await this._dbContext.Stores.Include(s => s.Brand)
+                                                   .FirstOrDefaultAsync(s => s.StoreId == id && s.Status != (int)StoreEnum.Status.DEACTIVE);
             }
             catch (Exception ex)
             {
@@ -747,10 +797,29 @@ namespace MBKC.Repository.Repositories
                                                    .ThenInclude(x => x.Categories)
                                                    .Include(x => x.KitchenCenter)
                                                    .ThenInclude(x => x.Manager)
+                                                   .Include(x => x.KitchenCenter)
+                                                   .ThenInclude(x => x.Cashiers)
                                                    .Include(x => x.StoreMoneyExchanges)
                                                    .ThenInclude(x => x.MoneyExchange)
                                                    .ThenInclude(x => x.Transactions)
+                                                   .Include(x => x.Orders).ThenInclude(x => x.ShipperPayments).ThenInclude(x => x.BankingAccount)
+                                                   .Include(x => x.Orders).ThenInclude(x => x.OrderHistories)
                                                    .SingleOrDefaultAsync(x => x.StoreManagerEmail.Equals(managerEmail));
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<Store> GetStoreIncludeCashierAsync(string managerEmail)
+        {
+            try
+            {
+                return await this._dbContext.Stores.Include(x => x.KitchenCenter)
+                                                   .ThenInclude(x => x.Cashiers)
+                                                   .SingleOrDefaultAsync(x => x.StoreManagerEmail.Equals(managerEmail));
+
             }
             catch (Exception ex)
             {
@@ -768,6 +837,83 @@ namespace MBKC.Repository.Repositories
                                       .Include(x => x.StorePartners.Where(x => x.Status == (int)StorePartnerEnum.Status.ACTIVE))
                                       .ThenInclude(x => x.PartnerProducts).ThenInclude(x => x.Product).ThenInclude(x => x.ChildrenProducts)
                                       .Where(x => x.Status == (int)StoreEnum.Status.ACTIVE).ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        #region count number of store
+        public async Task<int> CountStoreNumberAsync()
+        {
+            try
+            {
+                return await _dbContext.Stores.Where(s => s.Status == (int)StoreEnum.Status.ACTIVE || s.Status == (int)StoreEnum.Status.INACTIVE).CountAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        #region count number of store by id brand
+        public async Task<int> CountStoreNumberByBrandIdAsync(int brandId)
+        {
+            try
+            {
+                return await _dbContext.Stores.Where(s => (s.Status == (int)StoreEnum.Status.ACTIVE || s.Status == (int)StoreEnum.Status.INACTIVE) && s.Brand.BrandId == brandId).CountAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        #region count number of store is active
+        public async Task<int> CountStoreNumberIsActiveFindByKitchenCenterIdAsync(int kitchenCenterId)
+        {
+            try
+            {
+                return await _dbContext.Stores.Where(s => s.Status == (int)StoreEnum.Status.ACTIVE && s.KitchenCenter.KitchenCenterId == kitchenCenterId).CountAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        #region get 5 store with status active
+        public async Task<List<Store>> GetFiveStoreSortByActiveAsync()
+        {
+            try
+            {
+                return await _dbContext.Stores.Where(s => s.Status == (int)StoreEnum.Status.ACTIVE || s.Status == (int)StoreEnum.Status.INACTIVE)
+                                                      .OrderByDescending(s => s.Status)
+                                                      .Take(5)
+                                                      .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        public async Task<Store> GetStoreMoneyExchangeAsync(string managerEmail)
+        {
+            try
+            {
+                return await this._dbContext.Stores
+                                                   .Include(x => x.KitchenCenter)
+                                                   .Include(x => x.StoreMoneyExchanges)
+                                                   .ThenInclude(x => x.MoneyExchange)
+                                                   .ThenInclude(x => x.Transactions)
+                                                   
+                                                   .SingleOrDefaultAsync(x => x.StoreManagerEmail.Equals(managerEmail));
             }
             catch (Exception ex)
             {

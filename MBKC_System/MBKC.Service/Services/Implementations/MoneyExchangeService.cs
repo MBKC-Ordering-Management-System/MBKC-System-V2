@@ -274,7 +274,7 @@ namespace MBKC.Service.Services.Implementations
         }
         #endregion
 
-        #region Get money exchange
+        #region Get money exchanges
         public async Task<GetMoneyExchangesResponse> GetMoneyExchanges(IEnumerable<Claim> claims, GetMoneyExchangesRequest getMoneyExchangesRequest)
         {
             try
@@ -296,16 +296,17 @@ namespace MBKC.Service.Services.Implementations
                 }
                 else if (role.ToLower().Equals(RoleConstant.Store_Manager.ToLower()))
                 {
-                    existedStore = await this._unitOfWork.StoreRepository.GetStoreAsync(email);
+                    existedStore = await this._unitOfWork.StoreRepository.GetStoreMoneyExchangeAsync(email);
                     existedMoneyExchanges = existedStore.StoreMoneyExchanges.Select(x => x.MoneyExchange).ToList();
                 }
                 else if (role.ToLower().Equals(RoleConstant.Kitchen_Center_Manager.ToLower()))
                 {
-                    existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(email);
+                    existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterMoneyExchangeAsync(email);
+                    /*var getMoneyExchangeWithdraw = await this._unitOfWork.MoneyExchangeRepository.GetMoneyExchangesBySendIdAsync(existedKitchenCenter.KitchenCenterId);*/
                     existedMoneyExchanges = existedKitchenCenter.KitchenCenterMoneyExchanges.Select(x => x.MoneyExchange).ToList();
                 }
 
-                // Change status int to string
+                // Change status string to int
                 int? status = null;
                 if (getMoneyExchangesRequest.Status != null)
                 {
@@ -319,7 +320,7 @@ namespace MBKC.Service.Services.Implementations
                                                                          getMoneyExchangesRequest.SearchDateFrom,
                                                                          getMoneyExchangesRequest.SearchDateTo);
 
-                listMoneyExchanges = this._unitOfWork.MoneyExchangeRepository.GetMoneyExchangesAsync(existedMoneyExchanges, 
+                listMoneyExchanges = this._unitOfWork.MoneyExchangeRepository.GetMoneyExchangesAsync(existedMoneyExchanges,
                                                                                  getMoneyExchangesRequest.CurrentPage, getMoneyExchangesRequest.ItemsPerPage,
                                                                                  getMoneyExchangesRequest.SortBy != null && getMoneyExchangesRequest.SortBy.ToLower().EndsWith("asc") ? getMoneyExchangesRequest.SortBy.Split("_")[0] : null,
                                                                                  getMoneyExchangesRequest.SortBy != null && getMoneyExchangesRequest.SortBy.ToLower().EndsWith("desc") ? getMoneyExchangesRequest.SortBy.Split("_")[0] : null,
@@ -344,17 +345,41 @@ namespace MBKC.Service.Services.Implementations
                 // Assign sender name and receiver name, transaction time role Kitchen Center
                 if (existedKitchenCenter != null)
                 {
-                    foreach (var item in getMoneyExchangeResponse)
+                    foreach (var item in listMoneyExchanges)
                     {
-                        item.SenderName = existedKitchenCenter.Name;
-                        item.ReceiveName = existedKitchenCenter.Stores
-                                          .Where(store => store.StoreId == item.ReceiveId)
-                                          .Select(store => store.Name)
-                                          .SingleOrDefault();
-                        item.TransactionTime = existedMoneyExchanges
-                            .SelectMany(x => x.Transactions.Where(x => x.ExchangeId == item.ExchangeId)
-                            .Select(x => x.TransactionTime))
-                            .SingleOrDefault();
+                        if (item.ExchangeType.Equals(MoneyExchangeEnum.ExchangeType.RECEIVE.ToString()))
+                        {
+                            var cashierSender = await this._unitOfWork.CashierRepository.GetCashierAsync(item.SenderId);
+
+                            foreach (var itemResponse in getMoneyExchangeResponse)
+                            {
+                                if (itemResponse.ExchangeId == item.ExchangeId)
+                                {
+                                    itemResponse.SenderName = cashierSender.FullName;
+                                    itemResponse.ReceiveName = existedKitchenCenter.Name;
+                                    itemResponse.TransactionTime = existedMoneyExchanges
+                                        .SelectMany(x => x.Transactions.Where(x => x.ExchangeId == item.ExchangeId)
+                                        .Select(x => x.TransactionTime))
+                                        .SingleOrDefault();
+                                }
+                            }
+                        }
+                        else
+                        {
+                            var storeRecieve = await _unitOfWork.StoreRepository.GetStoreAsync(item.ReceiveId);
+                            foreach (var itemResponse in getMoneyExchangeResponse)
+                            {
+                                if (itemResponse.ExchangeId == item.ExchangeId)
+                                {
+                                    itemResponse.SenderName = existedKitchenCenter.Name;
+                                    itemResponse.ReceiveName = storeRecieve.Name;
+                                    itemResponse.TransactionTime = existedMoneyExchanges
+                                        .SelectMany(x => x.Transactions.Where(x => x.ExchangeId == item.ExchangeId)
+                                        .Select(x => x.TransactionTime))
+                                        .SingleOrDefault();
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -388,7 +413,8 @@ namespace MBKC.Service.Services.Implementations
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                string error = ErrorUtil.GetErrorString("Exception", ex.InnerException != null ? ex.InnerException.Message : ex.Message);
+                throw new Exception(error);
             }
         }
         #endregion

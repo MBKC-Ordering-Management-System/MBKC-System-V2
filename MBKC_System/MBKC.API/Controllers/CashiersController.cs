@@ -59,14 +59,14 @@ namespace MBKC.API.Controllers
         /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
         /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
         /// <exception cref="Exception">Throw Error about the system.</exception>
-        [ProducesResponseType(typeof(GetCashiersRequest), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GetCashiersResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.KitchenCenterManager)]
         [HttpGet(APIEndPointConstant.Cashier.CashiersEndpoint)]
-        public async Task<IActionResult> GetCashiersAsync([FromQuery]GetCashiersRequest getCashiersRequest)
+        public async Task<IActionResult> GetCashiersAsync([FromQuery] GetCashiersRequest getCashiersRequest)
         {
             ValidationResult validationResult = await this._getCashiersValidator.ValidateAsync(getCashiersRequest);
             if (validationResult.IsValid == false)
@@ -108,7 +108,7 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.KitchenCenterManager, PermissionAuthorizeConstant.Cashier)]
         [HttpGet(APIEndPointConstant.Cashier.CashierEndpoint)]
-        public async Task<IActionResult> GetCashierAsync([FromRoute]CashierRequest getCashierRequest)
+        public async Task<IActionResult> GetCashierAsync([FromRoute] CashierRequest getCashierRequest)
         {
             ValidationResult validationResult = await this._getCashierValidator.ValidateAsync(getCashierRequest);
             if (validationResult.IsValid == false)
@@ -117,7 +117,7 @@ namespace MBKC.API.Controllers
                 throw new BadRequestException(errors);
             }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            GetCashierResponse getCashierResponse = await this._cashierService.GetCashierAsync(getCashierRequest.Id, claims); 
+            GetCashierResponse getCashierResponse = await this._cashierService.GetCashierAsync(getCashierRequest.Id, claims);
             return Ok(getCashierResponse);
         }
         #endregion
@@ -156,10 +156,10 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.KitchenCenterManager)]
         [HttpPost(APIEndPointConstant.Cashier.CashiersEndpoint)]
-        public async Task<IActionResult> PostCreateCashierAsync([FromForm]CreateCashierRequest createCashierRequest)
+        public async Task<IActionResult> PostCreateCashierAsync([FromForm] CreateCashierRequest createCashierRequest)
         {
             ValidationResult validationResult = await this._createCashierValidator.ValidateAsync(createCashierRequest);
-            if(validationResult.IsValid == false)
+            if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
@@ -209,7 +209,7 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.KitchenCenterManager, PermissionAuthorizeConstant.Cashier)]
         [HttpPut(APIEndPointConstant.Cashier.CashierEndpoint)]
-        public async Task<IActionResult> UpdateCashierAsync([FromRoute]CashierRequest getCashierRequest, [FromForm]UpdateCashierRequest updateCashierRequest)
+        public async Task<IActionResult> UpdateCashierAsync([FromRoute] CashierRequest getCashierRequest, [FromForm] UpdateCashierRequest updateCashierRequest)
         {
             ValidationResult validationResultCashierId = await this._getCashierValidator.ValidateAsync(getCashierRequest);
             ValidationResult validationResult = await this._updateCashierValidator.ValidateAsync(updateCashierRequest);
@@ -218,7 +218,7 @@ namespace MBKC.API.Controllers
                 string errors = ErrorUtil.GetErrorsString(validationResultCashierId);
                 throw new BadRequestException(errors);
             }
-            if(validationResult.IsValid == false)
+            if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
@@ -264,7 +264,7 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.KitchenCenterManager)]
         [HttpPut(APIEndPointConstant.Cashier.UpdatingCashierStatusEndpoint)]
-        public async Task<IActionResult> UpdateCashierStatusAsync([FromRoute] CashierRequest getCashierRequest, [FromBody]UpdateCashierStatusRequest updateCashierStatusRequest)
+        public async Task<IActionResult> UpdateCashierStatusAsync([FromRoute] CashierRequest getCashierRequest, [FromBody] UpdateCashierStatusRequest updateCashierStatusRequest)
         {
             ValidationResult validationResultCashierId = await this._getCashierValidator.ValidateAsync(getCashierRequest);
             ValidationResult validationResult = await this._updateCashierStatusValidator.ValidateAsync(updateCashierStatusRequest);
@@ -329,6 +329,35 @@ namespace MBKC.API.Controllers
             {
                 Message = MessageConstant.CashierMessage.DeletedCashierSuccessfully
             });
+        }
+        #endregion
+
+        #region Get Cashier Report
+        /// <summary>
+        /// Get cashier report of a shift
+        /// </summary>
+        /// <returns>
+        /// An object include information about cashier's shift that day.
+        /// </returns>
+        /// <response code="200">Get cashier report successfully.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
+        /// <response code="404">Some Error about request data not found.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
+        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(GetCashierReportResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.Cashier)]
+        [HttpGet(APIEndPointConstant.Cashier.CashierReportEndpoint)]
+        public async Task<IActionResult> GetCashierReportAsync()
+        {
+            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
+            var getCashierReport = await this._cashierService.GetCashierReportAsync(claims);
+            return Ok(getCashierReport);
         }
         #endregion
     }

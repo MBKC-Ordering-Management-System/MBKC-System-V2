@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MBKC.Service.DTOs.ShipperPayments
 {
-    public class GetShipperPayemtResponse
+    public class GetShipperPaymentOrderResponse
     {
         public int PaymentId { get; set; }
         public int Status { get; set; }

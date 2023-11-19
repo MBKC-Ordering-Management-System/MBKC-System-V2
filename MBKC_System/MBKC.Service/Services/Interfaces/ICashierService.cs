@@ -7,6 +7,7 @@ namespace MBKC.Service.Services.Interfaces
     public interface ICashierService
     {
         public Task<GetCashiersResponse> GetCashiersAsync(GetCashiersRequest getCashiersRequest, IEnumerable<Claim> claims);
+        public Task<GetCashierReportResponse> GetCashierReportAsync(IEnumerable<Claim> claims);
         public Task CreateCashierAsync(CreateCashierRequest createCashierRequest, IEnumerable<Claim> claims);
         public Task<GetCashierResponse> GetCashierAsync(int idCashier, IEnumerable<Claim> claims);
         public Task UpdateCashierAsync(int idCashier, UpdateCashierRequest updateCashierRequest, IEnumerable<Claim> claims);

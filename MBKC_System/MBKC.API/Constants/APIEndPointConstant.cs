@@ -83,6 +83,7 @@
             public const string CashierEndpoint = CashiersEndpoint + "/{id}";
             public const string CashierProfileEndpoint = CashierEndpoint + "/profile";
             public const string UpdatingCashierStatusEndpoint = CashierEndpoint + "/updating-status";
+            public const string CashierReportEndpoint = CashiersEndpoint + "/report";
         }
 
         public static class Account
@@ -134,6 +135,21 @@
         {
             public const string WalletsEndpoint = ApiEndpoint + "/wallets";
             public const string WalletEndpoint = WalletsEndpoint + "/transaction-money-exchange-shipper-payment-information";
+        }
+
+        public static class ShipperPayment
+        {
+            public const string ShipperPaymentsEndpoint = ApiEndpoint + "/shipper-payments";
+        }
+
+        public static class DashBoard
+        {
+            public const string DashBoardsEndpoint = ApiEndpoint + "/dashboards";
+            public const string AdminDashBoardEndpoint = DashBoardsEndpoint + "/admin";
+            public const string KitchenCenterDashBoardEndpoint = DashBoardsEndpoint + "/kitchen-center";
+            public const string BrandDashBoardEndpoint = DashBoardsEndpoint + "/brand";
+            public const string StoreDashBoardEndpoint = DashBoardsEndpoint + "/store";
+            public const string CashierDashBoardEndpoint = DashBoardsEndpoint + "/cashier";
         }
     }
 }

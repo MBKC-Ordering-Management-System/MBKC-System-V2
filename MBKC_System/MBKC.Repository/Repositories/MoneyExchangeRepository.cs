@@ -1,6 +1,8 @@
 ﻿using MBKC.Repository.DBContext;
+using MBKC.Repository.Enums;
 using MBKC.Repository.Models;
 using MBKC.Repository.Utils;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -69,21 +71,46 @@ namespace MBKC.Repository.Repositories
                     startDate = DateTime.ParseExact(searchDateFrom, "dd/MM/yyyy", null);
                     endDate = DateTime.ParseExact(searchDateTo, "dd/MM/yyyy", null);
                 }
-                if (sortByASC != null && sortByDESC != null)
+                else if (searchDateFrom != null && searchDateTo == null)
+                {
+                    startDate = DateTime.ParseExact(searchDateFrom, "dd/MM/yyyy", null);
+                }
+                else if (searchDateFrom == null && searchDateTo != null)
+                {
+                    endDate = DateTime.ParseExact(searchDateTo, "dd/MM/yyyy", null);
+                }
+                if (sortByASC != null || sortByDESC != null)
+                {
+                    return moneyExchanges.OrderByDescending(x => x.ExchangeId).Where(x => (exchangeType != null ? x.ExchangeType.Equals(exchangeType.ToUpper()) : true) &&
+                                                                    (status != null ? x.Status == status : true) &&
+                                                                    (searchDateFrom != null && searchDateTo != null ?
+                                                                    x.Transactions.Select(x => x.TransactionTime.Date).SingleOrDefault() >= startDate.Date &&
+                                                                    x.Transactions.Select(x => x.TransactionTime.Date).SingleOrDefault() <= endDate.Date : true)
+                                                                    && (searchDateFrom != null && searchDateTo == null ?
+                                                                    x.Transactions.Select(x => x.TransactionTime.Date).SingleOrDefault() >= startDate.Date : true)
+                                                                    && (searchDateFrom == null && searchDateTo != null ?
+                                                                    x.Transactions.Select(x => x.TransactionTime.Date).SingleOrDefault() <= endDate.Date : true))
+                                                                    .If(sortByASC != null && sortByASC.ToLower().Equals("amount"),
+                                                                              then => then.OrderBy(x => x.Amount))
+                                                                    .If(sortByDESC != null && sortByDESC.ToLower().Equals("amount"),
+                                                                              then => then.OrderByDescending(x => x.Amount))
+                                                                    .If(sortByASC != null && sortByASC.ToLower().Equals("transactiontime"),
+                                                                              then => then.OrderBy(x => x.Transactions.Select(x => x.TransactionTime))
+                                                                    .If(sortByDESC != null && sortByDESC.ToLower().Equals("transactiontime"),
+                                                                              then => then.OrderByDescending(x => x.Transactions.Select(x => x.TransactionTime)))
+                                                                    .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage)).ToList();
+                }
 
-                    return moneyExchanges.Where(x => (exchangeType != null ? x.ExchangeType.Equals(exchangeType.ToUpper()) : true) &&
+                return moneyExchanges.OrderByDescending(x => x.ExchangeId).Where(x => (exchangeType != null ? x.ExchangeType.Equals(exchangeType.ToUpper()) : true) &&
                                                      (status != null ? x.Status == status : true) &&
-                                                     (searchDateFrom != null && searchDateTo != null ? x.Transactions.Any(o => o.TransactionTime >= startDate && o.TransactionTime <= endDate) : true))
+                                                     (searchDateFrom != null && searchDateTo != null ?
+                                                     x.Transactions.Select(x => x.TransactionTime.Date).SingleOrDefault() >= startDate.Date &&
+                                                     x.Transactions.Select(x => x.TransactionTime.Date).SingleOrDefault() <= endDate.Date : true)
+                                                     && (searchDateFrom != null && searchDateTo == null ?
+                                                     x.Transactions.Select(x => x.TransactionTime.Date).SingleOrDefault() >= startDate.Date : true)
+                                                     && (searchDateFrom == null && searchDateTo != null ?
+                                                     x.Transactions.Select(x => x.TransactionTime.Date).SingleOrDefault() <= endDate.Date : true))
                                                      .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
-
-                return (List<MoneyExchange>)moneyExchanges.Where(x => (exchangeType != null ? x.ExchangeType.Equals(exchangeType.ToUpper()) : true) &&
-                                                 (status != null ? x.Status == status : true) &&
-                                                 (searchDateFrom != null && searchDateTo != null ? x.Transactions.Any(o => o.TransactionTime >= startDate && o.TransactionTime <= endDate) : true))
-                                                 .If(sortByASC != null && sortByASC.ToLower().Equals("amount"),
-                                                           then => then.OrderBy(x => x.Amount))
-                                                 .If(sortByDESC != null && sortByDESC.ToLower().Equals("amount"),
-                                                           then => then.OrderByDescending(x => x.Amount))
-                                                 .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
             }
             catch (Exception ex)
             {
@@ -92,7 +119,7 @@ namespace MBKC.Repository.Repositories
         }
         #endregion
 
-        #region Get Number Brands
+        #region Get Number Money Exchanges
         public int GetNumberMoneyExchangesAsync(List<MoneyExchange> moneyExchanges, string? exchangeType, int? status, string? searchDateFrom, string? searchDateTo)
         {
             try
@@ -104,10 +131,24 @@ namespace MBKC.Repository.Repositories
                     startDate = DateTime.ParseExact(searchDateFrom, "dd/MM/yyyy", null);
                     endDate = DateTime.ParseExact(searchDateTo, "dd/MM/yyyy", null);
                 }
+                else if (searchDateFrom != null && searchDateTo == null)
+                {
+                    startDate = DateTime.ParseExact(searchDateFrom, "dd/MM/yyyy", null);
+                }
+                else if (searchDateFrom == null && searchDateTo != null)
+                {
+                    endDate = DateTime.ParseExact(searchDateTo, "dd/MM/yyyy", null);
+                }
                 return moneyExchanges
                     .Where(x => (exchangeType != null ? x.ExchangeType.Equals(exchangeType.ToUpper()) : true) &&
                                                  (status != null ? x.Status == status : true) &&
-                                                 (searchDateFrom != null && searchDateTo != null ? x.Transactions.Any(o => o.TransactionTime >= startDate && o.TransactionTime <= endDate) : true)).Count();
+                                                 (searchDateFrom != null && searchDateTo != null ?
+                                                  x.Transactions.Select(x => x.TransactionTime.Date).SingleOrDefault() >= startDate.Date &&
+                                                  x.Transactions.Select(x => x.TransactionTime.Date).SingleOrDefault() <= endDate.Date : true)
+                                                  && (searchDateFrom != null && searchDateTo == null ?
+                                                  x.Transactions.Select(x => x.TransactionTime.Date).SingleOrDefault() >= startDate.Date : true)
+                                                  && (searchDateFrom == null && searchDateTo != null ?
+                                                  x.Transactions.Select(x => x.TransactionTime.Date).SingleOrDefault() <= endDate.Date : true)).Count();
             }
             catch (Exception ex)
             {
@@ -115,5 +156,37 @@ namespace MBKC.Repository.Repositories
             }
         }
         #endregion
+
+        #region Get Money Exchanges By Sender Id
+        public async Task<List<MoneyExchange>> GetMoneyExchangesBySendIdAsync(int senderId)
+        {
+            return await this._dbContext.MoneyExchanges
+                .Include(x => x.Transactions)
+                .Where(x => x.SenderId == senderId && x.ExchangeType.Equals(MoneyExchangeEnum.ExchangeType.WITHDRAW.ToString())).ToListAsync();
+        }
+        #endregion
+
+        #region Get money exchange in last 7 day for kitchen center (receive)
+        public async Task<List<MoneyExchange>> GetColumnChartMoneyExchangeInLastSevenDayAsync(int kitchenCenterId)
+        {
+            try
+            {
+                return await _dbContext.MoneyExchanges.Include(me => me.Transactions)
+                                                      .Where(me => me.ExchangeType.ToUpper().Equals(MoneyExchangeEnum.ExchangeType.RECEIVE.ToString())
+                                                          && me.ReceiveId == kitchenCenterId
+                                                          && me.Transactions.Any(t => t.Status == (int)TransactionEnum.Status.SUCCESS
+                                                                              && t.TransactionTime.Date <= DateTime.Now.Date
+                                                                              && t.TransactionTime.Date >= DateTime.Now.AddDays(-6).Date))
+                                                      .ToListAsync();
+                                                     
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
     }
 }
+

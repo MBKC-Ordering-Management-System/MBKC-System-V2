@@ -27,7 +27,9 @@ namespace MBKC.Service.DTOs.Orders
         public decimal SubTotalPrice { get; set; }
         public decimal TotalDiscount { get; set; }
         public decimal FinalTotalPrice { get; set; }
-        public float Commission { get; set; }
+        public decimal? CollectedPrice { get; set; }
+        public bool? IsPaid { get; set; }  
+        public decimal Commission { get; set; }
         public float Tax { get; set; }
         public string SystemStatus { get; set; }
         public string DisplayId { get; set; }
@@ -35,9 +37,10 @@ namespace MBKC.Service.DTOs.Orders
         public int? Cutlery { get; set; }
         public string PartnerOrderStatus { get; set; }
         public int TotalQuantity { get; set; }
+        public int? ConfirmedBy { get; set; }
         public GetStoreResponse Store { get; set; }
         public GetPartnerResponse Partner { get; set; }
-        public List<GetShipperPayemtResponse> ShipperPayments { get; set; }
+        public List<GetShipperPaymentOrderResponse> ShipperPayments { get; set; }
         public List<GetOrderDetailResponse> OrderDetails { get; set; }
         public List<OrderHistoryResponse> OrderHistories { get; set; }
     }

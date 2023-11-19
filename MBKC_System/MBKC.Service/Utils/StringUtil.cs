@@ -228,7 +228,7 @@ namespace MBKC.Service.Utils
 
         public static string GetContentAmountAndTime(decimal amount)
         {
-            return $"in the amount of: {amount}đ at {DateTime.Now.Hour}:{DateTime.Now.Minute} - {DateTime.Now.Day}/{DateTime.Now.Month}/{DateTime.Now.Year}";
+            return $"in the amount of: {(int)Math.Floor(amount)}đ at {DateTime.Now.Hour}:{DateTime.Now.Minute} - {DateTime.Now.Day}/{DateTime.Now.Month}/{DateTime.Now.Year}";
         }
 
         public static string ConvertTimeSpanToCron(TimeSpan timeSpan)
@@ -308,6 +308,26 @@ namespace MBKC.Service.Utils
             if (exchangeType.Trim().ToLower().Equals(MoneyExchangeEnum.ExchangeType.SEND.ToString().ToLower()) ||
                 exchangeType.Trim().ToLower().Equals(MoneyExchangeEnum.ExchangeType.RECEIVE.ToString().ToLower()) ||
                 exchangeType.Trim().ToLower().Equals(MoneyExchangeEnum.ExchangeType.WITHDRAW.ToString().ToLower()))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public static bool CheckPaymentMethod(string paymentMethod)
+        {
+            if (paymentMethod.Trim().ToLower().Equals(ShipperPaymentEnum.PaymentMethod.CASH.ToString().ToLower()) ||
+                paymentMethod.Trim().ToLower().Equals(ShipperPaymentEnum.PaymentMethod.CASHLESS.ToString().ToLower()))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public static bool CheckShipperPaymentStatus(string status)
+        {
+            if (status.Trim().ToLower().Equals(ShipperPaymentEnum.Status.SUCCESS.ToString().ToLower()) ||
+                status.Trim().ToLower().Equals(ShipperPaymentEnum.Status.FAIL.ToString().ToLower()))
             {
                 return true;
             }

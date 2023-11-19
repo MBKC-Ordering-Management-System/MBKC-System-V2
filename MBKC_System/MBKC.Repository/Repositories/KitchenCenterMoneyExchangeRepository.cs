@@ -2,6 +2,7 @@
 using MBKC.Repository.Models;
 using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +15,11 @@ namespace MBKC.Repository.Repositories
         public KitchenCenterMoneyExchangeRepository(MBKCDbContext dbContext)
         {
             this._dbContext = dbContext;
+        }
+
+        public async Task<KitchenCenterMoneyExchange?> GetKitchenCenterMoneyExchangeAsync(int exchangeId)
+        {
+            return await this._dbContext.KitchenCenterMoneyExchanges.FirstOrDefaultAsync(kcme => kcme.ExchangeId == exchangeId);
         }
 
         public async Task CreateKitchenCenterMoneyExchangeAsync(KitchenCenterMoneyExchange kitchenCenterMoneyExchange)
@@ -39,5 +45,6 @@ namespace MBKC.Repository.Repositories
                 throw new Exception(ex.Message);
             }
         }
+
     }
 }

@@ -26,6 +26,18 @@ namespace MBKC.Repository.Repositories
             }
         }
 
+        public async Task<Product> CheckProductCodeInBrandAsync(string code, int brandId)
+        {
+            try
+            {
+                return await this._dbContext.Products.SingleOrDefaultAsync(x => x.Code.ToLower().Equals(code.ToLower()) && x.Brand.BrandId == brandId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task CreateProductAsync(Product product)
         {
             try
@@ -517,5 +529,21 @@ namespace MBKC.Repository.Repositories
                 throw new Exception(ex.Message);
             }
         }
+
+        #region Count product number id brand id
+        public async Task<int> CountProductNumberByBrandIdAsync(int brandId)
+        {
+            try
+            {
+                return await this._dbContext.Products.Where(p => (p.Status == (int)ProductEnum.Status.ACTIVE || p.Status == (int)ProductEnum.Status.INACTIVE)
+                                                               && p.Brand.BrandId == brandId)
+                                                     .CountAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
     }
 }
