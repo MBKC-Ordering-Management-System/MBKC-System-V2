@@ -692,7 +692,9 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await this._dbContext.Orders.Where(o => o.ShipperPayments.Any(sp => sp.CreateBy == cashierId
+                return await this._dbContext.Orders.Include(o => o.Store)
+                                                   .Include(o => o.Partner)
+                                                   .Where(o => o.ShipperPayments.Any(sp => sp.CreateBy == cashierId
                                                                                  && (dateFrom != null ? sp.CreateDate.Date >= dateFrom.Value.Date : true)
                                                                                  && (dateTo != null ? sp.CreateDate.Date <= dateTo.Value.Date : true)))
                                                    .ToListAsync();
