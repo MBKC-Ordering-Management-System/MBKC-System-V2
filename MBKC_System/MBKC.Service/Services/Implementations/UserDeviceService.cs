@@ -26,7 +26,7 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
-                Claim sidClaim = claims.First(x => x.Type == ClaimTypes.Sid);
+                Claim sidClaim = claims.First(x => x.Type.ToLower() == "sid");
                 string idAccount = sidClaim.Value;
                 Account existedAccount = await this._unitOfWork.AccountRepository.GetAccountAsync(int.Parse(idAccount));
                 UserDevice userDevice = new UserDevice()
