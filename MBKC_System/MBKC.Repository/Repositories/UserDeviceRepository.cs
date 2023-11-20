@@ -39,6 +39,17 @@ namespace MBKC.Repository.Repositories
             }
         }
         
+        public async Task<UserDevice> GetUserDeviceAsync(string fcmToken)
+        {
+            try
+            {
+                return await this._dbContext.UserDevices.SingleOrDefaultAsync(x => x.FCMToken.Equals(fcmToken));
+            } catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        
         public void DeleteUserDevice(UserDevice userDevice)
         {
             try

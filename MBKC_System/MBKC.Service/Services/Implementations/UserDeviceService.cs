@@ -28,14 +28,18 @@ namespace MBKC.Service.Services.Implementations
             {
                 Claim sidClaim = claims.First(x => x.Type.ToLower() == "sid");
                 string idAccount = sidClaim.Value;
-                Account existedAccount = await this._unitOfWork.AccountRepository.GetAccountAsync(int.Parse(idAccount));
-                UserDevice userDevice = new UserDevice()
+                UserDevice existedUserDevice = await this._unitOfWork.UserDeviceRepository.GetUserDeviceAsync(userDeviceRequest.FCMToken);
+                if (existedUserDevice is null)
                 {
-                    Account = existedAccount,
-                    FCMToken = userDeviceRequest.FCMToken
-                };
-                await this._unitOfWork.UserDeviceRepository.CreateUserDeviceAsync(userDevice);
-                await this._unitOfWork.CommitAsync();
+                    Account existedAccount = await this._unitOfWork.AccountRepository.GetAccountAsync(int.Parse(idAccount));
+                    UserDevice userDevice = new UserDevice()
+                    {
+                        Account = existedAccount,
+                        FCMToken = userDeviceRequest.FCMToken
+                    };
+                    await this._unitOfWork.UserDeviceRepository.CreateUserDeviceAsync(userDevice);
+                    await this._unitOfWork.CommitAsync();
+                }
             } catch(Exception ex)
             {
                 string error = ErrorUtil.GetErrorString("Exception", ex.Message);
