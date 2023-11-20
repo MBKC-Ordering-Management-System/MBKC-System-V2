@@ -281,7 +281,7 @@ namespace MBKC.Service.Services.Implementations
         #endregion
 
         #region Create order
-        public async Task CreateOrderAsync(PostOrderRequest postOrderRequest)
+        public async Task<GetOrderResponse> CreateOrderAsync(PostOrderRequest postOrderRequest)
         {
             try
             {
@@ -412,6 +412,7 @@ namespace MBKC.Service.Services.Implementations
                 newOrder.OrderDetails = newOrderDetails;
                 await this._unitOfWork.OrderRepository.InsertOrderAsync(newOrder);
                 await this._unitOfWork.CommitAsync();
+                return this._mapper.Map<GetOrderResponse>(newOrder);
             }
             catch (BadRequestException ex)
             {
@@ -474,7 +475,7 @@ namespace MBKC.Service.Services.Implementations
         #endregion
 
         #region Update order
-        public async Task UpdateOrderAsync(PutOrderIdRequest putOrderIdRequest, PutOrderRequest putOrderRequest)
+        public async Task<GetOrderResponse> UpdateOrderAsync(PutOrderIdRequest putOrderIdRequest, PutOrderRequest putOrderRequest)
         {
             try
             {
@@ -493,6 +494,7 @@ namespace MBKC.Service.Services.Implementations
                 existedOrder.OrderHistories.ToList().Add(orderHistory);
                 this._unitOfWork.OrderRepository.UpdateOrder(existedOrder);
                 await this._unitOfWork.CommitAsync();
+                return this._mapper.Map<GetOrderResponse>(existedOrder);
             }
             catch (NotFoundException ex)
             {
