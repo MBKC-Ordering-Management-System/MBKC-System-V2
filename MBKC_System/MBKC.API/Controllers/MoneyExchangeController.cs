@@ -171,7 +171,7 @@ namespace MBKC.API.Controllers
 
         #region Get money exchanges with draw by kitchencenter id.
         /// <summary>
-        ///  Get money exchanges by kitchencenter id.
+        ///  Get money exchanges by kitchencenter id with withdraw type.
         /// </summary>
         /// <param name="getMoneyExchangesRequest">
         /// An object include  ItemsPerPage, CurrentPage, SortBy, 
