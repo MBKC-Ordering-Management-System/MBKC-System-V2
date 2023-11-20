@@ -120,6 +120,7 @@ namespace MBKC.Repository.Repositories
                                                          .Where(x => (storeId != null
                                                                      ? x.StoreId == storeId
                                                                      : true) &&
+                                                                     (kitchenCenterId != null && cashierId == null ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
                                                                      (kitchenCenterId != null && cashierId != null && confirmedBy == null || kitchenCenterId != null && cashierId != null && confirmedBy == false ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
                                                                      (kitchenCenterId != null && cashierId != null && confirmedBy != null && confirmedBy == true ? x.ConfirmedBy == cashierId : true) &&
                                                                        (systemStatus != null
@@ -148,6 +149,7 @@ namespace MBKC.Repository.Repositories
                                                        .Where(x => (storeId != null
                                                                      ? x.StoreId == storeId
                                                                      : true) &&
+                                                                     (kitchenCenterId != null && cashierId == null ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
                                                                      (kitchenCenterId != null && cashierId != null && confirmedBy == null || kitchenCenterId != null && cashierId != null && confirmedBy == false ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
                                                                      (kitchenCenterId != null && cashierId != null && confirmedBy != null && confirmedBy == true ? x.ConfirmedBy == cashierId : true) &&
                                                                      (systemStatus != null
@@ -168,6 +170,7 @@ namespace MBKC.Repository.Repositories
                                                    .Where(x => (storeId != null
                                                                      ? x.StoreId == storeId
                                                                      : true) &&
+                                                                     (kitchenCenterId != null && cashierId == null ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
                                                                      (kitchenCenterId != null && cashierId != null && confirmedBy == null || kitchenCenterId != null && cashierId != null && confirmedBy == false ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
                                                                      (kitchenCenterId != null && cashierId != null && confirmedBy != null && confirmedBy == true ? x.ConfirmedBy == cashierId : true) &&
                                                                       (systemStatus != null
@@ -229,6 +232,7 @@ namespace MBKC.Repository.Repositories
                                                      .Where(x => (storeId != null
                                                                     ? x.StoreId == storeId
                                                                     : true) &&
+                                                                    (kitchenCenterId != null && cashierId == null ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
                                                                     (kitchenCenterId != null && cashierId != null && confirmedBy == null || kitchenCenterId != null && cashierId != null && confirmedBy == false ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
                                                                     (kitchenCenterId != null && cashierId != null && confirmedBy != null && confirmedBy == true ? x.ConfirmedBy == cashierId : true) &&
                                                                     (systemStatus != null
@@ -284,8 +288,9 @@ namespace MBKC.Repository.Repositories
                                                      .Where(x => (storeId != null
                                                                     ? x.StoreId == storeId
                                                                     : true) &&
+                                                                    (kitchenCenterId != null && cashierId == null ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
                                                                     (kitchenCenterId != null && cashierId != null && confirmedBy == null || kitchenCenterId != null && cashierId != null && confirmedBy == false ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
-                                                                     (kitchenCenterId != null && cashierId != null && confirmedBy != null && confirmedBy == true ? x.ConfirmedBy == cashierId : true) &&
+                                                                    (kitchenCenterId != null && cashierId != null && confirmedBy != null && confirmedBy == true ? x.ConfirmedBy == cashierId : true) &&
                                                                     (systemStatus != null
                                                                     ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper())
                                                                     : true) &&
@@ -343,8 +348,9 @@ namespace MBKC.Repository.Repositories
                                                  .Where(x => (storeId != null
                                                                    ? x.StoreId == storeId
                                                                    : true) &&
+                                                                   (kitchenCenterId != null && cashierId == null ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
                                                                    (kitchenCenterId != null && cashierId != null && confirmedBy == null || kitchenCenterId != null && cashierId != null && confirmedBy == false ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
-                                                                     (kitchenCenterId != null && cashierId != null && confirmedBy != null && confirmedBy == true ? x.ConfirmedBy == cashierId : true) &&
+                                                                   (kitchenCenterId != null && cashierId != null && confirmedBy != null && confirmedBy == true ? x.ConfirmedBy == cashierId : true) &&
                                                                     (systemStatus != null
                                                                     ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper())
                                                                     : true) &&
@@ -375,6 +381,7 @@ namespace MBKC.Repository.Repositories
                                                            .Where(x => (storeId != null
                                                                      ? x.StoreId == storeId
                                                                      : true) &&
+                                                                     (kitchenCenterId != null && cashierId == null ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
                                                                      (kitchenCenterId != null && cashierId != null && confirmedBy == null || kitchenCenterId != null && cashierId != null && confirmedBy == false ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
                                                                      (kitchenCenterId != null && cashierId != null && confirmedBy != null && confirmedBy == true ? x.ConfirmedBy == cashierId : true) &&
                                                                     (systemStatus != null
@@ -420,7 +427,8 @@ namespace MBKC.Repository.Repositories
                                                            .Where(x => (storeId != null
                                                                      ? x.StoreId == storeId
                                                                      : true) &&
-                                                                    (kitchenCenterId != null && cashierId != null && confirmedBy == null || kitchenCenterId != null && cashierId != null && confirmedBy == false ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
+                                                                     (kitchenCenterId != null && cashierId == null ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
+                                                                     (kitchenCenterId != null && cashierId != null && confirmedBy == null || kitchenCenterId != null && cashierId != null && confirmedBy == false ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
                                                                      (kitchenCenterId != null && cashierId != null && confirmedBy != null && confirmedBy == true ? x.ConfirmedBy == cashierId : true) &&
                                                                       (systemStatus != null
                                                                     ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper())
@@ -464,6 +472,7 @@ namespace MBKC.Repository.Repositories
                                                            .Where(x => (storeId != null
                                                                      ? x.StoreId == storeId
                                                                      : true) &&
+                                                                     (kitchenCenterId != null && cashierId == null ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
                                                                      (kitchenCenterId != null && cashierId != null && confirmedBy == null || kitchenCenterId != null && cashierId != null && confirmedBy == false ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
                                                                      (kitchenCenterId != null && cashierId != null && confirmedBy != null && confirmedBy == true ? x.ConfirmedBy == cashierId : true) &&
                                                                        (systemStatus != null
@@ -498,6 +507,7 @@ namespace MBKC.Repository.Repositories
                                                                      (systemStatus != null
                                                                     ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper())
                                                                     : true) &&
+                                                                     (kitchenCenterId != null && cashierId == null ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
                                                                      (kitchenCenterId != null && cashierId != null && confirmedBy == null || kitchenCenterId != null && cashierId != null && confirmedBy == false ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
                                                                      (kitchenCenterId != null && cashierId != null && confirmedBy != null && confirmedBy == true ? x.ConfirmedBy == cashierId : true) &&
                                                                     (partnerOrderStatus != null
@@ -542,6 +552,7 @@ namespace MBKC.Repository.Repositories
                                                                      (systemStatus != null
                                                                     ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper())
                                                                     : true) &&
+                                                                     (kitchenCenterId != null && cashierId == null ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
                                                                      (kitchenCenterId != null && cashierId != null && confirmedBy == null || kitchenCenterId != null && cashierId != null && confirmedBy == false ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
                                                                      (kitchenCenterId != null && cashierId != null && confirmedBy != null && confirmedBy == true ? x.ConfirmedBy == cashierId : true) &&
                                                                     (partnerOrderStatus != null
@@ -581,6 +592,7 @@ namespace MBKC.Repository.Repositories
                                                      .ThenInclude(x => x.KitchenCenter)
                                                            .Where(x => (storeId != null ? x.StoreId == storeId : true) &&
                                                                      (systemStatus != null ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper()) : true) &&
+                                                                     (kitchenCenterId != null && cashierId == null ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
                                                                      (kitchenCenterId != null && cashierId != null && confirmedBy == null || kitchenCenterId != null && cashierId != null && confirmedBy == false ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
                                                                      (kitchenCenterId != null && cashierId != null && confirmedBy != null && confirmedBy == true ? x.ConfirmedBy == cashierId : true) &&
                                                                      (partnerOrderStatus != null ? x.PartnerOrderStatus.ToUpper().Equals(partnerOrderStatus.Trim().ToUpper()) : true) &&
@@ -605,6 +617,7 @@ namespace MBKC.Repository.Repositories
         {
             return await this._dbContext.Orders
                              .Include(x => x.Store).ThenInclude(x => x.StorePartners)
+                             .Include(x => x.Store).ThenInclude(x => x.KitchenCenter)
                              .Include(x => x.Partner)
                              .Include(x => x.ShipperPayments).ThenInclude(x => x.BankingAccount)
                              .Include(x => x.OrderHistories)
