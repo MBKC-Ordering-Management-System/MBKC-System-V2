@@ -151,9 +151,7 @@ namespace MBKC.Service.Services.Implementations
                 string email = claims.First(x => x.Type == ClaimTypes.Email).Value;
                 var existedBrand = await _unitOfWork.BrandRepository.GetBrandForDashBoardAsync(email);
                 Dictionary<DateTime, decimal> revenueInLastSevenDay;
-                Dictionary<int, int> numberOfProductSold = new Dictionary<int, int>();
                 var columnChartRevenueInLastSevenDay = new List<GetColumnChartResponse>();
-                var numberOfProductsSoldResponse = new List<GetNumberOfProductsSoldResponse>();
 
                 var existedStore = await this._unitOfWork.StoreRepository.GetStoreExceptDeactiveByIdAsync(getBrandDashBoardRequest.StoreId!.Value);
                 if (existedStore is null)
@@ -203,54 +201,6 @@ namespace MBKC.Service.Services.Implementations
                 };
                 #endregion
 
-                #region number of product sold
-                var ordersForProductSold = new List<Order>();
-                if (getBrandDashBoardRequest.ProductSearchDateFrom is null
-                 && getBrandDashBoardRequest.ProductSearchDateTo is null)
-                {
-                    ordersForProductSold = await this._unitOfWork.OrderRepository.GetOrderByDateFromAndDateToAsync(DateTime.Now.AddDays(-6), DateTime.Now, existedBrand.BrandId);
-                }
-                else if (getBrandDashBoardRequest.ProductSearchDateFrom is not null
-                      && getBrandDashBoardRequest.ProductSearchDateTo is not null)
-                {
-                    ordersForProductSold = await this._unitOfWork.OrderRepository.GetOrderByDateFromAndDateToAsync(DateUtil.ConvertStringToDateTime(getBrandDashBoardRequest.ProductSearchDateFrom), DateUtil.ConvertStringToDateTime(getBrandDashBoardRequest.ProductSearchDateTo), existedBrand.BrandId);
-                }
-                else if (getBrandDashBoardRequest.ProductSearchDateFrom is not null)
-                {
-                    ordersForProductSold = await this._unitOfWork.OrderRepository.GetOrderByDateFromAndDateToAsync(DateUtil.ConvertStringToDateTime(getBrandDashBoardRequest.ProductSearchDateFrom), null, existedBrand.BrandId);
-                }
-                else if (getBrandDashBoardRequest.ProductSearchDateTo is not null)
-                {
-                    ordersForProductSold = await this._unitOfWork.OrderRepository.GetOrderByDateFromAndDateToAsync(null, DateUtil.ConvertStringToDateTime(getBrandDashBoardRequest.ProductSearchDateTo), existedBrand.BrandId);
-                }
-
-                foreach (var order in ordersForProductSold)
-                {
-                    foreach (var orderDetail in order.OrderDetails)
-                    {
-                        if (numberOfProductSold.ContainsKey(orderDetail.Product.ProductId))
-                        {
-                            numberOfProductSold[orderDetail.Product.ProductId] += orderDetail.Quantity;
-                        }
-                        else
-                        {
-                            numberOfProductSold.Add(orderDetail.Product.ProductId, orderDetail.Quantity);
-                        }
-                    }
-                }
-
-                foreach (var product in existedBrand.Products)
-                {
-                    var getNumberOfProductsSoldResponse = new GetNumberOfProductsSoldResponse()
-                    {
-                        ProductId = product.ProductId,
-                        ProductName = product.Name,
-                        Quantity = numberOfProductSold.ContainsKey(product.ProductId) ? numberOfProductSold[product.ProductId] : 0,
-                    };
-                    numberOfProductsSoldResponse.Add(getNumberOfProductsSoldResponse);
-                }
-                #endregion
-
                 var getBrandDashBoardResponse = new GetBrandDashBoardResponse()
                 {
                     TotalStores = totalStore,
@@ -258,7 +208,6 @@ namespace MBKC.Service.Services.Implementations
                     TotalExtraCategories = totalExtraCategory,
                     TotalProducts = totalProduct,
                     StoreRevenues = getStoreRevenueResponse,
-                    NumberOfProductSolds = numberOfProductsSoldResponse,
                     Stores = this._mapper.Map<List<GetStoreResponse>>(existedBrand.Stores),
                 };
 

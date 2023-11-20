@@ -66,6 +66,7 @@
         {
             public const string ProductsEndpoint = ApiEndpoint + "/products";
             public const string ProductEndpoint = ProductsEndpoint + "/{id}";
+            public const string ProductWithNumberSoldEndpoint = ProductsEndpoint + "/products-sold";
             public const string UpdatingStatusProductEndpoint = ProductEndpoint + "/updating-status";
             public const string ImportFileEndpoint = ProductsEndpoint + "/import-file";
         }
