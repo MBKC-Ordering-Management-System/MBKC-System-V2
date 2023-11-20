@@ -22,11 +22,11 @@ namespace MBKC.Repository.Repositories
                 {
                     return await this._dbContext.BankingAccounts.Where(x => x.KitchenCenterId == kitchenCenterId
                                                                          && x.Name.ToLower().Contains(searchValue.ToLower())
-                                                                         && x.Status != (int)BankingAccountEnum.Status.DEACTIVE).CountAsync();
+                                                                         && x.Status != (int)BankingAccountEnum.Status.DISABLE).CountAsync();
                 }
                 else if (searchValue == null && searchValueWithoutUnicode != null)
                 {
-                    return this._dbContext.BankingAccounts.Where(x => x.KitchenCenterId == kitchenCenterId && x.Status != (int)BankingAccountEnum.Status.DEACTIVE).Where(delegate (BankingAccount bankingAccount)
+                    return this._dbContext.BankingAccounts.Where(x => x.KitchenCenterId == kitchenCenterId && x.Status != (int)BankingAccountEnum.Status.DISABLE).Where(delegate (BankingAccount bankingAccount)
                     {
                         if (StringUtil.RemoveSign4VietnameseString(bankingAccount.Name).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
                         {
@@ -35,7 +35,7 @@ namespace MBKC.Repository.Repositories
                         return false;
                     }).AsQueryable().Count();
                 }
-                return await this._dbContext.BankingAccounts.Where(x => x.KitchenCenterId == kitchenCenterId && x.Status != (int)BankingAccountEnum.Status.DEACTIVE).CountAsync();
+                return await this._dbContext.BankingAccounts.Where(x => x.KitchenCenterId == kitchenCenterId && x.Status != (int)BankingAccountEnum.Status.DISABLE).CountAsync();
             }
             catch (Exception ex)
             {
@@ -52,7 +52,7 @@ namespace MBKC.Repository.Repositories
                 {
                     return this._dbContext.BankingAccounts
                        .Include(x => x.KitchenCenter)
-                       .Where(x => x.KitchenCenterId == kitchenCenterId && x.Status != (int)BankingAccountEnum.Status.DEACTIVE)
+                       .Where(x => x.KitchenCenterId == kitchenCenterId && x.Status != (int)BankingAccountEnum.Status.DISABLE)
                        .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
                 }
                 if (searchValue == null && searchValueWithoutUnicode != null)
@@ -61,7 +61,7 @@ namespace MBKC.Repository.Repositories
                         return this._dbContext.BankingAccounts
                                                                     .Include(x => x.KitchenCenter)
                                                                     .Where(x => x.KitchenCenterId == kitchenCenterId
-                                                                             && x.Status != (int)BankingAccountEnum.Status.DEACTIVE)
+                                                                             && x.Status != (int)BankingAccountEnum.Status.DISABLE)
                                                                     .Where(delegate (BankingAccount bankingAccount)
                                                                     {
                                                                         if (StringUtil.RemoveSign4VietnameseString(bankingAccount.Name).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
@@ -79,7 +79,7 @@ namespace MBKC.Repository.Repositories
                         return this._dbContext.BankingAccounts
                                                                    .Include(x => x.KitchenCenter)
                                                                    .Where(x => x.KitchenCenterId == kitchenCenterId
-                                                                            && x.Status != (int)BankingAccountEnum.Status.DEACTIVE)
+                                                                            && x.Status != (int)BankingAccountEnum.Status.DISABLE)
                                                                    .Where(delegate (BankingAccount bankingAccount)
                                                                    {
                                                                        if (StringUtil.RemoveSign4VietnameseString(bankingAccount.Name).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
@@ -97,7 +97,7 @@ namespace MBKC.Repository.Repositories
                     return this._dbContext.BankingAccounts
                                                                    .Include(x => x.KitchenCenter)
                                                                    .Where(x => x.KitchenCenterId == kitchenCenterId
-                                                                            && x.Status != (int)BankingAccountEnum.Status.DEACTIVE)
+                                                                            && x.Status != (int)BankingAccountEnum.Status.DISABLE)
                                                                    .Where(delegate (BankingAccount bankingAccount)
                                                                    {
                                                                        if (StringUtil.RemoveSign4VietnameseString(bankingAccount.Name).ToLower().Contains(searchValueWithoutUnicode.ToLower()))
@@ -113,7 +113,7 @@ namespace MBKC.Repository.Repositories
                         return this._dbContext.BankingAccounts
                                                                     .Include(x => x.KitchenCenter)
                                                                     .Where(x => x.KitchenCenterId == kitchenCenterId
-                                                                        && x.Status != (int)BankingAccountEnum.Status.DEACTIVE
+                                                                        && x.Status != (int)BankingAccountEnum.Status.DISABLE
                                                                         && x.Name.ToLower().Contains(searchValue.ToLower()))
                                                                     .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
                                                                              then => then.OrderBy(x => x.Name))
@@ -125,7 +125,7 @@ namespace MBKC.Repository.Repositories
                         return this._dbContext.BankingAccounts
                                                                     .Include(x => x.KitchenCenter)
                                                                     .Where(x => x.KitchenCenterId == kitchenCenterId
-                                                                        && x.Status != (int)BankingAccountEnum.Status.DEACTIVE
+                                                                        && x.Status != (int)BankingAccountEnum.Status.DISABLE
                                                                         && x.Name.ToLower().Contains(searchValue.ToLower()))
                                                                     .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
                                                                              then => then.OrderByDescending(x => x.Name))
@@ -136,7 +136,7 @@ namespace MBKC.Repository.Repositories
                               return this._dbContext.BankingAccounts
                                                                     .Include(x => x.KitchenCenter)
                                                                     .Where(x => x.KitchenCenterId == kitchenCenterId
-                                                                        && x.Status != (int)BankingAccountEnum.Status.DEACTIVE
+                                                                        && x.Status != (int)BankingAccountEnum.Status.DISABLE
                                                                         && x.Name.ToLower().Contains(searchValue.ToLower()))
                                                                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
                 }
@@ -144,7 +144,7 @@ namespace MBKC.Repository.Repositories
                 if (sortByASC is not null)
                     return this._dbContext.BankingAccounts
                                                           .Include(x => x.KitchenCenter)
-                                                          .Where(x => x.KitchenCenterId == kitchenCenterId && x.Status != (int)BankingAccountEnum.Status.DEACTIVE)
+                                                          .Where(x => x.KitchenCenterId == kitchenCenterId && x.Status != (int)BankingAccountEnum.Status.DISABLE)
                                                                 .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
                                                                              then => then.OrderBy(x => x.Name))
                                                                 .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
@@ -154,7 +154,7 @@ namespace MBKC.Repository.Repositories
                 else if (sortByDESC is not null)
                     return this._dbContext.BankingAccounts
                                                           .Include(x => x.KitchenCenter)
-                                                          .Where(x => x.KitchenCenterId == kitchenCenterId && x.Status != (int)BankingAccountEnum.Status.DEACTIVE)
+                                                          .Where(x => x.KitchenCenterId == kitchenCenterId && x.Status != (int)BankingAccountEnum.Status.DISABLE)
                                                                 .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
                                                                              then => then.OrderByDescending(x => x.Name))
                                                                 .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
@@ -163,7 +163,7 @@ namespace MBKC.Repository.Repositories
 
                 return this._dbContext.BankingAccounts
                                                       .Include(x => x.KitchenCenter)
-                                                      .Where(x => x.KitchenCenterId == kitchenCenterId && x.Status != (int)BankingAccountEnum.Status.DEACTIVE)
+                                                      .Where(x => x.KitchenCenterId == kitchenCenterId && x.Status != (int)BankingAccountEnum.Status.DISABLE)
                                                       .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
             }
             catch (Exception ex)
@@ -176,7 +176,7 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await this._dbContext.BankingAccounts.FirstOrDefaultAsync(x => x.BankingAccountId == bankingAccountId && x.Status != (int)BankingAccountEnum.Status.DEACTIVE);
+                return await this._dbContext.BankingAccounts.FirstOrDefaultAsync(x => x.BankingAccountId == bankingAccountId && x.Status != (int)BankingAccountEnum.Status.DISABLE);
             }
             catch (Exception ex)
             {

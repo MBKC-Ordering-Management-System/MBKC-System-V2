@@ -38,7 +38,7 @@ namespace MBKC.Repository.Repositories
                       .Include(brandAccocunt => brandAccocunt.Brand)
                       .ThenInclude(brand => brand.Products)
                       .Include(brandAccocunt => brandAccocunt.Brand)
-                      .ThenInclude(brand => brand.Categories.Where(c => c.Status != (int)CategoryEnum.Status.DEACTIVE))
+                      .ThenInclude(brand => brand.Categories.Where(c => c.Status != (int)CategoryEnum.Status.DISABLE))
                       .ThenInclude(category => category.ExtraCategoryProductCategories)
                       .SingleOrDefaultAsync(b => b.AccountId == accountId);
             }
@@ -61,6 +61,7 @@ namespace MBKC.Repository.Repositories
             }
         }
         #endregion
+
         #region Get Brand Account By Id
         public async Task<BrandAccount> GetBrandAccountByBrandIdAsync(int id)
         {

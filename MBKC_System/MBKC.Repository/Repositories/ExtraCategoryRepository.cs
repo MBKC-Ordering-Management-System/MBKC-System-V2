@@ -26,7 +26,7 @@ namespace MBKC.Repository.Repositories
             try
             {
                 return await _dbContext.ExtraCategories
-                    .Where(e => e.ProductCategoryId == categoryId && e.Status != (int)ExtraCategoryEnum.Status.DEACTIVE)
+                    .Where(e => e.ProductCategoryId == categoryId && e.Status != (int)ExtraCategoryEnum.Status.DISABLE)
                     .ToListAsync();
             }
             catch (Exception ex)

@@ -197,7 +197,7 @@ namespace MBKC.Service.Services.Implementations
                         throw new BadRequestException(MessageConstant.KitchenCenterMessage.ManagerEmailExisted);
                     }
 
-                    existedKitchenCenter.Manager.Status = (int)AccountEnum.Status.DEACTIVE;
+                    existedKitchenCenter.Manager.Status = (int)AccountEnum.Status.DISABLE;
                     this._unitOfWork.AccountRepository.UpdateAccount(existedKitchenCenter.Manager);
 
                     Role kitchenCenterManagerRole = await this._unitOfWork.RoleRepository.GetRoleAsync((int)RoleEnum.Role.KITCHEN_CENTER_MANAGER);
@@ -344,7 +344,7 @@ namespace MBKC.Service.Services.Implementations
                 // Deactive kitchen center.
                 existedKitchenCenter.Status = (int)KitchenCenterEnum.Status.DISABLE;
                 // Deactive kitchen center manger.
-                existedKitchenCenter.Manager.Status = (int)AccountEnum.Status.DEACTIVE;
+                existedKitchenCenter.Manager.Status = (int)AccountEnum.Status.DISABLE;
                 this._unitOfWork.KitchenCenterRepository.UpdateKitchenCenter(existedKitchenCenter);
                 await this._unitOfWork.CommitAsync();
             }

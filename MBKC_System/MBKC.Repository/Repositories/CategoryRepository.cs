@@ -48,7 +48,7 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await _dbContext.Categories.SingleOrDefaultAsync(c => c.Name.Equals(name) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE));
+                return await _dbContext.Categories.SingleOrDefaultAsync(c => c.Name.Equals(name) && !(c.Status == (int)CategoryEnum.Status.DISABLE));
             }
             catch (Exception ex)
             {
@@ -67,7 +67,7 @@ namespace MBKC.Repository.Repositories
                     .Include(c => c.ExtraCategoryProductCategories).ThenInclude(x => x.ExtraCategoryNavigation).ThenInclude(x => x.Products)
                     .Include(x => x.ExtraCategoryExtraCategoryNavigations).ThenInclude(x => x.ProductCategory).ThenInclude(x => x.Products)
                     .Include(c => c.Products)
-                    .SingleOrDefaultAsync(c => c.CategoryId.Equals(id) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE));
+                    .SingleOrDefaultAsync(c => c.CategoryId.Equals(id) && !(c.Status == (int)CategoryEnum.Status.DISABLE));
             }
             catch (Exception ex)
             {
@@ -86,7 +86,7 @@ namespace MBKC.Repository.Repositories
                 {
                     return await this._dbContext.Categories
                    .Include(x => x.Brand)
-                   .Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                   .Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DISABLE) && c.Brand.BrandId == brandId)
                    .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name).ToListAsync();
                 }
                 if (searchValue == null && searchValueWithoutUnicode is not null)
@@ -104,7 +104,7 @@ namespace MBKC.Repository.Repositories
                             {
                                 return false;
                             }
-                        }).Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                        }).Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DISABLE) && c.Brand.BrandId == brandId)
                           .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
                           .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
                                    then => then.OrderBy(x => x.Name))
@@ -129,7 +129,7 @@ namespace MBKC.Repository.Repositories
                             {
                                 return false;
                             }
-                        }).Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                        }).Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DISABLE) && c.Brand.BrandId == brandId)
                           .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
                           .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
                                    then => then.OrderByDescending(x => x.Name))
@@ -156,7 +156,7 @@ namespace MBKC.Repository.Repositories
                         {
                             return false;
                         }
-                    }).Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                    }).Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DISABLE) && c.Brand.BrandId == brandId)
                           .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
                           .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage)
                           .ToList();
@@ -166,7 +166,7 @@ namespace MBKC.Repository.Repositories
                     if (sortByASC is not null)
                         return this._dbContext.Categories
                         .Include(x => x.Brand)
-                        .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
+                        .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DISABLE))
                         .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
                         .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
                                    then => then.OrderBy(x => x.Name))
@@ -184,7 +184,7 @@ namespace MBKC.Repository.Repositories
                     else if (sortByDESC is not null)
                         return this._dbContext.Categories
                         .Include(x => x.Brand)
-                        .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
+                        .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DISABLE))
                         .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
                         .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
                                    then => then.OrderByDescending(x => x.Name))
@@ -201,7 +201,7 @@ namespace MBKC.Repository.Repositories
 
                     return this._dbContext.Categories
                         .Include(x => x.Brand)
-                        .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
+                        .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DISABLE))
                         .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
                         .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage)
                         .ToList();
@@ -210,7 +210,7 @@ namespace MBKC.Repository.Repositories
                 if (sortByASC is not null)
                     return this._dbContext.Categories
                     .Include(x => x.Brand)
-                    .Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                    .Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DISABLE) && c.Brand.BrandId == brandId)
                     .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
                     .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
                                    then => then.OrderBy(x => x.Name))
@@ -227,7 +227,7 @@ namespace MBKC.Repository.Repositories
                 else if (sortByDESC is not null)
                     return this._dbContext.Categories
                         .Include(x => x.Brand)
-                        .Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                        .Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DISABLE) && c.Brand.BrandId == brandId)
                     .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
                    .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
                             then => then.OrderByDescending(x => x.Name))
@@ -243,7 +243,7 @@ namespace MBKC.Repository.Repositories
 
                 return await this._dbContext.Categories
                     .Include(x => x.Brand)
-                    .Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                    .Where(c => c.Type.Equals(type.ToUpper()) && !(c.Status == (int)CategoryEnum.Status.DISABLE) && c.Brand.BrandId == brandId)
                     .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
             }
@@ -301,13 +301,13 @@ namespace MBKC.Repository.Repositories
                         {
                             return false;
                         }
-                    }).Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Type.Equals(type.ToUpper()) && c.Brand.BrandId == brandId).AsQueryable().Count();
+                    }).Where(c => !(c.Status == (int)CategoryEnum.Status.DISABLE) && c.Type.Equals(type.ToUpper()) && c.Brand.BrandId == brandId).AsQueryable().Count();
                 }
                 else if (keySearchUniCode != null && keySearchNotUniCode == null)
                 {
-                    return await this._dbContext.Categories.Include(x => x.Brand).Where(c => c.Name.ToLower().Contains(keySearchUniCode.ToLower()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Type.Equals(type.ToUpper()) && c.Brand.BrandId == brandId).CountAsync();
+                    return await this._dbContext.Categories.Include(x => x.Brand).Where(c => c.Name.ToLower().Contains(keySearchUniCode.ToLower()) && !(c.Status == (int)CategoryEnum.Status.DISABLE) && c.Type.Equals(type.ToUpper()) && c.Brand.BrandId == brandId).CountAsync();
                 }
-                return await this._dbContext.Categories.Include(x => x.Brand).Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Type.Equals(type.ToUpper()) && c.Brand.BrandId == brandId).CountAsync();
+                return await this._dbContext.Categories.Include(x => x.Brand).Where(c => !(c.Status == (int)CategoryEnum.Status.DISABLE) && c.Type.Equals(type.ToUpper()) && c.Brand.BrandId == brandId).CountAsync();
             }
             catch (Exception ex)
             {
@@ -325,7 +325,7 @@ namespace MBKC.Repository.Repositories
                 if (isGetAll != null && isGetAll == true)
                 {
                     return categories
-                        .Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                        .Where(c => !(c.Status == (int)CategoryEnum.Status.DISABLE) && c.Brand.BrandId == brandId)
                     .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name).ToList();
                 }
                 if (searchValue == null && searchValueWithoutUnicode is not null)
@@ -341,7 +341,7 @@ namespace MBKC.Repository.Repositories
                             {
                                 return false;
                             }
-                        }).Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                        }).Where(c => !(c.Status == (int)CategoryEnum.Status.DISABLE) && c.Brand.BrandId == brandId)
                           .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
                           .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
                                    then => then.OrderBy(x => x.Name))
@@ -364,7 +364,7 @@ namespace MBKC.Repository.Repositories
                             {
                                 return false;
                             }
-                        }).Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                        }).Where(c => !(c.Status == (int)CategoryEnum.Status.DISABLE) && c.Brand.BrandId == brandId)
                           .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
                           .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
                                    then => then.OrderByDescending(x => x.Name))
@@ -387,7 +387,7 @@ namespace MBKC.Repository.Repositories
                         {
                             return false;
                         }
-                    }).Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                    }).Where(c => !(c.Status == (int)CategoryEnum.Status.DISABLE) && c.Brand.BrandId == brandId)
                           .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
                           .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage)
                           .ToList();
@@ -396,7 +396,7 @@ namespace MBKC.Repository.Repositories
                 {
                     if (sortByASC is not null)
                         return categories
-                        .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
+                        .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && !(c.Status == (int)CategoryEnum.Status.DISABLE))
                         .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
                         .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
                                    then => then.OrderBy(x => x.Name))
@@ -411,7 +411,7 @@ namespace MBKC.Repository.Repositories
 
                     else if (sortByDESC is not null)
                         return categories
-                        .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
+                        .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && !(c.Status == (int)CategoryEnum.Status.DISABLE))
                         .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
                         .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
                                    then => then.OrderByDescending(x => x.Name))
@@ -425,14 +425,14 @@ namespace MBKC.Repository.Repositories
                         .ToList();
 
                     return categories
-                        .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && !(c.Status == (int)CategoryEnum.Status.DEACTIVE))
+                        .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && !(c.Status == (int)CategoryEnum.Status.DISABLE))
                         .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
                         .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage)
                         .ToList();
                 }
 
                 if (sortByASC is not null)
-                    return categories.Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                    return categories.Where(c => !(c.Status == (int)CategoryEnum.Status.DISABLE) && c.Brand.BrandId == brandId)
                     .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
                     .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
                                    then => then.OrderBy(x => x.Name))
@@ -445,7 +445,7 @@ namespace MBKC.Repository.Repositories
                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
 
                 else if (sortByDESC is not null)
-                    return categories.Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                    return categories.Where(c => !(c.Status == (int)CategoryEnum.Status.DISABLE) && c.Brand.BrandId == brandId)
                     .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
                    .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
                             then => then.OrderByDescending(x => x.Name))
@@ -457,7 +457,7 @@ namespace MBKC.Repository.Repositories
                                 then => then.OrderByDescending(x => x.Status).Reverse())
                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
 
-                return categories.Where(c => !(c.Status == (int)CategoryEnum.Status.DEACTIVE) && c.Brand.BrandId == brandId)
+                return categories.Where(c => !(c.Status == (int)CategoryEnum.Status.DISABLE) && c.Brand.BrandId == brandId)
                     .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
                     .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
             }
@@ -485,13 +485,13 @@ namespace MBKC.Repository.Repositories
                         {
                             return false;
                         }
-                    }).Where(c => c.Status != (int)CategoryEnum.Status.DEACTIVE && c.Brand.BrandId == brandId).AsQueryable().Count();
+                    }).Where(c => c.Status != (int)CategoryEnum.Status.DISABLE && c.Brand.BrandId == brandId).AsQueryable().Count();
                 }
                 else if (keySearchUniCode != null && keySearchNotUniCode == null)
                 {
-                    return categories.Where(c => c.Name.ToLower().Contains(keySearchUniCode.ToLower()) && c.Status != (int)CategoryEnum.Status.DEACTIVE && c.Brand.BrandId == brandId).Count();
+                    return categories.Where(c => c.Name.ToLower().Contains(keySearchUniCode.ToLower()) && c.Status != (int)CategoryEnum.Status.DISABLE && c.Brand.BrandId == brandId).Count();
                 }
-                return categories.Where(c => c.Status != (int)CategoryEnum.Status.DEACTIVE && c.Brand.BrandId == brandId).Count();
+                return categories.Where(c => c.Status != (int)CategoryEnum.Status.DISABLE && c.Brand.BrandId == brandId).Count();
             }
             catch (Exception ex)
             {

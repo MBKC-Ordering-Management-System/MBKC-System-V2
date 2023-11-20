@@ -248,7 +248,7 @@ namespace MBKC.Service.Services.Implementations
                     throw new BadRequestException(MessageConstant.BankingAccountMessage.BankingAccountNotBelongToKitchenCenter);
                 }
 
-                existedBankingAccount.Status = (int)BankingAccountEnum.Status.DEACTIVE;
+                existedBankingAccount.Status = (int)BankingAccountEnum.Status.DISABLE;
                 this._unitOfWork.BankingAccountRepository.UpdateBankingAccount(existedBankingAccount);
                 await this._unitOfWork.CommitAsync();
             }

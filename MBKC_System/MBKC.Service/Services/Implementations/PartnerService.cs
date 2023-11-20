@@ -115,7 +115,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistPartnerId);
                 }
-                if (partner.Status == (int)PartnerEnum.Status.DEACTIVE)
+                if (partner.Status == (int)PartnerEnum.Status.DISABLE)
                 {
                     throw new BadRequestException(MessageConstant.PartnerMessage.DeactivePartner_Update);
                 }
@@ -268,7 +268,7 @@ namespace MBKC.Service.Services.Implementations
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistPartnerId);
                 }
 
-                if (existedPartner.Status == (int)PartnerEnum.Status.DEACTIVE)
+                if (existedPartner.Status == (int)PartnerEnum.Status.DISABLE)
                 {
                     throw new BadRequestException(MessageConstant.PartnerMessage.DeactivePartner_Get);
                 }
@@ -319,7 +319,7 @@ namespace MBKC.Service.Services.Implementations
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistPartnerId);
                 }
 
-                if (partner.Status == (int)PartnerEnum.Status.DEACTIVE)
+                if (partner.Status == (int)PartnerEnum.Status.DISABLE)
                 {
                     throw new BadRequestException(MessageConstant.PartnerMessage.DeactivePartner_Delete);
                 }
@@ -328,7 +328,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new BadRequestException(MessageConstant.PartnerMessage.PartnerHasPartnerStoreActive_Delete);
                 }
-                partner.Status = (int)PartnerEnum.Status.DEACTIVE;
+                partner.Status = (int)PartnerEnum.Status.DISABLE;
 
                 this._unitOfWork.PartnerRepository.UpdatePartner(partner);
                 await this._unitOfWork.CommitAsync();
@@ -379,7 +379,7 @@ namespace MBKC.Service.Services.Implementations
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistPartnerId);
                 }
 
-                if (partner.Status == (int)PartnerEnum.Status.DEACTIVE)
+                if (partner.Status == (int)PartnerEnum.Status.DISABLE)
                 {
                     throw new BadRequestException(MessageConstant.PartnerMessage.DeactivePartner_Delete);
                 }

@@ -60,7 +60,7 @@ namespace MBKC.Repository.Repositories
                 {
                     if (sortByASC is not null)
                         return this._dbContext.Cashiers.Include(x => x.Account).Include(x => x.KitchenCenter)
-                                                             .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Account.Status != (int)AccountEnum.Status.DEACTIVE)
+                                                             .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Account.Status != (int)AccountEnum.Status.DISABLE)
                                                              .Where(delegate (Cashier cashier)
                                                              {
                                                                  if (StringUtil.RemoveSign4VietnameseString(cashier.FullName).ToLower().Contains(searchValueWithoutUnicode.ToLower())) return true;
@@ -82,7 +82,7 @@ namespace MBKC.Repository.Repositories
                                                              .ToList();
                     else if (sortByDESC is not null)
                         return this._dbContext.Cashiers.Include(x => x.Account).Include(x => x.KitchenCenter)
-                                                             .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Account.Status != (int)AccountEnum.Status.DEACTIVE)
+                                                             .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Account.Status != (int)AccountEnum.Status.DISABLE)
                                                              .Where(delegate (Cashier cashier)
                                                              {
                                                                  if (StringUtil.RemoveSign4VietnameseString(cashier.FullName).ToLower().Contains(searchValueWithoutUnicode.ToLower())) return true;
@@ -104,7 +104,7 @@ namespace MBKC.Repository.Repositories
                                                              .ToList();
 
                     return this._dbContext.Cashiers.Include(x => x.Account).Include(x => x.KitchenCenter)
-                                                         .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Account.Status != (int)AccountEnum.Status.DEACTIVE)
+                                                         .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Account.Status != (int)AccountEnum.Status.DISABLE)
                                                          .Where(delegate (Cashier cashier)
                                                          {
                                                              if (StringUtil.RemoveSign4VietnameseString(cashier.FullName).ToLower().Contains(searchValueWithoutUnicode.ToLower())) return true;
@@ -116,7 +116,7 @@ namespace MBKC.Repository.Repositories
                 {
                     if (sortByASC is not null)
                         return this._dbContext.Cashiers.Include(x => x.Account).Include(x => x.KitchenCenter)
-                                                             .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Account.Status != (int)AccountEnum.Status.DEACTIVE && x.FullName.ToLower().Contains(searchValue.ToLower()))
+                                                             .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Account.Status != (int)AccountEnum.Status.DISABLE && x.FullName.ToLower().Contains(searchValue.ToLower()))
                                                              .If(sortByASC != null && sortByASC.ToLower().Equals("fullname"),
                                                                   then => then.OrderBy(x => x.FullName))
                                                              .If(sortByASC != null && sortByASC.ToLower().Equals("gender"),
@@ -133,7 +133,7 @@ namespace MBKC.Repository.Repositories
                                                              .ToList();
                     else if (sortByDESC is not null)
                         return this._dbContext.Cashiers.Include(x => x.Account).Include(x => x.KitchenCenter)
-                                                             .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Account.Status != (int)AccountEnum.Status.DEACTIVE && x.FullName.ToLower().Contains(searchValue.ToLower()))
+                                                             .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Account.Status != (int)AccountEnum.Status.DISABLE && x.FullName.ToLower().Contains(searchValue.ToLower()))
                                                              .If(sortByDESC != null && sortByDESC.ToLower().Equals("fullname"),
                                                                   then => then.OrderByDescending(x => x.FullName))
                                                              .If(sortByDESC != null && sortByDESC.ToLower().Equals("gender"),
@@ -150,13 +150,13 @@ namespace MBKC.Repository.Repositories
                                                              .ToList();
 
                     return await this._dbContext.Cashiers.Include(x => x.Account).Include(x => x.KitchenCenter)
-                                                         .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Account.Status != (int)AccountEnum.Status.DEACTIVE && x.FullName.ToLower().Contains(searchValue.ToLower()))
+                                                         .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Account.Status != (int)AccountEnum.Status.DISABLE && x.FullName.ToLower().Contains(searchValue.ToLower()))
                                                          .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
                 }
 
                 if (sortByASC is not null)
                     return this._dbContext.Cashiers.Include(x => x.Account).Include(x => x.KitchenCenter)
-                                                         .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Account.Status != (int)AccountEnum.Status.DEACTIVE)
+                                                         .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Account.Status != (int)AccountEnum.Status.DISABLE)
                                                          .If(sortByASC != null && sortByASC.ToLower().Equals("fullname"),
                                                               then => then.OrderBy(x => x.FullName))
                                                          .If(sortByASC != null && sortByASC.ToLower().Equals("gender"),
@@ -173,7 +173,7 @@ namespace MBKC.Repository.Repositories
                                                          .ToList();
                 else if (sortByDESC is not null)
                     return this._dbContext.Cashiers.Include(x => x.Account).Include(x => x.KitchenCenter)
-                                                         .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Account.Status != (int)AccountEnum.Status.DEACTIVE)
+                                                         .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Account.Status != (int)AccountEnum.Status.DISABLE)
                                                          .If(sortByDESC != null && sortByDESC.ToLower().Equals("fullname"),
                                                               then => then.OrderByDescending(x => x.FullName))
                                                          .If(sortByDESC != null && sortByDESC.ToLower().Equals("gender"),
@@ -190,7 +190,7 @@ namespace MBKC.Repository.Repositories
                                                          .ToList();
 
                 return await this._dbContext.Cashiers.Include(x => x.Account).Include(x => x.KitchenCenter)
-                                                     .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Account.Status != (int)AccountEnum.Status.DEACTIVE)
+                                                     .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Account.Status != (int)AccountEnum.Status.DISABLE)
                                                      .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
             }
             catch (Exception ex)
@@ -207,13 +207,13 @@ namespace MBKC.Repository.Repositories
                 if (searchValue is not null && searchValueWithoutUnicode is null)
                 {
                     return await this._dbContext.Cashiers.Include(x => x.Account).Include(x => x.KitchenCenter)
-                                                             .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Account.Status != (int)AccountEnum.Status.DEACTIVE && x.FullName.ToLower().Contains(searchValue.ToLower()))
+                                                             .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Account.Status != (int)AccountEnum.Status.DISABLE && x.FullName.ToLower().Contains(searchValue.ToLower()))
                                                              .CountAsync();
                 }
                 else if (searchValue is null && searchValueWithoutUnicode is not null)
                 {
                     return this._dbContext.Cashiers.Include(x => x.Account).Include(x => x.KitchenCenter)
-                                                             .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Account.Status != (int)AccountEnum.Status.DEACTIVE)
+                                                             .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Account.Status != (int)AccountEnum.Status.DISABLE)
                                                              .Where(delegate (Cashier cashier)
                                                              {
                                                                  if (StringUtil.RemoveSign4VietnameseString(cashier.FullName).ToLower().Contains(searchValueWithoutUnicode.ToLower())) return true;
@@ -221,7 +221,7 @@ namespace MBKC.Repository.Repositories
                                                              }).Count();
                 }
                 return await this._dbContext.Cashiers.Include(x => x.Account).Include(x => x.KitchenCenter)
-                                                     .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Account.Status != (int)AccountEnum.Status.DEACTIVE)
+                                                     .Where(x => x.KitchenCenter.KitchenCenterId == kitchenCenterId && x.Account.Status != (int)AccountEnum.Status.DISABLE)
                                                      .CountAsync();
             }
             catch (Exception ex)
@@ -286,7 +286,7 @@ namespace MBKC.Repository.Repositories
                                                      .Include(x => x.Wallet).ThenInclude(x => x.Transactions).ThenInclude(x => x.MoneyExchange)
                                                      .Include(x => x.Wallet).ThenInclude(x => x.Transactions).ThenInclude(x => x.ShipperPayment).ThenInclude(x => x.Order)
                                                      .Include(x => x.Wallet).ThenInclude(x => x.Transactions).ThenInclude(x => x.ShipperPayment).ThenInclude(x => x.BankingAccount)
-                                                     .SingleOrDefaultAsync(x => x.AccountId == idCashier && x.Account.Status != (int)AccountEnum.Status.DEACTIVE);
+                                                     .SingleOrDefaultAsync(x => x.AccountId == idCashier && x.Account.Status != (int)AccountEnum.Status.DISABLE);
             }
             catch (Exception ex)
             {
@@ -301,7 +301,7 @@ namespace MBKC.Repository.Repositories
                 return await this._dbContext.Cashiers.Include(x => x.Wallet)
                                                      .Include(x => x.CashierMoneyExchanges).ThenInclude(x => x.MoneyExchange).ThenInclude(x => x.Transactions)
                                                      .Include(x => x.KitchenCenter).ThenInclude(x => x.BankingAccounts).ThenInclude(x => x.ShipperPayments)
-                                                     .SingleOrDefaultAsync(x => x.AccountId == idCashier && x.Account.Status != (int)AccountEnum.Status.DEACTIVE);
+                                                     .SingleOrDefaultAsync(x => x.AccountId == idCashier && x.Account.Status != (int)AccountEnum.Status.DISABLE);
             }
             catch (Exception ex)
             {
@@ -331,7 +331,7 @@ namespace MBKC.Repository.Repositories
                                                                                                                   && x.MoneyExchange.Transactions.Any(ts => ts.TransactionTime.Day == DateTime.Now.Day
                                                                                                                   && ts.TransactionTime.Month == DateTime.Now.Month
                                                                                                                   && ts.TransactionTime.Year == DateTime.Now.Year)))
-                                                     .SingleOrDefaultAsync(x => x.AccountId == idCashier && x.Account.Status != (int)AccountEnum.Status.DEACTIVE);
+                                                     .SingleOrDefaultAsync(x => x.AccountId == idCashier && x.Account.Status != (int)AccountEnum.Status.DISABLE);
             }
             catch (Exception ex)
             {
@@ -390,7 +390,7 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await this._dbContext.Cashiers.Where(c => c.Account.Status != (int)AccountEnum.Status.DEACTIVE && c.KitchenCenter.KitchenCenterId == kitchenCenterId).CountAsync();
+                return await this._dbContext.Cashiers.Where(c => c.Account.Status != (int)AccountEnum.Status.DISABLE && c.KitchenCenter.KitchenCenterId == kitchenCenterId).CountAsync();
             }
             catch (Exception ex)
             {

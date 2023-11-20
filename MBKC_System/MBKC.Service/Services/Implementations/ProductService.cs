@@ -1,28 +1,15 @@
 ﻿using AutoMapper;
-using MBKC.Service.Services.Interfaces;
-using MBKC.Repository.Infrastructures;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MBKC.Service.DTOs.Products;
-using MBKC.Service.Utils;
-using System.Security.Claims;
-using MBKC.Repository.Models;
-using MBKC.Service.Exceptions;
-using MBKC.Service.Constants;
 using MBKC.Repository.Enums;
-using Microsoft.Extensions.Logging.Abstractions;
-using MBKC.Service.DTOs.Stores;
-using Microsoft.AspNetCore.Http;
-using Spire.Xls;
-using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
-using ExcelPicture = Spire.Xls.ExcelPicture;
-using MBKC.Service.Errors;
+using MBKC.Repository.Infrastructures;
+using MBKC.Repository.Models;
+using MBKC.Service.Constants;
 using MBKC.Service.DTOs.PartnerProducts;
-using FluentValidation;
-using FluentValidation.Results;
+using MBKC.Service.DTOs.Products;
+using MBKC.Service.Exceptions;
+using MBKC.Service.Services.Interfaces;
+using MBKC.Service.Utils;
+using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
+using System.Security.Claims;
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -30,12 +17,10 @@ namespace MBKC.Service.Services.Implementations
     {
         private UnitOfWork _unitOfWork;
         private IMapper _mapper;
-        private IValidator<CreateProductExcelRequest> _createProductExcelValidator;
-        public ProductService(IUnitOfWork unitOfWork, IMapper mapper, IValidator<CreateProductExcelRequest> createProductExcelValidator)
+        public ProductService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             this._unitOfWork = (UnitOfWork)unitOfWork;
             this._mapper = mapper;
-            this._createProductExcelValidator = createProductExcelValidator;
         }
 
         public async Task<GetProductsResponse> GetProductsAsync(GetProductsRequest getProductsRequest, IEnumerable<Claim> claims)
@@ -357,8 +342,8 @@ namespace MBKC.Service.Services.Implementations
                 string email = registeredEmailClaim.Value;
                 Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandAsync(email);
 
-                Product existedProduct = await this._unitOfWork.ProductRepository.CheckProductCodeInBrandAsync(createProductRequest.Code, existedBrand.BrandId);
-                if (existedProduct != null && existedProduct.Status != (int)ProductEnum.Status.DEACTIVE)
+                Product existedProduct = await this._unitOfWork.ProductRepository.GetProductAsync(createProductRequest.Code, existedBrand.BrandId);
+                if (existedProduct != null && existedProduct.Status != (int)ProductEnum.Status.DISABLE)
                 {
                     throw new BadRequestException(MessageConstant.ProductMessage.ProductCodeExistedInBrand);
                 }
@@ -376,8 +361,6 @@ namespace MBKC.Service.Services.Implementations
                     {
                         throw new BadRequestException(MessageConstant.ProductMessage.ParentProductIdNotBelongToBrand);
                     }
-
-
                 }
 
                 Category existedCategory = null;
@@ -563,7 +546,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new BadRequestException(MessageConstant.ProductMessage.ProductNotBelongToBrand);
                 }
-                existedProduct.Status = (int)ProductEnum.Status.DEACTIVE;
+                existedProduct.Status = (int)ProductEnum.Status.DISABLE;
                 this._unitOfWork.ProductRepository.UpdateProduct(existedProduct);
                 await this._unitOfWork.CommitAsync();
             }
@@ -771,213 +754,5 @@ namespace MBKC.Service.Services.Implementations
                 throw new Exception(error);
             }
         }
-
-        #region upload file excel
-        public async Task UploadExelFile(IFormFile file, IEnumerable<Claim> claims)
-        {
-            string folderName = "Products";
-            List<string> logos = new List<string>();
-            bool isUploaded = false;
-            List<ErrorDetail> errorDetails = new List<ErrorDetail>();
-
-            try
-            {
-                #region validation
-                // reading excel file
-                List<CreateProductExcelRequest> excelData = FileUtil.GetDataFromExcelFile(file);
-
-                if (!excelData.Any())
-                {
-                    throw new BadRequestException(MessageConstant.ProductMessage.ExcelFileHasNoData);
-                }
-
-                if (excelData.GroupBy(ex => ex.Code).Any(group => group.Count() > 1))
-                {
-                    throw new BadRequestException(MessageConstant.ProductMessage.DuplicateProductCode);
-                }
-
-                List<Product> productsToAdd = new List<Product>();
-                Dictionary<string, FileStream> imagesToAdd = new Dictionary<string, FileStream>();
-                Claim registeredEmailClaim = claims.First(x => x.Type == ClaimTypes.Email);
-                string email = registeredEmailClaim.Value;
-                Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandAsync(email);
-
-                foreach (var product in excelData)
-                {
-                    List<string> errorsOnProduct = new List<string>();
-                    ValidationResult validationResult = await this._createProductExcelValidator.ValidateAsync(product);
-                    if (validationResult.IsValid == false)
-                    {
-                        errorsOnProduct = ErrorUtil.GetErrorsOnObject(validationResult);
-                    }
-
-                    if (product.Code is not null)
-                    {
-                        Product existedProduct = await this._unitOfWork.ProductRepository.GetProductAsync(product.Code!);
-                        if (existedProduct is not null && existedProduct.Status != (int)ProductEnum.Status.DEACTIVE)
-                        {
-                            errorsOnProduct.Add(MessageConstant.ProductMessage.ProductCodeExisted);
-                        }
-                    }
-
-                    Product? existedParentProduct = null;
-                    if (product.ParentProductId is not null)
-                    {
-                        existedParentProduct = await this._unitOfWork.ProductRepository.GetProductAsync(product.ParentProductId.Value);
-                        if (existedParentProduct is null)
-                        {
-                            errorsOnProduct.Add(MessageConstant.ProductMessage.ParentProductIdNotExist);
-                        }
-
-                        if (existedParentProduct is not null && existedBrand.Products.FirstOrDefault(x => x.ProductId == product.ParentProductId) is null)
-                        {
-                            errorsOnProduct.Add(MessageConstant.ProductMessage.ParentProductIdNotBelongToBrand);
-                        }
-                    }
-
-                    Category? existedCategory = null;
-                    if (product.Type is not null
-                    && (product.Type.Trim().ToUpper().Equals(ProductEnum.Type.PARENT.ToString())
-                     || product.Type.Trim().ToUpper().Equals(ProductEnum.Type.SINGLE.ToString())
-                     || product.Type.Trim().ToUpper().Equals(ProductEnum.Type.EXTRA.ToString()))
-                    && product.CategoryId is not null)
-                    {
-                        existedCategory = await this._unitOfWork.CategoryRepository.GetCategoryByIdAsync(product.CategoryId.Value);
-                        if (existedCategory == null)
-                        {
-                            errorsOnProduct.Add(MessageConstant.CommonMessage.NotExistCategoryId);
-                        }
-
-                        if (existedCategory is not null && existedBrand.Categories.FirstOrDefault(x => x.CategoryId == product.CategoryId) is null)
-                        {
-                            errorsOnProduct.Add(MessageConstant.CommonMessage.CategoryIdNotBelongToBrand);
-                        }
-
-                        if ((product.Type.Trim().ToUpper().Equals(ProductEnum.Type.SINGLE.ToString())
-                          || product.Type.Trim().ToUpper().Equals(ProductEnum.Type.PARENT.ToString()))
-                        && existedCategory is not null)
-                        {
-                            if (existedCategory.Type.Trim().ToUpper().Equals(CategoryEnum.Type.NORMAL.ToString()) == false)
-                            {
-                                errorsOnProduct.Add(MessageConstant.ProductMessage.CategoryNotSuitableForSingleOrParentProductType);
-                            }
-                        }
-
-                        if (product.Type.Trim().ToUpper().Equals(ProductEnum.Type.EXTRA.ToString())
-                         && existedCategory is not null)
-                        {
-                            if (existedCategory.Type.Trim().ToUpper().Equals(CategoryEnum.Type.EXTRA.ToString()) == false)
-                            {
-                                errorsOnProduct.Add(MessageConstant.ProductMessage.CategoryNotSuitableForEXTRAProductType);
-                            }
-                        }
-
-                    }
-                    else if (product.Type is not null && product.Type.ToUpper().Equals(ProductEnum.Type.CHILD.ToString())
-                          && product.CategoryId is null
-                          && existedParentProduct is not null)
-                    {
-                        existedCategory = existedParentProduct.Category;
-                        if (product.Name is not null && product.Size is not null
-                         && product.Name.Trim().ToLower().Equals($"{existedParentProduct.Name.ToLower()} - size {product.Size.ToLower()}") == false)
-                        {
-                            errorsOnProduct.Add(MessageConstant.ProductMessage.ProductNameNotFollowingFormat);
-                        }
-                    }
-
-
-                    if (errorsOnProduct.Any())
-                    {
-                        ErrorDetail errorDetail = new ErrorDetail()
-                        {
-                            FieldNameError = $"Product at row [{product.Row}] in excel file",
-                            DescriptionError = errorsOnProduct,
-                        };
-
-                        errorDetails.Add(errorDetail);
-                    }
-                    else
-                    {
-                        Product newProduct = new Product()
-                        {
-                            Code = product.Code!,
-                            Name = product.Name!,
-                            Description = product.Description!,
-                            HistoricalPrice = product.HistoricalPrice!.Value,
-                            SellingPrice = product.SellingPrice!.Value,
-                            DiscountPrice = product.DiscountPrice!.Value,
-                            Size = product.Size,
-                            DisplayOrder = product.DisplayOrder!.Value,
-                            Status = (int)ProductEnum.Status.ACTIVE,
-                            Type = product.Type!.ToUpper(),
-                            ParentProductId = product.ParentProductId,
-                            Brand = existedBrand,
-                            Category = existedCategory!
-                        };
-                        productsToAdd.Add(newProduct);
-                        imagesToAdd.Add(product.Code!, product.Image!);
-                    }
-                }
-
-                if (errorDetails.Any())
-                {
-                    throw new BadRequestException(MessageConstant.ProductMessage.InvalidOnField);
-                }
-
-                foreach (var product in productsToAdd)
-                {
-                    Guid guid = Guid.NewGuid();
-                    string logoId = guid.ToString();
-                    string imageUrl = await this._unitOfWork.FirebaseStorageRepository.UploadImageAsync(imagesToAdd[product.Code], folderName, logoId);
-                    if (imageUrl != null && imageUrl.Length > 0 && !isUploaded)
-                    {
-                        isUploaded = true;
-                    }
-                    imageUrl += $"&imageId={logoId}";
-                    product.Image = imageUrl;
-                    logos.Add(logoId);
-                }
-
-                #endregion
-
-                await this._unitOfWork.ProductRepository.CreateRangProductAsync(productsToAdd);
-                await this._unitOfWork.CommitAsync();
-            }
-            catch (BadRequestException ex)
-            {
-                string fieldName = "";
-                switch (ex.Message)
-                {
-                    case MessageConstant.ProductMessage.ExcelImageIsNotValid:
-                    case MessageConstant.ProductMessage.ExcelFileHasNoData:
-                        fieldName = "Excel file";
-                        break;
-
-                    case MessageConstant.ProductMessage.DuplicateProductCode:
-                        fieldName = "Product code";
-                        break;
-
-                    case MessageConstant.ProductMessage.InvalidOnField:
-                        string errors = ErrorUtil.GetErrorString(errorDetails);
-                        throw new BadRequestException(errors);
-
-                    default:
-                        fieldName = "Exception";
-                        break;
-                }
-                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
-                throw new BadRequestException(error);
-            }
-            catch (Exception ex)
-            {
-                if (isUploaded)
-                {
-                    foreach (var logoId in logos) await this._unitOfWork.FirebaseStorageRepository.DeleteImageAsync(logoId, folderName);
-                }
-                string error = ErrorUtil.GetErrorString("Exception", ex.InnerException != null ? ex.InnerException.Message : ex.Message);
-                throw new Exception(error);
-            }
-        }
-        #endregion
     }
 }

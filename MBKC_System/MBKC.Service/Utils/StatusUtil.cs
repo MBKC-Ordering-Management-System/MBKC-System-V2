@@ -66,7 +66,7 @@ namespace MBKC.Service.Utils
             {
                 return char.ToUpper(StoreEnum.Status.ACTIVE.ToString()[0]) + CategoryEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
             }
-            return char.ToUpper(CategoryEnum.Status.DEACTIVE.ToString()[0]) + CategoryEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
+            return char.ToUpper(CategoryEnum.Status.DISABLE.ToString()[0]) + CategoryEnum.Status.DISABLE.ToString().ToLower().Substring(1);
         }
 
         public static string ChangeBankingAccountStatus(int status)
@@ -79,7 +79,7 @@ namespace MBKC.Service.Utils
             {
                 return char.ToUpper(BankingAccountEnum.Status.ACTIVE.ToString()[0]) + BankingAccountEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
             }
-            return char.ToUpper(BankingAccountEnum.Status.DEACTIVE.ToString()[0]) + BankingAccountEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
+            return char.ToUpper(BankingAccountEnum.Status.DISABLE.ToString()[0]) + BankingAccountEnum.Status.DISABLE.ToString().ToLower().Substring(1);
         }
 
         public static string ChangeProductStatusStatus(int status)
@@ -92,7 +92,7 @@ namespace MBKC.Service.Utils
             {
                 return char.ToUpper(ProductEnum.Status.ACTIVE.ToString()[0]) + ProductEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
             }
-            return char.ToUpper(ProductEnum.Status.DEACTIVE.ToString()[0]) + ProductEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
+            return char.ToUpper(ProductEnum.Status.DISABLE.ToString()[0]) + ProductEnum.Status.DISABLE.ToString().ToLower().Substring(1);
         }
 
         public static string ChangePartnerStatus(int status)
@@ -105,7 +105,7 @@ namespace MBKC.Service.Utils
             {
                 return char.ToUpper(PartnerEnum.Status.ACTIVE.ToString()[0]) + PartnerEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
             }
-            return char.ToUpper(PartnerEnum.Status.DEACTIVE.ToString()[0]) + PartnerEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
+            return char.ToUpper(PartnerEnum.Status.DISABLE.ToString()[0]) + PartnerEnum.Status.DISABLE.ToString().ToLower().Substring(1);
 
         }
 
@@ -120,7 +120,7 @@ namespace MBKC.Service.Utils
             {
                 return char.ToUpper(CashierEnum.Status.ACTIVE.ToString()[0]) + CashierEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
             }
-            return char.ToUpper(CashierEnum.Status.DEACTIVE.ToString()[0]) + CashierEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
+            return char.ToUpper(CashierEnum.Status.DISABLE.ToString()[0]) + CashierEnum.Status.DISABLE.ToString().ToLower().Substring(1);
 
         }
 
@@ -135,7 +135,7 @@ namespace MBKC.Service.Utils
             {
                 return char.ToUpper(AccountEnum.Status.ACTIVE.ToString()[0]) + AccountEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
             }
-            return char.ToUpper(AccountEnum.Status.DEACTIVE.ToString()[0]) + AccountEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
+            return char.ToUpper(AccountEnum.Status.DISABLE.ToString()[0]) + AccountEnum.Status.DISABLE.ToString().ToLower().Substring(1);
 
         }
 
@@ -149,25 +149,25 @@ namespace MBKC.Service.Utils
             {
                 return char.ToUpper(StorePartnerEnum.Status.ACTIVE.ToString()[0]) + StorePartnerEnum.Status.ACTIVE.ToString().ToLower().Substring(1);
             }
-            return char.ToUpper(StorePartnerEnum.Status.DEACTIVE.ToString()[0]) + StorePartnerEnum.Status.DEACTIVE.ToString().ToLower().Substring(1);
+            return char.ToUpper(StorePartnerEnum.Status.DISABLE.ToString()[0]) + StorePartnerEnum.Status.DISABLE.ToString().ToLower().Substring(1);
 
         }
 
         public static string ChangePartnerProductStatus(int status)
         {
-            if (status == (int)GrabFoodItemEnum.AvailableStatus.AVAILABLE)
+            if (status == (int)PartnerProductEnum.Status.DISABLE)
             {
-                return char.ToUpper(GrabFoodItemEnum.AvailableStatus.AVAILABLE.ToString()[0]) + GrabFoodItemEnum.AvailableStatus.AVAILABLE.ToString().ToLower().Substring(1);
+                return char.ToUpper(PartnerProductEnum.Status.DISABLE.ToString()[0]) + PartnerProductEnum.Status.DISABLE.ToString().ToLower().Substring(1);
             }
-            else if (status == (int)GrabFoodItemEnum.AvailableStatus.OUT_OF_STOCK_TODAY)
+            else if (status == (int)PartnerProductEnum.Status.OUT_OF_STOCK_TODAY)
             {
                 return "Out of stock today";
             }
-            else if (status == (int)GrabFoodItemEnum.AvailableStatus.OUT_OF_STOCK_INDENTIFINITELY)
+            else if (status == (int)PartnerProductEnum.Status.OUT_OF_STOCK_INDENTIFINITELY)
             {
                 return "Out of stock Indentifinitely";
             }
-            return char.ToUpper(GrabFoodItemEnum.AvailableStatus.DEACTIVE.ToString()[0]) + GrabFoodItemEnum.AvailableStatus.DEACTIVE.ToString().ToLower().Substring(1);
+            return char.ToUpper(PartnerProductEnum.Status.DISABLE.ToString()[0]) + PartnerProductEnum.Status.DISABLE.ToString().ToLower().Substring(1);
         }
 
         public static int? ChangeStoreStatus(string status)

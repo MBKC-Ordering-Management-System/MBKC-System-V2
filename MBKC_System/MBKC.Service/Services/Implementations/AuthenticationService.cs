@@ -36,7 +36,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistEmail);
                 }
-                if(existedAccount != null && existedAccount.Status == (int)AccountEnum.Status.DEACTIVE ||
+                if(existedAccount != null && existedAccount.Status == (int)AccountEnum.Status.DISABLE ||
                     existedAccount != null && existedAccount.Status == (int)AccountEnum.Status.INACTIVE)
                 {
                     throw new BadRequestException(MessageConstant.LoginMessage.DisabledAccount);

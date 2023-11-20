@@ -462,7 +462,7 @@ namespace MBKC.Service.Services.Implementations
                     return;
                 }
 
-                foreach (var partnerProduct in partnerProducts) partnerProduct.Status = (int)PartnerProductEnum.AvailableStatus.AVAILABLE;
+                foreach (var partnerProduct in partnerProducts) partnerProduct.Status = (int)PartnerProductEnum.Status.AVAILABLE;
                 this._unitOfWork.PartnerProductRepository.UpdatePartnerProductRange(partnerProducts);
                 await this._unitOfWork.CommitAsync();
 

@@ -303,7 +303,7 @@ namespace MBKC.Service.Services.Implementations
                 logoLink += $"&logoId={logoId}";
 
                 Role storeManagerRole = await this._unitOfWork.RoleRepository.GetRoleAsync((int)RoleEnum.Role.STORE_MANAGER);
-                string password = PasswordUtil.CreateRandomPassword();
+                string password = "";
                 Account managerAccount = new Account()
                 {
                     Email = registerStoreRequest.StoreManagerEmail,
@@ -421,7 +421,7 @@ namespace MBKC.Service.Services.Implementations
 
                     Account oldStoreManagerAccount = existedStore.StoreAccounts.Where(x => x.Account.Email.Equals(existedStore.StoreManagerEmail)).Single().Account;
 
-                    oldStoreManagerAccount.Status = (int)AccountEnum.Status.DEACTIVE;
+                    oldStoreManagerAccount.Status = (int)AccountEnum.Status.DISABLE;
                     this._unitOfWork.AccountRepository.UpdateAccount(oldStoreManagerAccount);
 
                     Role storeManagerRole = await this._unitOfWork.RoleRepository.GetRoleAsync((int)RoleEnum.Role.STORE_MANAGER);
@@ -558,7 +558,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     if (storeAccount.Account.Status == (int)AccountEnum.Status.ACTIVE)
                     {
-                        storeAccount.Account.Status = (int)AccountEnum.Status.DEACTIVE;
+                        storeAccount.Account.Status = (int)AccountEnum.Status.DISABLE;
                     }
                 }
 
@@ -679,6 +679,7 @@ namespace MBKC.Service.Services.Implementations
                 }
 
                 bool isActiveStore = false;
+                string password = "";
                 if (confirmStoreRegistrationRequest.Status.Trim().ToLower().Equals(StoreEnum.Status.ACTIVE.ToString().ToLower()))
                 {
                     confirmStoreRegistrationRequest.RejectedReason = null;
@@ -689,6 +690,12 @@ namespace MBKC.Service.Services.Implementations
                         Balance = 0,
                     };
                     existedStore.Wallet = storeWallet;
+                    StoreAccount existStoreAccount = existedStore.StoreAccounts.FirstOrDefault(x => x.Account.Email.Equals(existedStore.StoreManagerEmail));
+                    password = PasswordUtil.CreateRandomPassword();
+                    existStoreAccount.Account.Password = StringUtil.EncryptData(password);
+                    existStoreAccount.Account.IsConfirmed = false;
+                    existStoreAccount.Account.IsConfirmed = false;
+                    existStoreAccount.Account.Status = (int)AccountEnum.Status.ACTIVE;
                 }
                 else if (confirmStoreRegistrationRequest.Status.Trim().ToLower().Equals(StoreEnum.Status.REJECTED.ToString().ToLower()) &&
                     confirmStoreRegistrationRequest.RejectedReason == null)
@@ -701,19 +708,7 @@ namespace MBKC.Service.Services.Implementations
                     existedStore.RejectedReason = confirmStoreRegistrationRequest.RejectedReason;
                     isActiveStore = false;
                 }
-
                 this._unitOfWork.StoreRepository.UpdateStore(existedStore);
-                string password = "";
-                Account storeManagerAccount = null;
-                if (isActiveStore)
-                {
-                    storeManagerAccount = await this._unitOfWork.AccountRepository.GetAccountAsync(existedStore.StoreManagerEmail);
-                    password = storeManagerAccount.Password;
-                    storeManagerAccount.Password = StringUtil.EncryptData(password);
-                    storeManagerAccount.IsConfirmed = false;
-                    storeManagerAccount.Status = (int)AccountEnum.Status.ACTIVE;
-                    this._unitOfWork.AccountRepository.UpdateAccount(storeManagerAccount);
-                }
                 await this._unitOfWork.CommitAsync();
 
                 if (isActiveStore)

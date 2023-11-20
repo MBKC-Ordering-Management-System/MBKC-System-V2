@@ -9,7 +9,7 @@ namespace MBKC.Service.DTOs.StorePartners
     public class PostStorePartnerRequest
     {
         public int StoreId { get; set; }
-        public List<PartnerAccountRequest> partnerAccounts { get; set; }
+        public List<PartnerAccountRequest> PartnerAccounts { get; set; }
         public bool IsMappingProducts { get; set; }
     }
 }

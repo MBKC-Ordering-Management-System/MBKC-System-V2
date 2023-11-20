@@ -24,7 +24,7 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await this._dbContext.PartnerProducts.Where(pp => pp.Status == (int)PartnerProductEnum.AvailableStatus.OUT_OF_STOCK_TODAY).ToListAsync();
+                return await this._dbContext.PartnerProducts.Where(pp => pp.Status == (int)PartnerProductEnum.Status.OUT_OF_STOCK_TODAY).ToListAsync();
             }
             catch
             {
@@ -48,7 +48,7 @@ namespace MBKC.Repository.Repositories
                     .SingleOrDefaultAsync(mp => mp.ProductId == productId &&
                                           mp.PartnerId == partnerId &&
                                           mp.CreatedDate == createdDate &&
-                                          mp.StoreId == storeId && mp.Status != (int)GrabFoodItemEnum.AvailableStatus.DEACTIVE);
+                                          mp.StoreId == storeId && mp.Status != (int)PartnerProductEnum.Status.DISABLE);
 
             }
             catch (Exception ex)
@@ -129,7 +129,7 @@ namespace MBKC.Repository.Repositories
                     return this._dbContext.PartnerProducts.Include(x => x.Product)
                                                           .Include(x => x.StorePartner).ThenInclude(x => x.Store).ThenInclude(x => x.Brand)
                                                           .Include(x => x.StorePartner).ThenInclude(x => x.Partner)
-                                                          .Where(x => x.Status != (int)GrabFoodItemEnum.AvailableStatus.DEACTIVE &&
+                                                          .Where(x => x.Status != (int)PartnerProductEnum.Status.DISABLE &&
                                                           (brandId != null
                                                                      ? x.StorePartner.Store.Brand.BrandId == brandId
                                                                      : true))
@@ -148,7 +148,7 @@ namespace MBKC.Repository.Repositories
                                                          .Include(x => x.StorePartner).ThenInclude(x => x.Store).ThenInclude(x => x.Brand)
                                                          .Include(x => x.StorePartner).ThenInclude(x => x.Partner)
                                                          .Where(x => x.Product.Name.ToLower().Contains(searchName.ToLower()) &&
-                                                                     x.Status != (int)GrabFoodItemEnum.AvailableStatus.DEACTIVE &&
+                                                                     x.Status != (int)PartnerProductEnum.Status.DISABLE &&
                                                                      (brandId != null
                                                                      ? x.StorePartner.Store.Brand.BrandId == brandId
                                                                      : true)).CountAsync();
@@ -158,7 +158,7 @@ namespace MBKC.Repository.Repositories
                 return await this._dbContext.PartnerProducts.Include(x => x.Product)
                                                          .Include(x => x.StorePartner).ThenInclude(x => x.Store).ThenInclude(x => x.Brand)
                                                          .Include(x => x.StorePartner).ThenInclude(x => x.Partner)
-                                                         .Where(x => x.Status != (int)GrabFoodItemEnum.AvailableStatus.DEACTIVE &&
+                                                         .Where(x => x.Status != (int)PartnerProductEnum.Status.DISABLE &&
                                                          (brandId != null
                                                                      ? x.StorePartner.Store.Brand.BrandId == brandId
                                                                      : true)).CountAsync();
@@ -183,7 +183,7 @@ namespace MBKC.Repository.Repositories
                         return this._dbContext.PartnerProducts.Include(x => x.Product)
                                                           .Include(x => x.StorePartner).ThenInclude(x => x.Store).ThenInclude(x => x.Brand)
                                                           .Include(x => x.StorePartner).ThenInclude(x => x.Partner)
-                                                          .Where(x => x.Status != (int)GrabFoodItemEnum.AvailableStatus.DEACTIVE &&
+                                                          .Where(x => x.Status != (int)PartnerProductEnum.Status.DISABLE &&
                                                           (brandId != null
                                                                      ? x.StorePartner.Store.Brand.BrandId == brandId
                                                                      : true))
@@ -212,7 +212,7 @@ namespace MBKC.Repository.Repositories
                         return this._dbContext.PartnerProducts.Include(x => x.Product)
                                                           .Include(x => x.StorePartner).ThenInclude(x => x.Store).ThenInclude(x => x.Brand)
                                                           .Include(x => x.StorePartner).ThenInclude(x => x.Partner)
-                                                          .Where(x => x.Status != (int)GrabFoodItemEnum.AvailableStatus.DEACTIVE &&
+                                                          .Where(x => x.Status != (int)PartnerProductEnum.Status.DISABLE &&
                                                           (brandId != null
                                                                      ? x.StorePartner.Store.Brand.BrandId == brandId
                                                                      : true))
@@ -241,7 +241,7 @@ namespace MBKC.Repository.Repositories
                     return this._dbContext.PartnerProducts.Include(x => x.Product)
                                                           .Include(x => x.StorePartner).ThenInclude(x => x.Store).ThenInclude(x => x.Brand)
                                                           .Include(x => x.StorePartner).ThenInclude(x => x.Partner)
-                                                          .Where(x => x.Status != (int)GrabFoodItemEnum.AvailableStatus.DEACTIVE &&
+                                                          .Where(x => x.Status != (int)PartnerProductEnum.Status.DISABLE &&
                                                           (brandId != null
                                                                      ? x.StorePartner.Store.Brand.BrandId == brandId
                                                                      : true))
@@ -263,7 +263,7 @@ namespace MBKC.Repository.Repositories
                                                                 .Include(x => x.StorePartner).ThenInclude(x => x.Store).ThenInclude(x => x.Brand)
                                                                 .Include(x => x.StorePartner).ThenInclude(x => x.Partner)
                                                                 .Where(x => x.Product.Name.ToLower().Contains(searchValue.ToLower()) &&
-                                                                            x.Status != (int)GrabFoodItemEnum.AvailableStatus.DEACTIVE &&
+                                                                            x.Status != (int)PartnerProductEnum.Status.DISABLE &&
                                                                      (brandId != null
                                                                      ? x.StorePartner.Store.Brand.BrandId == brandId
                                                                      : true))
@@ -286,7 +286,7 @@ namespace MBKC.Repository.Repositories
                                                                 .Include(x => x.StorePartner).ThenInclude(x => x.Store).ThenInclude(x => x.Brand)
                                                                 .Include(x => x.StorePartner).ThenInclude(x => x.Partner)
                                                                 .Where(x => x.Product.Name.ToLower().Contains(searchValue.ToLower()) &&
-                                                                            x.Status != (int)GrabFoodItemEnum.AvailableStatus.DEACTIVE &&
+                                                                            x.Status != (int)PartnerProductEnum.Status.DISABLE &&
                                                                      (brandId != null
                                                                      ? x.StorePartner.Store.Brand.BrandId == brandId
                                                                      : true))
@@ -308,7 +308,7 @@ namespace MBKC.Repository.Repositories
                                                                 .Include(x => x.StorePartner).ThenInclude(x => x.Store).ThenInclude(x => x.Brand)
                                                                 .Include(x => x.StorePartner).ThenInclude(x => x.Partner)
                                                                 .Where(x => x.Product.Name.ToLower().Contains(searchValue.ToLower()) &&
-                                                                            x.Status != (int)GrabFoodItemEnum.AvailableStatus.DEACTIVE &&
+                                                                            x.Status != (int)PartnerProductEnum.Status.DISABLE &&
                                                                      (brandId != null
                                                                      ? x.StorePartner.Store.Brand.BrandId == brandId
                                                                      : true)).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
@@ -318,7 +318,7 @@ namespace MBKC.Repository.Repositories
                     return this._dbContext.PartnerProducts.Include(x => x.Product)
                                                             .Include(x => x.StorePartner).ThenInclude(x => x.Store).ThenInclude(x => x.Brand)
                                                             .Include(x => x.StorePartner).ThenInclude(x => x.Partner)
-                                                            .Where(x => x.Status != (int)GrabFoodItemEnum.AvailableStatus.DEACTIVE &&
+                                                            .Where(x => x.Status != (int)PartnerProductEnum.Status.DISABLE &&
                                                              (brandId != null
                                                                   ? x.StorePartner.Store.Brand.BrandId == brandId
                                                                   : true))
@@ -339,7 +339,7 @@ namespace MBKC.Repository.Repositories
                     return this._dbContext.PartnerProducts.Include(x => x.Product)
                                                             .Include(x => x.StorePartner).ThenInclude(x => x.Store).ThenInclude(x => x.Brand)
                                                             .Include(x => x.StorePartner).ThenInclude(x => x.Partner)
-                                                            .Where(x => x.Status != (int)GrabFoodItemEnum.AvailableStatus.DEACTIVE &&
+                                                            .Where(x => x.Status != (int)PartnerProductEnum.Status.DISABLE &&
                                                              (brandId != null
                                                                   ? x.StorePartner.Store.Brand.BrandId == brandId
                                                                   : true))
@@ -360,7 +360,7 @@ namespace MBKC.Repository.Repositories
                 return this._dbContext.PartnerProducts.Include(x => x.Product)
                                                             .Include(x => x.StorePartner).ThenInclude(x => x.Store).ThenInclude(x => x.Brand)
                                                             .Include(x => x.StorePartner).ThenInclude(x => x.Partner)
-                                                            .Where(x => x.Status != (int)GrabFoodItemEnum.AvailableStatus.DEACTIVE &&
+                                                            .Where(x => x.Status != (int)PartnerProductEnum.Status.DISABLE &&
                                                              (brandId != null
                                                                   ? x.StorePartner.Store.Brand.BrandId == brandId
                                                                   : true)).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();

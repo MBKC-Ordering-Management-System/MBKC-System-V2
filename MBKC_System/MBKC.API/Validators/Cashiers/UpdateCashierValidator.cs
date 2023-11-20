@@ -65,7 +65,7 @@ namespace MBKC.API.Validators.Cashiers
                 .ChildRules(x => x.RuleFor(x => x.ToLower())
                                          .Cascade(CascadeMode.StopOnFirstFailure)
                                          .IsEnumName(typeof(ProductEnum.Status), caseSensitive: false).WithMessage("{PropertyName} is required some statuses such as: INACTIVE, ACTIVE.")
-                                         .NotEqual(ProductEnum.Status.DEACTIVE.ToString().ToLower()).WithMessage("Status is required some statuses such as: INACTIVE, ACTIVE."));
+                                         .NotEqual(ProductEnum.Status.DISABLE.ToString().ToLower()).WithMessage("Status is required some statuses such as: INACTIVE, ACTIVE."));
         }
     }
 }

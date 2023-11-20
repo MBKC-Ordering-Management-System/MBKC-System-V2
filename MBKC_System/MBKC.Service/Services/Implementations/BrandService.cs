@@ -260,7 +260,7 @@ namespace MBKC.Service.Services.Implementations
                             throw new BadRequestException(MessageConstant.BrandMessage.ManagerEmailExisted);
                         }
                     }
-                    else if (checkAccountExisted != null && checkAccountExisted.Status == (int)AccountEnum.Status.DEACTIVE && checkAccountExisted.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER)
+                    else if (checkAccountExisted != null && checkAccountExisted.Status == (int)AccountEnum.Status.DISABLE && checkAccountExisted.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER)
                     {
                         throw new BadRequestException(MessageConstant.BrandMessage.ManagerEmailExisted);
                     }
@@ -271,7 +271,7 @@ namespace MBKC.Service.Services.Implementations
                     var getBrandAccountById = await this._unitOfWork.BrandAccountRepository.GetBrandAccountByBrandIdAsync(brandId);
                     if (getBrandAccountById != null)
                     {
-                        getBrandAccountById.Account.Status = (int)AccountEnum.Status.DEACTIVE;
+                        getBrandAccountById.Account.Status = (int)AccountEnum.Status.DISABLE;
                         _unitOfWork.BrandAccountRepository.UpdateBrandAccount(getBrandAccountById);
                     }
                     Role brandManagerRole = await this._unitOfWork.RoleRepository.GetRoleById((int)RoleEnum.Role.BRAND_MANAGER);
@@ -405,7 +405,7 @@ namespace MBKC.Service.Services.Implementations
                 // Deactive Manager Account of brand
                 foreach (var brandAccount in brand.BrandAccounts)
                 {
-                    brandAccount.Account.Status = (int)AccountEnum.Status.DEACTIVE;
+                    brandAccount.Account.Status = (int)AccountEnum.Status.DISABLE;
                 }
 
                 // Deactive products belong to brand
@@ -413,7 +413,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     foreach (var product in brand.Products)
                     {
-                        product.Status = (int)ProductEnum.Status.DEACTIVE;
+                        product.Status = (int)ProductEnum.Status.DISABLE;
                     }
                 }
 
@@ -422,14 +422,14 @@ namespace MBKC.Service.Services.Implementations
                 {
                     foreach (var category in brand.Categories)
                     {
-                        category.Status = (int)CategoryEnum.Status.DEACTIVE;
+                        category.Status = (int)CategoryEnum.Status.DISABLE;
                     }
                     // Deactive extra categories belong to brand
                     foreach (var category in brand.Categories)
                     {
                         foreach (var extra in category.ExtraCategoryProductCategories)
                         {
-                            extra.Status = (int)ExtraCategoryEnum.Status.DEACTIVE;
+                            extra.Status = (int)ExtraCategoryEnum.Status.DISABLE;
                         }
                     }
                 }

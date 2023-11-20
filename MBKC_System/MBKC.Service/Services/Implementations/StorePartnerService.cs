@@ -32,7 +32,7 @@ namespace MBKC.Service.Services.Implementations
             try
             {
                 // Check dupplicated partnerId request.
-                var hasDuplicatePartnerId = postStorePartnerRequest.partnerAccounts
+                var hasDuplicatePartnerId = postStorePartnerRequest.PartnerAccounts
                       .GroupBy(request => request.PartnerId)
                       .Any(group => group.Count() > 1);
 
@@ -66,7 +66,7 @@ namespace MBKC.Service.Services.Implementations
 
                 // Check partner existed or not
                 Dictionary<string, int> namePartners = new Dictionary<string, int>();
-                foreach (var p in postStorePartnerRequest.partnerAccounts)
+                foreach (var p in postStorePartnerRequest.PartnerAccounts)
                 {
                     var partner = await this._unitOfWork.PartnerRepository.GetPartnerAsync(p.PartnerId);
                     if (partner == null)
@@ -94,7 +94,7 @@ namespace MBKC.Service.Services.Implementations
                 }
 
                 // Check the store is linked to that partner or not 
-                foreach (var p in postStorePartnerRequest.partnerAccounts)
+                foreach (var p in postStorePartnerRequest.PartnerAccounts)
                 {
                     var storePartner = await this._unitOfWork.StorePartnerRepository.GetStorePartnerByPartnerIdAndStoreIdAsync(p.PartnerId, postStorePartnerRequest.StoreId);
                     if (storePartner != null)
@@ -104,7 +104,7 @@ namespace MBKC.Service.Services.Implementations
                 }
 
                 // Check username with difference store id
-                foreach (var p in postStorePartnerRequest.partnerAccounts)
+                foreach (var p in postStorePartnerRequest.PartnerAccounts)
                 {
                     var checkUserNameInDifferenceStore = await this._unitOfWork.StorePartnerRepository.GetStorePartnersByUserNameAndStoreIdAsync(p.UserName, store.StoreId, p.PartnerId);
 
@@ -116,7 +116,7 @@ namespace MBKC.Service.Services.Implementations
 
                 //Insert list store partner to database
                 var listStorePartnerInsert = new List<StorePartner>();
-                foreach (var p in postStorePartnerRequest.partnerAccounts)
+                foreach (var p in postStorePartnerRequest.PartnerAccounts)
                 {
                     var storePartnerInsert = new StorePartner()
                     {
@@ -278,7 +278,7 @@ namespace MBKC.Service.Services.Implementations
                 var storePartner = await this._unitOfWork.StorePartnerRepository.GetStorePartnerByPartnerIdAndStoreIdAsync(partnerId, storeId);
                 if (storePartner != null)
                 {
-                    storePartner.Status = (int)StorePartnerEnum.Status.DEACTIVE;
+                    storePartner.Status = (int)StorePartnerEnum.Status.DISABLE;
                 }
                 else
                 {
@@ -731,7 +731,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     storePartnerExisted.Status = (int)StorePartnerEnum.Status.INACTIVE;
                 }
-                else if (updateStorePartnerStatusRequest.Status.Trim().ToLower().Equals(StorePartnerEnum.Status.DEACTIVE.ToString().ToLower()))
+                else if (updateStorePartnerStatusRequest.Status.Trim().ToLower().Equals(StorePartnerEnum.Status.DISABLE.ToString().ToLower()))
                 {
                     throw new BadRequestException(MessageConstant.StorePartnerMessage.DeactiveStorePartner_Update);
                 }

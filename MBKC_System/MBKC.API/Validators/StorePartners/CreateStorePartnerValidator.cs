@@ -17,7 +17,7 @@ namespace MBKC.API.Validators.StorePartners
             #endregion
 
             #region PartnerId
-            RuleForEach(storePartner => storePartner.partnerAccounts)
+            RuleForEach(storePartner => storePartner.PartnerAccounts)
                 .ChildRules(partnerAccount => partnerAccount.RuleFor(partnerId => partnerId.PartnerId)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotNull().WithMessage("{PropertyName} is not null.")
@@ -26,7 +26,7 @@ namespace MBKC.API.Validators.StorePartners
             #endregion
 
             #region UserName
-            RuleForEach(storePartner => storePartner.partnerAccounts)
+            RuleForEach(storePartner => storePartner.PartnerAccounts)
                 .ChildRules(partnerAccount => partnerAccount.RuleFor(username => username.UserName)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotNull().WithMessage("{PropertyName} is not null.")
@@ -35,7 +35,7 @@ namespace MBKC.API.Validators.StorePartners
             #endregion
 
             #region Password
-            RuleForEach(storePartner => storePartner.partnerAccounts)
+            RuleForEach(storePartner => storePartner.PartnerAccounts)
                 .ChildRules(partnerAccount => partnerAccount.RuleFor(password => password.Password)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotNull().WithMessage("{PropertyName} is not null.")
@@ -44,7 +44,7 @@ namespace MBKC.API.Validators.StorePartners
             #endregion
 
             #region Commission
-            RuleForEach(storePartner => storePartner.partnerAccounts)
+            RuleForEach(storePartner => storePartner.PartnerAccounts)
                 .ChildRules(partnerAccount => partnerAccount.RuleFor(commission => commission.Commission)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotNull().WithMessage("{PropertyName} is not null.")

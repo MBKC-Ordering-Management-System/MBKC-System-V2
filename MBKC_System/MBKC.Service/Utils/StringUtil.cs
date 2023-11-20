@@ -196,9 +196,9 @@ namespace MBKC.Service.Utils
 
         public static bool CheckPartnerProductStatusName(string statusName)
         {
-            if (statusName.ToLower().Trim().Equals(GrabFoodItemEnum.AvailableStatus.AVAILABLE.ToString().ToLower()) ||
-                statusName.ToLower().Trim().Equals(GrabFoodItemEnum.AvailableStatus.OUT_OF_STOCK_TODAY.ToString().ToLower()) ||
-                statusName.ToLower().Trim().Equals(GrabFoodItemEnum.AvailableStatus.OUT_OF_STOCK_INDENTIFINITELY.ToString().ToLower()))
+            if (statusName.ToLower().Trim().Equals(PartnerProductEnum.Status.DISABLE.ToString().ToLower()) ||
+                statusName.ToLower().Trim().Equals(PartnerProductEnum.Status.OUT_OF_STOCK_TODAY.ToString().ToLower()) ||
+                statusName.ToLower().Trim().Equals(PartnerProductEnum.Status.OUT_OF_STOCK_INDENTIFINITELY.ToString().ToLower()))
             {
                 return true;
             }

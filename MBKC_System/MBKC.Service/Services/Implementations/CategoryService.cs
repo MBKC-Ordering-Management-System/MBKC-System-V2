@@ -4,14 +4,12 @@ using MBKC.Repository.Infrastructures;
 using MBKC.Repository.Models;
 using MBKC.Service.Constants;
 using MBKC.Service.DTOs.Categories;
-using MBKC.Service.DTOs.Products;
 using MBKC.Service.DTOs.SplitIdCategories;
 using MBKC.Service.Exceptions;
 using MBKC.Service.Services.Interfaces;
 using MBKC.Service.Utils;
 using Microsoft.AspNetCore.Http;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -40,7 +38,7 @@ namespace MBKC.Service.Services.Implementations
                 var brand = brandAccount.Brand;
 
                 var existedCategoryCode = await _unitOfWork.CategoryRepository.GetCategoryByCodeAsync(postCategoryRequest.Code, brand.BrandId);
-                if (existedCategoryCode != null && existedCategoryCode.Status != (int)CategoryEnum.Status.DEACTIVE)
+                if (existedCategoryCode != null && existedCategoryCode.Status != (int)CategoryEnum.Status.DISABLE)
                 {
                     throw new BadRequestException(MessageConstant.CategoryMessage.CategoryCodeExistedInBrand);
                 }
@@ -284,14 +282,14 @@ namespace MBKC.Service.Services.Implementations
                     throw new BadRequestException(MessageConstant.CommonMessage.CategoryIdNotBelongToBrand);
                 }
                 // Deactive category 
-                category.Status = (int)CategoryEnum.Status.DEACTIVE;
+                category.Status = (int)CategoryEnum.Status.DISABLE;
 
                 // Deactive category's extra category
                 if (category.ExtraCategoryProductCategories.Any())
                 {
                     foreach (var extraCategory in category.ExtraCategoryProductCategories)
                     {
-                        extraCategory.Status = (int)CategoryEnum.Status.DEACTIVE;
+                        extraCategory.Status = (int)CategoryEnum.Status.DISABLE;
                     }
                 }
 
@@ -300,7 +298,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     foreach (var product in category.Products)
                     {
-                        product.Status = (int)CategoryEnum.Status.DEACTIVE;
+                        product.Status = (int)CategoryEnum.Status.DISABLE;
                     }
                 }
                 _unitOfWork.CategoryRepository.UpdateCategory(category);
@@ -522,7 +520,7 @@ namespace MBKC.Service.Services.Implementations
         #endregion
 
         #region Add Extra Categories To Normal Category
-        public async Task AddExtraCategoriesToNormalCategory(int categoryId, ExtraCategoryRequest extraCategoryRequest, HttpContext httpContext)
+        public async Task AddExtraCategoriesToNormalCategoryAsync(int categoryId, ExtraCategoryRequest extraCategoryRequest, HttpContext httpContext)
         {
             try
             {

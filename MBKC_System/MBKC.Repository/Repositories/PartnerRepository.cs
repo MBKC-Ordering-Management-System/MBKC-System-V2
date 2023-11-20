@@ -100,7 +100,7 @@ namespace MBKC.Repository.Repositories
             {
                 if (isGetAll != null && isGetAll == true)
                 {
-                    return await this._dbContext.Partners.Where(c => !(c.Status == (int)PartnerEnum.Status.DEACTIVE)).ToListAsync();
+                    return await this._dbContext.Partners.Where(c => !(c.Status == (int)PartnerEnum.Status.DISABLE)).ToListAsync();
                 }
                 if (searchValue == null && searchValueWithoutUnicode != null)
                 {
@@ -115,7 +115,7 @@ namespace MBKC.Repository.Repositories
                             {
                                 return false;
                             }
-                        }).Where(c => !(c.Status == (int)PartnerEnum.Status.DEACTIVE))
+                        }).Where(c => !(c.Status == (int)PartnerEnum.Status.DISABLE))
                                                            .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
                                                                         then => then.OrderBy(x => x.Name))
                                                            .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
@@ -133,7 +133,7 @@ namespace MBKC.Repository.Repositories
                             {
                                 return false;
                             }
-                        }).Where(c => !(c.Status == (int)PartnerEnum.Status.DEACTIVE))
+                        }).Where(c => !(c.Status == (int)PartnerEnum.Status.DISABLE))
                                                            .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
                                                                         then => then.OrderByDescending(x => x.Name))
                                                            .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
@@ -150,7 +150,7 @@ namespace MBKC.Repository.Repositories
                         {
                             return false;
                         }
-                    }).Where(c => !(c.Status == (int)PartnerEnum.Status.DEACTIVE)).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
+                    }).Where(c => !(c.Status == (int)PartnerEnum.Status.DISABLE)).Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).AsQueryable().ToList();
 
 
 
@@ -159,7 +159,7 @@ namespace MBKC.Repository.Repositories
                 {
                     if (sortByASC is not null)
                         return this._dbContext.Partners
-                        .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && !(c.Status == (int)PartnerEnum.Status.DEACTIVE))
+                        .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && !(c.Status == (int)PartnerEnum.Status.DISABLE))
                         .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
                                  then => then.OrderBy(x => x.Name))
                         .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
@@ -168,7 +168,7 @@ namespace MBKC.Repository.Repositories
 
                     else if (sortByDESC is not null)
                         return this._dbContext.Partners
-                        .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && !(c.Status == (int)PartnerEnum.Status.DEACTIVE))
+                        .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && !(c.Status == (int)PartnerEnum.Status.DISABLE))
                         .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
                                  then => then.OrderByDescending(x => x.Name))
                         .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
@@ -176,12 +176,12 @@ namespace MBKC.Repository.Repositories
                         .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
 
                     return this._dbContext.Partners
-                        .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && !(c.Status == (int)PartnerEnum.Status.DEACTIVE))
+                        .Where(c => c.Name.ToLower().Contains(searchValue.ToLower()) && !(c.Status == (int)PartnerEnum.Status.DISABLE))
                         .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
                 }
 
                 if (sortByASC is not null)
-                    return this._dbContext.Partners.Where(c => !(c.Status == (int)PartnerEnum.Status.DEACTIVE))
+                    return this._dbContext.Partners.Where(c => !(c.Status == (int)PartnerEnum.Status.DISABLE))
                         .If(sortByASC != null && sortByASC.ToLower().Equals("name"),
                                  then => then.OrderBy(x => x.Name))
                         .If(sortByASC != null && sortByASC.ToLower().Equals("status"),
@@ -189,14 +189,14 @@ namespace MBKC.Repository.Repositories
                         .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
 
                 else if (sortByDESC is not null)
-                    return this._dbContext.Partners.Where(c => !(c.Status == (int)PartnerEnum.Status.DEACTIVE))
+                    return this._dbContext.Partners.Where(c => !(c.Status == (int)PartnerEnum.Status.DISABLE))
                        .If(sortByDESC != null && sortByDESC.ToLower().Equals("name"),
                                  then => then.OrderByDescending(x => x.Name))
                        .If(sortByDESC != null && sortByDESC.ToLower().Equals("status"),
                                  then => then.OrderByDescending(x => x.Status).Reverse())
                        .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
 
-                return await this._dbContext.Partners.Where(c => !(c.Status == (int)PartnerEnum.Status.DEACTIVE))
+                return await this._dbContext.Partners.Where(c => !(c.Status == (int)PartnerEnum.Status.DISABLE))
                                                .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToListAsync();
             }
             catch (Exception ex)
@@ -223,13 +223,13 @@ namespace MBKC.Repository.Repositories
                         {
                             return false;
                         }
-                    }).Where(c => !(c.Status == (int)PartnerEnum.Status.DEACTIVE)).AsQueryable().Count();
+                    }).Where(c => !(c.Status == (int)PartnerEnum.Status.DISABLE)).AsQueryable().Count();
                 }
                 else if (keySearchUniCode != null && keySearchNotUniCode == null)
                 {
-                    return await this._dbContext.Partners.Where(c => c.Name.ToLower().Contains(keySearchUniCode.ToLower()) && !(c.Status == (int)PartnerEnum.Status.DEACTIVE)).CountAsync();
+                    return await this._dbContext.Partners.Where(c => c.Name.ToLower().Contains(keySearchUniCode.ToLower()) && !(c.Status == (int)PartnerEnum.Status.DISABLE)).CountAsync();
                 }
-                return await this._dbContext.Partners.Where(c => !(c.Status == (int)PartnerEnum.Status.DEACTIVE)).CountAsync();
+                return await this._dbContext.Partners.Where(c => !(c.Status == (int)PartnerEnum.Status.DISABLE)).CountAsync();
             }
             catch (Exception ex)
             {
@@ -242,7 +242,7 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await this._dbContext.Partners.FirstOrDefaultAsync(p => p.PartnerId == partnerId && p.Status != (int)PartnerEnum.Status.DEACTIVE);
+                return await this._dbContext.Partners.FirstOrDefaultAsync(p => p.PartnerId == partnerId && p.Status != (int)PartnerEnum.Status.DISABLE);
             }
             catch (Exception ex)
             {
@@ -255,7 +255,7 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await _dbContext.Partners.Where(p => p.Status != (int)PartnerEnum.Status.DEACTIVE).CountAsync();
+                return await _dbContext.Partners.Where(p => p.Status != (int)PartnerEnum.Status.DISABLE).CountAsync();
             }
             catch (Exception ex)
             {

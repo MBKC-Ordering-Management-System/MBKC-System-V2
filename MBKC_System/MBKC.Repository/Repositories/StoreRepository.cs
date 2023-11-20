@@ -757,7 +757,7 @@ namespace MBKC.Repository.Repositories
             try
             {
                 return await this._dbContext.Stores.Include(s => s.Brand)
-                                                   .FirstOrDefaultAsync(s => s.StoreId == id && s.Status != (int)StoreEnum.Status.DEACTIVE);
+                                                   .FirstOrDefaultAsync(s => s.StoreId == id && s.Status != (int)StoreEnum.Status.DISABLE);
             }
             catch (Exception ex)
             {

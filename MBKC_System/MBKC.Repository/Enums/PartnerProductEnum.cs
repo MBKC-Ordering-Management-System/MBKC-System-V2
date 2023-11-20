@@ -8,19 +8,12 @@ namespace MBKC.Repository.Enums
 {
     public static class PartnerProductEnum
     {
-        public enum AvailableStatus
+        public enum Status
         {
             AVAILABLE = 1,
             OUT_OF_STOCK_TODAY = 2,
             OUT_OF_STOCK_INDENTIFINITELY = 3,
-            DEACTIVE = 4
-        }
-
-        public enum Status
-        {
-            INACTIVE = 0,
-            ACTIVE = 1,
-            DEACTIVE = 2
+            DISABLE = 4
         }
 
         public enum KeySort

@@ -7,9 +7,7 @@ using MBKC.Service.Errors;
 using MBKC.Service.Exceptions;
 using MBKC.Service.Services.Interfaces;
 using MBKC.Service.Utils;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics.Metrics;
 using System.Security.Claims;
 
 namespace MBKC.API.Controllers
@@ -176,7 +174,7 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
         [HttpPost(APIEndPointConstant.Product.ProductsEndpoint)]
-        public async Task<IActionResult> PostCreatNewProduct([FromForm] CreateProductRequest createProductRequest)
+        public async Task<IActionResult> PostCreatNewProductAsync([FromForm] CreateProductRequest createProductRequest)
         {
             ValidationResult validationResult = await this._createProductValidator.ValidateAsync(createProductRequest);
             if (validationResult.IsValid == false)
@@ -346,53 +344,6 @@ namespace MBKC.API.Controllers
             return Ok(new
             {
                 Message = MessageConstant.ProductMessage.DeletedProductSuccessfully
-            });
-        }
-        #endregion
-
-        #region Create new product by excel
-        /// <summary>
-        /// Import excel file for create new products.
-        /// </summary>
-        /// <param name="importFileRequest">The file contains created product information.</param>
-        /// <returns>
-        /// A success message about creating new product.
-        /// </returns>
-        /// <remarks>
-        ///     Sample request:
-        ///
-        ///         POST 
-        ///         File: file_excel.xlsx
-        /// </remarks>
-        /// <response code="200">Created new product successfully.</response>
-        /// <response code="400">Some Error about request data and logic data.</response>
-        /// <response code="404">Some Error about request data not found.</response>
-        /// <response code="500">Some Error about the system.</response>
-        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
-        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
-        /// <exception cref="Exception">Throw Error about the system.</exception>
-        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Consumes(MediaTypeConstant.MultipartFormData)]
-        [Produces(MediaTypeConstant.ApplicationJson)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
-        [HttpPost(APIEndPointConstant.Product.ImportFileEndpoint)]
-        public async Task<IActionResult> ImportFileExcel([FromForm] ImportFileRequest importFileRequest)
-        {
-            ValidationResult validationResult = await this._importFileValidator.ValidateAsync(importFileRequest);
-            if (validationResult.IsValid == false)
-            {
-                string errors = ErrorUtil.GetErrorsString(validationResult);
-                throw new BadRequestException(errors);
-            }
-
-            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            await this._productService.UploadExelFile(importFileRequest.file, claims);
-            return Ok(new
-            {
-                Message = MessageConstant.ProductMessage.CreatedNewProductSuccessfully
             });
         }
         #endregion

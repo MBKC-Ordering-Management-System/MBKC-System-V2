@@ -18,8 +18,7 @@ namespace MBKC.Repository.Enums
         public enum StatusFilter
         {
             INACTIVE = 0,
-            ACTIVE = 1,
-            DEACTIVE = 2
+            ACTIVE = 1
         }
 
         public enum KeySort

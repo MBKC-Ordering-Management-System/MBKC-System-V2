@@ -25,7 +25,7 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await this._dbContext.StorePartners.SingleOrDefaultAsync(s => s.PartnerId == partnerId && s.StoreId == storeId && s.Status != (int)StorePartnerEnum.Status.DEACTIVE);
+                return await this._dbContext.StorePartners.SingleOrDefaultAsync(s => s.PartnerId == partnerId && s.StoreId == storeId && s.Status != (int)StorePartnerEnum.Status.DISABLE);
             }
             catch (Exception ex)
             {
@@ -53,7 +53,7 @@ namespace MBKC.Repository.Repositories
                 {
                     return this._dbContext.StorePartners.Include(x => x.Partner)
                                                         .Include(x => x.Store).ThenInclude(x => x.KitchenCenter)
-                                                        .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
+                                                        .Where(x => x.Status != (int)StorePartnerEnum.Status.DISABLE &&
                                                                      (brandId != null
                                                                      ? x.Store.Brand.BrandId == brandId
                                                                      : true)
@@ -71,7 +71,7 @@ namespace MBKC.Repository.Repositories
                 {
                     return await this._dbContext.StorePartners.Include(x => x.Partner)
                                                               .Include(x => x.Store).ThenInclude(x => x.KitchenCenter)
-                                                              .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
+                                                              .Where(x => x.Status != (int)StorePartnerEnum.Status.DISABLE &&
                                                                      x.Partner.Name.ToLower().Contains(searchName.ToLower()) &&
 
                                                                      (brandId != null
@@ -81,7 +81,7 @@ namespace MBKC.Repository.Repositories
                 }
                 return await this._dbContext.StorePartners.Include(x => x.Partner)
                                                           .Include(x => x.Store).ThenInclude(x => x.KitchenCenter)
-                                                          .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
+                                                          .Where(x => x.Status != (int)StorePartnerEnum.Status.DISABLE &&
                                                                      (brandId != null
                                                                      ? x.Store.Brand.BrandId == brandId
                                                                      : true)).CountAsync();
@@ -127,7 +127,7 @@ namespace MBKC.Repository.Repositories
                     if (sortByASC is not null)
                         return this._dbContext.StorePartners.Include(x => x.Partner)
                                                         .Include(x => x.Store).ThenInclude(x => x.KitchenCenter)
-                                                        .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
+                                                        .Where(x => x.Status != (int)StorePartnerEnum.Status.DISABLE &&
                                                                      (brandId != null
                                                                      ? x.Store.Brand.BrandId == brandId
                                                                      : true))
@@ -154,7 +154,7 @@ namespace MBKC.Repository.Repositories
                     else if (sortByDESC is not null)
                         return this._dbContext.StorePartners.Include(x => x.Partner)
                                                         .Include(x => x.Store).ThenInclude(x => x.KitchenCenter)
-                                                        .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
+                                                        .Where(x => x.Status != (int)StorePartnerEnum.Status.DISABLE &&
                                                                      (brandId != null
                                                                      ? x.Store.Brand.BrandId == brandId
                                                                      : true))
@@ -181,7 +181,7 @@ namespace MBKC.Repository.Repositories
 
                     return this._dbContext.StorePartners.Include(x => x.Partner)
                                                         .Include(x => x.Store).ThenInclude(x => x.KitchenCenter)
-                                                        .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
+                                                        .Where(x => x.Status != (int)StorePartnerEnum.Status.DISABLE &&
                                                                      (brandId != null
                                                                      ? x.Store.Brand.BrandId == brandId
                                                                      : true))
@@ -200,7 +200,7 @@ namespace MBKC.Repository.Repositories
                     if (sortByASC is not null)
                         return this._dbContext.StorePartners.Include(x => x.Partner)
                                                               .Include(x => x.Store).ThenInclude(x => x.KitchenCenter)
-                                                              .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
+                                                              .Where(x => x.Status != (int)StorePartnerEnum.Status.DISABLE &&
                                                                       x.Partner.Name.ToLower().Contains(searchValue.ToLower()) &&
                                                                      (brandId != null
                                                                      ? x.Store.Brand.BrandId == brandId
@@ -220,7 +220,7 @@ namespace MBKC.Repository.Repositories
                     else if (sortByDESC is not null)
                         return this._dbContext.StorePartners.Include(x => x.Partner)
                                                               .Include(x => x.Store).ThenInclude(x => x.KitchenCenter)
-                                                              .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
+                                                              .Where(x => x.Status != (int)StorePartnerEnum.Status.DISABLE &&
                                                                       x.Partner.Name.ToLower().Contains(searchValue.ToLower()) &&
                                                                      (brandId != null
                                                                      ? x.Store.Brand.BrandId == brandId
@@ -240,7 +240,7 @@ namespace MBKC.Repository.Repositories
 
                     return this._dbContext.StorePartners.Include(x => x.Partner)
                                                               .Include(x => x.Store).ThenInclude(x => x.KitchenCenter)
-                                                              .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
+                                                              .Where(x => x.Status != (int)StorePartnerEnum.Status.DISABLE &&
                                                                       x.Partner.Name.ToLower().Contains(searchValue.ToLower()) &&
                                                                      (brandId != null
                                                                      ? x.Store.Brand.BrandId == brandId
@@ -250,7 +250,7 @@ namespace MBKC.Repository.Repositories
                 if (sortByASC is not null)
                     return this._dbContext.StorePartners.Include(x => x.Partner)
                                                           .Include(x => x.Store).ThenInclude(x => x.KitchenCenter)
-                                                          .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
+                                                          .Where(x => x.Status != (int)StorePartnerEnum.Status.DISABLE &&
 
                                                                      (brandId != null
                                                                      ? x.Store.Brand.BrandId == brandId
@@ -269,7 +269,7 @@ namespace MBKC.Repository.Repositories
                 else if (sortByDESC is not null)
                     return this._dbContext.StorePartners.Include(x => x.Partner)
                                                           .Include(x => x.Store).ThenInclude(x => x.KitchenCenter)
-                                                          .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
+                                                          .Where(x => x.Status != (int)StorePartnerEnum.Status.DISABLE &&
 
                                                                      (brandId != null
                                                                      ? x.Store.Brand.BrandId == brandId
@@ -288,7 +288,7 @@ namespace MBKC.Repository.Repositories
 
                 return this._dbContext.StorePartners.Include(x => x.Partner)
                                                           .Include(x => x.Store).ThenInclude(x => x.KitchenCenter)
-                                                          .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
+                                                          .Where(x => x.Status != (int)StorePartnerEnum.Status.DISABLE &&
                                                                      (brandId != null
                                                                      ? x.Store.Brand.BrandId == brandId
                                                                      : true))

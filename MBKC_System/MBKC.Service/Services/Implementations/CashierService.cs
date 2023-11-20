@@ -457,7 +457,7 @@ namespace MBKC.Service.Services.Implementations
                     throw new BadRequestException(MessageConstant.CashierMessage.CashierIdNotBelongToKitchenCenter);
                 }
 
-                existedCashier.Account.Status = (int)AccountEnum.Status.DEACTIVE;
+                existedCashier.Account.Status = (int)AccountEnum.Status.DISABLE;
 
                 this._unitOfWork.CashierRepository.UpdateCashierAsync(existedCashier);
                 await this._unitOfWork.CommitAsync();

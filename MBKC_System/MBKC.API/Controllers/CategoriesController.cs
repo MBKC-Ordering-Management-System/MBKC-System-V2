@@ -239,7 +239,7 @@ namespace MBKC.API.Controllers
         /// <summary>
         ///  Add extra category to normal category.
         /// </summary>
-        /// <param name="getCategoryRequest">
+        /// <param name="categoryRequest">
         ///  An object include id of normal category.
         /// </param>
         /// <param name="extraCategoryRequest">
@@ -274,16 +274,16 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
         [HttpPost(APIEndPointConstant.Category.ExtraCategoriesEndpoint)]
-        public async Task<IActionResult> AddExtraCategoriesToNormalCategory([FromRoute] CategoryRequest getCategoryRequest, [FromBody] ExtraCategoryRequest extraCategoryRequest)
+        public async Task<IActionResult> AddExtraCategoriesToNormalCategoryAsync([FromRoute] CategoryRequest categoryRequest, [FromBody] ExtraCategoryRequest extraCategoryRequest)
         {
-            ValidationResult validationResult = await this._getCategoryValidator.ValidateAsync(getCategoryRequest);
+            ValidationResult validationResult = await this._getCategoryValidator.ValidateAsync(categoryRequest);
 
             if (!validationResult.IsValid)
             {
                 string error = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(error);
             }
-            await this._categoryService.AddExtraCategoriesToNormalCategory(getCategoryRequest.Id, extraCategoryRequest, HttpContext);
+            await this._categoryService.AddExtraCategoriesToNormalCategoryAsync(categoryRequest.Id, extraCategoryRequest, HttpContext);
             return Ok(new { Message = MessageConstant.CategoryMessage.CreatedExtraCategoriesToNormalCategorySuccessfully });
         }
         #endregion
