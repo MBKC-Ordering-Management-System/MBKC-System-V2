@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MBKC.Service.DTOs.DashBoards.Brand;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,11 @@ namespace MBKC.Service.Utils
 {
     public static class DateUtil
     {
+        public enum TypeCheck {
+            HOUR,
+            MINUTE,
+        }
+
         public static DateTime ConvertUnixTimeToDateTime(long utcExpiredDate)
         {
             var dateTimeInterval = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
@@ -15,13 +21,19 @@ namespace MBKC.Service.Utils
             return dateTimeInterval;
         }
 
-        public static bool IsTimeUpdateValid(TimeSpan timeSpanLater, TimeSpan timeSpanEarlier, int condition)
+        public static bool IsTimeUpdateValid(TimeSpan timeSpanLater, TimeSpan timeSpanEarlier, int condition, TypeCheck type)
         {
             // Subtract the two TimeSpan objects to get the difference.
             TimeSpan difference = timeSpanLater.Subtract(timeSpanEarlier);
 
+            // Check if the difference is at least condition hour.
+            if(type == TypeCheck.HOUR)
+            {
+                return difference.TotalHours >= condition;
+            }
+
             // Check if the difference is at least condition minute.
-            return difference.TotalHours >= condition;
+            return difference.TotalMinutes >= condition;
         }
 
         public static void AddDateToDictionary(out Dictionary<DateTime, decimal> dates)
@@ -37,6 +49,11 @@ namespace MBKC.Service.Utils
 
                 dates.Add(DateTime.Now.AddDays(-i).Date, 0);
             }
+        }
+
+        public static DateTime ConvertStringToDateTime(string date)
+        {
+          return DateTime.ParseExact(date, "dd/MM/yyyy", null);
         }
     }
 }

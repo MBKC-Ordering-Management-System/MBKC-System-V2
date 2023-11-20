@@ -45,7 +45,7 @@
 
         public static class CategoryMessage
         {
-            public const string CreatedNewCategorySuccessfully = "Created New Category Successfylly.";
+            public const string CreatedNewCategorySuccessfully = "Created New Category Successfully.";
             public const string UpdatedCategorySuccessfully = "Updated Category Successfully.";
             public const string DeletedCategorySuccessfully = "Deleted Category Successfully.";
             public const string CreatedExtraCategoriesToNormalCategorySuccessfully = "Create Extra-Categories To Normal Category Successfully.";
@@ -119,6 +119,11 @@
         public static class Configuration
         {
             public const string UpdatedConfigurationSuccessfully = "Updated Configuration Successfully.";
+        }
+
+        public static class UserDevice
+        {
+            public const string CreatedUserDeviceSuccessfully = "Created User Device Successfully.";
         }
     }
 }

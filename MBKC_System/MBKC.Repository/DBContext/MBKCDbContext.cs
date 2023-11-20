@@ -51,6 +51,7 @@ namespace MBKC.Repository.DBContext
         public DbSet<Wallet> Wallets { get; set; }
         public DbSet<Configuration> Configurations { get; set; }
         public DbSet<OrderHistory> OrderHistories { get; set; }
+        public DbSet<UserDevice> UserDevices { get; set; }
         #endregion
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -74,6 +75,13 @@ namespace MBKC.Repository.DBContext
                 account.Property(prop => prop.Password).IsUnicode(false).HasMaxLength(50).IsRequired(true);
                 account.Property(prop => prop.Status).IsRequired(true);
                 account.Property(prop => prop.IsConfirmed).IsRequired(true);
+            });
+            #endregion
+
+            #region UserDevice
+            modelBuilder.Entity<UserDevice>(userDevice =>
+            {
+                userDevice.Property(prop => prop.FCMToken).IsUnicode(false).HasMaxLength(int.MaxValue).IsRequired(true);
             });
             #endregion
 

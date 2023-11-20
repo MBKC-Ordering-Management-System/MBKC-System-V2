@@ -36,6 +36,7 @@ namespace MBKC.Service.Constants
             public const string CategoryIdNotBelongToStore = "Category id does not belong to your store.";
             public const string AlreadyExistPartnerProduct = "Mapping product already exists in the system.";
             public const string NotExistPartnerProduct = "Mapping product does not exist in the system.";
+            public const string UserDeviceIdNotExist = "User device id does not exist in the system.";
 
         }
 
@@ -107,13 +108,15 @@ namespace MBKC.Service.Constants
             public const string ManageremailExisted = "Store manager email already existed in the system.";
             public const string NotConfirmingStore = "Store is not a new store to confirm to become an ACTIVE store.";
             public const string NotRejectedResonForNewStore = "Rejected store registration is required a reason.";
+            public const string StoreIdDoesNotExisted = "Store id does not existed in system.";
             public const string StoreIdNotBelongToStore = "Store id does not belong to your store.";
+            public const string StoreIdNotBelongToBrand = "Store id does not belong to your brand.";
             public const string StoresWithStatusNameParam = "Status is required some type such as: Active, Inactive, Rejected, Be comfirming.";
         }
 
         public static class CategoryMessage
         {
-
+            public const string CategoryCodeExistedInBrand = "Category code already exist in brand.";
             public const string CategoryCodeExisted = "Category code already exist in the system.";
             public const string DeactiveCategory_Delete = "Category cannot delete because that was deleted before.";
             public const string DeactiveCategory_Update = "Category was deleted before, so this category cannot update.";
@@ -138,6 +141,7 @@ namespace MBKC.Service.Constants
 
         public static class ProductMessage
         {
+            public const string ProductCodeExistedInBrand = "Code already exist in brand.";
             public const string ProductCodeExisted = "Code already exist in the system.";
             public const string ParentProductIdNotExist = "Parent product id does not exist in the system.";
             public const string ParentProductIdNotBelongToBrand = "Parent product id does not belong to your brand.";

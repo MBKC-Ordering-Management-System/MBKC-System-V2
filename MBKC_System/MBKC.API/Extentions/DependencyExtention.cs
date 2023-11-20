@@ -43,7 +43,6 @@ namespace MBKC.API.Extentions
             services.AddScoped<IVerificationService, VerificationService>();
             services.AddScoped<IBankingAccountService, BankingAccountService>();
             services.AddScoped<IBrandService, BrandService>();
-            
             services.AddScoped<ICashierService, CashierService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IKitchenCenterService, KitchenCenterService>();
@@ -59,6 +58,7 @@ namespace MBKC.API.Extentions
             services.AddScoped<IConfigurationService, ConfigurationService>();
             services.AddScoped<IShipperPaymentService, ShipperPaymentService>();
             services.AddScoped<IDashBoardService, DashBoardService>();
+            services.AddScoped<IUserDevicceService, UserDeviceService>();
 
             services.AddHangfire(config => config
                                 .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)

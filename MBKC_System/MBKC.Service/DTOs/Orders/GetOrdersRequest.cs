@@ -24,6 +24,7 @@ namespace MBKC.Service.DTOs.Orders
             public string? SearchDateFrom { get; set; }
             public string ? SearchDateTo { get; set; }
             public string? SortBy { get; set; }
+            public bool? ConfirmedBy { get; set; }
         }
     }
 }

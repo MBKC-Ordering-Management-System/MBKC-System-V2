@@ -61,12 +61,31 @@ namespace MBKC.API.Validators.Configurations
                        TimeSpan.TryParse(configuration.ScrawlingMoneyExchangeToKitchenCenter, out exchangeToKitchenCenter);
                        TimeSpan.TryParse(configuration.ScrawlingMoneyExchangeToStore, out exchangeToStore);
 
-                       if (DateUtil.IsTimeUpdateValid(exchangeToStore, exchangeToKitchenCenter, 1) == false)
+                       if (DateUtil.IsTimeUpdateValid(exchangeToStore, exchangeToKitchenCenter, 1, DateUtil.TypeCheck.HOUR) == false)
                        {
                            context.AddFailure("ScrawlingExchangeToKitchenCenter", "The scheduling time of money transfer to the kitchen center must be at least 1 hour earlier than the money transfer time to the store.");
                        }
                    }
                });
+
+            RuleFor(x => x)
+           .Cascade(CascadeMode.Stop)
+           .Custom((configuration, context) =>
+           {
+               TimeSpan endTime;
+               TimeSpan exchangeToKitchenCenterTime;
+               if (string.IsNullOrWhiteSpace(configuration.ScrawlingOrderEndTime) == false && string.IsNullOrWhiteSpace(configuration.ScrawlingMoneyExchangeToKitchenCenter) == false)
+               {
+                   TimeSpan.TryParse(configuration.ScrawlingOrderEndTime, out endTime);
+                   TimeSpan.TryParse(configuration.ScrawlingMoneyExchangeToKitchenCenter, out exchangeToKitchenCenterTime);
+
+                   if (DateUtil.IsTimeUpdateValid(exchangeToKitchenCenterTime, endTime, 10, DateUtil.TypeCheck.MINUTE) == false)
+                   {
+                       context.AddFailure("ScrawlingExchangeToKitchenCenter", "The Scrawling order end time must be at least 10 minute earlier than the money transfer time to the kitchen center.");
+                   }
+               }
+           });
+
         }
     }
 }

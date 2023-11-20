@@ -94,7 +94,7 @@ namespace MBKC.Repository.Repositories
 
         #region Get number oders
         public async Task<int> GetNumberOrdersAsync(string? searchName, string? searchValueWithoutUnicode,
-            int? storeId, int? kitchenCenterId, int? cashierId, string? systemStatus, string? partnerOrderStatus, string? searchDateFrom, string? searchDateTo)
+            int? storeId, int? kitchenCenterId, string? systemStatus, string? partnerOrderStatus, string? searchDateFrom, string? searchDateTo, int? cashierId, bool? confirmedBy)
         {
             try
             {
@@ -120,12 +120,9 @@ namespace MBKC.Repository.Repositories
                                                          .Where(x => (storeId != null
                                                                      ? x.StoreId == storeId
                                                                      : true) &&
-                                                                     (kitchenCenterId != null
-                                                                     ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId
-                                                                     : true) &&
-                                                                     (cashierId != null
-                                                                     ? x.ConfirmedBy == null
-                                                                     : true) && (systemStatus != null
+                                                                     (kitchenCenterId != null && cashierId != null && confirmedBy == null || kitchenCenterId != null && cashierId != null && confirmedBy == false ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
+                                                                     (kitchenCenterId != null && cashierId != null && confirmedBy != null && confirmedBy == true ? x.ConfirmedBy == cashierId : true) &&
+                                                                       (systemStatus != null
                                                                      ? x.SystemStatus.Equals(systemStatus)
                                                                      : true) && (partnerOrderStatus != null
                                                                      ? x.PartnerOrderStatus.Equals(partnerOrderStatus)
@@ -151,13 +148,9 @@ namespace MBKC.Repository.Repositories
                                                        .Where(x => (storeId != null
                                                                      ? x.StoreId == storeId
                                                                      : true) &&
-                                                                     (kitchenCenterId != null
-                                                                     ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId
-                                                                     : true)
-                                                                     && (cashierId != null
-                                                                     ? x.ConfirmedBy == null
-                                                                     : true)
-                                                                     && (systemStatus != null
+                                                                     (kitchenCenterId != null && cashierId != null && confirmedBy == null || kitchenCenterId != null && cashierId != null && confirmedBy == false ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
+                                                                     (kitchenCenterId != null && cashierId != null && confirmedBy != null && confirmedBy == true ? x.ConfirmedBy == cashierId : true) &&
+                                                                     (systemStatus != null
                                                                      ? x.SystemStatus.Equals(systemStatus)
                                                                      : true) && (partnerOrderStatus != null
                                                                      ? x.PartnerOrderStatus.Equals(partnerOrderStatus)
@@ -175,11 +168,9 @@ namespace MBKC.Repository.Repositories
                                                    .Where(x => (storeId != null
                                                                      ? x.StoreId == storeId
                                                                      : true) &&
-                                                                     (kitchenCenterId != null
-                                                                     ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId
-                                                                     : true) && (cashierId != null
-                                                                     ? x.ConfirmedBy == null
-                                                                     : true) && (systemStatus != null
+                                                                     (kitchenCenterId != null && cashierId != null && confirmedBy == null || kitchenCenterId != null && cashierId != null && confirmedBy == false ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
+                                                                     (kitchenCenterId != null && cashierId != null && confirmedBy != null && confirmedBy == true ? x.ConfirmedBy == cashierId : true) &&
+                                                                      (systemStatus != null
                                                                      ? x.SystemStatus.Equals(systemStatus)
                                                                      : true)
                                                                      && (partnerOrderStatus != null
@@ -202,7 +193,7 @@ namespace MBKC.Repository.Repositories
         #region Get orders
         public async Task<List<Order>> GetOrdersAsync(string? searchValue, string? searchValueWithoutUnicode,
                                                       int currentPage, int itemsPerPage, string? sortByASC, string? sortByDESC, int? storeId,
-                                                      int? kitchenCenterId, int? cashierId, string? systemStatus, string? partnerOrderStatus, string? searchDateFrom, string? searchDateTo)
+                                                      int? kitchenCenterId, string? systemStatus, string? partnerOrderStatus, string? searchDateFrom, string? searchDateTo, int? cashierId, bool? confirmedBy)
         {
             try
             {
@@ -238,12 +229,8 @@ namespace MBKC.Repository.Repositories
                                                      .Where(x => (storeId != null
                                                                     ? x.StoreId == storeId
                                                                     : true) &&
-                                                                    (kitchenCenterId != null
-                                                                    ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId
-                                                                    : true) &&
-                                                                    (cashierId != null
-                                                                    ? x.ConfirmedBy == null
-                                                                    : true) &&
+                                                                    (kitchenCenterId != null && cashierId != null && confirmedBy == null || kitchenCenterId != null && cashierId != null && confirmedBy == false ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
+                                                                    (kitchenCenterId != null && cashierId != null && confirmedBy != null && confirmedBy == true ? x.ConfirmedBy == cashierId : true) &&
                                                                     (systemStatus != null
                                                                     ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper())
                                                                     : true) &&
@@ -297,12 +284,8 @@ namespace MBKC.Repository.Repositories
                                                      .Where(x => (storeId != null
                                                                     ? x.StoreId == storeId
                                                                     : true) &&
-                                                                    (kitchenCenterId != null
-                                                                    ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId
-                                                                    : true) &&
-                                                                    (cashierId != null
-                                                                    ? x.ConfirmedBy == null
-                                                                    : true) &&
+                                                                    (kitchenCenterId != null && cashierId != null && confirmedBy == null || kitchenCenterId != null && cashierId != null && confirmedBy == false ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
+                                                                     (kitchenCenterId != null && cashierId != null && confirmedBy != null && confirmedBy == true ? x.ConfirmedBy == cashierId : true) &&
                                                                     (systemStatus != null
                                                                     ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper())
                                                                     : true) &&
@@ -360,12 +343,8 @@ namespace MBKC.Repository.Repositories
                                                  .Where(x => (storeId != null
                                                                    ? x.StoreId == storeId
                                                                    : true) &&
-                                                                   (kitchenCenterId != null
-                                                                   ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId
-                                                                   : true) &&
-                                                                    (cashierId != null
-                                                                    ? x.ConfirmedBy == null
-                                                                    : true) &&
+                                                                   (kitchenCenterId != null && cashierId != null && confirmedBy == null || kitchenCenterId != null && cashierId != null && confirmedBy == false ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
+                                                                     (kitchenCenterId != null && cashierId != null && confirmedBy != null && confirmedBy == true ? x.ConfirmedBy == cashierId : true) &&
                                                                     (systemStatus != null
                                                                     ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper())
                                                                     : true) &&
@@ -396,12 +375,8 @@ namespace MBKC.Repository.Repositories
                                                            .Where(x => (storeId != null
                                                                      ? x.StoreId == storeId
                                                                      : true) &&
-                                                                     (kitchenCenterId != null
-                                                                     ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId
-                                                                     : true) &&
-                                                                      (cashierId != null
-                                                                    ? x.ConfirmedBy == null
-                                                                    : true) &&
+                                                                     (kitchenCenterId != null && cashierId != null && confirmedBy == null || kitchenCenterId != null && cashierId != null && confirmedBy == false ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
+                                                                     (kitchenCenterId != null && cashierId != null && confirmedBy != null && confirmedBy == true ? x.ConfirmedBy == cashierId : true) &&
                                                                     (systemStatus != null
                                                                     ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper())
                                                                     : true) &&
@@ -445,12 +420,8 @@ namespace MBKC.Repository.Repositories
                                                            .Where(x => (storeId != null
                                                                      ? x.StoreId == storeId
                                                                      : true) &&
-                                                                     (kitchenCenterId != null
-                                                                     ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId
-                                                                     : true) &&
-                                                                      (cashierId != null
-                                                                    ? x.ConfirmedBy == null
-                                                                    : true) &&
+                                                                    (kitchenCenterId != null && cashierId != null && confirmedBy == null || kitchenCenterId != null && cashierId != null && confirmedBy == false ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
+                                                                     (kitchenCenterId != null && cashierId != null && confirmedBy != null && confirmedBy == true ? x.ConfirmedBy == cashierId : true) &&
                                                                       (systemStatus != null
                                                                     ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper())
                                                                     : true) &&
@@ -493,12 +464,8 @@ namespace MBKC.Repository.Repositories
                                                            .Where(x => (storeId != null
                                                                      ? x.StoreId == storeId
                                                                      : true) &&
-                                                                     (kitchenCenterId != null
-                                                                     ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId
-                                                                     : true) &&
-                                                                      (cashierId != null
-                                                                    ? x.ConfirmedBy == null
-                                                                    : true) &&
+                                                                     (kitchenCenterId != null && cashierId != null && confirmedBy == null || kitchenCenterId != null && cashierId != null && confirmedBy == false ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
+                                                                     (kitchenCenterId != null && cashierId != null && confirmedBy != null && confirmedBy == true ? x.ConfirmedBy == cashierId : true) &&
                                                                        (systemStatus != null
                                                                      ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper())
                                                                      : true) &&
@@ -531,12 +498,8 @@ namespace MBKC.Repository.Repositories
                                                                      (systemStatus != null
                                                                     ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper())
                                                                     : true) &&
-                                                                     (kitchenCenterId != null
-                                                                     ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId
-                                                                     : true) &&
-                                                                      (cashierId != null
-                                                                    ? x.ConfirmedBy == null
-                                                                    : true) &&
+                                                                     (kitchenCenterId != null && cashierId != null && confirmedBy == null || kitchenCenterId != null && cashierId != null && confirmedBy == false ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
+                                                                     (kitchenCenterId != null && cashierId != null && confirmedBy != null && confirmedBy == true ? x.ConfirmedBy == cashierId : true) &&
                                                                     (partnerOrderStatus != null
                                                                     ? x.PartnerOrderStatus.ToUpper().Equals(partnerOrderStatus.Trim().ToUpper())
                                                                     : true) && (searchDateFrom != null && searchDateTo != null ?
@@ -579,12 +542,8 @@ namespace MBKC.Repository.Repositories
                                                                      (systemStatus != null
                                                                     ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper())
                                                                     : true) &&
-                                                                     (kitchenCenterId != null
-                                                                     ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId
-                                                                     : true) &&
-                                                                      (cashierId != null
-                                                                    ? x.ConfirmedBy == null
-                                                                    : true) &&
+                                                                     (kitchenCenterId != null && cashierId != null && confirmedBy == null || kitchenCenterId != null && cashierId != null && confirmedBy == false ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
+                                                                     (kitchenCenterId != null && cashierId != null && confirmedBy != null && confirmedBy == true ? x.ConfirmedBy == cashierId : true) &&
                                                                     (partnerOrderStatus != null
                                                                     ? x.PartnerOrderStatus.ToUpper().Equals(partnerOrderStatus.Trim().ToUpper())
                                                                     : true) && (searchDateFrom != null && searchDateTo != null ?
@@ -620,27 +579,18 @@ namespace MBKC.Repository.Repositories
                                                      .Include(o => o.OrderDetails).ThenInclude(x => x.ExtraOrderDetails)
                                                      .Include(x => x.Store)
                                                      .ThenInclude(x => x.KitchenCenter)
-                                                           .Where(x => (storeId != null
-                                                                     ? x.StoreId == storeId
-                                                                     : true) &&
-                                                                     (systemStatus != null
-                                                                    ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper())
-                                                                    : true) &&
-                                                                     (kitchenCenterId != null
-                                                                     ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId
-                                                                     : true) &&
-                                                                      (cashierId != null
-                                                                    ? x.ConfirmedBy == null
-                                                                    : true) &&
-                                                                    (partnerOrderStatus != null
-                                                                    ? x.PartnerOrderStatus.ToUpper().Equals(partnerOrderStatus.Trim().ToUpper())
-                                                                    : true) && (searchDateFrom != null && searchDateTo != null ?
-                                                                    x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date &&
-                                                                    x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true)
-                                                                    && (searchDateFrom != null && searchDateTo == null ?
-                                                                    x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date : true)
-                                                                    && (searchDateFrom == null && searchDateTo != null ?
-                                                                    x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true))
+                                                           .Where(x => (storeId != null ? x.StoreId == storeId : true) &&
+                                                                     (systemStatus != null ? x.SystemStatus.ToUpper().Equals(systemStatus.Trim().ToUpper()) : true) &&
+                                                                     (kitchenCenterId != null && cashierId != null && confirmedBy == null || kitchenCenterId != null && cashierId != null && confirmedBy == false ? x.Store.KitchenCenter.KitchenCenterId == kitchenCenterId : true) &&
+                                                                     (kitchenCenterId != null && cashierId != null && confirmedBy != null && confirmedBy == true ? x.ConfirmedBy == cashierId : true) &&
+                                                                     (partnerOrderStatus != null ? x.PartnerOrderStatus.ToUpper().Equals(partnerOrderStatus.Trim().ToUpper()) : true) &&
+                                                                     (searchDateFrom != null && searchDateTo != null ?
+                                                                        x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date &&
+                                                                        x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true) &&
+                                                                     (searchDateFrom != null && searchDateTo == null ?
+                                                                        x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() >= startDate.Date : true) &&
+                                                                     (searchDateFrom == null && searchDateTo != null ?
+                                                                        x.OrderHistories.Select(x => x.CreatedDate.Date).SingleOrDefault() <= endDate.Date : true))
                                                               .Skip(itemsPerPage * (currentPage - 1)).Take(itemsPerPage).ToList();
             }
             catch (Exception ex)
@@ -663,6 +613,82 @@ namespace MBKC.Repository.Repositories
                              .Include(o => o.OrderDetails).ThenInclude(x => x.ExtraOrderDetails)
                              .Include(x => x.Store).SingleOrDefaultAsync(x => x.Id == id);
 
+        }
+        #endregion
+
+        #region Get order by store id
+        public async Task<List<Order>> GetOrderByStoreIdAsync(int storeId)
+        {
+            try
+            {
+                return await this._dbContext.Orders.Where(o => o.PaymentMethod.ToUpper() == OrderEnum.PaymentMethod.CASH.ToString() 
+                                                       && o.StoreId == storeId
+                                                       && o.ShipperPayments.Any(sp => sp.Status == (int)ShipperPaymentEnum.Status.SUCCESS
+                                                                                   && sp.CreateDate.Date <= DateTime.Now.Date
+                                                                                   && sp.CreateDate.Date >= DateTime.Now.AddDays(-6).Date))
+                                                   .Include(o => o.ShipperPayments)
+                                                   .ToListAsync();
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        #region Get order by dateFrom and dateTo
+        public async Task<List<Order>> GetOrderByDateFromAndDateToAsync(DateTime? dateFrom, DateTime? dateTo, int brandId)
+        {
+            try
+            {
+                return await this._dbContext.Orders.Where(o => o.OrderHistories.Any(oh => oh.SystemStatus.ToUpper().Equals(OrderEnum.SystemStatus.COMPLETED.ToString())
+                                                                                       && (dateFrom != null ? oh.CreatedDate.Date >= dateFrom.Value.Date : true)
+                                                                                       && (dateTo != null ? oh.CreatedDate.Date <= dateTo.Value.Date : true))
+                                                       && o.Store.Brand.BrandId == brandId)
+                                                   .Include(o => o.OrderDetails).ThenInclude(od => od.Product)
+                                                   .ToListAsync();
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        #region Count number of order today by cashier id
+        public async Task<int> CountNumberOfOrderTodayByCashierId(int cashierId)
+        {
+            try
+            {
+                return await this._dbContext.Orders.Where(o => o.Store.KitchenCenter.Cashiers.Any(c => c.AccountId == cashierId)
+                                                       && o.OrderHistories.Any(oh => oh.CreatedDate.Date == DateTime.Now.Date))
+                                                   .CountAsync();  
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        #region Get list order have been paid by cashier id
+        public async Task<List<Order>> GetOrderPaidByDateFormAndDateToByCashierId(DateTime? dateFrom, DateTime? dateTo, int cashierId)
+        {
+            try
+            {
+                return await this._dbContext.Orders.Where(o => o.ShipperPayments.Any(sp => sp.CreateBy == cashierId
+                                                                                 && (dateFrom != null ? sp.CreateDate.Date >= dateFrom.Value.Date : true)
+                                                                                 && (dateTo != null ? sp.CreateDate.Date <= dateTo.Value.Date : true)))
+                                                   .ToListAsync();
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
         #endregion
     }

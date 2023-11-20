@@ -227,7 +227,7 @@ namespace MBKC.Service.Utils
 
         public static string GetContentAmountAndTime(decimal amount)
         {
-            return $"in the amount of: {amount}đ at {DateTime.Now.Hour}:{DateTime.Now.Minute} - {DateTime.Now.Day}/{DateTime.Now.Month}/{DateTime.Now.Year}";
+            return $"in the amount of: {(int)Math.Floor(amount)}đ at {DateTime.Now.Hour}:{DateTime.Now.Minute} - {DateTime.Now.Day}/{DateTime.Now.Month}/{DateTime.Now.Year}";
         }
 
         public static string ConvertTimeSpanToCron(TimeSpan timeSpan)

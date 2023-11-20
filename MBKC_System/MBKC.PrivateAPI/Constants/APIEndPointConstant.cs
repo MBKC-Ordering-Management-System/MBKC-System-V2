@@ -21,5 +21,11 @@
             public const string OrdersEndPoint = ApiEndpoint + "/orders";
             public const string OrderEndPoint = OrdersEndPoint + "/{id}";
         }
+
+        public static class UserDevice
+        {
+            public const string UserDevicesEndPoint = ApiEndpoint + "user-devices";
+            public const string UserDeviceEndPoint = UserDevicesEndPoint + "/{id}";
+        }
     }
 }

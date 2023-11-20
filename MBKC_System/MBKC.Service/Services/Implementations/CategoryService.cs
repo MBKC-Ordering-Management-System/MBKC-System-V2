@@ -39,10 +39,10 @@ namespace MBKC.Service.Services.Implementations
                 var brandAccount = await _unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(int.Parse(accountId));
                 var brand = brandAccount.Brand;
 
-                var existedCategoryCode = await _unitOfWork.CategoryRepository.GetCategoryByCodeAsync(postCategoryRequest.Code);
+                var existedCategoryCode = await _unitOfWork.CategoryRepository.GetCategoryByCodeAsync(postCategoryRequest.Code, brand.BrandId);
                 if (existedCategoryCode != null && existedCategoryCode.Status != (int)CategoryEnum.Status.DEACTIVE)
                 {
-                    throw new BadRequestException(MessageConstant.CategoryMessage.CategoryCodeExisted);
+                    throw new BadRequestException(MessageConstant.CategoryMessage.CategoryCodeExistedInBrand);
                 }
                 // Upload image to firebase
                 FileStream fileStream = Utils.FileUtil.ConvertFormFileToStream(postCategoryRequest.ImageUrl);
@@ -71,7 +71,7 @@ namespace MBKC.Service.Services.Implementations
             catch (BadRequestException ex)
             {
                 string fieldName = "";
-                if (ex.Message.Equals(MessageConstant.CategoryMessage.CategoryCodeExisted))
+                if (ex.Message.Equals(MessageConstant.CategoryMessage.CategoryCodeExistedInBrand))
                 {
                     fieldName = "Category code";
                 }

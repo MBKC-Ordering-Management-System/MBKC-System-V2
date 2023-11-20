@@ -151,5 +151,10 @@
             public const string StoreDashBoardEndpoint = DashBoardsEndpoint + "/store";
             public const string CashierDashBoardEndpoint = DashBoardsEndpoint + "/cashier";
         }
+
+        public static class UserDevice
+        {
+            public const string UserDevicesEndpoint = ApiEndpoint + "/user-devices";
+        }
     }
 }

@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MBKC.Service.DTOs.DashBoards.KitchenCenter
+namespace MBKC.Service.DTOs.DashBoards
 {
-    public class GetColumnChartMoneyExchangesResponse
+    public class GetColumnChartResponse
     {
-        public DateTime Date {  get; set; }
+        public DateTime Date { get; set; }
         public decimal Amount { get; set; }
     }
 }

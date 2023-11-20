@@ -530,6 +530,7 @@ namespace MBKC.Service.Services.Implementations
                 else if (registeredRoleClaim.Value.Equals(RoleConstant.Cashier))
                 {
                     cashier = await this._unitOfWork.CashierRepository.GetCashierAsync(int.Parse(accountId.Value));
+                    kitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(cashier.KitchenCenter.KitchenCenterId);
                 }
                 else if (registeredRoleClaim.Value.Equals(RoleConstant.Store_Manager))
                 {
@@ -539,30 +540,30 @@ namespace MBKC.Service.Services.Implementations
                 List<Order>? orders = null;
                 if (getOrdersRequest.SearchValue != null && StringUtil.IsUnicode(getOrdersRequest.SearchValue))
                 {
-                    numberItems = await this._unitOfWork.OrderRepository.GetNumberOrdersAsync(getOrdersRequest.SearchValue, null, storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId, cashier == null ? null : cashier.AccountId, getOrdersRequest.SystemStatus, getOrdersRequest.PartnerOrderStatus, getOrdersRequest.SearchDateFrom, getOrdersRequest.SearchDateTo);
+                    numberItems = await this._unitOfWork.OrderRepository.GetNumberOrdersAsync(getOrdersRequest.SearchValue, null, storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId, getOrdersRequest.SystemStatus, getOrdersRequest.PartnerOrderStatus, getOrdersRequest.SearchDateFrom, getOrdersRequest.SearchDateTo, cashier == null ? null : cashier.AccountId, getOrdersRequest.ConfirmedBy);
                     orders = await this._unitOfWork.OrderRepository.GetOrdersAsync(getOrdersRequest.SearchValue, null, getOrdersRequest.CurrentPage, getOrdersRequest.ItemsPerPage,
                                                                                                                   getOrdersRequest.SortBy != null && getOrdersRequest.SortBy.ToLower().EndsWith("asc") ? getOrdersRequest.SortBy.Split("_")[0] : null,
                                                                                                                   getOrdersRequest.SortBy != null && getOrdersRequest.SortBy.ToLower().EndsWith("desc") ? getOrdersRequest.SortBy.Split("_")[0] : null,
-                                                                                                                  storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId, cashier == null ? null : cashier.AccountId, getOrdersRequest.SystemStatus,
-                                                                                                                  getOrdersRequest.PartnerOrderStatus, getOrdersRequest.SearchDateFrom, getOrdersRequest.SearchDateTo);
+                                                                                                                  storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId, getOrdersRequest.SystemStatus,
+                                                                                                                  getOrdersRequest.PartnerOrderStatus, getOrdersRequest.SearchDateFrom, getOrdersRequest.SearchDateTo, cashier == null ? null : cashier.AccountId, getOrdersRequest.ConfirmedBy);
                 }
                 else if (getOrdersRequest.SearchValue != null && StringUtil.IsUnicode(getOrdersRequest.SearchValue) == false)
                 {
-                    numberItems = await this._unitOfWork.OrderRepository.GetNumberOrdersAsync(null, getOrdersRequest.SearchValue, storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId, cashier == null ? null : cashier.AccountId, getOrdersRequest.SystemStatus, getOrdersRequest.PartnerOrderStatus, getOrdersRequest.SearchDateFrom, getOrdersRequest.SearchDateTo);
+                    numberItems = await this._unitOfWork.OrderRepository.GetNumberOrdersAsync(null, getOrdersRequest.SearchValue, storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId, getOrdersRequest.SystemStatus, getOrdersRequest.PartnerOrderStatus, getOrdersRequest.SearchDateFrom, getOrdersRequest.SearchDateTo, cashier == null ? null : cashier.AccountId, getOrdersRequest.ConfirmedBy);
                     orders = await this._unitOfWork.OrderRepository.GetOrdersAsync(null, getOrdersRequest.SearchValue, getOrdersRequest.CurrentPage, getOrdersRequest.ItemsPerPage,
                                                                                                                   getOrdersRequest.SortBy != null && getOrdersRequest.SortBy.ToLower().EndsWith("asc") ? getOrdersRequest.SortBy.Split("_")[0] : null,
                                                                                                                   getOrdersRequest.SortBy != null && getOrdersRequest.SortBy.ToLower().EndsWith("desc") ? getOrdersRequest.SortBy.Split("_")[0] : null,
-                                                                                                                  storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId, cashier == null ? null : cashier.AccountId, getOrdersRequest.SystemStatus,
-                                                                                                                  getOrdersRequest.PartnerOrderStatus, getOrdersRequest.SearchDateFrom, getOrdersRequest.SearchDateTo);
+                                                                                                                  storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId, getOrdersRequest.SystemStatus,
+                                                                                                                  getOrdersRequest.PartnerOrderStatus, getOrdersRequest.SearchDateFrom, getOrdersRequest.SearchDateTo, cashier == null ? null : cashier.AccountId, getOrdersRequest.ConfirmedBy);
                 }
                 else if (getOrdersRequest.SearchValue == null)
                 {
-                    numberItems = await this._unitOfWork.OrderRepository.GetNumberOrdersAsync(null, null, storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId, cashier == null ? null : cashier.AccountId, getOrdersRequest.SystemStatus, getOrdersRequest.PartnerOrderStatus, getOrdersRequest.SearchDateFrom, getOrdersRequest.SearchDateTo);
+                    numberItems = await this._unitOfWork.OrderRepository.GetNumberOrdersAsync(null, null, storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId, getOrdersRequest.SystemStatus, getOrdersRequest.PartnerOrderStatus, getOrdersRequest.SearchDateFrom, getOrdersRequest.SearchDateTo, cashier == null ? null : cashier.AccountId, getOrdersRequest.ConfirmedBy);
                     orders = await this._unitOfWork.OrderRepository.GetOrdersAsync(null, null, getOrdersRequest.CurrentPage, getOrdersRequest.ItemsPerPage,
                                                                                                                   getOrdersRequest.SortBy != null && getOrdersRequest.SortBy.ToLower().EndsWith("asc") ? getOrdersRequest.SortBy.Split("_")[0] : null,
                                                                                                                   getOrdersRequest.SortBy != null && getOrdersRequest.SortBy.ToLower().EndsWith("desc") ? getOrdersRequest.SortBy.Split("_")[0] : null,
-                                                                                                                  storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId, cashier == null ? null : cashier.AccountId, getOrdersRequest.SystemStatus,
-                                                                                                                  getOrdersRequest.PartnerOrderStatus, getOrdersRequest.SearchDateFrom, getOrdersRequest.SearchDateTo);
+                                                                                                                  storeAccount == null ? null : storeAccount.StoreId, kitchenCenter == null ? null : kitchenCenter.KitchenCenterId, getOrdersRequest.SystemStatus,
+                                                                                                                  getOrdersRequest.PartnerOrderStatus, getOrdersRequest.SearchDateFrom, getOrdersRequest.SearchDateTo, cashier == null ? null : cashier.AccountId, getOrdersRequest.ConfirmedBy);
                 }
 
                 int totalPages = 0;
@@ -1080,6 +1081,7 @@ namespace MBKC.Service.Services.Implementations
             }
         }
         #endregion
+
     }
 }
 

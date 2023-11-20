@@ -136,5 +136,40 @@ namespace MBKC.Repository.Repositories
                 .Include(x => x.BankingAccount)
                 .Where(x => x.CreateBy == cashierId).ToListAsync();
         }
+
+        #region Count Total sales today by cashierId
+        public async Task<decimal> CountTotalRevenueDailyByCashierIdAsync(int cashierId)
+        {
+            try
+            {
+                return await this._dbContext.ShipperPayments.Where(sp => sp.CreateBy == cashierId
+                                                                && sp.CreateDate.Date == DateTime.Now.Date)
+                                                            .Select(sp => sp.Amount)
+                                                            .SumAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        #region Get shipper payment of today by cashierId
+        public async Task<List<ShipperPayment>> GetFiveShiperPaymentsSoryByCreatDateFindByCashierIdAsync(int cashierId)
+        {
+            try
+            {
+                return await this._dbContext.ShipperPayments.Include(x => x.BankingAccount)
+                                                            .Where(sp => sp.CreateBy == cashierId)
+                                                            .OrderByDescending(sp => sp.CreateDate)
+                                                            .Take(5)
+                                                            .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
     }
 }
