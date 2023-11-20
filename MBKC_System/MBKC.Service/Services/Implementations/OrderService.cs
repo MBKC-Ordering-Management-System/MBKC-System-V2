@@ -317,7 +317,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     CreatedDate = DateTime.Now,
                     SystemStatus = OrderEnum.SystemStatus.IN_STORE.ToString().Split("_")[0] + " " + OrderEnum.SystemStatus.IN_STORE.ToString().Split("_")[1],
-                    PartnerOrderStatus = postOrderRequest.Status.ToUpper()
+                    PartnerOrderStatus = postOrderRequest.PartnerOrderStatus.ToUpper()
                 };
 
                 Order newOrder = new Order()
@@ -338,7 +338,7 @@ namespace MBKC.Service.Services.Implementations
                     Partner = existedPartner,
                     StoreId = postOrderRequest.StoreId,
                     PaymentMethod = postOrderRequest.PaymentMethod,
-                    PartnerOrderStatus = postOrderRequest.Status.ToUpper(),
+                    PartnerOrderStatus = postOrderRequest.PartnerOrderStatus.ToUpper(),
                     SystemStatus = OrderEnum.SystemStatus.IN_STORE.ToString().ToUpper(),
                     SubTotalPrice = decimal.Parse(postOrderRequest.SubTotalPrice.ToString().Replace(".", ",")),
                     TotalDiscount = decimal.Parse(postOrderRequest.TotalDiscount.ToString().Replace(".", ",")),
