@@ -804,6 +804,8 @@ namespace MBKC.Repository.Repositories
                                                    .ThenInclude(x => x.Transactions)
                                                    .Include(x => x.Orders).ThenInclude(x => x.ShipperPayments).ThenInclude(x => x.BankingAccount)
                                                    .Include(x => x.Orders).ThenInclude(x => x.OrderHistories)
+                                                   .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.UserDevices)
+                                                   .Where(x => x.StoreAccounts.Any(b => b.Account.Email.Equals(x.StoreManagerEmail)))
                                                    .SingleOrDefaultAsync(x => x.StoreManagerEmail.Equals(managerEmail));
             }
             catch (Exception ex)

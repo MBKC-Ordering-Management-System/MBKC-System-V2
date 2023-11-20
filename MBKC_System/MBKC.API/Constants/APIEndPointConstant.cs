@@ -156,6 +156,7 @@
         public static class UserDevice
         {
             public const string UserDevicesEndpoint = ApiEndpoint + "/user-devices";
+            public const string UserDeviceEndPoint = UserDevicesEndpoint + "/{id}";
         }
     }
 }
