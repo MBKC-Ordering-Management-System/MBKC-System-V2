@@ -188,7 +188,6 @@ namespace MBKC.API.Controllers
         ///         ItemsPerPage = 5
         ///         SearchDateFrom = 27/07/2023
         ///         SearchDateTo = 20/10/2023
-        ///         ExchangeType = SEND
         ///         Status = SUCCESS
         ///         SortBy = "propertyName_asc | propertyName_ASC | propertyName_desc | propertyName_DESC"
         /// </remarks>
