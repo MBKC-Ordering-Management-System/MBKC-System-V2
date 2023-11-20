@@ -63,7 +63,10 @@ namespace MBKC.API.Controllers
 
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
             await this._userDevicceService.CreateUserDeviceAsync(userDeviceRequest, claims);
-            return Ok(MessageConstant.UserDevice.CreatedUserDeviceSuccessfully);
+            return Ok(new
+            {
+                Message = MessageConstant.UserDevice.CreatedUserDeviceSuccessfully
+            });
         }
         #endregion
 
@@ -95,7 +98,7 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(RoleConstant.Store_Manager)]
         [HttpDelete(APIEndPointConstant.UserDevice.UserDeviceEndPoint)]
-        public async Task DeleteUserDeviceAsync([FromRoute] UserDeviceIdRequest userDeviceIdRequest)
+        public async Task<IActionResult> DeleteUserDeviceAsync([FromRoute] UserDeviceIdRequest userDeviceIdRequest)
         {
             ValidationResult validationResult = await this._userDeviceIdValidator.ValidateAsync(userDeviceIdRequest);
             if (validationResult.IsValid == false)
@@ -104,6 +107,10 @@ namespace MBKC.API.Controllers
                 throw new BadRequestException(errors);
             }
             await this._userDevicceService.DeleteUserDeviceAsync(userDeviceIdRequest.UserDeviceId);
+            return Ok(new
+            {
+                Message = MessageConstant.UserDevice.DeletedUserDeviceSuccessfully
+            });
         }
         #endregion
     }

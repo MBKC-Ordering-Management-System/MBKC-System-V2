@@ -71,7 +71,7 @@ namespace MBKC.PrivateAPI.Validators.Orders
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .GreaterThanOrEqualTo(0).WithMessage("{PropertyName} is required greater than or equal to 0 VNĐ.");
 
-            RuleFor(x => x.Status)
+            RuleFor(x => x.PartnerOrderStatus)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotNull().WithMessage("{PropertyName} is not null.")
                 .NotEmpty().WithMessage("{propertyName} is not empty.")

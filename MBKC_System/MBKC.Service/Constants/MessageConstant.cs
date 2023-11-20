@@ -204,6 +204,7 @@ namespace MBKC.Service.Constants
             public const string ItemOnGrabfoodCanNotMapping = "The item on GrabFood cannot be mapped to any product in the MBKC System.";
             public const string ModifierGroupOnGrabfoodCanNotMapping = "The modifier group on GrabFood cannot be mapped to any product in the MBKC System.";
             public const string BrandHasNoActiveProduct = "Brand has no active products";
+            public const string ParentProductMappingNotYet = "You need to map the parent product before mapping this product.";
         }
 
         public static class PartnerProductMessage

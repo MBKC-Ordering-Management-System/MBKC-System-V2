@@ -23,15 +23,20 @@ namespace MBKC.PrivateAPI.Controllers
         }
 
         [HttpDelete(APIEndPointConstant.UserDevice.UserDeviceEndPoint)]
-        public async Task DeleteUserDeviceAsync([FromRoute]UserDeviceIdRequest userDeviceIdRequest)
+        public async Task<IActionResult> DeleteUserDeviceAsync([FromRoute] UserDeviceIdRequest userDeviceIdRequest)
         {
             ValidationResult validationResult = await this._userDeviceIdValidator.ValidateAsync(userDeviceIdRequest);
-            if(validationResult.IsValid == false)
+            if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
             await this._userDevicceService.DeleteUserDeviceAsync(userDeviceIdRequest.UserDeviceId);
+
+            return Ok(new
+            {
+                Message = MessageConstant.UserDevice.DeletedUserDeviceSuccessfully
+            });
         }
     }
 }

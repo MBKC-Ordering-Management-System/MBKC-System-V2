@@ -103,6 +103,13 @@ namespace MBKC.Service.Services.Implementations
                     throw new BadRequestException(MessageConstant.PartnerProductMessage.StatusInValid);
                 }
 
+                // Check partner product existed in system or not
+                var partnerProduct = await this._unitOfWork.PartnerProductRepository.GetPartnerProductAsync(postPartnerProductRequest.ProductId, postPartnerProductRequest.PartnerId, postPartnerProductRequest.StoreId, storePartner.CreatedDate);
+                if (partnerProduct != null && partnerProduct.Status != (int)GrabFoodItemEnum.AvailableStatus.DEACTIVE)
+                {
+                    throw new BadRequestException(MessageConstant.CommonMessage.AlreadyExistPartnerProduct);
+                }
+
                 int status = 0;
                 switch (postPartnerProductRequest.Status.ToUpper())
                 {
@@ -120,31 +127,33 @@ namespace MBKC.Service.Services.Implementations
                         break;
                 }
 
-                // Check product code existed or not
-                GrabFoodAccount grabFoodAccount = new GrabFoodAccount()
+                if (partner.Name.ToLower().Equals(PartnerConstant.GrabFood.ToLower()))
                 {
-                    Username = storePartner.UserName,
-                    Password = storePartner.Password
-                };
+                    // Check product code existed or not
+                    GrabFoodAccount grabFoodAccount = new GrabFoodAccount()
+                    {
+                        Username = storePartner.UserName,
+                        Password = storePartner.Password
+                    };
 
-                string? productCodeParentProduct = null;
-                if (product.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))
-                {
-                    Product parentProduct = product.ParentProduct;
-                    productCodeParentProduct = parentProduct.PartnerProducts.FirstOrDefault(x => x.ProductId == parentProduct.ProductId && x.StoreId == postPartnerProductRequest.StoreId && x.PartnerId == postPartnerProductRequest.PartnerId && x.CreatedDate.Equals(storePartner.CreatedDate)).ProductCode;
+                    string? productCodeParentProduct = null;
+                    if (product.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))
+                    {
+                        Product parentProduct = product.ParentProduct;
+                        if(parentProduct.PartnerProducts is not null && parentProduct.PartnerProducts.Count() > 0)
+                        {
+                            productCodeParentProduct = parentProduct.PartnerProducts.FirstOrDefault(x => x.ProductId == parentProduct.ProductId && x.StoreId == postPartnerProductRequest.StoreId && x.PartnerId == postPartnerProductRequest.PartnerId && x.CreatedDate.Equals(storePartner.CreatedDate)).ProductCode;
+                        } else
+                        {
+                            throw new BadRequestException(MessageConstant.StorePartnerMessage.ParentProductMappingNotYet);
+                        }
+                        
+                    }
+
+                    GrabFoodAuthenticationResponse grabFoodAuthenticationResponse = await this._unitOfWork.GrabFoodRepository.LoginGrabFoodAsync(grabFoodAccount);
+                    GrabFoodMenu grabFoodMenu = await this._unitOfWork.GrabFoodRepository.GetGrabFoodMenuAsync(grabFoodAuthenticationResponse);
+                    GrabFoodUtil.CheckProductCodeFromGrabFood(grabFoodMenu, postPartnerProductRequest.ProductCode, product.Type, postPartnerProductRequest.Price, status, false, productCodeParentProduct);
                 }
-
-                GrabFoodAuthenticationResponse grabFoodAuthenticationResponse = await this._unitOfWork.GrabFoodRepository.LoginGrabFoodAsync(grabFoodAccount);
-                GrabFoodMenu grabFoodMenu = await this._unitOfWork.GrabFoodRepository.GetGrabFoodMenuAsync(grabFoodAuthenticationResponse);
-                GrabFoodUtil.CheckProductCodeFromGrabFood(grabFoodMenu, postPartnerProductRequest.ProductCode, product.Type, postPartnerProductRequest.Price, status, false, productCodeParentProduct);
-
-                // Check partner product existed in system or not
-                var partnerProduct = await this._unitOfWork.PartnerProductRepository.GetPartnerProductAsync(postPartnerProductRequest.ProductId, postPartnerProductRequest.PartnerId, postPartnerProductRequest.StoreId, storePartner.CreatedDate);
-                if (partnerProduct != null && partnerProduct.Status != (int)GrabFoodItemEnum.AvailableStatus.DEACTIVE)
-                {
-                    throw new BadRequestException(MessageConstant.CommonMessage.AlreadyExistPartnerProduct);
-                }
-
 
                 var partnerProductInsert = new PartnerProduct()
                 {
@@ -200,7 +209,8 @@ namespace MBKC.Service.Services.Implementations
                     fieldName = "Product id";
                 }
 
-                else if (ex.Message.Equals(MessageConstant.CommonMessage.AlreadyExistPartnerProduct))
+                else if (ex.Message.Equals(MessageConstant.CommonMessage.AlreadyExistPartnerProduct) ||
+                    ex.Message.Equals(MessageConstant.StorePartnerMessage.ParentProductMappingNotYet))
                 {
                     fieldName = "Mapping product";
                 }

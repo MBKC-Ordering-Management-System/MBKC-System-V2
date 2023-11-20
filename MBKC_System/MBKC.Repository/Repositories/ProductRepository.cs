@@ -156,7 +156,8 @@ namespace MBKC.Repository.Repositories
                                                          .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
                                                                      (productType != null
                                                                      ? x.Type.ToLower().Equals(productType.ToLower())
-                                                                     : true) &&
+                                                                     : (x.Type.ToLower().Equals(ProductEnum.Type.SINGLE.ToString().ToLower()) || 
+                                                                        x.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))) &&
                                                                      (idCategory != null
                                                                      ? x.Category.CategoryId == idCategory
                                                                      : true) &&
@@ -180,7 +181,8 @@ namespace MBKC.Repository.Repositories
                                                                      x.Name.ToLower().Contains(searchName.ToLower()) &&
                                                                      (productType != null
                                                                      ? x.Type.ToLower().Equals(productType.ToLower())
-                                                                     : true) &&
+                                                                     : (x.Type.ToLower().Equals(ProductEnum.Type.SINGLE.ToString().ToLower()) ||
+                                                                        x.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))) &&
                                                                      (idCategory != null
                                                                      ? x.Category.CategoryId == idCategory
                                                                      : true) &&
@@ -193,7 +195,8 @@ namespace MBKC.Repository.Repositories
                                                          .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
                                                                      (productType != null
                                                                      ? x.Type.ToLower().Equals(productType.ToLower())
-                                                                     : true) &&
+                                                                     : (x.Type.ToLower().Equals(ProductEnum.Type.SINGLE.ToString().ToLower()) ||
+                                                                        x.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))) &&
                                                                      (idCategory != null
                                                                      ? x.Category.CategoryId == idCategory
                                                                      : true) &&
@@ -578,7 +581,8 @@ namespace MBKC.Repository.Repositories
                                                          .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
                                                                      (productType != null
                                                                      ? x.Type.ToLower().Equals(productType.ToLower())
-                                                                     : true) &&
+                                                                     : (x.Type.ToLower().Equals(ProductEnum.Type.SINGLE.ToString().ToLower()) ||
+                                                                        x.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))) &&
                                                                      (idCategory != null
                                                                      ? x.Category.CategoryId == idCategory
                                                                      : true) &&
@@ -596,7 +600,8 @@ namespace MBKC.Repository.Repositories
                                                              .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
                                                                          (productType != null
                                                                          ? x.Type.ToLower().Equals(productType.ToLower())
-                                                                         : true) &&
+                                                                         : (x.Type.ToLower().Equals(ProductEnum.Type.SINGLE.ToString().ToLower()) ||
+                                                                            x.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))) &&
                                                                          (idCategory != null
                                                                          ? x.Category.CategoryId == idCategory
                                                                          : true) &&
@@ -635,7 +640,8 @@ namespace MBKC.Repository.Repositories
                                                              .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
                                                                          (productType != null
                                                                          ? x.Type.ToLower().Equals(productType.ToLower())
-                                                                         : true) &&
+                                                                         : (x.Type.ToLower().Equals(ProductEnum.Type.SINGLE.ToString().ToLower()) ||
+                                                                            x.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))) &&
                                                                          (idCategory != null
                                                                          ? x.Category.CategoryId == idCategory
                                                                          : true) &&
@@ -673,7 +679,8 @@ namespace MBKC.Repository.Repositories
                                                    .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
                                                                (productType != null
                                                                ? x.Type.ToLower().Equals(productType.ToLower())
-                                                               : true) &&
+                                                               : (x.Type.ToLower().Equals(ProductEnum.Type.SINGLE.ToString().ToLower()) ||
+                                                                  x.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))) &&
                                                                (idCategory != null
                                                                ? x.Category.CategoryId == idCategory
                                                                : true) &&
@@ -701,7 +708,8 @@ namespace MBKC.Repository.Repositories
                                                                          x.Name.ToLower().Contains(searchValue.ToLower()) &&
                                                                          (productType != null
                                                                          ? x.Type.ToLower().Equals(productType.ToLower())
-                                                                         : true) &&
+                                                                         : (x.Type.ToLower().Equals(ProductEnum.Type.SINGLE.ToString().ToLower()) ||
+                                                                            x.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))) &&
                                                                          (idCategory != null
                                                                          ? x.Category.CategoryId == idCategory
                                                                          : true) &&
@@ -733,7 +741,8 @@ namespace MBKC.Repository.Repositories
                                                                      x.Name.ToLower().Contains(searchValue.ToLower()) &&
                                                                      (productType != null
                                                                      ? x.Type.ToLower().Equals(productType.ToLower())
-                                                                     : true) &&
+                                                                     : (x.Type.ToLower().Equals(ProductEnum.Type.SINGLE.ToString().ToLower()) ||
+                                                                        x.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))) &&
                                                                      (idCategory != null
                                                                      ? x.Category.CategoryId == idCategory
                                                                      : true) &&
@@ -764,7 +773,8 @@ namespace MBKC.Repository.Repositories
                                                                      x.Name.ToLower().Contains(searchValue.ToLower()) &&
                                                                      (productType != null
                                                                      ? x.Type.ToLower().Equals(productType.ToLower())
-                                                                     : true) &&
+                                                                     : (x.Type.ToLower().Equals(ProductEnum.Type.SINGLE.ToString().ToLower()) ||
+                                                                        x.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))) &&
                                                                      (idCategory != null
                                                                      ? x.Category.CategoryId == idCategory
                                                                      : true) &&
@@ -783,7 +793,8 @@ namespace MBKC.Repository.Repositories
                                                              .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
                                                                          (productType != null
                                                                          ? x.Type.ToLower().Equals(productType.ToLower())
-                                                                         : true) &&
+                                                                         : (x.Type.ToLower().Equals(ProductEnum.Type.SINGLE.ToString().ToLower()) ||
+                                                                            x.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))) &&
                                                                          (idCategory != null
                                                                          ? x.Category.CategoryId == idCategory
                                                                          : true) &&
@@ -814,7 +825,8 @@ namespace MBKC.Repository.Repositories
                                                              .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
                                                                          (productType != null
                                                                          ? x.Type.ToLower().Equals(productType.ToLower())
-                                                                         : true) &&
+                                                                         : (x.Type.ToLower().Equals(ProductEnum.Type.SINGLE.ToString().ToLower()) ||
+                                                                            x.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))) &&
                                                                          (idCategory != null
                                                                          ? x.Category.CategoryId == idCategory
                                                                          : true) &&
@@ -844,7 +856,8 @@ namespace MBKC.Repository.Repositories
                                                              .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
                                                                          (productType != null
                                                                          ? x.Type.ToLower().Equals(productType.ToLower())
-                                                                         : true) &&
+                                                                         : (x.Type.ToLower().Equals(ProductEnum.Type.SINGLE.ToString().ToLower()) ||
+                                                                            x.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))) &&
                                                                          (idCategory != null
                                                                          ? x.Category.CategoryId == idCategory
                                                                          : true) &&
