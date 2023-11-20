@@ -584,13 +584,18 @@ namespace MBKC.Service.Services.Implementations
                         {
                             float storePartnerComission = order.Store.StorePartners.FirstOrDefault(x => x.PartnerId == order.PartnerId).Commission;
 
-                            collectedPrice = order.SubTotalPrice - (order.SubTotalPrice * decimal.Parse(storePartnerComission.ToString())/100);
+                            collectedPrice = order.SubTotalPrice - (order.SubTotalPrice * decimal.Parse(storePartnerComission.ToString()) / 100);
                         }
                         GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(order);
                         getOrderResponse.IsPaid = getOrderResponse.PaymentMethod.ToLower().Equals(OrderEnum.PaymentMethod.CASH.ToString().ToLower()) ? false : true;
-                        if(getOrderResponse.IsPaid == true)
+                        if (getOrderResponse.IsPaid == true)
                         {
                             collectedPrice = 0;
+                        }
+                        if (getOrderResponse.SystemStatus.ToLower().Equals(OrderEnum.SystemStatus.COMPLETED.ToString().ToLower()) &&
+                            getOrderResponse.PartnerOrderStatus.ToLower().Equals(OrderEnum.Status.COMPLETED.ToString().ToLower()))
+                        {
+                            getOrderResponse.IsPaid = true;
                         }
                         getOrderResponse.CollectedPrice = collectedPrice;
                         List<int> listQuantity = new List<int>();
@@ -682,6 +687,12 @@ namespace MBKC.Service.Services.Implementations
                 if (getOrderResponse.IsPaid == true)
                 {
                     collectedPrice = 0;
+                }
+
+                if (getOrderResponse.SystemStatus.ToLower().Equals(OrderEnum.SystemStatus.COMPLETED.ToString().ToLower()) &&
+                    getOrderResponse.PartnerOrderStatus.ToLower().Equals(OrderEnum.Status.COMPLETED.ToString().ToLower()))
+                {
+                    getOrderResponse.IsPaid = true;
                 }
                 getOrderResponse.CollectedPrice = collectedPrice;
                 return getOrderResponse;
