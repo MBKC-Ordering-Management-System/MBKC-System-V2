@@ -18,5 +18,6 @@ namespace MBKC.Repository.Models
         public bool IsConfirmed { get; set; }
         [ForeignKey("RoleId")]
         public virtual Role Role { get; set; }
+        public virtual IEnumerable<UserDevice> UserDevices { get; set; }
     }
 }

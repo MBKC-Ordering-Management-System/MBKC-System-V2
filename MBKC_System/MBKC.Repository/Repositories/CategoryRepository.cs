@@ -76,6 +76,20 @@ namespace MBKC.Repository.Repositories
         }
         #endregion
 
+        #region Get only cagtegory by id
+        public async Task<Category?> GetOnlyCategoryByIdAsync(int id)
+        {
+            try
+            {
+                return await _dbContext.Categories.FirstOrDefaultAsync(c => c.CategoryId == id && !(c.Status == (int)CategoryEnum.Status.DEACTIVE));
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
         #region Get Categories
         public async Task<List<Category>> GetCategoriesAsync(string? searchValue, string? searchValueWithoutUnicode,
             int currentPage, int itemsPerPage, string? sortByASC, string? sortByDESC, string type, int brandId, bool? isGetAll)

@@ -36,6 +36,7 @@ namespace MBKC.Service.Constants
             public const string CategoryIdNotBelongToStore = "Category id does not belong to your store.";
             public const string AlreadyExistPartnerProduct = "Mapping product already exists in the system.";
             public const string NotExistPartnerProduct = "Mapping product does not exist in the system.";
+            public const string UserDeviceIdNotExist = "User device id does not exist in the system.";
 
         }
 

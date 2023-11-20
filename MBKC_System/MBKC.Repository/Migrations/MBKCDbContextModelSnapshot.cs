@@ -299,8 +299,8 @@ namespace MBKC.Repository.Migrations
                             Id = 1,
                             ScrawlingMoneyExchangeToKitchenCenter = new TimeSpan(0, 22, 0, 0, 0),
                             ScrawlingMoneyExchangeToStore = new TimeSpan(0, 23, 0, 0, 0),
-                            ScrawlingOrderEndTime = new TimeSpan(0, 12, 0, 0, 0),
-                            ScrawlingOrderStartTime = new TimeSpan(0, 12, 0, 0, 0)
+                            ScrawlingOrderEndTime = new TimeSpan(0, 21, 50, 0, 0),
+                            ScrawlingOrderStartTime = new TimeSpan(0, 0, 0, 0, 0)
                         });
                 });
 
@@ -1029,6 +1029,30 @@ namespace MBKC.Repository.Migrations
                     b.ToTable("Transactions");
                 });
 
+            modelBuilder.Entity("MBKC.Repository.Models.UserDevice", b =>
+                {
+                    b.Property<int>("UserDeviceId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserDeviceId"), 1L, 1);
+
+                    b.Property<int>("AccountId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FCMToken")
+                        .IsRequired()
+                        .HasMaxLength(2147483647)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(max)");
+
+                    b.HasKey("UserDeviceId");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("UserDevices");
+                });
+
             modelBuilder.Entity("MBKC.Repository.Models.Wallet", b =>
                 {
                     b.Property<int>("WalletId")
@@ -1423,6 +1447,22 @@ namespace MBKC.Repository.Migrations
                     b.Navigation("ShipperPayment");
 
                     b.Navigation("Wallet");
+                });
+
+            modelBuilder.Entity("MBKC.Repository.Models.UserDevice", b =>
+                {
+                    b.HasOne("MBKC.Repository.Models.Account", "Account")
+                        .WithMany("UserDevices")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+                });
+
+            modelBuilder.Entity("MBKC.Repository.Models.Account", b =>
+                {
+                    b.Navigation("UserDevices");
                 });
 
             modelBuilder.Entity("MBKC.Repository.Models.BankingAccount", b =>

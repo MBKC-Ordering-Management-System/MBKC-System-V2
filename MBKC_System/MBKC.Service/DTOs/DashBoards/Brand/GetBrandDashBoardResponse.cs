@@ -9,12 +9,11 @@ namespace MBKC.Service.DTOs.DashBoards.Brand
 {
     public class GetBrandDashBoardResponse
     {
-        public int? TotalStore { get; set; }
-        public int? TotalNormalCategory { get; set; }
-        public int? TotalExtraCategory { get; set; }
-        public int? TotalProduct { get; set; }
+        public int? TotalStores { get; set; }
+        public int? TotalNormalCategories { get; set; }
+        public int? TotalExtraCategories { get; set; }
+        public int? TotalProducts { get; set; }
         public GetStoreRevenueResponse? StoreRevenues{ get; set; }
-        public List<GetNumberOfProductsSoldResponse>? NumberOfProductSolds { get; set; }
         public List<GetStoreResponse>? Stores { get; set; }
 
     }

@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MBKC.Service.DTOs.DashBoards.Brand
+namespace MBKC.Service.DTOs.UserDevices
 {
-    public class GetBrandDashBoardRequest
+    public class CreateUserDeviceRequest
     {
-        public int? StoreId { get; set; }
+        public string FCMToken { get; set; }
     }
 }

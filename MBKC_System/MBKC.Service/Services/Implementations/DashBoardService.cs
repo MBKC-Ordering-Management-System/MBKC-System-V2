@@ -56,10 +56,10 @@ namespace MBKC.Service.Services.Implementations
 
                 var getAdminDashBoardResponse = new GetAdminDashBoardResponse()
                 {
-                    TotalKitchenter = totalKitchenCenter,
-                    TotalBrand = totalBrand,
-                    TotalStore = totalStore,
-                    TotalPartner = totalPartner,
+                    TotalKitchenCenters = totalKitchenCenter,
+                    TotalBrands = totalBrand,
+                    TotalStores = totalStore,
+                    TotalPartners = totalPartner,
                     KitchenCenters = this._mapper.Map<List<GetKitchenCenterResponse>>(kitchenCenters),
                     Brands = this._mapper.Map<List<GetBrandResponse>>(brands),
                     Stores = this._mapper.Map<List<GetStoreResponse>>(stores),
@@ -123,9 +123,9 @@ namespace MBKC.Service.Services.Implementations
 
                 var getKitchenCenterDashBoardResponse = new GetKitchenCenterDashBoardResponse()
                 {
-                    TotalStore = totalStoreParticipating,
-                    TotalCashier = totalCashierInSystem,
-                    TotalBalanceDaily = TotalMoneyExchangesOfKitchenCenterDaily,
+                    TotalStores = totalStoreParticipating,
+                    TotalCashiers = totalCashierInSystem,
+                    TotalBalancesDaily = TotalMoneyExchangesOfKitchenCenterDaily,
                     ColumnChartMoneyExchanges = columnChartMoneyExchangeInLastSevenDay,
                     Stores = this._mapper.Map<List<GetStoreResponse>>(existedKitchenCenter.Stores),
                     Cashiers = this._mapper.Map<List<GetCashierResponse>>(existedKitchenCenter.Cashiers),
@@ -151,9 +151,7 @@ namespace MBKC.Service.Services.Implementations
                 string email = claims.First(x => x.Type == ClaimTypes.Email).Value;
                 var existedBrand = await _unitOfWork.BrandRepository.GetBrandForDashBoardAsync(email);
                 Dictionary<DateTime, decimal> revenueInLastSevenDay;
-                Dictionary<int, int> numberOfProductSold = new Dictionary<int, int>();
                 var columnChartRevenueInLastSevenDay = new List<GetColumnChartResponse>();
-                var numberOfProductsSoldResponse = new List<GetNumberOfProductsSoldResponse>();
 
                 var existedStore = await this._unitOfWork.StoreRepository.GetStoreExceptDeactiveByIdAsync(getBrandDashBoardRequest.StoreId!.Value);
                 if (existedStore is null)
@@ -203,62 +201,13 @@ namespace MBKC.Service.Services.Implementations
                 };
                 #endregion
 
-                #region number of product sold
-                var ordersForProductSold = new List<Order>();
-                if (getBrandDashBoardRequest.ProductSearchDateFrom is null
-                 && getBrandDashBoardRequest.ProductSearchDateTo is null)
-                {
-                    ordersForProductSold = await this._unitOfWork.OrderRepository.GetOrderByDateFromAndDateToAsync(DateTime.Now.AddDays(-6), DateTime.Now, existedBrand.BrandId);
-                }
-                else if (getBrandDashBoardRequest.ProductSearchDateFrom is not null
-                      && getBrandDashBoardRequest.ProductSearchDateTo is not null)
-                {
-                    ordersForProductSold = await this._unitOfWork.OrderRepository.GetOrderByDateFromAndDateToAsync(DateUtil.ConvertStringToDateTime(getBrandDashBoardRequest.ProductSearchDateFrom), DateUtil.ConvertStringToDateTime(getBrandDashBoardRequest.ProductSearchDateTo), existedBrand.BrandId);
-                }
-                else if (getBrandDashBoardRequest.ProductSearchDateFrom is not null)
-                {
-                    ordersForProductSold = await this._unitOfWork.OrderRepository.GetOrderByDateFromAndDateToAsync(DateUtil.ConvertStringToDateTime(getBrandDashBoardRequest.ProductSearchDateFrom), null, existedBrand.BrandId);
-                }
-                else if (getBrandDashBoardRequest.ProductSearchDateTo is not null)
-                {
-                    ordersForProductSold = await this._unitOfWork.OrderRepository.GetOrderByDateFromAndDateToAsync(null, DateUtil.ConvertStringToDateTime(getBrandDashBoardRequest.ProductSearchDateTo), existedBrand.BrandId);
-                }
-
-                foreach (var order in ordersForProductSold)
-                {
-                    foreach (var orderDetail in order.OrderDetails)
-                    {
-                        if (numberOfProductSold.ContainsKey(orderDetail.Product.ProductId))
-                        {
-                            numberOfProductSold[orderDetail.Product.ProductId] += orderDetail.Quantity;
-                        }
-                        else
-                        {
-                            numberOfProductSold.Add(orderDetail.Product.ProductId, orderDetail.Quantity);
-                        }
-                    }
-                }
-
-                foreach (var product in existedBrand.Products)
-                {
-                    var getNumberOfProductsSoldResponse = new GetNumberOfProductsSoldResponse()
-                    {
-                        ProductId = product.ProductId,
-                        ProductName = product.Name,
-                        Quantity = numberOfProductSold.ContainsKey(product.ProductId) ? numberOfProductSold[product.ProductId] : 0,
-                    };
-                    numberOfProductsSoldResponse.Add(getNumberOfProductsSoldResponse);
-                }
-                #endregion
-
                 var getBrandDashBoardResponse = new GetBrandDashBoardResponse()
                 {
-                    TotalStore = totalStore,
-                    TotalNormalCategory = totalNormalCategory,
-                    TotalExtraCategory = totalExtraCategory,
-                    TotalProduct = totalProduct,
+                    TotalStores = totalStore,
+                    TotalNormalCategories = totalNormalCategory,
+                    TotalExtraCategories = totalExtraCategory,
+                    TotalProducts = totalProduct,
                     StoreRevenues = getStoreRevenueResponse,
-                    NumberOfProductSolds = numberOfProductsSoldResponse,
                     Stores = this._mapper.Map<List<GetStoreResponse>>(existedBrand.Stores),
                 };
 
@@ -314,11 +263,11 @@ namespace MBKC.Service.Services.Implementations
 
                 return new GetStoreDashBoardResponse
                 {
-                    TotalCompletedOrder = totalCompletedOrder,
-                    TotalPreparingOrder = totalPreparingOrder,
-                    TotalReadyOrder = totalReadyOrder,
-                    TotalUpcomingOrder = totalUpcomingOrder,
-                    TotalRevenueDaily = totalRevenueDaily
+                    TotalCompletedOrders = totalCompletedOrder,
+                    TotalPreparingOrders = totalPreparingOrder,
+                    TotalReadyOrders = totalReadyOrder,
+                    TotalUpcomingOrders = totalUpcomingOrder,
+                    TotalRevenuesDaily = totalRevenueDaily
                 };
             }
             catch (Exception ex)
@@ -366,13 +315,33 @@ namespace MBKC.Service.Services.Implementations
                 }
                 #endregion
 
+                var moneyExchangesResponse = this._mapper.Map<List<GetMoneyExchangeResponse>>(existedCashier!.CashierMoneyExchanges.Select(c => c.MoneyExchange));
+                foreach(var moneyExchange in moneyExchangesResponse)
+                {
+                    moneyExchange.SenderName = existedCashier.FullName;
+                    var existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetOnlyKitchenCenterAsync(moneyExchange.ReceiveId);
+                    moneyExchange.ReceiveName = existedKitchenCenter!.Name;
+                }
+
+                var shipperPaymentsResponse = new List<GetShipperPaymentResponse>();
+                foreach (var shipperPayment in shipperPayments)
+                {
+                   var shipperPaymentResponse =  this._mapper.Map<GetShipperPaymentResponse>(shipperPayment);
+                    shipperPaymentResponse.CashierCreated = existedCashier.FullName;
+                    if(shipperPayment.KCBankingAccountId is not null)
+                    {
+                        shipperPaymentResponse.KCBankingAccountName = shipperPayment.BankingAccount!.Name;
+                    }
+                    shipperPaymentsResponse.Add(shipperPaymentResponse);
+                }
+
                 var getCashierDashBoardResponse = new GetCashierDashBoardResponse()
                 {
-                    TotalRevenueDaily = totalRevenueDaily,
-                    TotalOrderDaily = totalOrderDaily,
+                    TotalRevenuesDaily = totalRevenueDaily,
+                    TotalOrdersDaily = totalOrderDaily,
                     Orders = this._mapper.Map<List<GetOrderResponse>>(ordersHasPaid),
-                    MoneyExchanges  = this._mapper.Map<List<GetMoneyExchangeResponse>>(existedCashier!.CashierMoneyExchanges.Select(c => c.MoneyExchange)),
-                    ShipperPayments = this._mapper.Map<List<GetShipperPaymentResponse>>(shipperPayments),
+                    MoneyExchanges  = moneyExchangesResponse,
+                    ShipperPayments = shipperPaymentsResponse,
                 };
 
                 return getCashierDashBoardResponse;

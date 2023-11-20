@@ -11,10 +11,10 @@ namespace MBKC.Service.DTOs.DashBoards
 {
     public class GetAdminDashBoardResponse
     {
-        public int TotalKitchenter { get; set; }
-        public int TotalBrand {  get; set; }
-        public int TotalStore {  get; set; }
-        public int TotalPartner { get; set; }
+        public int TotalKitchenCenters { get; set; }
+        public int TotalBrands {  get; set; }
+        public int TotalStores {  get; set; }
+        public int TotalPartners { get; set; }
         public List<GetKitchenCenterResponse>? KitchenCenters { get; set; }
         public List<GetBrandResponse>? Brands { get; set; }
         public List<GetStoreResponse>? Stores { get; set; }

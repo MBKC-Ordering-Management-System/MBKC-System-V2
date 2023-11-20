@@ -66,6 +66,7 @@
         {
             public const string ProductsEndpoint = ApiEndpoint + "/products";
             public const string ProductEndpoint = ProductsEndpoint + "/{id}";
+            public const string ProductWithNumberSoldEndpoint = ProductsEndpoint + "/products-sold";
             public const string UpdatingStatusProductEndpoint = ProductEndpoint + "/updating-status";
             public const string ImportFileEndpoint = ProductsEndpoint + "/import-file";
         }
@@ -150,6 +151,12 @@
             public const string BrandDashBoardEndpoint = DashBoardsEndpoint + "/brand";
             public const string StoreDashBoardEndpoint = DashBoardsEndpoint + "/store";
             public const string CashierDashBoardEndpoint = DashBoardsEndpoint + "/cashier";
+        }
+
+        public static class UserDevice
+        {
+            public const string UserDevicesEndpoint = ApiEndpoint + "/user-devices";
+            public const string UserDeviceEndPoint = UserDevicesEndpoint + "/{id}";
         }
     }
 }

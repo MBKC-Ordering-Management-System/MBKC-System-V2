@@ -16,8 +16,8 @@ namespace MBKC.Repository.DataSeedings
                 new Configuration()
                 {
                     Id = 1,
-                    ScrawlingOrderStartTime = new TimeSpan(12, 0, 0),
-                    ScrawlingOrderEndTime = new TimeSpan(12, 0, 0),
+                    ScrawlingOrderStartTime = new TimeSpan(0, 0, 0),
+                    ScrawlingOrderEndTime = new TimeSpan(21, 50, 0),
                     ScrawlingMoneyExchangeToKitchenCenter = new TimeSpan(22, 0, 0),
                     ScrawlingMoneyExchangeToStore = new TimeSpan(23, 0, 0),
                 }

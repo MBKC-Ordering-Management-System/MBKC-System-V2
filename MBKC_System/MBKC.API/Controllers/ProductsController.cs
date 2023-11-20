@@ -22,23 +22,23 @@ namespace MBKC.API.Controllers
         private IValidator<UpdateProductRequest> _updateProductValidator;
         private IValidator<UpdateProductStatusRequest> _updateProductStatusValidator;
         private IValidator<GetProductsRequest> _getProductsValidator;
+        private IValidator<GetProductWithNumberSoldRequest> _getProductsWithNumberSoldValidator;
         private IValidator<ProductRequest> _getProductValidator;
-        private IValidator<ImportFileRequest> _importFileValidator;
         public ProductsController(IProductService productService, 
             IValidator<UpdateProductRequest> updateProductValidator,
-            IValidator<ImportFileRequest> importFileValidator,
             IValidator<ProductRequest> getProductValidator,
             IValidator<GetProductsRequest> getProductsValidator,
             IValidator<CreateProductRequest> createProductValidator,
-            IValidator<UpdateProductStatusRequest> updateProductStatusValidator)
+            IValidator<UpdateProductStatusRequest> updateProductStatusValidator,
+            IValidator<GetProductWithNumberSoldRequest> getProductsWithNumberSoldValidator)
         {
             this._productService = productService;
             this._updateProductValidator = updateProductValidator;
             this._createProductValidator = createProductValidator;
-            this._importFileValidator = importFileValidator;
             this._updateProductStatusValidator = updateProductStatusValidator;
             this._getProductsValidator = getProductsValidator;
             this._getProductValidator = getProductValidator;
+            _getProductsWithNumberSoldValidator = getProductsWithNumberSoldValidator;
         }
 
         #region Get Products
@@ -89,6 +89,58 @@ namespace MBKC.API.Controllers
             }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
             GetProductsResponse getProductsResponse = await this._productService.GetProductsAsync(getProductsRequest, claims);
+            return Ok(getProductsResponse);
+        }
+        #endregion
+
+        #region Get product with number of product sold
+        /// <summary>
+        /// Get Products with number of product sold in the system.
+        /// </summary>
+        /// <param name="getProductsRequest">An object include Search Value, ItemsPerPage, CurrentPage,
+        /// SortBy, ProductType, IdCategory, IdStore, IsGetAll.
+        /// </param>
+        /// <returns>
+        /// A list of products with number of product sold with requested conditions.
+        /// </returns>
+        /// <remarks>
+        ///     Sample request:
+        ///
+        ///         GET 
+        ///         searchValue = Bún đậu mắm tôm
+        ///         itemsPerPage = 5
+        ///         currentPage = 1
+        ///         sortBy = "propertyName_asc | propertyName_ASC | propertyName_desc | propertyName_DESC"
+        ///         productType = SINGLE | CHILD 
+        ///         idCategory = 1
+        ///         idStore = 1
+        ///         isGetAll = TRUE | FALSE
+        /// </remarks>
+        /// <response code="200">Get list of products with number of product sold successfully.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
+        /// <response code="404">Some Error about request data not found.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
+        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(GetProductsResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
+        [HttpGet(APIEndPointConstant.Product.ProductWithNumberSoldEndpoint)]
+        public async Task<IActionResult> GetProductsWithNumberOfProductSoldAsync([FromQuery] GetProductWithNumberSoldRequest getProductsRequest)
+        {
+            ValidationResult validationResult = await this._getProductsWithNumberSoldValidator.ValidateAsync(getProductsRequest);
+            if (validationResult.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
+            }
+
+            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
+            GetProductsResponse getProductsResponse = await this._productService.GetProductsWithNumberOfProductSoldAsync(getProductsRequest, claims);
             return Ok(getProductsResponse);
         }
         #endregion
@@ -346,53 +398,6 @@ namespace MBKC.API.Controllers
             return Ok(new
             {
                 Message = MessageConstant.ProductMessage.DeletedProductSuccessfully
-            });
-        }
-        #endregion
-
-        #region Create new product by excel
-        /// <summary>
-        /// Import excel file for create new products.
-        /// </summary>
-        /// <param name="importFileRequest">The file contains created product information.</param>
-        /// <returns>
-        /// A success message about creating new product.
-        /// </returns>
-        /// <remarks>
-        ///     Sample request:
-        ///
-        ///         POST 
-        ///         File: file_excel.xlsx
-        /// </remarks>
-        /// <response code="200">Created new product successfully.</response>
-        /// <response code="400">Some Error about request data and logic data.</response>
-        /// <response code="404">Some Error about request data not found.</response>
-        /// <response code="500">Some Error about the system.</response>
-        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
-        /// <exception cref="NotFoundException">Throw Error about request data that are not found.</exception>
-        /// <exception cref="Exception">Throw Error about the system.</exception>
-        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
-        [Consumes(MediaTypeConstant.MultipartFormData)]
-        [Produces(MediaTypeConstant.ApplicationJson)]
-        [PermissionAuthorize(PermissionAuthorizeConstant.BrandManager)]
-        [HttpPost(APIEndPointConstant.Product.ImportFileEndpoint)]
-        public async Task<IActionResult> ImportFileExcel([FromForm] ImportFileRequest importFileRequest)
-        {
-            ValidationResult validationResult = await this._importFileValidator.ValidateAsync(importFileRequest);
-            if (validationResult.IsValid == false)
-            {
-                string errors = ErrorUtil.GetErrorsString(validationResult);
-                throw new BadRequestException(errors);
-            }
-
-            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            await this._productService.UploadExelFile(importFileRequest.file, claims);
-            return Ok(new
-            {
-                Message = MessageConstant.ProductMessage.CreatedNewProductSuccessfully
             });
         }
         #endregion

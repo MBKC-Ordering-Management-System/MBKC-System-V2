@@ -50,6 +50,7 @@ namespace MBKC.Repository.Infrastructures
         private ConfigurationRepository _configurationRepository;
         private RabbitMQRepository _rabbitMQRepository;
         private OrderHistoryRepository _orderHistoryRepository;
+        private UserDeviceRepository _userDeviceRepository;
 
         public UnitOfWork(IDbFactory dbFactory)
         {
@@ -434,6 +435,18 @@ namespace MBKC.Repository.Infrastructures
                     this._orderHistoryRepository = new OrderHistoryRepository(this._dbContext);
                 }
                 return this._orderHistoryRepository;
+            }
+        }
+
+        public UserDeviceRepository UserDeviceRepository
+        {
+            get
+            {
+                if (this._userDeviceRepository == null)
+                {
+                    this._userDeviceRepository = new UserDeviceRepository(this._dbContext);
+                }
+                return this._userDeviceRepository;
             }
         }
 

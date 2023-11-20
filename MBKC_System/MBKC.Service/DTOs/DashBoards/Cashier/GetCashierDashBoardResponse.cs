@@ -11,8 +11,8 @@ namespace MBKC.Service.DTOs.DashBoards.Cashier
 {
     public class GetCashierDashBoardResponse
     {
-        public decimal TotalRevenueDaily { get; set; }
-        public int TotalOrderDaily { get; set; }
+        public decimal TotalRevenuesDaily { get; set; }
+        public int TotalOrdersDaily { get; set; }
         public List<GetOrderResponse>? Orders { get; set; }
         public List<GetMoneyExchangeResponse>? MoneyExchanges { get; set; }
         public List<GetShipperPaymentResponse>? ShipperPayments { get; set; }
