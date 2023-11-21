@@ -603,7 +603,7 @@ namespace MBKC.Service.Services.Implementations
                     }
                     _unitOfWork.ExtraCategoryRepository.DeleteRange(listExtraCategoriesToDelete);
                 }
-                this._unitOfWork.Commit();
+                await this._unitOfWork.CommitAsync();
             }
             catch (BadRequestException ex)
             {
