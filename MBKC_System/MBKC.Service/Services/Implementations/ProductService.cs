@@ -754,5 +754,10 @@ namespace MBKC.Service.Services.Implementations
                 throw new Exception(error);
             }
         }
+
+        public Task<GetProductsResponse> GetProductsWithNumberOfProductSoldAsync(GetProductWithNumberSoldRequest getProductsRequest, IEnumerable<Claim> claims)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

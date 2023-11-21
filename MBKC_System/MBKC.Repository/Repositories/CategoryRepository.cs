@@ -81,7 +81,7 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await _dbContext.Categories.FirstOrDefaultAsync(c => c.CategoryId == id && !(c.Status == (int)CategoryEnum.Status.DEACTIVE));
+                return await _dbContext.Categories.FirstOrDefaultAsync(c => c.CategoryId == id && !(c.Status == (int)CategoryEnum.Status.DISABLE));
             }
             catch (Exception ex)
             {

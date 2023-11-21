@@ -439,7 +439,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     foreach (var store in brand.Stores)
                     {
-                        store.Status = (int)StoreEnum.Status.DEACTIVE;
+                        store.Status = (int)StoreEnum.Status.DISABLE;
                     }
                 }
                 this._unitOfWork.BrandRepository.UpdateBrand(brand);

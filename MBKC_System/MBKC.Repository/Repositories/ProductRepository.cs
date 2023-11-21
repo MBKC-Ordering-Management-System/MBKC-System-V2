@@ -153,7 +153,7 @@ namespace MBKC.Repository.Repositories
                 {
                     return this._dbContext.Products.Include(x => x.Category)
                                                          .Include(x => x.Brand).ThenInclude(x => x.Stores).ThenInclude(x => x.KitchenCenter)
-                                                         .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
+                                                         .Where(x => x.Status != (int)ProductEnum.Status.DISABLE &&
                                                                      (productType != null
                                                                      ? x.Type.ToLower().Equals(productType.ToLower())
                                                                      : (x.Type.ToLower().Equals(ProductEnum.Type.SINGLE.ToString().ToLower()) || 
@@ -177,7 +177,7 @@ namespace MBKC.Repository.Repositories
                 {
                     return await this._dbContext.Products.Include(x => x.Category)
                                                          .Include(x => x.Brand).ThenInclude(x => x.Stores).ThenInclude(x => x.KitchenCenter)
-                                                         .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
+                                                         .Where(x => x.Status != (int)ProductEnum.Status.DISABLE &&
                                                                      x.Name.ToLower().Contains(searchName.ToLower()) &&
                                                                      (productType != null
                                                                      ? x.Type.ToLower().Equals(productType.ToLower())
@@ -192,7 +192,7 @@ namespace MBKC.Repository.Repositories
                 }
                 return await this._dbContext.Products.Include(x => x.Category)
                                                          .Include(x => x.Brand).ThenInclude(x => x.Stores).ThenInclude(x => x.KitchenCenter)
-                                                         .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
+                                                         .Where(x => x.Status != (int)ProductEnum.Status.DISABLE &&
                                                                      (productType != null
                                                                      ? x.Type.ToLower().Equals(productType.ToLower())
                                                                      : (x.Type.ToLower().Equals(ProductEnum.Type.SINGLE.ToString().ToLower()) ||
@@ -578,7 +578,7 @@ namespace MBKC.Repository.Repositories
                                                          .Include(x => x.Brand).ThenInclude(x => x.Stores).ThenInclude(x => x.KitchenCenter)
                                                          .Include(x => x.ParentProduct)
                                                          .Include(x => x.ChildrenProducts)
-                                                         .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
+                                                         .Where(x => x.Status != (int)ProductEnum.Status.DISABLE &&
                                                                      (productType != null
                                                                      ? x.Type.ToLower().Equals(productType.ToLower())
                                                                      : (x.Type.ToLower().Equals(ProductEnum.Type.SINGLE.ToString().ToLower()) ||
@@ -597,7 +597,7 @@ namespace MBKC.Repository.Repositories
                                                              .Include(x => x.Brand).ThenInclude(x => x.Stores).ThenInclude(x => x.KitchenCenter)
                                                              .Include(x => x.ParentProduct)
                                                              .Include(x => x.ChildrenProducts)
-                                                             .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
+                                                             .Where(x => x.Status != (int)ProductEnum.Status.DISABLE &&
                                                                          (productType != null
                                                                          ? x.Type.ToLower().Equals(productType.ToLower())
                                                                          : (x.Type.ToLower().Equals(ProductEnum.Type.SINGLE.ToString().ToLower()) ||
@@ -637,7 +637,7 @@ namespace MBKC.Repository.Repositories
                                                              .Include(x => x.Brand).ThenInclude(x => x.Stores).ThenInclude(x => x.KitchenCenter)
                                                              .Include(x => x.ParentProduct)
                                                              .Include(x => x.ChildrenProducts)
-                                                             .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
+                                                             .Where(x => x.Status != (int)ProductEnum.Status.DISABLE &&
                                                                          (productType != null
                                                                          ? x.Type.ToLower().Equals(productType.ToLower())
                                                                          : (x.Type.ToLower().Equals(ProductEnum.Type.SINGLE.ToString().ToLower()) ||
@@ -676,7 +676,7 @@ namespace MBKC.Repository.Repositories
                                                    .Include(x => x.Brand).ThenInclude(x => x.Stores).ThenInclude(x => x.KitchenCenter)
                                                    .Include(x => x.ParentProduct)
                                                    .Include(x => x.ChildrenProducts)
-                                                   .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
+                                                   .Where(x => x.Status != (int)ProductEnum.Status.DISABLE &&
                                                                (productType != null
                                                                ? x.Type.ToLower().Equals(productType.ToLower())
                                                                : (x.Type.ToLower().Equals(ProductEnum.Type.SINGLE.ToString().ToLower()) ||
@@ -704,7 +704,7 @@ namespace MBKC.Repository.Repositories
                                                              .Include(x => x.Brand).ThenInclude(x => x.Stores).ThenInclude(x => x.KitchenCenter)
                                                              .Include(x => x.ParentProduct)
                                                              .Include(x => x.ChildrenProducts)
-                                                             .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
+                                                             .Where(x => x.Status != (int)ProductEnum.Status.DISABLE &&
                                                                          x.Name.ToLower().Contains(searchValue.ToLower()) &&
                                                                          (productType != null
                                                                          ? x.Type.ToLower().Equals(productType.ToLower())
@@ -737,7 +737,7 @@ namespace MBKC.Repository.Repositories
                                                          .Include(x => x.Brand).ThenInclude(x => x.Stores).ThenInclude(x => x.KitchenCenter)
                                                          .Include(x => x.ParentProduct)
                                                          .Include(x => x.ChildrenProducts)
-                                                         .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
+                                                         .Where(x => x.Status != (int)ProductEnum.Status.DISABLE &&
                                                                      x.Name.ToLower().Contains(searchValue.ToLower()) &&
                                                                      (productType != null
                                                                      ? x.Type.ToLower().Equals(productType.ToLower())
@@ -769,7 +769,7 @@ namespace MBKC.Repository.Repositories
                                                          .Include(x => x.Brand).ThenInclude(x => x.Stores).ThenInclude(x => x.KitchenCenter)
                                                          .Include(x => x.ParentProduct)
                                                          .Include(x => x.ChildrenProducts)
-                                                         .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
+                                                         .Where(x => x.Status != (int)ProductEnum.Status.DISABLE &&
                                                                      x.Name.ToLower().Contains(searchValue.ToLower()) &&
                                                                      (productType != null
                                                                      ? x.Type.ToLower().Equals(productType.ToLower())
@@ -790,7 +790,7 @@ namespace MBKC.Repository.Repositories
                                                              .Include(x => x.Brand).ThenInclude(x => x.Stores).ThenInclude(x => x.KitchenCenter)
                                                              .Include(x => x.ParentProduct)
                                                              .Include(x => x.ChildrenProducts)
-                                                             .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
+                                                             .Where(x => x.Status != (int)ProductEnum.Status.DISABLE &&
                                                                          (productType != null
                                                                          ? x.Type.ToLower().Equals(productType.ToLower())
                                                                          : (x.Type.ToLower().Equals(ProductEnum.Type.SINGLE.ToString().ToLower()) ||
@@ -822,7 +822,7 @@ namespace MBKC.Repository.Repositories
                                                              .Include(x => x.Brand).ThenInclude(x => x.Stores).ThenInclude(x => x.KitchenCenter)
                                                              .Include(x => x.ParentProduct)
                                                              .Include(x => x.ChildrenProducts)
-                                                             .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
+                                                             .Where(x => x.Status != (int)ProductEnum.Status.DISABLE &&
                                                                          (productType != null
                                                                          ? x.Type.ToLower().Equals(productType.ToLower())
                                                                          : (x.Type.ToLower().Equals(ProductEnum.Type.SINGLE.ToString().ToLower()) ||
@@ -853,7 +853,7 @@ namespace MBKC.Repository.Repositories
                                                              .Include(x => x.Brand).ThenInclude(x => x.Stores).ThenInclude(x => x.KitchenCenter)
                                                              .Include(x => x.ParentProduct)
                                                              .Include(x => x.ChildrenProducts)
-                                                             .Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE &&
+                                                             .Where(x => x.Status != (int)ProductEnum.Status.DISABLE &&
                                                                          (productType != null
                                                                          ? x.Type.ToLower().Equals(productType.ToLower())
                                                                          : (x.Type.ToLower().Equals(ProductEnum.Type.SINGLE.ToString().ToLower()) ||

@@ -323,7 +323,7 @@ namespace MBKC.Repository.Repositories
                 return await this._dbContext.KitchenCenters.Include(kc => kc.Stores.Where(s => s.Status == (int)StoreEnum.Status.ACTIVE || s.Status == (int)StoreEnum.Status.INACTIVE)
                                                                                    .OrderByDescending(s => s.Status)
                                                                                    .Take(5)).ThenInclude(s => s.Brand)
-                                                           .Include(kc => kc.Cashiers.Where(c => c.Account.Status != (int)AccountEnum.Status.DEACTIVE)
+                                                           .Include(kc => kc.Cashiers.Where(c => c.Account.Status != (int)AccountEnum.Status.DISABLE)
                                                                                      .OrderByDescending(c => c.Account.Status)
                                                                                      .Take(5)).ThenInclude(c => c.Account)
                                                            .FirstOrDefaultAsync(kc => kc.Manager.Email.Equals(managerEmail) && kc.Status == (int)KitchenCenterEnum.Status.ACTIVE);
