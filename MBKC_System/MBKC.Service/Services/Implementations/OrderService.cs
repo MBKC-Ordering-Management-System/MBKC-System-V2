@@ -281,7 +281,7 @@ namespace MBKC.Service.Services.Implementations
         #endregion
 
         #region Create order
-        public async Task CreateOrderAsync(PostOrderRequest postOrderRequest)
+        public async Task<GetOrderResponse> CreateOrderAsync(PostOrderRequest postOrderRequest)
         {
             try
             {
@@ -317,7 +317,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     CreatedDate = DateTime.Now,
                     SystemStatus = OrderEnum.SystemStatus.IN_STORE.ToString().Split("_")[0] + " " + OrderEnum.SystemStatus.IN_STORE.ToString().Split("_")[1],
-                    PartnerOrderStatus = postOrderRequest.Status.ToUpper()
+                    PartnerOrderStatus = postOrderRequest.PartnerOrderStatus.ToUpper()
                 };
 
                 Order newOrder = new Order()
@@ -338,7 +338,7 @@ namespace MBKC.Service.Services.Implementations
                     Partner = existedPartner,
                     StoreId = postOrderRequest.StoreId,
                     PaymentMethod = postOrderRequest.PaymentMethod,
-                    PartnerOrderStatus = postOrderRequest.Status.ToUpper(),
+                    PartnerOrderStatus = postOrderRequest.PartnerOrderStatus.ToUpper(),
                     SystemStatus = OrderEnum.SystemStatus.IN_STORE.ToString().ToUpper(),
                     SubTotalPrice = decimal.Parse(postOrderRequest.SubTotalPrice.ToString().Replace(".", ",")),
                     TotalDiscount = decimal.Parse(postOrderRequest.TotalDiscount.ToString().Replace(".", ",")),
@@ -412,6 +412,7 @@ namespace MBKC.Service.Services.Implementations
                 newOrder.OrderDetails = newOrderDetails;
                 await this._unitOfWork.OrderRepository.InsertOrderAsync(newOrder);
                 await this._unitOfWork.CommitAsync();
+                return this._mapper.Map<GetOrderResponse>(newOrder);
             }
             catch (BadRequestException ex)
             {
@@ -474,7 +475,7 @@ namespace MBKC.Service.Services.Implementations
         #endregion
 
         #region Update order
-        public async Task UpdateOrderAsync(PutOrderIdRequest putOrderIdRequest, PutOrderRequest putOrderRequest)
+        public async Task<GetOrderResponse> UpdateOrderAsync(PutOrderIdRequest putOrderIdRequest, PutOrderRequest putOrderRequest)
         {
             try
             {
@@ -493,6 +494,7 @@ namespace MBKC.Service.Services.Implementations
                 existedOrder.OrderHistories.ToList().Add(orderHistory);
                 this._unitOfWork.OrderRepository.UpdateOrder(existedOrder);
                 await this._unitOfWork.CommitAsync();
+                return this._mapper.Map<GetOrderResponse>(existedOrder);
             }
             catch (NotFoundException ex)
             {
@@ -584,13 +586,18 @@ namespace MBKC.Service.Services.Implementations
                         {
                             float storePartnerComission = order.Store.StorePartners.FirstOrDefault(x => x.PartnerId == order.PartnerId).Commission;
 
-                            collectedPrice = order.SubTotalPrice - (order.SubTotalPrice * decimal.Parse(storePartnerComission.ToString())/100);
+                            collectedPrice = order.SubTotalPrice - (order.SubTotalPrice * decimal.Parse(storePartnerComission.ToString()) / 100);
                         }
                         GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(order);
                         getOrderResponse.IsPaid = getOrderResponse.PaymentMethod.ToLower().Equals(OrderEnum.PaymentMethod.CASH.ToString().ToLower()) ? false : true;
-                        if(getOrderResponse.IsPaid == true)
+                        if (getOrderResponse.IsPaid == true)
                         {
                             collectedPrice = 0;
+                        }
+                        if (getOrderResponse.SystemStatus.ToLower().Equals(OrderEnum.SystemStatus.COMPLETED.ToString().ToLower()) &&
+                            getOrderResponse.PartnerOrderStatus.ToLower().Equals(OrderEnum.Status.COMPLETED.ToString().ToLower()))
+                        {
+                            getOrderResponse.IsPaid = true;
                         }
                         getOrderResponse.CollectedPrice = collectedPrice;
                         List<int> listQuantity = new List<int>();
@@ -682,6 +689,12 @@ namespace MBKC.Service.Services.Implementations
                 if (getOrderResponse.IsPaid == true)
                 {
                     collectedPrice = 0;
+                }
+
+                if (getOrderResponse.SystemStatus.ToLower().Equals(OrderEnum.SystemStatus.COMPLETED.ToString().ToLower()) &&
+                    getOrderResponse.PartnerOrderStatus.ToLower().Equals(OrderEnum.Status.COMPLETED.ToString().ToLower()))
+                {
+                    getOrderResponse.IsPaid = true;
                 }
                 getOrderResponse.CollectedPrice = collectedPrice;
                 return getOrderResponse;

@@ -418,6 +418,112 @@ namespace MBKC.Service.Services.Implementations
             }
         }
         #endregion
+
+        #region Get money exchanges with draw
+        public async Task<GetMoneyExchangesResponse> GetMoneyExchangesWithDraw(IEnumerable<Claim> claims, GetMoneyExchangesWithDrawRequest getMoneyExchangesWithDrawRequest)
+        {
+            try
+            {
+                Claim registeredEmailClaim = claims.First(x => x.Type == ClaimTypes.Email);
+                Claim registeredRoleClaim = claims.First(x => x.Type.ToLower().Equals("role"));
+                string email = registeredEmailClaim.Value;
+                string role = registeredRoleClaim.Value;
+                KitchenCenter? existedKitchenCenter = null;
+                List<MoneyExchange>? existedMoneyExchanges = null;
+
+                if (role.ToLower().Equals(RoleConstant.Kitchen_Center_Manager.ToLower()))
+                {
+                    existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterMoneyExchangeAsync(email);
+                    var getMoneyExchangeWithdraw = await this._unitOfWork.MoneyExchangeRepository.GetMoneyExchangesBySendIdAsync(existedKitchenCenter.KitchenCenterId);
+                    existedMoneyExchanges = getMoneyExchangeWithdraw;
+                }
+
+                // Change status string to int
+                int? status = null;
+                if (getMoneyExchangesWithDrawRequest.Status != null)
+                {
+                    status = StatusUtil.ChangeMoneyExchangeStatus(getMoneyExchangesWithDrawRequest.Status);
+                }
+
+                int numberItems = 0;
+                List<MoneyExchange>? listMoneyExchanges = null;
+                numberItems = this._unitOfWork.MoneyExchangeRepository.GetNumberMoneyExchangesWithDrawAsync(existedMoneyExchanges,
+                                                                         status,
+                                                                         getMoneyExchangesWithDrawRequest.SearchDateFrom,
+                                                                         getMoneyExchangesWithDrawRequest.SearchDateTo);
+
+                listMoneyExchanges = this._unitOfWork.MoneyExchangeRepository.GetMoneyExchangesWithDrawAsync(existedMoneyExchanges,
+                                                                                 getMoneyExchangesWithDrawRequest.CurrentPage, getMoneyExchangesWithDrawRequest.ItemsPerPage,
+                                                                                 getMoneyExchangesWithDrawRequest.SortBy != null && getMoneyExchangesWithDrawRequest.SortBy.ToLower().EndsWith("asc") ? getMoneyExchangesWithDrawRequest.SortBy.Split("_")[0] : null,
+                                                                                 getMoneyExchangesWithDrawRequest.SortBy != null && getMoneyExchangesWithDrawRequest.SortBy.ToLower().EndsWith("desc") ? getMoneyExchangesWithDrawRequest.SortBy.Split("_")[0] : null,
+                                                                                 status, getMoneyExchangesWithDrawRequest.SearchDateFrom, getMoneyExchangesWithDrawRequest.SearchDateTo);
+
+                var getMoneyExchangeResponse = this._mapper.Map<List<GetMoneyExchangeResponse>>(listMoneyExchanges);
+
+                // Assign sender name and receiver name, transaction time role Kitchen Center
+                if (existedKitchenCenter != null)
+                {
+                    foreach (var item in listMoneyExchanges)
+                    {
+                        if (item.ExchangeType.Equals(MoneyExchangeEnum.ExchangeType.RECEIVE.ToString()))
+                        {
+                            var cashierSender = await this._unitOfWork.CashierRepository.GetCashierAsync(item.SenderId);
+
+                            foreach (var itemResponse in getMoneyExchangeResponse)
+                            {
+                                if (itemResponse.ExchangeId == item.ExchangeId)
+                                {
+                                    itemResponse.SenderName = cashierSender.FullName;
+                                    itemResponse.ReceiveName = existedKitchenCenter.Name;
+                                    itemResponse.TransactionTime = existedMoneyExchanges
+                                        .SelectMany(x => x.Transactions.Where(x => x.ExchangeId == item.ExchangeId)
+                                        .Select(x => x.TransactionTime))
+                                        .SingleOrDefault();
+                                }
+                            }
+                        }
+                        else
+                        {
+                            var storeRecieve = await _unitOfWork.StoreRepository.GetStoreAsync(item.ReceiveId);
+                            foreach (var itemResponse in getMoneyExchangeResponse)
+                            {
+                                if (itemResponse.ExchangeId == item.ExchangeId)
+                                {
+                                    itemResponse.SenderName = existedKitchenCenter.Name;
+                                    itemResponse.ReceiveName = storeRecieve.Name;
+                                    itemResponse.TransactionTime = existedMoneyExchanges
+                                        .SelectMany(x => x.Transactions.Where(x => x.ExchangeId == item.ExchangeId)
+                                        .Select(x => x.TransactionTime))
+                                        .SingleOrDefault();
+                                }
+                            }
+                        }
+                    }
+                }
+
+                int totalPages = 0;
+                totalPages = (int)((numberItems + getMoneyExchangesWithDrawRequest.ItemsPerPage) / getMoneyExchangesWithDrawRequest.ItemsPerPage);
+
+                if (numberItems == 0)
+                {
+                    totalPages = 0;
+                }
+                return new GetMoneyExchangesResponse
+                {
+                    TotalPages = totalPages,
+                    NumberItems = numberItems,
+                    MoneyExchanges = getMoneyExchangeResponse
+                };
+            }
+            catch (Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.InnerException != null ? ex.InnerException.Message : ex.Message);
+                throw new Exception(error);
+            }
+        }
+        #endregion
     }
+
+
 }
 

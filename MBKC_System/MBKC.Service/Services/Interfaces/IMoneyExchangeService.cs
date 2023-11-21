@@ -13,5 +13,6 @@ namespace MBKC.Service.Services.Interfaces
         public Task MoneyExchangeToKitchenCenterAsync(IEnumerable<Claim> claims);
         public Task WithdrawMoneyAsync(IEnumerable<Claim> claims, WithdrawMoneyRequest withdrawMoneyRequest);
         public Task<GetMoneyExchangesResponse> GetMoneyExchanges(IEnumerable<Claim> claims, GetMoneyExchangesRequest getMoneyExchangesRequest);
+        public Task<GetMoneyExchangesResponse> GetMoneyExchangesWithDraw(IEnumerable<Claim> claims, GetMoneyExchangesWithDrawRequest getMoneyExchangesWithDrawRequest);
     }
 }

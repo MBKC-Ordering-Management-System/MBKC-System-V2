@@ -17,7 +17,7 @@ namespace MBKC.Service.DTOs.Orders
         public decimal FinalTotalPrice { get; set; }
         public decimal Commission { get; set; }
         public float Tax { get; set; }
-        public string Status { get; set; }
+        public string PartnerOrderStatus { get; set; }
         public int PartnerId { get; set; }
         public int StoreId { get; set; }
         public string DisplayId { get; set; }

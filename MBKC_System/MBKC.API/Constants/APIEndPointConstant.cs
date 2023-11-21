@@ -66,6 +66,7 @@
         {
             public const string ProductsEndpoint = ApiEndpoint + "/products";
             public const string ProductEndpoint = ProductsEndpoint + "/{id}";
+            public const string ProductWithNumberSoldEndpoint = ProductsEndpoint + "/products-sold";
             public const string UpdatingStatusProductEndpoint = ProductEndpoint + "/updating-status";
             public const string ImportFileEndpoint = ProductsEndpoint + "/import-file";
         }
@@ -123,6 +124,7 @@
             public const string MoneyExchangesEndpoint = ApiEndpoint + "/money-exchanges";
             public const string MoneyExchangeToKitchenCenter = MoneyExchangesEndpoint + "/money-exchange-to-kitchen-center";
             public const string WithdrawMoneyToStore = MoneyExchangesEndpoint + "/withdraw-money-to-store";
+            public const string MoneyExchangesWithDrawEndpoint = MoneyExchangesEndpoint + "/withdraw-type";
         }
 
         public static class Configuration
@@ -155,6 +157,7 @@
         public static class UserDevice
         {
             public const string UserDevicesEndpoint = ApiEndpoint + "/user-devices";
+            public const string UserDeviceEndPoint = UserDevicesEndpoint + "/{id}";
         }
     }
 }

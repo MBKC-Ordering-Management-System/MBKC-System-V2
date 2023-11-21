@@ -124,6 +124,7 @@
         public static class UserDevice
         {
             public const string CreatedUserDeviceSuccessfully = "Created User Device Successfully.";
+            public const string DeletedUserDeviceSuccessfully = "Delete User Device Successfully.";
         }
     }
 }

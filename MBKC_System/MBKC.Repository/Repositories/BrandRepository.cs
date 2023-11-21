@@ -283,14 +283,29 @@ namespace MBKC.Repository.Repositories
             }
         }
 
+        #region Get brand by email
+        public async Task<Brand?> GetBrandByEmailAsync(string managerEmail)
+        {
+            try
+            {
+                return await this._dbContext.Brands.Include(x => x.Categories)
+                                                   .FirstOrDefaultAsync(b => b.BrandManagerEmail.Equals(managerEmail) && b.Status == (int)BrandEnum.Status.ACTIVE);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
         #region Get brand for dash board
         public async Task<Brand?> GetBrandForDashBoardAsync(string managerEmail)
         {
             try
             {
                 return await this._dbContext.Brands.Include(b => b.Stores.Where(s => s.Status == (int)StoreEnum.Status.ACTIVE || s.Status == (int)StoreEnum.Status.INACTIVE)
-                                                                         .OrderByDescending(s => s.Status))
-                                                                         .Take(5)
+                                                                         .OrderByDescending(s => s.Status)
+                                                                         .Take(5)).ThenInclude(s => s.KitchenCenter)
                                                    .Include(b => b.Products)
                                                    .FirstOrDefaultAsync(b => b.BrandManagerEmail.Equals(managerEmail) && b.Status == (int)BrandEnum.Status.ACTIVE);
             }

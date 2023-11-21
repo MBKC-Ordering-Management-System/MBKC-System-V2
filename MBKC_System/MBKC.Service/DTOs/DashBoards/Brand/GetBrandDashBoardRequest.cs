@@ -9,8 +9,5 @@ namespace MBKC.Service.DTOs.DashBoards.Brand
     public class GetBrandDashBoardRequest
     {
         public int? StoreId { get; set; }
-        public string? ProductSearchDateFrom { get; set; }
-        public string? ProductSearchDateTo { get; set; }
-
     }
 }
