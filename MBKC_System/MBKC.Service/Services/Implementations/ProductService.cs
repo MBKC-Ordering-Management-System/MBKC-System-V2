@@ -755,9 +755,162 @@ namespace MBKC.Service.Services.Implementations
             }
         }
 
-        public Task<GetProductsResponse> GetProductsWithNumberOfProductSoldAsync(GetProductWithNumberSoldRequest getProductsRequest, IEnumerable<Claim> claims)
+        public async Task<GetProductsResponse> GetProductsWithNumberOfProductSoldAsync(GetProductWithNumberSoldRequest getProductsRequest, IEnumerable<Claim> claims)
         {
-            throw new NotImplementedException();
+            try
+            {
+                #region validation
+                string email = claims.First(x => x.Type == ClaimTypes.Email).Value;
+                var existedBrand = await _unitOfWork.BrandRepository.GetBrandByEmailAsync(email);
+                Dictionary<int, int> numberOfProductSold = new Dictionary<int, int>();
+
+                Category? existedCategory = null;
+                if (getProductsRequest.IdCategory is not null)
+                {
+                    existedCategory = await this._unitOfWork.CategoryRepository.GetOnlyCategoryByIdAsync(getProductsRequest.IdCategory.Value);
+                    if (existedCategory is null)
+                    {
+                        throw new NotFoundException(MessageConstant.CommonMessage.NotExistCategoryId);
+                    }
+
+                    if (existedBrand!.Categories.Any(c => c.CategoryId == existedCategory.CategoryId) == false)
+                    {
+                        throw new BadRequestException(MessageConstant.CommonMessage.CategoryIdNotBelongToBrand);
+                    }
+                }
+                #endregion
+
+                int numberItems = 0;
+                List<Product>? products = null;
+                if (getProductsRequest.SearchValue != null && StringUtil.IsUnicode(getProductsRequest.SearchValue) == false)
+                {
+                    numberItems = await this._unitOfWork.ProductRepository.GetNumberProductWithNumberProductsSoldAsync(null, getProductsRequest.SearchValue,
+                                                                                                                             getProductsRequest.ProductType,
+                                                                                                                             getProductsRequest.IdCategory,
+                                                                                                                             existedBrand!.BrandId);
+
+                    products = await this._unitOfWork.ProductRepository.GetProductsWithNumberProductsSoldAsync(null, getProductsRequest.SearchValue, getProductsRequest.CurrentPage, getProductsRequest.ItemsPerPage,
+                                                                                               getProductsRequest.SortBy != null && getProductsRequest.SortBy.ToLower().EndsWith("asc") ? getProductsRequest.SortBy.Split("_")[0] : null,
+                                                                                               getProductsRequest.SortBy != null && getProductsRequest.SortBy.ToLower().EndsWith("desc") ? getProductsRequest.SortBy.Split("_")[0] : null,
+                                                                                               getProductsRequest.ProductType, getProductsRequest.IdCategory,
+                                                                                               existedBrand.BrandId,
+                                                                                               getProductsRequest.IsGetAll);
+                }
+                else if (getProductsRequest.SearchValue != null && StringUtil.IsUnicode(getProductsRequest.SearchValue))
+                {
+                    numberItems = await this._unitOfWork.ProductRepository.GetNumberProductWithNumberProductsSoldAsync(getProductsRequest.SearchValue, null,
+                                                                                                                       getProductsRequest.ProductType,
+                                                                                                                       getProductsRequest.IdCategory,
+                                                                                                                       existedBrand!.BrandId);
+
+                    products = await this._unitOfWork.ProductRepository.GetProductsWithNumberProductsSoldAsync(getProductsRequest.SearchValue, null, getProductsRequest.CurrentPage, getProductsRequest.ItemsPerPage,
+                                                                                               getProductsRequest.SortBy != null && getProductsRequest.SortBy.ToLower().EndsWith("asc") ? getProductsRequest.SortBy.Split("_")[0] : null,
+                                                                                               getProductsRequest.SortBy != null && getProductsRequest.SortBy.ToLower().EndsWith("desc") ? getProductsRequest.SortBy.Split("_")[0] : null,
+                                                                                               getProductsRequest.ProductType, getProductsRequest.IdCategory,
+                                                                                               existedBrand.BrandId,
+                                                                                               getProductsRequest.IsGetAll);
+                }
+                else if (getProductsRequest.SearchValue == null)
+                {
+                    numberItems = await this._unitOfWork.ProductRepository.GetNumberProductWithNumberProductsSoldAsync(null, null, getProductsRequest.ProductType,
+                                                                                                                                   getProductsRequest.IdCategory,
+                                                                                                                                   existedBrand!.BrandId);
+
+                    products = await this._unitOfWork.ProductRepository.GetProductsWithNumberProductsSoldAsync(null, null, getProductsRequest.CurrentPage, getProductsRequest.ItemsPerPage,
+                                                                                               getProductsRequest.SortBy != null && getProductsRequest.SortBy.ToLower().EndsWith("asc") ? getProductsRequest.SortBy.Split("_")[0] : null,
+                                                                                               getProductsRequest.SortBy != null && getProductsRequest.SortBy.ToLower().EndsWith("desc") ? getProductsRequest.SortBy.Split("_")[0] : null,
+                                                                                               getProductsRequest.ProductType, getProductsRequest.IdCategory,
+                                                                                               existedBrand.BrandId,
+                                                                                               getProductsRequest.IsGetAll);
+                }
+
+                int totalPages = 0;
+                if (numberItems > 0 && getProductsRequest.IsGetAll == null || numberItems > 0 && getProductsRequest.IsGetAll != null && getProductsRequest.IsGetAll == false)
+                {
+                    totalPages = (int)((numberItems + getProductsRequest.ItemsPerPage) / getProductsRequest.ItemsPerPage);
+                }
+
+                if (numberItems == 0)
+                {
+                    totalPages = 0;
+                }
+
+                List<GetProductResponse> getProductResponse = this._mapper.Map<List<GetProductResponse>>(products);
+
+                #region number of product sold
+                var ordersForProductSold = new List<Order>();
+                if (getProductsRequest.ProductSearchDateFrom is null
+                 && getProductsRequest.ProductSearchDateTo is null)
+                {
+                    ordersForProductSold = await this._unitOfWork.OrderRepository.GetOrderByDateFromAndDateToAsync(DateTime.Now.AddDays(-6), DateTime.Now, existedBrand!.BrandId);
+                }
+                else if (getProductsRequest.ProductSearchDateFrom is not null
+                      && getProductsRequest.ProductSearchDateTo is not null)
+                {
+                    ordersForProductSold = await this._unitOfWork.OrderRepository.GetOrderByDateFromAndDateToAsync(DateUtil.ConvertStringToDateTime(getProductsRequest.ProductSearchDateFrom), DateUtil.ConvertStringToDateTime(getProductsRequest.ProductSearchDateTo), existedBrand!.BrandId);
+                }
+                else if (getProductsRequest.ProductSearchDateFrom is not null)
+                {
+                    ordersForProductSold = await this._unitOfWork.OrderRepository.GetOrderByDateFromAndDateToAsync(DateUtil.ConvertStringToDateTime(getProductsRequest.ProductSearchDateFrom), null, existedBrand!.BrandId);
+                }
+                else if (getProductsRequest.ProductSearchDateTo is not null)
+                {
+                    ordersForProductSold = await this._unitOfWork.OrderRepository.GetOrderByDateFromAndDateToAsync(null, DateUtil.ConvertStringToDateTime(getProductsRequest.ProductSearchDateTo), existedBrand!.BrandId);
+                }
+
+                foreach (var order in ordersForProductSold)
+                {
+                    foreach (var orderDetail in order.OrderDetails)
+                    {
+                        if (numberOfProductSold.ContainsKey(orderDetail.Product.ProductId))
+                        {
+                            numberOfProductSold[orderDetail.Product.ProductId] += orderDetail.Quantity;
+                        }
+                        else
+                        {
+                            numberOfProductSold.Add(orderDetail.Product.ProductId, orderDetail.Quantity);
+                        }
+                    }
+                }
+
+                foreach (var product in getProductResponse)
+                {
+                    product.NumberOfProductsSold = numberOfProductSold.ContainsKey(product.ProductId) ? numberOfProductSold[product.ProductId] : 0;
+                }
+                #endregion
+
+                return new GetProductsResponse()
+                {
+                    NumberItems = numberItems,
+                    TotalPages = totalPages,
+                    Products = getProductResponse
+                };
+            }
+            catch (NotFoundException ex)
+            {
+                string fieldName = "";
+                if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistCategoryId))
+                {
+                    fieldName = "Category id";
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new NotFoundException(error);
+            }
+            catch (BadRequestException ex)
+            {
+                string fieldName = "";
+                if (ex.Message.Equals(MessageConstant.CommonMessage.CategoryIdNotBelongToBrand))
+                {
+                    fieldName = "Category";
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new BadRequestException(error);
+            }
+            catch (Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                throw new Exception(error);
+            }
         }
     }
 }
