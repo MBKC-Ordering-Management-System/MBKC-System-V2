@@ -260,6 +260,7 @@ namespace MBKC.Service.Constants
             public const string OrderIsCancelled_Cancel = "This order is CANCELLED status, so You can not cancel order.";
             public const string OrderIsReadyDelivery_Cancel = "This order is READY_DELIVERY status, so You can not cancel order.";
             public const string NoChangeOrderStatusWhenClosedShift = "You've closed your shift today so you can't make a status change.";
+            public const string NoChangeOrderStatusNotToday = "Only today's order status can be changed. This order is not from today.";
 
         }
 
