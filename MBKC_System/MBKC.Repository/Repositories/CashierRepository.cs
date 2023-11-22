@@ -405,7 +405,7 @@ namespace MBKC.Repository.Repositories
             try
             {
                 return await this._dbContext.Cashiers.Include(c => c.CashierMoneyExchanges.OrderByDescending(cm => cm.ExchangeId).Take(5))
-                                                     .ThenInclude(cm => cm.MoneyExchange)
+                                                     .ThenInclude(cm => cm.MoneyExchange).ThenInclude(me => me.Transactions)
                                                      .SingleOrDefaultAsync(x => x.Account.Email.Equals(email));
             }
             catch (Exception ex)
