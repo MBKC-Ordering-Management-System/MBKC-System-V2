@@ -313,16 +313,30 @@ namespace MBKC.Service.Services.Implementations
                 {
                     ordersHasPaid = await this._unitOfWork.OrderRepository.GetOrderByDateFromAndDateToAsync(null, DateUtil.ConvertStringToDateTime(getCashierDashBoardRequest.OrderSearchDateTo), existedCashier.AccountId);
                 }
+
+                var ordersHasPaidResponse = new List<GetOrderResponse>();
+                foreach(var order in ordersHasPaid)
+                {
+                    var orderHasPaidResponse = this._mapper.Map<GetOrderResponse>(order);
+                    orderHasPaidResponse.CollectedPrice = order.ShipperPayments.Last().Amount;
+                    ordersHasPaidResponse.Add(orderHasPaidResponse);
+                }
                 #endregion
 
-                var moneyExchangesResponse = this._mapper.Map<List<GetMoneyExchangeResponse>>(existedCashier!.CashierMoneyExchanges.Select(c => c.MoneyExchange));
-                foreach(var moneyExchange in moneyExchangesResponse)
+                #region money exchange
+                var moneyExchangesResponse = new List<GetMoneyExchangeResponse>();
+                foreach(var moneyExchange in existedCashier!.CashierMoneyExchanges.Select(c => c.MoneyExchange))
                 {
-                    moneyExchange.SenderName = existedCashier.FullName;
+                    var moneyExchangeResponse = this._mapper.Map<GetMoneyExchangeResponse>(moneyExchange);
+                    moneyExchangeResponse.SenderName = existedCashier.FullName;
                     var existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetOnlyKitchenCenterAsync(moneyExchange.ReceiveId);
-                    moneyExchange.ReceiveName = existedKitchenCenter!.Name;
+                    moneyExchangeResponse.ReceiveName = existedKitchenCenter!.Name;
+                    moneyExchangeResponse.TransactionTime = moneyExchange.Transactions.Last().TransactionTime;
+                    moneyExchangesResponse.Add(moneyExchangeResponse);
                 }
+                #endregion
 
+                #region shipper payment
                 var shipperPaymentsResponse = new List<GetShipperPaymentResponse>();
                 foreach (var shipperPayment in shipperPayments)
                 {
@@ -334,12 +348,13 @@ namespace MBKC.Service.Services.Implementations
                     }
                     shipperPaymentsResponse.Add(shipperPaymentResponse);
                 }
+                #endregion
 
                 var getCashierDashBoardResponse = new GetCashierDashBoardResponse()
                 {
                     TotalRevenuesDaily = totalRevenueDaily,
                     TotalOrdersDaily = totalOrderDaily,
-                    Orders = this._mapper.Map<List<GetOrderResponse>>(ordersHasPaid),
+                    Orders = ordersHasPaidResponse,
                     MoneyExchanges  = moneyExchangesResponse,
                     ShipperPayments = shipperPaymentsResponse,
                 };
