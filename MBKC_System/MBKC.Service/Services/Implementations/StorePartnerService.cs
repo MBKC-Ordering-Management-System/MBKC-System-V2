@@ -66,6 +66,7 @@ namespace MBKC.Service.Services.Implementations
 
                 // Check partner existed or not
                 Dictionary<string, int> namePartners = new Dictionary<string, int>();
+                var listStorePartnerInsert = new List<StorePartner>();
                 foreach (var p in postStorePartnerRequest.PartnerAccounts)
                 {
                     var partner = await this._unitOfWork.PartnerRepository.GetPartnerAsync(p.PartnerId);
@@ -73,14 +74,15 @@ namespace MBKC.Service.Services.Implementations
                     {
                         throw new NotFoundException(MessageConstant.CommonMessage.NotExistPartnerId);
                     }
-                    GrabFoodAccount grabFoodAccount = new GrabFoodAccount()
-                    {
-                        Username = p.UserName,
-                        Password = p.Password
-                    };
+                    
                     //check partner account is valid
                     if (partner.Name.ToLower().Equals(PartnerConstant.GrabFood.ToLower()))
                     {
+                        GrabFoodAccount grabFoodAccount = new GrabFoodAccount()
+                        {
+                            Username = p.UserName,
+                            Password = p.Password
+                        };
                         GrabFoodAuthenticationResponse grabFoodAuthenticationResponse = await this._unitOfWork.GrabFoodRepository.LoginGrabFoodAsync(grabFoodAccount);
                         /*if(grabFoodAuthenticationResponse != null && grabFoodAuthenticationResponse.Data.User_Profile.Role.ToLower().Equals(RoleConstant.Store_Manager.ToLower()) == false)
                         {
@@ -91,33 +93,20 @@ namespace MBKC.Service.Services.Implementations
                     {
                         namePartners.Add(partner.Name, partner.PartnerId);
                     }
-                }
 
-                // Check the store is linked to that partner or not 
-                foreach (var p in postStorePartnerRequest.PartnerAccounts)
-                {
                     var storePartner = await this._unitOfWork.StorePartnerRepository.GetStorePartnerByPartnerIdAndStoreIdAsync(p.PartnerId, postStorePartnerRequest.StoreId);
                     if (storePartner != null)
                     {
                         throw new BadRequestException(MessageConstant.StorePartnerMessage.LinkedWithParner);
                     }
-                }
 
-                // Check username with difference store id
-                foreach (var p in postStorePartnerRequest.PartnerAccounts)
-                {
                     var checkUserNameInDifferenceStore = await this._unitOfWork.StorePartnerRepository.GetStorePartnersByUserNameAndStoreIdAsync(p.UserName, store.StoreId, p.PartnerId);
 
                     if (checkUserNameInDifferenceStore.Any())
                     {
                         throw new BadRequestException(MessageConstant.StorePartnerMessage.UsernameExisted);
                     }
-                }
 
-                //Insert list store partner to database
-                var listStorePartnerInsert = new List<StorePartner>();
-                foreach (var p in postStorePartnerRequest.PartnerAccounts)
-                {
                     var storePartnerInsert = new StorePartner()
                     {
                         StoreId = postStorePartnerRequest.StoreId,

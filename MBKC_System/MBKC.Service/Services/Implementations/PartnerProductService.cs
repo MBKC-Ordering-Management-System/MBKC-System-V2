@@ -92,7 +92,7 @@ namespace MBKC.Service.Services.Implementations
                 }
                 else
                 {
-                    throw new BadRequestException(MessageConstant.CommonMessage.NotExistProductId);
+                    throw new NotFoundException(MessageConstant.CommonMessage.NotExistProductId);
                 }
 
                 // Check Status valid or not
@@ -205,10 +205,6 @@ namespace MBKC.Service.Services.Implementations
                 {
                     fieldName = "Product id";
                 }
-                else if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistProductId))
-                {
-                    fieldName = "Product id";
-                }
 
                 else if (ex.Message.Equals(MessageConstant.CommonMessage.AlreadyExistPartnerProduct) ||
                     ex.Message.Equals(MessageConstant.StorePartnerMessage.ParentProductMappingNotYet))
@@ -248,6 +244,10 @@ namespace MBKC.Service.Services.Implementations
                 else if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistPartnerId))
                 {
                     fieldName = "Partner id";
+                }
+                else if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistProductId))
+                {
+                    fieldName = "Product id";
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new NotFoundException(error);
