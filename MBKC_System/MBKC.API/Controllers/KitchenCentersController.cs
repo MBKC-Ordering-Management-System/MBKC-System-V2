@@ -131,7 +131,7 @@ namespace MBKC.API.Controllers
         /// <response code="200">Get a specific kitchen center by id Successfully.</response>
         /// <response code="500">Some Error about the system.</response>
         /// <exception cref="Exception">Throw Error about the system.</exception>
-        [ProducesResponseType(typeof(AccountResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GetKitchenCenterResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.KitchenCenterManager)]

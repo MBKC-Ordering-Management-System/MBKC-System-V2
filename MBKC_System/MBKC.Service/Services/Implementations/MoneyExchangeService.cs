@@ -465,24 +465,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     foreach (var item in listMoneyExchanges)
                     {
-                        if (item.ExchangeType.Equals(MoneyExchangeEnum.ExchangeType.RECEIVE.ToString()))
-                        {
-                            var cashierSender = await this._unitOfWork.CashierRepository.GetCashierAsync(item.SenderId);
-
-                            foreach (var itemResponse in getMoneyExchangeResponse)
-                            {
-                                if (itemResponse.ExchangeId == item.ExchangeId)
-                                {
-                                    itemResponse.SenderName = cashierSender.FullName;
-                                    itemResponse.ReceiveName = existedKitchenCenter.Name;
-                                    itemResponse.TransactionTime = existedMoneyExchanges
-                                        .SelectMany(x => x.Transactions.Where(x => x.ExchangeId == item.ExchangeId)
-                                        .Select(x => x.TransactionTime))
-                                        .SingleOrDefault();
-                                }
-                            }
-                        }
-                        else
+                        if (item.ExchangeType != null && item.ExchangeType.Equals(MoneyExchangeEnum.ExchangeType.WITHDRAW.ToString()))
                         {
                             var storeRecieve = await _unitOfWork.StoreRepository.GetStoreAsync(item.ReceiveId);
                             foreach (var itemResponse in getMoneyExchangeResponse)
