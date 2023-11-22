@@ -1031,6 +1031,12 @@ namespace MBKC.Service.Services.Implementations
                     }
                 }
 
+                // Check order belong today or not
+                if (existedOrder.OrderHistories.Any(x => x.CreatedDate.Date < DateTime.Now.Date))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.NoChangeOrderStatusNotToday);
+                }
+
                 // Check partner order status  - partner order status must be UPCOMING or PREPARING
                 if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.Status.COMPLETED.ToString()))
                 {
@@ -1092,6 +1098,7 @@ namespace MBKC.Service.Services.Implementations
                 switch (ex.Message)
                 {
                     case MessageConstant.OrderMessage.OrderIsReady_Cancel:
+                    case MessageConstant.OrderMessage.NoChangeOrderStatusNotToday:
                     case MessageConstant.OrderMessage.OrderIsCompleted_Cancel:
                     case MessageConstant.OrderMessage.OrderIsCancelled_Cancel:
                     case MessageConstant.OrderMessage.OrderIsReadyDelivery_Cancel:
