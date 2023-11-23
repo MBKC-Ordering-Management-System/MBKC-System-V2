@@ -105,7 +105,10 @@ namespace MBKC.Service.Services.Implementations
 
                     foreach (var moneyExchange in moneyExchangesInLastSevenDay)
                     {
-                        amountOfEachDay[moneyExchange.Transactions.Last().TransactionTime.Date] += moneyExchange.Amount;
+                        if (amountOfEachDay.ContainsKey(moneyExchange.Transactions.Last().TransactionTime.Date))
+                        {
+                            amountOfEachDay[moneyExchange.Transactions.Last().TransactionTime.Date] += moneyExchange.Amount;
+                        }
                     }
 
                     foreach (var day in amountOfEachDay)
@@ -179,7 +182,10 @@ namespace MBKC.Service.Services.Implementations
                 {
                     foreach (var order in ordersForRevenue)
                     {
-                        revenueInLastSevenDay[order.ShipperPayments.Last().CreateDate.Date] += order.ShipperPayments.Last().Amount;
+                        if (revenueInLastSevenDay.ContainsKey(order.ShipperPayments.Last().CreateDate.Date))
+                        {
+                            revenueInLastSevenDay[order.ShipperPayments.Last().CreateDate.Date] += order.ShipperPayments.Last().Amount;
+                        }
                     }
                 }
 
@@ -346,6 +352,7 @@ namespace MBKC.Service.Services.Implementations
                     {
                         shipperPaymentResponse.KCBankingAccountName = shipperPayment.BankingAccount!.Name;
                     }
+                    shipperPaymentResponse.OrderPartnerId = shipperPayment.Order.OrderPartnerId;
                     shipperPaymentsResponse.Add(shipperPaymentResponse);
                 }
                 #endregion
@@ -353,7 +360,7 @@ namespace MBKC.Service.Services.Implementations
                 var getCashierDashBoardResponse = new GetCashierDashBoardResponse()
                 {
                     TotalRevenuesDaily = totalRevenueDaily,
-                    TotalOrdersDaily = totalOrderDaily,
+                    //TotalOrdersDaily = totalOrderDaily,
                     Orders = ordersHasPaidResponse,
                     MoneyExchanges  = moneyExchangesResponse,
                     ShipperPayments = shipperPaymentsResponse,

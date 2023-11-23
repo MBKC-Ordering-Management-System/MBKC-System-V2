@@ -159,7 +159,7 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await this._dbContext.ShipperPayments.Include(x => x.BankingAccount)
+                return await this._dbContext.ShipperPayments.Include(x => x.BankingAccount).Include(sp => sp.Order)
                                                             .Where(sp => sp.CreateBy == cashierId)
                                                             .OrderByDescending(sp => sp.CreateDate)
                                                             .Take(5)
