@@ -961,6 +961,7 @@ namespace MBKC.Service.Services.Implementations
                     case MessageConstant.OrderMessage.OrderIsCompeleted_Change_To_ReadyDelivery:
                     case MessageConstant.OrderMessage.OrderIsCancelled_Change_To_ReadyDelivery:
                     case MessageConstant.OrderMessage.OrderIsReadyDelivery_Change_To_ReadyDelivery:
+                    case MessageConstant.OrderMessage.NoChangeOrderStatusWhenClosedShift:
                         fieldName = "Order";
                         break;
                     case MessageConstant.OrderMessage.OrderIdNotBelongToKitchenCenter:
