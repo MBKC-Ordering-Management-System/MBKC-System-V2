@@ -292,6 +292,12 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
+                List<Configuration> configurations = await this._unitOfWork.ConfigurationRepository.GetConfigurationsAsync();
+                Configuration configuration = configurations.First();
+                if(DateTime.Now.TimeOfDay > configuration.ScrawlingOrderEndTime && DateTime.Now.TimeOfDay < configuration.ScrawlingOrderStartTime)
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.CannotCreateOrder);
+                }
                 Order existedOrder = await this._unitOfWork.OrderRepository.GetOrderByOrderPartnerIdAsync(postOrderRequest.OrderPartnerId);
                 if (existedOrder is not null)
                 {
@@ -491,6 +497,12 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new NotFoundException(MessageConstant.OrderMessage.OrderPartnerIdNotExist);
                 }
+                if (existedOrder.PartnerOrderStatus.ToLower().Equals(OrderEnum.Status.PREPARING.ToString().ToLower()) &&
+                    putOrderRequest.Status.ToLower().Equals(OrderEnum.Status.UPCOMING.ToString().ToLower()))
+                {
+                    throw new Exception(MessageConstant.OrderMessage.CannotUpdateOrder);
+                }
+
                 existedOrder.PartnerOrderStatus = putOrderRequest.Status.ToUpper();
                 OrderHistory orderHistory = new OrderHistory()
                 {
@@ -498,7 +510,7 @@ namespace MBKC.Service.Services.Implementations
                     PartnerOrderStatus = putOrderRequest.Status.ToUpper(),
                     SystemStatus = OrderEnum.SystemStatus.IN_STORE.ToString().Split("_")[0] + " " + OrderEnum.SystemStatus.IN_STORE.ToString().Split("_")[1],
                 };
-                existedOrder.OrderHistories.ToList().Add(orderHistory);
+                existedOrder.OrderHistories = new List<OrderHistory>() { orderHistory };
                 this._unitOfWork.OrderRepository.UpdateOrder(existedOrder);
                 await this._unitOfWork.CommitAsync();
                 return this._mapper.Map<GetOrderResponse>(existedOrder);
