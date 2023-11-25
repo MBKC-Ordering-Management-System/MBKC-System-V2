@@ -89,6 +89,10 @@ namespace MBKC.PrivateAPI.Validators.Orders
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .GreaterThan(0).WithMessage("{PropertyName} is required greater than 0.");
 
+            RuleFor(x => x.StorePartnerCommission)
+                .Cascade(CascadeMode.StopOnFirstFailure)
+                .InclusiveBetween(0, 100).WithMessage("{PropertyName} is required in range from 0% to 100%");
+
             RuleForEach(x => x.OrderDetails).SetValidator(new PostOrderDetailValidator());
         }
     }

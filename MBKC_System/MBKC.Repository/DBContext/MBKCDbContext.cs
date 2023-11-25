@@ -228,6 +228,8 @@ namespace MBKC.Repository.DBContext
                 order.Property(prop => prop.Address).IsUnicode(true).HasMaxLength(250).IsRequired(false);
                 order.Property(prop => prop.Cutlery).IsRequired(false);
                 order.Property(prop => prop.ConfirmedBy).IsRequired(false);
+                order.Property(prop => prop.RejectedReason).IsUnicode(true).HasMaxLength(200).IsRequired(false);
+                order.Property(prop => prop.StorePartnerCommission).IsRequired(true);
             });
             #endregion
 
