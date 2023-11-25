@@ -149,17 +149,6 @@ namespace MBKC.Service.Services.Implementations
                                 GrabFoodAuthenticationResponse grabFoodAuthenticationResponse = await this._unitOfWork.GrabFoodRepository.LoginGrabFoodAsync(grabFoodAccount);
                                 GrabFoodMenu grabFoodMenu = await this._unitOfWork.GrabFoodRepository.GetGrabFoodMenuAsync(grabFoodAuthenticationResponse);
                                 List<Category> storeCategoires = await this._unitOfWork.CategoryRepository.GetCategories(storePartner.StoreId);
-                                foreach (var storeCategory in storeCategoires)
-                                {
-                                    if(storeCategory.Products is not null && storeCategory.Products.Count() > 0)
-                                    {
-                                        storeCategory.Products = storeCategory.Products.Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE).ToList();
-                                        foreach (var product in storeCategory.Products)
-                                        {
-                                            product.ChildrenProducts = product.ChildrenProducts.Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE).ToList();
-                                        }
-                                    }
-                                }
                                 PartnerProductsFromGrabFood partnerProductsFromGrabFood = GrabFoodUtil.GetPartnerProductsFromGrabFood(grabFoodMenu, storeCategoires, storePartner.StoreId, storePartner.PartnerId, storePartner.CreatedDate);
                                 if (partnerProductsFromGrabFood.NewPartnerProducts is not null && partnerProductsFromGrabFood.NewPartnerProducts.Count() > 0)
                                 {
