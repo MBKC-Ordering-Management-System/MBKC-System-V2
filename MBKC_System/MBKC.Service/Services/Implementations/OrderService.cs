@@ -108,7 +108,7 @@ namespace MBKC.Service.Services.Implementations
 
                 if (existedOrder.SystemStatus.ToUpper().Equals(OrderEnum.SystemStatus.IN_STORE.ToString()))
                 {
-                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsPreparing);
+                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsInStore);
                 }
                 if (existedOrder.SystemStatus.ToUpper().Equals(OrderEnum.SystemStatus.COMPLETED.ToString()))
                 {
@@ -215,6 +215,7 @@ namespace MBKC.Service.Services.Implementations
                 switch (ex.Message)
                 {
                     case MessageConstant.OrderMessage.OrderNotBelongToKitchenCenter:
+                    case MessageConstant.OrderMessage.OrderIsInStore:
                     case MessageConstant.OrderMessage.NoChangeOrderStatusNotToday:
                     case MessageConstant.OrderMessage.OrderIsPreparing:
                     case MessageConstant.OrderMessage.OrderIsReady:

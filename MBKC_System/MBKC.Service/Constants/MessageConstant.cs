@@ -230,6 +230,7 @@ namespace MBKC.Service.Constants
             public const string OrderNotBelongToKitchenCenter = "Order partner id does not belong to your kitchen center.";
             public const string OrderShipperPhoneNotMatch = "Shipper phone does not match with shipper phone in order.";
             public const string OrderIsPreparing = "This order is PREPARING status, so You can not confirm completed order.";
+            public const string OrderIsInStore = "This order is IN_STORE status, so You can not confirm completed order.";
             public const string OrderIsReady = "This order is READY status, so You can not confirm completed order.";
             public const string OrderIsUpcoming = "This order is UPCOMING status, so You can not confirm completed order.";
             public const string OrderIsCompleted = "This order is already COMPLETED status, so You can not confirm completed order..";
