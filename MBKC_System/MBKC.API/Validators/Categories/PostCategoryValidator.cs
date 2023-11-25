@@ -51,7 +51,7 @@ namespace MBKC.API.Validators.Categories
                    .Cascade(CascadeMode.StopOnFirstFailure)
                    .NotNull().WithMessage("{PropertyName} is not null.")
                    .ChildRules(category => category.RuleFor(img => img.Length).ExclusiveBetween(0, MAX_BYTES)
-                   .WithMessage($"Logo is required file length greater than 0 and less than {MAX_BYTES / 1024 / 1024} MB"));
+                   .WithMessage($"Image is required file length greater than 0 and less than {MAX_BYTES / 1024 / 1024} MB"));
             RuleFor(c => c.ImageUrl)
                    .ChildRules(pro => pro.RuleFor(img => img.FileName).Must(FileUtil.HaveSupportedFileType).WithMessage("Image is required extension type .png, .jpg, .jpeg, .webp"));
             #endregion
