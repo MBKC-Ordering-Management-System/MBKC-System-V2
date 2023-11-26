@@ -603,7 +603,7 @@ namespace MBKC.Service.Services.Implementations
                     // Get totalQuantity of each order
                     foreach (var order in orders)
                     {
-                        decimal collectedPrice = order.SubTotalPrice - (order.SubTotalPrice * decimal.Parse(order.StorePartnerCommission.ToString()));
+                        decimal collectedPrice = order.SubTotalPrice - (order.SubTotalPrice * decimal.Parse(order.StorePartnerCommission.ToString()) / 100);
                         GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(order);
                         getOrderResponse.IsPaid = getOrderResponse.PaymentMethod.ToLower().Equals(OrderEnum.PaymentMethod.CASH.ToString().ToLower()) ? false : true;
                         if (getOrderResponse.IsPaid == true)
