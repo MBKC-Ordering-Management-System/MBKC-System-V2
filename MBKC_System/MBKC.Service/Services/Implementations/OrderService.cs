@@ -511,7 +511,9 @@ namespace MBKC.Service.Services.Implementations
                     PartnerOrderStatus = putOrderRequest.Status.ToUpper(),
                     SystemStatus = OrderEnum.SystemStatus.IN_STORE.ToString().Split("_")[0] + " " + OrderEnum.SystemStatus.IN_STORE.ToString().Split("_")[1],
                 };
-                existedOrder.OrderHistories.ToList().Add(orderHistory);
+                List<OrderHistory> orderHistories = existedOrder.OrderHistories.ToList();
+                orderHistories.Add(orderHistory);
+                existedOrder.OrderHistories = orderHistories;
                 this._unitOfWork.OrderRepository.UpdateOrder(existedOrder);
                 await this._unitOfWork.CommitAsync();
                 return this._mapper.Map<GetOrderResponse>(existedOrder);
