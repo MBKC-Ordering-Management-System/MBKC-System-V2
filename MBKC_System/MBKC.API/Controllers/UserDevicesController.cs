@@ -96,7 +96,6 @@ namespace MBKC.API.Controllers
         [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
         [Produces(MediaTypeConstant.ApplicationJson)]
-        [PermissionAuthorize(RoleConstant.Store_Manager)]
         [HttpDelete(APIEndPointConstant.UserDevice.UserDeviceEndPoint)]
         public async Task<IActionResult> DeleteUserDeviceAsync([FromRoute] UserDeviceIdRequest userDeviceIdRequest)
         {
