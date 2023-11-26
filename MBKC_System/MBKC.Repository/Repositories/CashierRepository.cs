@@ -37,10 +37,11 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
+                var currentDate = DateTime.Now.Date;
                 return await this._dbContext.Cashiers.Include(c => c.Wallet)
                                                      .Include(c => c.KitchenCenter).ThenInclude(kc => kc.Wallet)
                                                      .Include(c => c.CashierMoneyExchanges.Where(ce => ce.MoneyExchange.ExchangeType.ToUpper().Equals(MoneyExchangeEnum.ExchangeType.SEND.ToString())
-                                                                                              && ce.MoneyExchange.Transactions.Any(ts => ts.TransactionTime.Date == DateTime.Now.Date)))
+                                                                                              && ce.MoneyExchange.Transactions.Any(ts => ts.TransactionTime.Date == currentDate)))
 
                                                      .SingleOrDefaultAsync(c => c.Account.Email.Equals(email)
                                                                              && c.Account.Status == (int)AccountEnum.Status.ACTIVE);
