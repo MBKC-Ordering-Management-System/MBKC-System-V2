@@ -264,6 +264,8 @@ namespace MBKC.Service.Constants
             public const string NoChangeOrderStatusNotToday = "Only today's order status can be changed. This order is not from today.";
             public const string CannotCreateOrder = "You can not create new Order because this is not a scrawling time.";
             public const string CannotUpdateOrder = "You can not update existed Order because this order status is preparing.";
+            public const string CannotUpdateOrderAlreadyPreparing = "You can not update existed Order because this order status already is preparing.";
+            public const string CannotUpdateOrderAlreadyUpcoming = "You can not update existed Order because this order status already is upcoming.";
         }
 
         public static class WalletMessage

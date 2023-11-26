@@ -502,7 +502,17 @@ namespace MBKC.Service.Services.Implementations
                 if (existedOrder.PartnerOrderStatus.ToLower().Equals(OrderEnum.Status.PREPARING.ToString().ToLower()) &&
                     putOrderRequest.Status.ToLower().Equals(OrderEnum.Status.UPCOMING.ToString().ToLower()))
                 {
-                    throw new Exception(MessageConstant.OrderMessage.CannotUpdateOrder);
+                    throw new BadRequestException(MessageConstant.OrderMessage.CannotUpdateOrder);
+                }
+
+                if(existedOrder.PartnerOrderStatus.ToLower().Equals(OrderEnum.Status.PREPARING.ToString().ToLower()) &&
+                    putOrderRequest.Status.ToLower().Equals(OrderEnum.Status.PREPARING.ToString().ToLower())){
+                    throw new BadRequestException(MessageConstant.OrderMessage.CannotUpdateOrderAlreadyPreparing);
+                }
+                
+                if(existedOrder.PartnerOrderStatus.ToLower().Equals(OrderEnum.Status.UPCOMING.ToString().ToLower()) &&
+                    putOrderRequest.Status.ToLower().Equals(OrderEnum.Status.UPCOMING.ToString().ToLower())){
+                    throw new BadRequestException(MessageConstant.OrderMessage.CannotUpdateOrderAlreadyUpcoming);
                 }
 
                 existedOrder.PartnerOrderStatus = putOrderRequest.Status.ToUpper();
@@ -523,6 +533,11 @@ namespace MBKC.Service.Services.Implementations
             {
                 string error = ErrorUtil.GetErrorString("Partner order id", ex.Message);
                 throw new NotFoundException(error);
+            }
+             catch(BadRequestException ex)
+            {
+                string error = ErrorUtil.GetErrorString("Status", ex.Message);
+                throw new BadRequestException(error);
             }
             catch (Exception ex)
             {
