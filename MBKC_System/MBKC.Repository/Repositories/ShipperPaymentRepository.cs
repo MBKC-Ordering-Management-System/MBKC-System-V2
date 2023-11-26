@@ -141,9 +141,9 @@ namespace MBKC.Repository.Repositories
         public async Task<decimal> CountTotalRevenueDailyByCashierIdAsync(int cashierId)
         {
             try
-            {
+            {   DateTime today = DateTime.Now;
                 return await this._dbContext.ShipperPayments.Where(sp => sp.CreateBy == cashierId
-                                                                && sp.CreateDate.Date == DateTime.Now.Date)
+                                                                && sp.CreateDate.Date == today.Date)
                                                             .Select(sp => sp.Amount)
                                                             .SumAsync();
             }

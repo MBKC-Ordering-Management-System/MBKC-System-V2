@@ -171,12 +171,13 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
+                DateTime today = DateTime.Now;
                 return await _dbContext.MoneyExchanges.Include(me => me.Transactions)
                                                       .Where(me => me.ExchangeType.ToUpper().Equals(MoneyExchangeEnum.ExchangeType.RECEIVE.ToString())
                                                           && me.ReceiveId == kitchenCenterId
                                                           && me.Transactions.Any(t => t.Status == (int)TransactionEnum.Status.SUCCESS
-                                                                              && t.TransactionTime.Date <= DateTime.Now.Date
-                                                                              && t.TransactionTime.Date >= DateTime.Now.AddDays(-6).Date))
+                                                                              && t.TransactionTime.Date <= today.Date
+                                                                              && t.TransactionTime.Date >= today.AddDays(-6).Date))
                                                       .ToListAsync();
                                                      
             }
