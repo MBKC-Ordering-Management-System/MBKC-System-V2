@@ -357,7 +357,8 @@ namespace MBKC.Service.Services.Implementations
                     TotalDiscount = decimal.Parse(postOrderRequest.TotalDiscount.ToString().Replace(".", ",")),
                     Store = existedStore,
                     Tax = postOrderRequest.Tax,
-                    OrderHistories = new List<OrderHistory>() { orderHistory }
+                    OrderHistories = new List<OrderHistory>() { orderHistory },
+                    StorePartnerCommission = postOrderRequest.StorePartnerCommission
                 };
                 List<OrderDetail> newOrderDetails = new List<OrderDetail>();
                 foreach (var orderDetail in postOrderRequest.OrderDetails)
@@ -510,7 +511,7 @@ namespace MBKC.Service.Services.Implementations
                     PartnerOrderStatus = putOrderRequest.Status.ToUpper(),
                     SystemStatus = OrderEnum.SystemStatus.IN_STORE.ToString().Split("_")[0] + " " + OrderEnum.SystemStatus.IN_STORE.ToString().Split("_")[1],
                 };
-                existedOrder.OrderHistories = existedOrder.OrderHistories.Append(orderHistory);
+                existedOrder.OrderHistories.ToList().Add(orderHistory);
                 this._unitOfWork.OrderRepository.UpdateOrder(existedOrder);
                 await this._unitOfWork.CommitAsync();
                 return this._mapper.Map<GetOrderResponse>(existedOrder);
