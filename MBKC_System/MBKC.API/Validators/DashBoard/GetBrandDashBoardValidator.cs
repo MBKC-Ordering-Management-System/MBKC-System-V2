@@ -11,8 +11,6 @@ namespace MBKC.API.Validators.DashBoard
         {
             RuleFor(bd => bd.StoreId)
                   .Cascade(CascadeMode.Stop)
-                  .NotNull().WithMessage("{PropertyName} is not null.")
-                  .NotEmpty().WithMessage("{PropertyName} is not empty.")
                   .GreaterThan(0).WithMessage("{PropertyName} is not suitable id in the system.");
 
         }

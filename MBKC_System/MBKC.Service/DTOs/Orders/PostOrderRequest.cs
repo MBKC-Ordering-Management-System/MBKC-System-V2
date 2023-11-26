@@ -23,6 +23,7 @@ namespace MBKC.Service.DTOs.Orders
         public string DisplayId { get; set; }
         public string Address { get; set; }
         public int? Cutlery { get; set; }
+        public float StorePartnerCommission { get; set; }
         public List<PostOrderDetailRequest> OrderDetails { get; set; }
     }
 }

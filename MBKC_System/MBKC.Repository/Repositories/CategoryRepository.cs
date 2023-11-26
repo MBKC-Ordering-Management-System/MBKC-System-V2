@@ -522,7 +522,7 @@ namespace MBKC.Repository.Repositories
                                                        .Include(x => x.Brand).ThenInclude(x => x.Stores)
                                                        .Include(x => x.ExtraCategoryExtraCategoryNavigations)
                                                        .Include(x => x.Products).ThenInclude(x => x.PartnerProducts)
-                                                       .Where(x => x.Brand.Stores.Any(s => s.StoreId == storeId)).ToListAsync();
+                                                       .Where(x => x.Brand.Stores.Any(s => s.StoreId == storeId) && x.Status != (int)CategoryEnum.Status.DEACTIVE).ToListAsync();
             }
             catch (Exception ex)
             {

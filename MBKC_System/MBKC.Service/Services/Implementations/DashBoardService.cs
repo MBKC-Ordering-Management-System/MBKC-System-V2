@@ -105,7 +105,10 @@ namespace MBKC.Service.Services.Implementations
 
                     foreach (var moneyExchange in moneyExchangesInLastSevenDay)
                     {
-                        amountOfEachDay[moneyExchange.Transactions.Last().TransactionTime.Date] += moneyExchange.Amount;
+                        if (amountOfEachDay.ContainsKey(moneyExchange.Transactions.Last().TransactionTime.Date))
+                        {
+                            amountOfEachDay[moneyExchange.Transactions.Last().TransactionTime.Date] += moneyExchange.Amount;
+                        }
                     }
 
                     foreach (var day in amountOfEachDay)
@@ -152,17 +155,22 @@ namespace MBKC.Service.Services.Implementations
                 var existedBrand = await _unitOfWork.BrandRepository.GetBrandForDashBoardAsync(email);
                 Dictionary<DateTime, decimal> revenueInLastSevenDay;
                 var columnChartRevenueInLastSevenDay = new List<GetColumnChartResponse>();
+                Store? existedStore = null;
+                var getStoreRevenueResponse = new GetStoreRevenueResponse();
 
-                var existedStore = await this._unitOfWork.StoreRepository.GetStoreExceptDeactiveByIdAsync(getBrandDashBoardRequest.StoreId!.Value);
-                if (existedStore is null)
+                if (getBrandDashBoardRequest.StoreId is not null)
                 {
-                    throw new BadRequestException(MessageConstant.CommonMessage.NotExistStoreId);
+                    existedStore = await this._unitOfWork.StoreRepository.GetStoreExceptDeactiveByIdAsync(getBrandDashBoardRequest.StoreId!.Value);
+                    if (existedStore is null)
+                    {
+                        throw new BadRequestException(MessageConstant.CommonMessage.NotExistStoreId);
 
-                }
+                    }
 
-                if (existedBrand!.BrandId != existedStore.Brand.BrandId)
-                {
-                    throw new BadRequestException(MessageConstant.StoreMessage.StoreIdNotBelongToBrand);
+                    if (existedBrand!.BrandId != existedStore.Brand.BrandId)
+                    {
+                        throw new BadRequestException(MessageConstant.StoreMessage.StoreIdNotBelongToBrand);
+                    }
                 }
                 #endregion
 
@@ -173,32 +181,35 @@ namespace MBKC.Service.Services.Implementations
                 var totalProduct = await this._unitOfWork.ProductRepository.CountProductNumberByBrandIdAsync(existedBrand.BrandId);
 
                 #region store revenue
-                DateUtil.AddDateToDictionary(out revenueInLastSevenDay);
-                var ordersForRevenue = await this._unitOfWork.OrderRepository.GetOrderByStoreIdAsync(getBrandDashBoardRequest.StoreId!.Value);
-                if (ordersForRevenue.Any())
+                if (getBrandDashBoardRequest.StoreId is not null)
                 {
-                    foreach (var order in ordersForRevenue)
+                    DateUtil.AddDateToDictionary(out revenueInLastSevenDay);
+                    var ordersForRevenue = await this._unitOfWork.OrderRepository.GetOrderByStoreIdAsync(getBrandDashBoardRequest.StoreId!.Value);
+                    if (ordersForRevenue.Any())
                     {
-                        revenueInLastSevenDay[order.ShipperPayments.Last().CreateDate.Date] += order.ShipperPayments.Last().Amount;
+                        foreach (var order in ordersForRevenue)
+                        {
+                            if (revenueInLastSevenDay.ContainsKey(order.ShipperPayments.Last().CreateDate.Date))
+                            {
+                                revenueInLastSevenDay[order.ShipperPayments.Last().CreateDate.Date] += order.ShipperPayments.Last().Amount;
+                            }
+                        }
                     }
-                }
 
-                foreach (var day in revenueInLastSevenDay)
-                {
-                    GetColumnChartResponse columnChartResponse = new GetColumnChartResponse()
+                    foreach (var day in revenueInLastSevenDay)
                     {
-                        Date = day.Key,
-                        Amount = day.Value,
-                    };
-                    columnChartRevenueInLastSevenDay.Add(columnChartResponse);
-                }
+                        GetColumnChartResponse columnChartResponse = new GetColumnChartResponse()
+                        {
+                            Date = day.Key,
+                            Amount = day.Value,
+                        };
+                        columnChartRevenueInLastSevenDay.Add(columnChartResponse);
+                    }
 
-                var getStoreRevenueResponse = new GetStoreRevenueResponse()
-                {
-                    StoreId = existedStore.StoreId,
-                    StoreName = existedStore.Name,
-                    Revenues = columnChartRevenueInLastSevenDay,
-                };
+                    getStoreRevenueResponse.StoreId = existedStore!.StoreId;
+                    getStoreRevenueResponse.StoreName = existedStore.Name;
+                    getStoreRevenueResponse.Revenues = columnChartRevenueInLastSevenDay;
+                }
                 #endregion
 
                 var getBrandDashBoardResponse = new GetBrandDashBoardResponse()
@@ -207,7 +218,7 @@ namespace MBKC.Service.Services.Implementations
                     TotalNormalCategories = totalNormalCategory,
                     TotalExtraCategories = totalExtraCategory,
                     TotalProducts = totalProduct,
-                    StoreRevenues = getStoreRevenueResponse,
+                    StoreRevenues = getBrandDashBoardRequest.StoreId is not null ? getStoreRevenueResponse : null,
                     Stores = this._mapper.Map<List<GetStoreResponse>>(existedBrand.Stores),
                 };
 
@@ -346,6 +357,7 @@ namespace MBKC.Service.Services.Implementations
                     {
                         shipperPaymentResponse.KCBankingAccountName = shipperPayment.BankingAccount!.Name;
                     }
+                    shipperPaymentResponse.OrderPartnerId = shipperPayment.Order.OrderPartnerId;
                     shipperPaymentsResponse.Add(shipperPaymentResponse);
                 }
                 #endregion
@@ -353,7 +365,7 @@ namespace MBKC.Service.Services.Implementations
                 var getCashierDashBoardResponse = new GetCashierDashBoardResponse()
                 {
                     TotalRevenuesDaily = totalRevenueDaily,
-                    TotalOrdersDaily = totalOrderDaily,
+                    //TotalOrdersDaily = totalOrderDaily,
                     Orders = ordersHasPaidResponse,
                     MoneyExchanges  = moneyExchangesResponse,
                     ShipperPayments = shipperPaymentsResponse,

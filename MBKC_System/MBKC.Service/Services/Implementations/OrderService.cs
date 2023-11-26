@@ -293,6 +293,12 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
+                List<Configuration> configurations = await this._unitOfWork.ConfigurationRepository.GetConfigurationsAsync();
+                Configuration configuration = configurations.First();
+                if(DateTime.Now.TimeOfDay > configuration.ScrawlingOrderEndTime && DateTime.Now.TimeOfDay < configuration.ScrawlingOrderStartTime)
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.CannotCreateOrder);
+                }
                 Order existedOrder = await this._unitOfWork.OrderRepository.GetOrderByOrderPartnerIdAsync(postOrderRequest.OrderPartnerId);
                 if (existedOrder is not null)
                 {
@@ -352,7 +358,8 @@ namespace MBKC.Service.Services.Implementations
                     TotalDiscount = decimal.Parse(postOrderRequest.TotalDiscount.ToString().Replace(".", ",")),
                     Store = existedStore,
                     Tax = postOrderRequest.Tax,
-                    OrderHistories = new List<OrderHistory>() { orderHistory }
+                    OrderHistories = new List<OrderHistory>() { orderHistory },
+                    StorePartnerCommission = postOrderRequest.StorePartnerCommission
                 };
                 List<OrderDetail> newOrderDetails = new List<OrderDetail>();
                 foreach (var orderDetail in postOrderRequest.OrderDetails)
@@ -492,6 +499,12 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new NotFoundException(MessageConstant.OrderMessage.OrderPartnerIdNotExist);
                 }
+                if (existedOrder.PartnerOrderStatus.ToLower().Equals(OrderEnum.Status.PREPARING.ToString().ToLower()) &&
+                    putOrderRequest.Status.ToLower().Equals(OrderEnum.Status.UPCOMING.ToString().ToLower()))
+                {
+                    throw new Exception(MessageConstant.OrderMessage.CannotUpdateOrder);
+                }
+
                 existedOrder.PartnerOrderStatus = putOrderRequest.Status.ToUpper();
                 OrderHistory orderHistory = new OrderHistory()
                 {
@@ -499,7 +512,9 @@ namespace MBKC.Service.Services.Implementations
                     PartnerOrderStatus = putOrderRequest.Status.ToUpper(),
                     SystemStatus = OrderEnum.SystemStatus.IN_STORE.ToString().Split("_")[0] + " " + OrderEnum.SystemStatus.IN_STORE.ToString().Split("_")[1],
                 };
-                existedOrder.OrderHistories.ToList().Add(orderHistory);
+                List<OrderHistory> orderHistories = existedOrder.OrderHistories.ToList();
+                orderHistories.Add(orderHistory);
+                existedOrder.OrderHistories = orderHistories;
                 this._unitOfWork.OrderRepository.UpdateOrder(existedOrder);
                 await this._unitOfWork.CommitAsync();
                 return this._mapper.Map<GetOrderResponse>(existedOrder);
@@ -583,19 +598,13 @@ namespace MBKC.Service.Services.Implementations
                 {
                     totalPages = 0;
                 }
-                decimal? collectedPrice = null;
                 List<GetOrderResponse> getOrdersResponse = new List<GetOrderResponse>();
                 if (numberItems > 0)
                 {
                     // Get totalQuantity of each order
                     foreach (var order in orders)
                     {
-                        if (order.Store.StorePartners.Any())
-                        {
-                            float storePartnerComission = order.Store.StorePartners.FirstOrDefault(x => x.PartnerId == order.PartnerId).Commission;
-
-                            collectedPrice = order.SubTotalPrice - (order.SubTotalPrice * decimal.Parse(storePartnerComission.ToString()) / 100);
-                        }
+                        decimal collectedPrice = order.SubTotalPrice - (order.SubTotalPrice * decimal.Parse(order.StorePartnerCommission.ToString()) / 100);
                         GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(order);
                         getOrderResponse.IsPaid = getOrderResponse.PaymentMethod.ToLower().Equals(OrderEnum.PaymentMethod.CASH.ToString().ToLower()) ? false : true;
                         if (getOrderResponse.IsPaid == true)
@@ -688,9 +697,8 @@ namespace MBKC.Service.Services.Implementations
                         throw new BadRequestException(MessageConstant.OrderMessage.OrderIdNotBelongToKitchenCenter);
                     }
                 }
-                float storePartnerComission = existedOrder.Store.StorePartners.FirstOrDefault(x => x.PartnerId == existedOrder.PartnerId).Commission;
 
-                decimal collectedPrice = existedOrder.SubTotalPrice - (existedOrder.SubTotalPrice * decimal.Parse(storePartnerComission.ToString()) / 100);
+                decimal collectedPrice = existedOrder.SubTotalPrice - (existedOrder.SubTotalPrice * decimal.Parse(existedOrder.StorePartnerCommission.ToString()) / 100);
 
                 GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(existedOrder);
                 getOrderResponse.IsPaid = getOrderResponse.PaymentMethod.ToLower().Equals(OrderEnum.PaymentMethod.CASH.ToString().ToLower()) ? false : true;
@@ -1009,7 +1017,7 @@ namespace MBKC.Service.Services.Implementations
         #endregion 
 
         #region Cancel Order
-        public async Task CancelOrderAsync(OrderRequest orderRequest, IEnumerable<Claim> claims)
+        public async Task CancelOrderAsync(OrderRequest orderRequest, PutCancelOrderRequest cancelOrderRequest, IEnumerable<Claim> claims)
         {
             try
             {
@@ -1071,6 +1079,7 @@ namespace MBKC.Service.Services.Implementations
                 // assign CANCELLED status to partner order status and system status
                 existedOrder.PartnerOrderStatus = OrderEnum.Status.CANCELLED.ToString();
                 existedOrder.SystemStatus = OrderEnum.SystemStatus.CANCELLED.ToString();
+                existedOrder.RejectedReason = cancelOrderRequest.RejectedReason;
                 this._unitOfWork.OrderRepository.UpdateOrder(existedOrder);
 
                 OrderHistory orderHistory = new OrderHistory()

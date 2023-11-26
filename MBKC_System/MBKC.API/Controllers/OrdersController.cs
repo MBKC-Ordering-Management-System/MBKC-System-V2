@@ -22,18 +22,21 @@ namespace MBKC.API.Controllers
         private IValidator<ConfirmOrderToCompletedRequest> _confirmOrderToCompletedValidator;
         private IValidator<GetOrdersRequest> _getOrdersValidator;
         private IValidator<OrderRequest> _getOrderValidator;
+        private IValidator<PutCancelOrderRequest> _putCancelOrderValidator;
         public OrdersController
         (
             IOrderService orderService,
             IValidator<ConfirmOrderToCompletedRequest> confirmOrderToCompletedValidator,
             IValidator<GetOrdersRequest> getOrdersValidator,
-            IValidator<OrderRequest> getOrderValidator
+            IValidator<OrderRequest> getOrderValidator,
+            IValidator<PutCancelOrderRequest> putCancelOrderValidator
         )
         {
             this._orderService = orderService;
             this._confirmOrderToCompletedValidator = confirmOrderToCompletedValidator;
             this._getOrdersValidator = getOrdersValidator;
             this._getOrderValidator = getOrderValidator;
+            this._putCancelOrderValidator = putCancelOrderValidator;
         }
 
         #region confirm order to completed
@@ -310,7 +313,7 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.StoreManager)]
         [HttpPut(APIEndPointConstant.Order.CancelOrderEndpoint)]
-        public async Task<IActionResult> CancelOrderAsync([FromRoute] OrderRequest getOrderRequest)
+        public async Task<IActionResult> CancelOrderAsync([FromRoute] OrderRequest getOrderRequest, [FromBody] PutCancelOrderRequest cancelOrderRequest)
         {
             ValidationResult validationResult = await this._getOrderValidator.ValidateAsync(getOrderRequest);
             if (validationResult.IsValid == false)
@@ -318,8 +321,14 @@ namespace MBKC.API.Controllers
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
+            ValidationResult cancelOrderValidationResult = await this._putCancelOrderValidator.ValidateAsync(cancelOrderRequest);
+            if (cancelOrderValidationResult.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(cancelOrderValidationResult);
+                throw new BadRequestException(errors);
+            }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            await this._orderService.CancelOrderAsync(getOrderRequest, claims);
+            await this._orderService.CancelOrderAsync(getOrderRequest, cancelOrderRequest, claims);
             return Ok(new
             {
                 Message = MessageConstant.OrderMessage.CancelOrderSuccessfully

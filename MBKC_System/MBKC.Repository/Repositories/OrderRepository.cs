@@ -634,11 +634,12 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
+                DateTime today = DateTime.Now;
                 return await this._dbContext.Orders.Where(o => o.PaymentMethod.ToUpper() == OrderEnum.PaymentMethod.CASH.ToString() 
                                                        && o.StoreId == storeId
                                                        && o.ShipperPayments.Any(sp => sp.Status == (int)ShipperPaymentEnum.Status.SUCCESS
-                                                                                   && sp.CreateDate.Date <= DateTime.Now.Date
-                                                                                   && sp.CreateDate.Date >= DateTime.Now.AddDays(-6).Date))
+                                                                                   && sp.CreateDate.Date <= today.Date
+                                                                                   && sp.CreateDate.Date >= today.AddDays(-6).Date))
                                                    .Include(o => o.ShipperPayments)
                                                    .ToListAsync();
 
@@ -675,8 +676,9 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
+                DateTime today = DateTime.Now;
                 return await this._dbContext.Orders.Where(o => o.Store.KitchenCenter.Cashiers.Any(c => c.AccountId == cashierId)
-                                                       && o.OrderHistories.Any(oh => oh.CreatedDate.Date == DateTime.Now.Date))
+                                                       && o.OrderHistories.Any(oh => oh.CreatedDate.Date == today.Date))
                                                    .CountAsync();  
 
             }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MBKC.Repository.Migrations
 {
     [DbContext(typeof(MBKCDbContext))]
-    [Migration("20231119130325_Add UserDevice Table")]
-    partial class AddUserDeviceTable
+    [Migration("20231125193822_Update Order Table")]
+    partial class UpdateOrderTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -301,8 +301,8 @@ namespace MBKC.Repository.Migrations
                             Id = 1,
                             ScrawlingMoneyExchangeToKitchenCenter = new TimeSpan(0, 22, 0, 0, 0),
                             ScrawlingMoneyExchangeToStore = new TimeSpan(0, 23, 0, 0, 0),
-                            ScrawlingOrderEndTime = new TimeSpan(0, 12, 0, 0, 0),
-                            ScrawlingOrderStartTime = new TimeSpan(0, 12, 0, 0, 0)
+                            ScrawlingOrderEndTime = new TimeSpan(0, 21, 50, 0, 0),
+                            ScrawlingOrderStartTime = new TimeSpan(0, 0, 0, 0, 0)
                         });
                 });
 
@@ -505,6 +505,11 @@ namespace MBKC.Repository.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(10)");
 
+                    b.Property<string>("RejectedReason")
+                        .HasMaxLength(200)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<string>("ShipperName")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -519,6 +524,9 @@ namespace MBKC.Repository.Migrations
 
                     b.Property<int>("StoreId")
                         .HasColumnType("int");
+
+                    b.Property<float>("StorePartnerCommission")
+                        .HasColumnType("real");
 
                     b.Property<decimal>("SubTotalPrice")
                         .HasColumnType("decimal(9,2)");
