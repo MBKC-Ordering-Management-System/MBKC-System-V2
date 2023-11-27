@@ -16,13 +16,13 @@ using System.Security.Claims;
 namespace MBKC.API.Controllers
 {
     [ApiController]
-    public class MoneyExchangeController : ControllerBase
+    public class MoneyExchangesController : ControllerBase
     {
         private IMoneyExchangeService _moneyExchangeService;
         private IValidator<WithdrawMoneyRequest> _withdrawMoneyValidator;
         private IValidator<GetMoneyExchangesRequest> _getMoneyExchangesValidator;
         private IValidator<GetMoneyExchangesWithDrawRequest> _getMoneyExchangesWithDrawValidator;
-        public MoneyExchangeController
+        public MoneyExchangesController
         (
             IMoneyExchangeService moneyExchangeService,
             IValidator<WithdrawMoneyRequest> withdrawMoneyValidator,

@@ -187,7 +187,7 @@ namespace MBKC.API.Controllers
         /// <summary>
         /// Change order status to ready.
         /// </summary>
-        /// <param name="getOrderRequest">
+        /// <param name="orderRequest">
         /// An object include id of order.
         /// </param>
         /// <returns>
@@ -214,16 +214,16 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.StoreManager)]
         [HttpPut(APIEndPointConstant.Order.ChangeOrderToReadyEndpoint)]
-        public async Task<IActionResult> ChangeOrderStatusToReadyAsync([FromRoute] OrderRequest getOrderRequest)
+        public async Task<IActionResult> ChangeOrderStatusToReadyAsync([FromRoute] OrderRequest orderRequest)
         {
-            ValidationResult validationResult = await this._getOrderValidator.ValidateAsync(getOrderRequest);
+            ValidationResult validationResult = await this._getOrderValidator.ValidateAsync(orderRequest);
             if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            await this._orderService.ChangeOrderStatusToReadyAsync(getOrderRequest, claims);
+            await this._orderService.ChangeOrderStatusToReadyAsync(orderRequest, claims);
             return Ok(new
             {
                 Message = MessageConstant.OrderMessage.UpdateOrderSuccessfully
@@ -235,7 +235,7 @@ namespace MBKC.API.Controllers
         /// <summary>
         /// Change order status to ready delivery.
         /// </summary>
-        /// <param name="getOrderRequest">
+        /// <param name="orderRequest">
         /// An object include id of order.
         /// </param>
         /// <returns>
@@ -262,16 +262,16 @@ namespace MBKC.API.Controllers
         [Produces(MediaTypeConstant.ApplicationJson)]
         [PermissionAuthorize(PermissionAuthorizeConstant.Cashier)]
         [HttpPut(APIEndPointConstant.Order.ChangeOrderToReadyDeliveryEndpoint)]
-        public async Task<IActionResult> ChangeOrderStatusToReadyDeliveryAsync([FromRoute] OrderRequest getOrderRequest)
+        public async Task<IActionResult> ChangeOrderStatusToReadyDeliveryAsync([FromRoute] OrderRequest orderRequest)
         {
-            ValidationResult validationResult = await this._getOrderValidator.ValidateAsync(getOrderRequest);
+            ValidationResult validationResult = await this._getOrderValidator.ValidateAsync(orderRequest);
             if (validationResult.IsValid == false)
             {
                 string errors = ErrorUtil.GetErrorsString(validationResult);
                 throw new BadRequestException(errors);
             }
             IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
-            await this._orderService.ChangeOrderStatusToReadyDeliveryAsync(getOrderRequest, claims);
+            await this._orderService.ChangeOrderStatusToReadyDeliveryAsync(orderRequest, claims);
             return Ok(new
             {
                 Message = MessageConstant.OrderMessage.UpdateOrderSuccessfully
