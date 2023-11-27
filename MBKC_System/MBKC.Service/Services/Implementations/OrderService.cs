@@ -134,8 +134,8 @@ namespace MBKC.Service.Services.Implementations
                 #endregion
 
                 #region orders
-                existedOrder.PartnerOrderStatus = OrderEnum.Status.COMPLETED.ToString();
-                existedOrder.SystemStatus = OrderEnum.SystemStatus.COMPLETED.ToString();
+                existedOrder.PartnerOrderStatus = OrderEnum.Status.COMPLETED.ToString().ToUpper();
+                existedOrder.SystemStatus = OrderEnum.SystemStatus.COMPLETED.ToString().ToUpper();
                 existedOrder.ConfirmedBy = existedCashier.AccountId;
                 this._unitOfWork.OrderRepository.UpdateOrder(existedOrder);
 
@@ -143,8 +143,8 @@ namespace MBKC.Service.Services.Implementations
                 {
                     Image = urlImage,
                     CreatedDate = DateTime.Now,
-                    SystemStatus = OrderEnum.SystemStatus.COMPLETED.ToString(),
-                    PartnerOrderStatus = OrderEnum.Status.COMPLETED.ToString(),
+                    SystemStatus = OrderEnum.SystemStatus.COMPLETED.ToString().ToUpper(),
+                    PartnerOrderStatus = OrderEnum.Status.COMPLETED.ToString().ToUpper(),
                     Order = existedOrder,
                 };
                 await this._unitOfWork.OrderHistoryRepository.InsertOrderHistoryAsync(orderHistory);
@@ -330,7 +330,7 @@ namespace MBKC.Service.Services.Implementations
                 OrderHistory orderHistory = new OrderHistory()
                 {
                     CreatedDate = DateTime.Now,
-                    SystemStatus = OrderEnum.SystemStatus.IN_STORE.ToString().Split("_")[0] + " " + OrderEnum.SystemStatus.IN_STORE.ToString().Split("_")[1],
+                    SystemStatus = OrderEnum.SystemStatus.IN_STORE.ToString().ToUpper(),
                     PartnerOrderStatus = postOrderRequest.PartnerOrderStatus.ToUpper()
                 };
 
@@ -520,7 +520,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     CreatedDate = DateTime.Now,
                     PartnerOrderStatus = putOrderRequest.Status.ToUpper(),
-                    SystemStatus = OrderEnum.SystemStatus.IN_STORE.ToString().Split("_")[0] + " " + OrderEnum.SystemStatus.IN_STORE.ToString().Split("_")[1],
+                    SystemStatus = OrderEnum.SystemStatus.IN_STORE.ToString().ToUpper(),
                 };
                 List<OrderHistory> orderHistories = existedOrder.OrderHistories.ToList();
                 orderHistories.Add(orderHistory);
@@ -824,14 +824,14 @@ namespace MBKC.Service.Services.Implementations
 
                 #region orders
                 // assign READY status to partner order status.
-                existedOrder.PartnerOrderStatus = OrderEnum.Status.READY.ToString();
+                existedOrder.PartnerOrderStatus = OrderEnum.Status.READY.ToString().ToUpper();
                 this._unitOfWork.OrderRepository.UpdateOrder(existedOrder);
 
                 OrderHistory orderHistory = new OrderHistory()
                 {
                     CreatedDate = DateTime.Now,
-                    PartnerOrderStatus = OrderEnum.Status.READY.ToString(),
-                    SystemStatus = OrderEnum.SystemStatus.IN_STORE.ToString(),
+                    PartnerOrderStatus = OrderEnum.Status.READY.ToString().ToUpper(),
+                    SystemStatus = OrderEnum.SystemStatus.IN_STORE.ToString().ToUpper(),
                     Order = existedOrder,
                 };
                 await this._unitOfWork.OrderHistoryRepository.InsertOrderHistoryAsync(orderHistory);
@@ -960,14 +960,14 @@ namespace MBKC.Service.Services.Implementations
                 }
 
                 #region orders
-                existedOrder.SystemStatus = OrderEnum.SystemStatus.READY_DELIVERY.ToString();
+                existedOrder.SystemStatus = OrderEnum.SystemStatus.READY_DELIVERY.ToString().ToUpper();
                 this._unitOfWork.OrderRepository.UpdateOrder(existedOrder);
 
                 OrderHistory orderHistory = new OrderHistory()
                 {
                     CreatedDate = DateTime.Now,
-                    PartnerOrderStatus = OrderEnum.Status.READY.ToString(),
-                    SystemStatus = OrderEnum.SystemStatus.READY_DELIVERY.ToString(),
+                    PartnerOrderStatus = OrderEnum.Status.READY.ToString().ToUpper(),
+                    SystemStatus = OrderEnum.SystemStatus.READY_DELIVERY.ToString().ToUpper(),
                     Order = existedOrder,
                 };
                 await this._unitOfWork.OrderHistoryRepository.InsertOrderHistoryAsync(orderHistory);
@@ -1092,16 +1092,16 @@ namespace MBKC.Service.Services.Implementations
 
                 #region orders
                 // assign CANCELLED status to partner order status and system status
-                existedOrder.PartnerOrderStatus = OrderEnum.Status.CANCELLED.ToString();
-                existedOrder.SystemStatus = OrderEnum.SystemStatus.CANCELLED.ToString();
+                existedOrder.PartnerOrderStatus = OrderEnum.Status.CANCELLED.ToString().ToUpper();
+                existedOrder.SystemStatus = OrderEnum.SystemStatus.CANCELLED.ToString().ToUpper();
                 existedOrder.RejectedReason = cancelOrderRequest.RejectedReason;
                 this._unitOfWork.OrderRepository.UpdateOrder(existedOrder);
 
                 OrderHistory orderHistory = new OrderHistory()
                 {
                     CreatedDate = DateTime.Now,
-                    PartnerOrderStatus = OrderEnum.Status.CANCELLED.ToString(),
-                    SystemStatus = OrderEnum.SystemStatus.CANCELLED.ToString(),
+                    PartnerOrderStatus = OrderEnum.Status.CANCELLED.ToString().ToUpper(),
+                    SystemStatus = OrderEnum.SystemStatus.CANCELLED.ToString().ToUpper(),
                     Order = existedOrder,
                 };
                 await this._unitOfWork.OrderHistoryRepository.InsertOrderHistoryAsync(orderHistory);
