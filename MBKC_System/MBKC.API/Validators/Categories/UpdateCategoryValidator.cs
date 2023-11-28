@@ -11,7 +11,7 @@ namespace MBKC.API.Validators.Categories
 {
     public class UpdateCategoryValidator : AbstractValidator<UpdateCategoryRequest>
     {
-        private const int MAX_BYTES = 2048000;
+        private const int MAX_BYTES = 5242880;
         public UpdateCategoryValidator()
         {
             #region Name
