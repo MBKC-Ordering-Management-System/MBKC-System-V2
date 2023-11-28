@@ -96,7 +96,7 @@ namespace MBKC.Service.Services.Implementations
                 }
 
                 // Check Status valid or not
-                if (!postPartnerProductRequest.Status.ToUpper().Equals(PartnerProductEnum.Status.DISABLE.ToString())
+                if (!postPartnerProductRequest.Status.ToUpper().Equals(PartnerProductEnum.Status.AVAILABLE.ToString())
                     && !postPartnerProductRequest.Status.ToUpper().Equals(PartnerProductEnum.Status.OUT_OF_STOCK_TODAY.ToString())
                     && !postPartnerProductRequest.Status.ToUpper().Equals(PartnerProductEnum.Status.OUT_OF_STOCK_INDENTIFINITELY.ToString()))
                 {
@@ -113,8 +113,8 @@ namespace MBKC.Service.Services.Implementations
                 int status = 0;
                 switch (postPartnerProductRequest.Status.ToUpper())
                 {
-                    case nameof(PartnerProductEnum.Status.DISABLE):
-                        status = (int)PartnerProductEnum.Status.DISABLE;
+                    case nameof(PartnerProductEnum.Status.AVAILABLE):
+                        status = (int)PartnerProductEnum.Status.AVAILABLE;
                         break;
                     case nameof(PartnerProductEnum.Status.OUT_OF_STOCK_TODAY):
                         status = (int)PartnerProductEnum.Status.OUT_OF_STOCK_TODAY;
@@ -538,8 +538,8 @@ namespace MBKC.Service.Services.Implementations
                 int status = 0;
                 switch (updatePartnerProductRequest.Status.ToUpper())
                 {
-                    case nameof(PartnerProductEnum.Status.DISABLE):
-                        status = (int)PartnerProductEnum.Status.DISABLE;
+                    case nameof(PartnerProductEnum.Status.AVAILABLE):
+                        status = (int)PartnerProductEnum.Status.AVAILABLE;
                         break;
                     case nameof(PartnerProductEnum.Status.OUT_OF_STOCK_TODAY):
                         status = (int)PartnerProductEnum.Status.OUT_OF_STOCK_TODAY;
@@ -872,7 +872,7 @@ namespace MBKC.Service.Services.Implementations
                     throw new BadRequestException(MessageConstant.CommonMessage.NotExistProductId);
                 }
 
-                if (!updatePartnerProductStatusRequest.Status.ToUpper().Equals(PartnerProductEnum.Status.DISABLE.ToString())
+                if (!updatePartnerProductStatusRequest.Status.ToUpper().Equals(PartnerProductEnum.Status.AVAILABLE.ToString())
                     && !updatePartnerProductStatusRequest.Status.ToUpper().Equals(PartnerProductEnum.Status.OUT_OF_STOCK_TODAY.ToString())
                     && !updatePartnerProductStatusRequest.Status.ToUpper().Equals(PartnerProductEnum.Status.OUT_OF_STOCK_INDENTIFINITELY.ToString()))
                 {
@@ -888,9 +888,9 @@ namespace MBKC.Service.Services.Implementations
                 }
 
                 int status = 0;
-                if (updatePartnerProductStatusRequest.Status.Trim().ToUpper().Equals(PartnerProductEnum.Status.DISABLE.ToString()))
+                if (updatePartnerProductStatusRequest.Status.Trim().ToUpper().Equals(PartnerProductEnum.Status.AVAILABLE.ToString()))
                 {
-                    status = (int)PartnerProductEnum.Status.DISABLE;
+                    status = (int)PartnerProductEnum.Status.AVAILABLE;
                 }
                 else if (updatePartnerProductStatusRequest.Status.Trim().ToUpper().Equals(PartnerProductEnum.Status.OUT_OF_STOCK_TODAY.ToString()))
                 {
