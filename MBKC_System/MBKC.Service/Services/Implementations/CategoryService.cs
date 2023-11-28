@@ -40,9 +40,15 @@ namespace MBKC.Service.Services.Implementations
                 var brand = brandAccount.Brand;
 
                 var existedCategoryCode = await _unitOfWork.CategoryRepository.GetCategoryByCodeAsync(postCategoryRequest.Code, brand.BrandId);
-                if (existedCategoryCode != null && existedCategoryCode.Status != (int)CategoryEnum.Status.DEACTIVE)
+                if (existedCategoryCode != null)
                 {
                     throw new BadRequestException(MessageConstant.CategoryMessage.CategoryCodeExistedInBrand);
+                }
+
+                var existedCategoryName = await _unitOfWork.CategoryRepository.GetCategoryByNameAsync(postCategoryRequest.Name, brand.BrandId);
+                if (existedCategoryName != null)
+                {
+                    throw new BadRequestException(MessageConstant.CategoryMessage.CategoryNameExistedInBrand);
                 }
                 // Upload image to firebase
                 FileStream fileStream = Utils.FileUtil.ConvertFormFileToStream(postCategoryRequest.ImageUrl);
@@ -74,6 +80,10 @@ namespace MBKC.Service.Services.Implementations
                 if (ex.Message.Equals(MessageConstant.CategoryMessage.CategoryCodeExistedInBrand))
                 {
                     fieldName = "Category code";
+                }
+                else if (ex.Message.Equals(MessageConstant.CategoryMessage.CategoryNameExistedInBrand))
+                {
+                    fieldName = "Category name";
                 }
                 string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
                 throw new BadRequestException(error);
@@ -115,6 +125,12 @@ namespace MBKC.Service.Services.Implementations
                 if (checkCategoryIdExisted == null)
                 {
                     throw new BadRequestException(MessageConstant.CommonMessage.CategoryIdNotBelongToBrand);
+                }
+
+                var existedCategoryName = await _unitOfWork.CategoryRepository.GetCategoryByNameAsync(updateCategoryRequest.Name, brandId);
+                if (existedCategoryName != null && existedCategoryName.CategoryId != categoryId)
+                {
+                    throw new BadRequestException(MessageConstant.CategoryMessage.CategoryNameExistedInBrand);
                 }
                 // get category 
                 var category = await this._unitOfWork.CategoryRepository.GetCategoryByIdAsync(categoryId);
@@ -172,6 +188,10 @@ namespace MBKC.Service.Services.Implementations
                 else if (ex.Message.Equals(MessageConstant.CategoryMessage.CategoryCodeExisted))
                 {
                     fieldName = "Category code";
+                }
+                else if (ex.Message.Equals(MessageConstant.CategoryMessage.CategoryNameExistedInBrand))
+                {
+                    fieldName = "Category name";
                 }
                 else if (ex.Message.Equals(MessageConstant.CategoryMessage.DeactiveCategory_Update))
                 {
