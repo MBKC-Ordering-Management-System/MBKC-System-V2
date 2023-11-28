@@ -11,7 +11,7 @@ namespace MBKC.API.Validators.Categories
 {
     public class PostCategoryValidator : AbstractValidator<PostCategoryRequest>
     {
-        private const int MAX_BYTES = 2048000;
+        private const int MAX_BYTES = 5242880;
         public PostCategoryValidator()
         {
             #region Code
