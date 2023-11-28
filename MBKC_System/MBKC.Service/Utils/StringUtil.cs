@@ -231,6 +231,11 @@ namespace MBKC.Service.Utils
             return $"in the amount of: {(int)Math.Floor(amount)}đ at {DateTime.Now.Hour}:{DateTime.Now.Minute} - {DateTime.Now.Day}/{DateTime.Now.Month}/{DateTime.Now.Year}";
         }
 
+        public static string GetContentRejectReason()
+        {
+            return $"because it has not been processed on the day at {DateTime.Now.Hour}:{DateTime.Now.Minute} - {DateTime.Now.Day}/{DateTime.Now.Month}/{DateTime.Now.Year}";
+        }
+
         public static string ConvertTimeSpanToCron(TimeSpan timeSpan)
         {
             string minute = timeSpan.Minutes == 0 ? "*" : timeSpan.Minutes.ToString();

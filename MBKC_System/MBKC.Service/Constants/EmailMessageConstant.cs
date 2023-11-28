@@ -38,5 +38,10 @@ namespace MBKC.Service.Constants
                                           "The system cannot perform mapping of some products in the Excel file attached to this email from GrabFood. " +
                                           "Please review whether the product in the MKBC system is in accordance with regulations to perform mapping or not.";
         }
+
+        public static class Order
+        {
+            public const string Message = "The MBKC system has automatically canceled orders from your store because these orders were not processed today.";
+        }
     }
 }

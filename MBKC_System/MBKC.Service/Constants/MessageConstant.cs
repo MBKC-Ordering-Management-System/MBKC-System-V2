@@ -1,4 +1,5 @@
 ﻿using MBKC.Repository.Models;
+using System.Security.Policy;
 
 namespace MBKC.Service.Constants
 {
@@ -266,6 +267,8 @@ namespace MBKC.Service.Constants
             public const string CannotUpdateOrder = "You can not update existed Order because this order status is preparing.";
             public const string CannotUpdateOrderAlreadyPreparing = "You can not update existed Order because this order status already is preparing.";
             public const string CannotUpdateOrderAlreadyUpcoming = "You can not update existed Order because this order status already is upcoming.";
+            public const string OrderHasBeenProcessed = "All orders placed today have been processed.";
+            public const string CancelAllOrder = "Cancel all orders that have not been processed today successfully.";
         }
 
         public static class WalletMessage

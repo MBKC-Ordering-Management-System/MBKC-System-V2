@@ -5,14 +5,18 @@ using MBKC.Repository.Infrastructures;
 using MBKC.Repository.Models;
 using MBKC.Service.Constants;
 using MBKC.Service.DTOs.Configurations;
+using MBKC.Service.DTOs.GrabFoods;
 using MBKC.Service.Services.Interfaces;
 using MBKC.Service.Utils;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -33,7 +37,7 @@ namespace MBKC.Service.Services.Implementations
         #region start background job
         public async Task StartAllBackgroundJob()
         {
-            
+
             var configs = await this._unitOfWork.ConfigurationRepository.GetConfigurationsAsync();
             if (!configs.Any())
             {
@@ -45,6 +49,16 @@ namespace MBKC.Service.Services.Implementations
                 // cashier money exchange to kitchen center
                 RecurringJob.AddOrUpdate(HangfireConstant.MoneyExchangeToKitchenCenter_ID,
                                       () => MoneyExchangeToKitchenCenterAsync(),
+                                      cronExpression: StringUtil.ConvertTimeSpanToCron(configs.First().ScrawlingMoneyExchangeToKitchenCenter),
+                                      new RecurringJobOptions
+                                      {
+                                          // sync time(utc +7)
+                                          TimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"),
+                                      });
+
+                // cashier money exchange to kitchen center
+                RecurringJob.AddOrUpdate(HangfireConstant.UpdateStatusOrder_ID,
+                                      () => CancelOrdersNotYetProcessed(),
                                       cronExpression: StringUtil.ConvertTimeSpanToCron(configs.First().ScrawlingMoneyExchangeToKitchenCenter),
                                       new RecurringJobOptions
                                       {
@@ -129,6 +143,15 @@ namespace MBKC.Service.Services.Implementations
                                       // sync time(utc +7)
                                       TimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"),
                                   });
+
+                    RecurringJob.AddOrUpdate(HangfireConstant.UpdateStatusOrder_ID,
+                               () => CancelOrdersNotYetProcessed(),
+                               cronExpression: StringUtil.ConvertTimeSpanToCron(exchangeToKitchenCenterTime),
+                               new RecurringJobOptions
+                               {
+                                   // sync time(utc +7)
+                                   TimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"),
+                               });
                 }
 
                 if (TimeSpan.Compare(firstConfiguration.ScrawlingMoneyExchangeToStore, exchangeToStoreTime) != 0)
@@ -168,6 +191,15 @@ namespace MBKC.Service.Services.Implementations
                                        // sync time(utc +7)
                                        TimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"),
                                    });
+
+                    RecurringJob.AddOrUpdate(HangfireConstant.UpdateStatusOrder_ID,
+                                  () => CancelOrdersNotYetProcessed(),
+                                  cronExpression: StringUtil.ConvertTimeSpanToCron(oldTimeExchangeToKitchenCenter.Value),
+                                  new RecurringJobOptions
+                                  {
+                                      // sync time(utc +7)
+                                      TimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"),
+                                  });
                 }
 
                 if (oldTimeExchangeToStore is not null)
@@ -455,7 +487,7 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
-               List<PartnerProduct> partnerProducts = await this._unitOfWork.PartnerProductRepository.GetPartnerProductsAsync();
+                List<PartnerProduct> partnerProducts = await this._unitOfWork.PartnerProductRepository.GetPartnerProductsAsync();
                 if (!partnerProducts.Any())
                 {
                     this._logger.LogWarning($"{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second} - " + MessageConstant.PartnerProductMessage.NoOneOutOfStock);
@@ -467,6 +499,82 @@ namespace MBKC.Service.Services.Implementations
                 await this._unitOfWork.CommitAsync();
 
                 this._logger.LogInformation($"{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second} - " + MessageConstant.PartnerProductMessage.UpdatePartnerProductSuccessfully);
+            }
+            catch (Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.InnerException != null ? ex.InnerException.Message : ex.Message);
+                throw new Exception(error);
+            }
+        }
+        #endregion
+
+        #region cancel order 
+        public async Task CancelOrdersNotYetProcessed()
+        {
+            try
+            {
+                var orders = await this._unitOfWork.OrderRepository.GetOrdersOrdersNotYetProcessedToday();
+                if (!orders.Any())
+                {
+                    this._logger.LogWarning($"{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second} - " + MessageConstant.OrderMessage.OrderHasBeenProcessed);
+                    return;
+                }
+
+                var orderHistories = new List<OrderHistory>();
+                Dictionary<string, List<Order>> storeWithOrders = new Dictionary<string, List<Order>>();
+                foreach (var order in orders)
+                {
+                    order.SystemStatus = OrderEnum.SystemStatus.CANCELLED.ToString();
+                    order.PartnerOrderStatus = OrderEnum.Status.CANCELLED.ToString();
+                    order.RejectedReason = $"Cancel order [OrderId: {order.Id} - OrderPartnerId: {order.OrderPartnerId}] {StringUtil.GetContentRejectReason()}";
+
+                    var orderHistory = new OrderHistory()
+                    {
+                        CreatedDate = DateTime.Now,
+                        SystemStatus = OrderEnum.SystemStatus.CANCELLED.ToString(),
+                        PartnerOrderStatus = OrderEnum.Status.CANCELLED.ToString(),
+                        Order = order,
+                    };
+                    orderHistories.Add(orderHistory);
+
+
+                    if (storeWithOrders.ContainsKey(order.Store.StoreManagerEmail))
+                    {
+                        storeWithOrders[order.Store.StoreManagerEmail].Add(order);
+                    }
+                    else
+                    {
+                        storeWithOrders.Add(order.Store.StoreManagerEmail, new List<Order>() { order });
+                    }
+                }
+
+                // send email
+                foreach (var store in storeWithOrders)
+                {
+                    // excel file
+                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                    DataTable cancelledOrders = ExcelUtil.GetCancelOrderItemData(store.Value);
+                    MemoryStream outputStream = new MemoryStream();
+                    using (ExcelPackage package = new ExcelPackage(outputStream))
+                    {
+                        ExcelWorksheet grabFoodItemsWorksheet = package.Workbook.Worksheets.Add("Canceled Orders");
+                        grabFoodItemsWorksheet.Cells.LoadFromDataTable(cancelledOrders, true);
+                        package.Save();
+                    }
+
+                    outputStream.Position = 0;
+                    Attachment attachment = new Attachment(outputStream, "Cancelled_Orders.xlsx", "application/vnd.ms-excel");
+
+                    // send email
+                    string message = EmailMessageConstant.Order.Message;
+                    string messageBody = this._unitOfWork.EmailRepository.GetMessageToNotifyNonMappingProduct(store.Key, "empty", message);
+                    await this._unitOfWork.EmailRepository.SendEmailToNotifyCancelOrder(store.Key, messageBody, attachment);
+                }
+
+                this._unitOfWork.OrderRepository.UpdateRangeOrder(orders);
+                await this._unitOfWork.OrderHistoryRepository.InsertRangeOrderHistoryAsync(orderHistories);
+                await this._unitOfWork.CommitAsync();
+                this._logger.LogWarning($"{DateTime.Now.Hour}:{DateTime.Now.Minute}:{DateTime.Now.Second} - " + MessageConstant.OrderMessage.CancelAllOrder);
             }
             catch (Exception ex)
             {

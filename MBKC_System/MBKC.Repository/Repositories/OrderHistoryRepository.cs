@@ -27,5 +27,17 @@ namespace MBKC.Repository.Repositories
                 throw new Exception(ex.Message);
             }
         }
+
+        public async Task InsertRangeOrderHistoryAsync(IEnumerable<OrderHistory> orderHistories)
+        {
+            try
+            {
+                await this._dbContext.OrderHistories.AddRangeAsync(orderHistories);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }
