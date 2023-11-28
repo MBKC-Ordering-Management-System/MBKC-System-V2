@@ -155,9 +155,9 @@ namespace MBKC.Service.Utils
 
         public static string ChangePartnerProductStatus(int status)
         {
-            if (status == (int)PartnerProductEnum.Status.DISABLE)
+            if (status == (int)PartnerProductEnum.Status.AVAILABLE)
             {
-                return char.ToUpper(PartnerProductEnum.Status.DISABLE.ToString()[0]) + PartnerProductEnum.Status.DISABLE.ToString().ToLower().Substring(1);
+                return char.ToUpper(PartnerProductEnum.Status.AVAILABLE.ToString()[0]) + PartnerProductEnum.Status.AVAILABLE.ToString().ToLower().Substring(1);
             }
             else if (status == (int)PartnerProductEnum.Status.OUT_OF_STOCK_TODAY)
             {
