@@ -125,7 +125,7 @@ namespace MBKC.Repository.Repositories
                 {
                     return this._dbContext.StorePartners.Include(x => x.Partner)
                                                           .Include(x => x.Store).ThenInclude(x => x.KitchenCenter)
-                                                          .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
+                                                          .Where(x => x.Status != (int)StorePartnerEnum.Status.DISABLE &&
                                                                      (brandId != null
                                                                      ? x.Store.Brand.BrandId == brandId
                                                                      : true)).ToList();

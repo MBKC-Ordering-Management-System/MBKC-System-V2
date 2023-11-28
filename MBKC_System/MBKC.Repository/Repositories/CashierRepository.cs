@@ -332,7 +332,7 @@ namespace MBKC.Repository.Repositories
                                                      .Include(x => x.KitchenCenter)
                                                      .Include(x => x.CashierMoneyExchanges.Where(x => x.MoneyExchange.ExchangeType.ToUpper().Equals(MoneyExchangeEnum.ExchangeType.SEND.ToString())
                                                                                                                   && x.MoneyExchange.Transactions.Any(ts => ts.TransactionTime.Date == currentDate)))
-                                                     .SingleOrDefaultAsync(x => x.AccountId == idCashier && x.Account.Status != (int)AccountEnum.Status.DEACTIVE);
+                                                     .SingleOrDefaultAsync(x => x.AccountId == idCashier && x.Account.Status != (int)AccountEnum.Status.DISABLE);
             }
             catch (Exception ex)
             {

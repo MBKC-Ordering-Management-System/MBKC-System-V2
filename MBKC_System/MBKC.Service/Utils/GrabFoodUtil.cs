@@ -45,7 +45,7 @@ namespace MBKC.Service.Utils
                                 if (string.IsNullOrWhiteSpace(item.ItemCode))
                                 {
                                     // compare name
-                                    existedProduct = existedCategory.Products.SingleOrDefault(x => x.Name.ToLower().Equals(item.ItemName.ToLower()) && x.Status != (int)ProductEnum.Status.DEACTIVE);
+                                    existedProduct = existedCategory.Products.SingleOrDefault(x => x.Name.ToLower().Equals(item.ItemName.ToLower()) && x.Status != (int)ProductEnum.Status.DISABLE);
                                     if (existedProduct is not null && existedProduct.PartnerProducts.SingleOrDefault(x => x.ProductId == existedProduct.ProductId) is null)
                                     {
                                         newPartnerProducts.Add(new PartnerProduct()
@@ -77,7 +77,7 @@ namespace MBKC.Service.Utils
                                 else
                                 {
                                     // compare code
-                                    existedProduct = existedCategory.Products.SingleOrDefault(x => x.Code.ToLower().Equals(item.ItemCode.ToLower()) && x.Status != (int)ProductEnum.Status.DEACTIVE);
+                                    existedProduct = existedCategory.Products.SingleOrDefault(x => x.Code.ToLower().Equals(item.ItemCode.ToLower()) && x.Status != (int)ProductEnum.Status.DISABLE);
                                     if (existedProduct is not null && existedProduct.PartnerProducts.SingleOrDefault(x => x.ProductId == existedProduct.ProductId) is null)
                                     {
                                         newPartnerProducts.Add(new PartnerProduct()
@@ -126,7 +126,7 @@ namespace MBKC.Service.Utils
                                 if (string.IsNullOrEmpty(item.ItemCode))
                                 {
                                     // compare name
-                                    existedProduct = existedCategory.Products.SingleOrDefault(x => x.Name.ToLower().Equals(item.ItemName.ToLower()) && x.Status != (int)ProductEnum.Status.DEACTIVE);
+                                    existedProduct = existedCategory.Products.SingleOrDefault(x => x.Name.ToLower().Equals(item.ItemName.ToLower()) && x.Status != (int)ProductEnum.Status.DISABLE);
                                     if (existedProduct is not null && existedProduct.PartnerProducts.SingleOrDefault(x => x.ProductId == existedProduct.ProductId) is null)
                                     {
                                         if (existedProduct.Type.ToLower().Equals(ProductEnum.Type.PARENT.ToString().ToLower()))
@@ -174,7 +174,7 @@ namespace MBKC.Service.Utils
                                                         childItemFromGrabFood = nameProductsFollowingRule[childProduct.Name];
                                                     }
                                                     
-                                                    if (childItemFromGrabFood is not null && childProduct.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()) && childProduct.Status != (int)ProductEnum.Status.DEACTIVE)
+                                                    if (childItemFromGrabFood is not null && childProduct.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()) && childProduct.Status != (int)ProductEnum.Status.DISABLE)
                                                     {
                                                         /*string[] modifierNameParts = childItemFromGrabFood.ModifierName.Split(" ");
                                                         string productCode = item.ItemID + "-";
@@ -231,7 +231,7 @@ namespace MBKC.Service.Utils
                                 else
                                 {
                                     // compare code
-                                    existedProduct = existedCategory.Products.SingleOrDefault(x => x.Code.ToLower().Equals(item.ItemCode.ToLower()) && x.Status != (int)ProductEnum.Status.DEACTIVE);
+                                    existedProduct = existedCategory.Products.SingleOrDefault(x => x.Code.ToLower().Equals(item.ItemCode.ToLower()) && x.Status != (int)ProductEnum.Status.DISABLE);
                                     if (existedProduct is not null && existedProduct.PartnerProducts.SingleOrDefault(x => x.ProductId == existedProduct.ProductId) is null)
                                     {
                                         if (existedProduct.Type.ToLower().Equals(ProductEnum.Type.PARENT.ToString().ToLower()))
@@ -274,7 +274,7 @@ namespace MBKC.Service.Utils
                                                 foreach (var childProduct in existedProduct.ChildrenProducts)
                                                 {
                                                     GrabFoodModifier childItemFromGrabFood = nameProductsFollowingRule.SingleOrDefault(x => x.Key.ToLower().Equals(childProduct.Name.ToLower())).Value;
-                                                    if (childItemFromGrabFood is not null && childProduct.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()) && childProduct.Status != (int)ProductEnum.Status.DEACTIVE)
+                                                    if (childItemFromGrabFood is not null && childProduct.Type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()) && childProduct.Status != (int)ProductEnum.Status.DISABLE)
                                                     {
                                                         /*string[] modifierNameParts = childItemFromGrabFood.ModifierName.Split(" ");
                                                         string productCode = item.ItemID + "-";
@@ -360,7 +360,7 @@ namespace MBKC.Service.Utils
                     {
                         foreach (var grabFoodModifier in grabFoodModifierGroup.Modifiers)
                         {
-                            existedProduct = existedCategory.Products.SingleOrDefault(x => x.Name.ToLower().Equals(grabFoodModifier.ModifierName.ToLower()) && x.Status != (int)ProductEnum.Status.DEACTIVE);
+                            existedProduct = existedCategory.Products.SingleOrDefault(x => x.Name.ToLower().Equals(grabFoodModifier.ModifierName.ToLower()) && x.Status != (int)ProductEnum.Status.DISABLE);
                             if (CreatedMappingModifiers.Contains(grabFoodModifier) == false && existedProduct is not null && existedProduct.PartnerProducts.SingleOrDefault(x => x.ProductId == existedProduct.ProductId) is null)
                             {
                                 /*string[] modifierNameParts = grabFoodModifier.ModifierName.Split(" ");

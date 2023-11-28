@@ -30,7 +30,19 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await this._dbContext.Products.SingleOrDefaultAsync(x => x.Code.ToLower().Equals(code.ToLower()) && x.Brand.BrandId == brandId && x.Status != (int)ProductEnum.Status.DEACTIVE);
+                return await this._dbContext.Products.SingleOrDefaultAsync(x => x.Code.ToLower().Equals(code.ToLower()) && x.Brand.BrandId == brandId && x.Status != (int)ProductEnum.Status.DISABLE);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<Product> CheckProductCodeInBrandAsync(string code, int brandId)
+        {
+            try
+            {
+                return await this._dbContext.Products.SingleOrDefaultAsync(x => x.Code.ToLower().Equals(code.ToLower()) && x.Brand.BrandId == brandId && x.Status != (int)ProductEnum.Status.DISABLE);
             }
             catch (Exception ex)
             {
@@ -42,7 +54,7 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await this._dbContext.Products.SingleOrDefaultAsync(x => x.Name.ToLower().Equals(productName.ToLower()) && x.Brand.BrandId == brandId && x.Status != (int)ProductEnum.Status.DEACTIVE);
+                return await this._dbContext.Products.SingleOrDefaultAsync(x => x.Name.ToLower().Equals(productName.ToLower()) && x.Brand.BrandId == brandId && x.Status != (int)ProductEnum.Status.DISABLE);
             }
             catch (Exception ex)
             {
