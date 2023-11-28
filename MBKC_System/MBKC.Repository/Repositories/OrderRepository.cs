@@ -717,9 +717,8 @@ namespace MBKC.Repository.Repositories
             {
                 DateTime today = DateTime.Now;
                 return await this._dbContext.Orders.Include(o => o.Store)
-                                                   .Where(o => (!o.PartnerOrderStatus.ToUpper().Equals(OrderEnum.Status.COMPLETED)
-                                                             && !o.PartnerOrderStatus.ToUpper().Equals(OrderEnum.Status.CANCELLED))
-                                                       && o.OrderHistories.Any(oh => oh.CreatedDate.Date == today.Date))
+                                                   .Where(o => (!o.PartnerOrderStatus.ToUpper().Equals(OrderEnum.Status.COMPLETED.ToString().ToUpper()) && !o.PartnerOrderStatus.ToUpper().Equals(OrderEnum.Status.CANCELLED.ToString().ToUpper()))
+                                                             && o.OrderHistories.Any(oh => oh.CreatedDate.Date == today.Date))
                                                    .ToListAsync();
 
             }
