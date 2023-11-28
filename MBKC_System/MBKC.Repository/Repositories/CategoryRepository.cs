@@ -20,7 +20,21 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await _dbContext.Categories.SingleOrDefaultAsync(c => c.Code.Equals(code) && c.Brand.BrandId == brandId);
+                return await _dbContext.Categories.SingleOrDefaultAsync(c => c.Code.Equals(code) && c.Brand.BrandId == brandId && c.Status != (int)CategoryEnum.Status.DEACTIVE);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        #region Get Category By Name
+        public async Task<Category> GetCategoryByNameAsync(string categoryName, int brandId)
+        {
+            try
+            {
+                return await _dbContext.Categories.SingleOrDefaultAsync(c => c.Name.ToLower().Equals(categoryName.ToLower()) && c.Brand.BrandId == brandId && c.Status != (int)CategoryEnum.Status.DEACTIVE);
             }
             catch (Exception ex)
             {

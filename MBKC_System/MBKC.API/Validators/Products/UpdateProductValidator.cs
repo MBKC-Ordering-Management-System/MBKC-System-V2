@@ -12,7 +12,7 @@ namespace MBKC.API.Validators.Products
         {
             RuleFor(cpr => cpr.Name)
                 .Cascade(CascadeMode.StopOnFirstFailure)
-                .MaximumLength(20).WithMessage("{PropertyName} is required less than or equal to 120 characters.");
+                .MaximumLength(120).WithMessage("{PropertyName} is required less than or equal to 120 characters.");
 
             RuleFor(cpr => cpr.Description)
                 .Cascade(CascadeMode.StopOnFirstFailure)
