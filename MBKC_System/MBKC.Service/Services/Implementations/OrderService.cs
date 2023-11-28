@@ -54,6 +54,12 @@ namespace MBKC.Service.Services.Implementations
                     throw new BadRequestException(MessageConstant.OrderMessage.OrderNotBelongToKitchenCenter);
                 }
 
+                // Check order belong today or not
+                if (existedOrder.OrderHistories.Any(x => x.CreatedDate.Date < DateTime.Now.Date))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.NoChangeOrderStatusNotToday);
+                }
+
                 if (existedCashier.CashierMoneyExchanges.Any())
                 {
                     throw new BadRequestException(MessageConstant.OrderMessage.NoChangeOrderStatusWhenClosedShift);
@@ -102,7 +108,7 @@ namespace MBKC.Service.Services.Implementations
 
                 if (existedOrder.SystemStatus.ToUpper().Equals(OrderEnum.SystemStatus.IN_STORE.ToString()))
                 {
-                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsPreparing);
+                    throw new BadRequestException(MessageConstant.OrderMessage.OrderIsInStore);
                 }
                 if (existedOrder.SystemStatus.ToUpper().Equals(OrderEnum.SystemStatus.COMPLETED.ToString()))
                 {
@@ -128,8 +134,8 @@ namespace MBKC.Service.Services.Implementations
                 #endregion
 
                 #region orders
-                existedOrder.PartnerOrderStatus = OrderEnum.Status.COMPLETED.ToString();
-                existedOrder.SystemStatus = OrderEnum.SystemStatus.COMPLETED.ToString();
+                existedOrder.PartnerOrderStatus = OrderEnum.Status.COMPLETED.ToString().ToUpper();
+                existedOrder.SystemStatus = OrderEnum.SystemStatus.COMPLETED.ToString().ToUpper();
                 existedOrder.ConfirmedBy = existedCashier.AccountId;
                 this._unitOfWork.OrderRepository.UpdateOrder(existedOrder);
 
@@ -137,8 +143,8 @@ namespace MBKC.Service.Services.Implementations
                 {
                     Image = urlImage,
                     CreatedDate = DateTime.Now,
-                    SystemStatus = OrderEnum.SystemStatus.COMPLETED.ToString(),
-                    PartnerOrderStatus = OrderEnum.Status.COMPLETED.ToString(),
+                    SystemStatus = OrderEnum.SystemStatus.COMPLETED.ToString().ToUpper(),
+                    PartnerOrderStatus = OrderEnum.Status.COMPLETED.ToString().ToUpper(),
                     Order = existedOrder,
                 };
                 await this._unitOfWork.OrderHistoryRepository.InsertOrderHistoryAsync(orderHistory);
@@ -209,6 +215,8 @@ namespace MBKC.Service.Services.Implementations
                 switch (ex.Message)
                 {
                     case MessageConstant.OrderMessage.OrderNotBelongToKitchenCenter:
+                    case MessageConstant.OrderMessage.OrderIsInStore:
+                    case MessageConstant.OrderMessage.NoChangeOrderStatusNotToday:
                     case MessageConstant.OrderMessage.OrderIsPreparing:
                     case MessageConstant.OrderMessage.OrderIsReady:
                     case MessageConstant.OrderMessage.OrderIsCompleted:
@@ -285,6 +293,12 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
+                List<Configuration> configurations = await this._unitOfWork.ConfigurationRepository.GetConfigurationsAsync();
+                Configuration configuration = configurations.First();
+                if(DateTime.Now.TimeOfDay > configuration.ScrawlingOrderEndTime && DateTime.Now.TimeOfDay < configuration.ScrawlingOrderStartTime)
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.CannotCreateOrder);
+                }
                 Order existedOrder = await this._unitOfWork.OrderRepository.GetOrderByOrderPartnerIdAsync(postOrderRequest.OrderPartnerId);
                 if (existedOrder is not null)
                 {
@@ -316,7 +330,7 @@ namespace MBKC.Service.Services.Implementations
                 OrderHistory orderHistory = new OrderHistory()
                 {
                     CreatedDate = DateTime.Now,
-                    SystemStatus = OrderEnum.SystemStatus.IN_STORE.ToString().Split("_")[0] + " " + OrderEnum.SystemStatus.IN_STORE.ToString().Split("_")[1],
+                    SystemStatus = OrderEnum.SystemStatus.IN_STORE.ToString().ToUpper(),
                     PartnerOrderStatus = postOrderRequest.PartnerOrderStatus.ToUpper()
                 };
 
@@ -344,7 +358,8 @@ namespace MBKC.Service.Services.Implementations
                     TotalDiscount = decimal.Parse(postOrderRequest.TotalDiscount.ToString().Replace(".", ",")),
                     Store = existedStore,
                     Tax = postOrderRequest.Tax,
-                    OrderHistories = new List<OrderHistory>() { orderHistory }
+                    OrderHistories = new List<OrderHistory>() { orderHistory },
+                    StorePartnerCommission = postOrderRequest.StorePartnerCommission
                 };
                 List<OrderDetail> newOrderDetails = new List<OrderDetail>();
                 foreach (var orderDetail in postOrderRequest.OrderDetails)
@@ -484,14 +499,32 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new NotFoundException(MessageConstant.OrderMessage.OrderPartnerIdNotExist);
                 }
+                if (existedOrder.PartnerOrderStatus.ToLower().Equals(OrderEnum.Status.PREPARING.ToString().ToLower()) &&
+                    putOrderRequest.Status.ToLower().Equals(OrderEnum.Status.UPCOMING.ToString().ToLower()))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.CannotUpdateOrder);
+                }
+
+                if(existedOrder.PartnerOrderStatus.ToLower().Equals(OrderEnum.Status.PREPARING.ToString().ToLower()) &&
+                    putOrderRequest.Status.ToLower().Equals(OrderEnum.Status.PREPARING.ToString().ToLower())){
+                    throw new BadRequestException(MessageConstant.OrderMessage.CannotUpdateOrderAlreadyPreparing);
+                }
+                
+                if(existedOrder.PartnerOrderStatus.ToLower().Equals(OrderEnum.Status.UPCOMING.ToString().ToLower()) &&
+                    putOrderRequest.Status.ToLower().Equals(OrderEnum.Status.UPCOMING.ToString().ToLower())){
+                    throw new BadRequestException(MessageConstant.OrderMessage.CannotUpdateOrderAlreadyUpcoming);
+                }
+
                 existedOrder.PartnerOrderStatus = putOrderRequest.Status.ToUpper();
                 OrderHistory orderHistory = new OrderHistory()
                 {
                     CreatedDate = DateTime.Now,
                     PartnerOrderStatus = putOrderRequest.Status.ToUpper(),
-                    SystemStatus = OrderEnum.SystemStatus.IN_STORE.ToString().Split("_")[0] + " " + OrderEnum.SystemStatus.IN_STORE.ToString().Split("_")[1],
+                    SystemStatus = OrderEnum.SystemStatus.IN_STORE.ToString().ToUpper(),
                 };
-                existedOrder.OrderHistories.ToList().Add(orderHistory);
+                List<OrderHistory> orderHistories = existedOrder.OrderHistories.ToList();
+                orderHistories.Add(orderHistory);
+                existedOrder.OrderHistories = orderHistories;
                 this._unitOfWork.OrderRepository.UpdateOrder(existedOrder);
                 await this._unitOfWork.CommitAsync();
                 return this._mapper.Map<GetOrderResponse>(existedOrder);
@@ -500,6 +533,11 @@ namespace MBKC.Service.Services.Implementations
             {
                 string error = ErrorUtil.GetErrorString("Partner order id", ex.Message);
                 throw new NotFoundException(error);
+            }
+             catch(BadRequestException ex)
+            {
+                string error = ErrorUtil.GetErrorString("Status", ex.Message);
+                throw new BadRequestException(error);
             }
             catch (Exception ex)
             {
@@ -575,19 +613,13 @@ namespace MBKC.Service.Services.Implementations
                 {
                     totalPages = 0;
                 }
-                decimal? collectedPrice = null;
                 List<GetOrderResponse> getOrdersResponse = new List<GetOrderResponse>();
                 if (numberItems > 0)
                 {
                     // Get totalQuantity of each order
                     foreach (var order in orders)
                     {
-                        if (order.Store.StorePartners.Any())
-                        {
-                            float storePartnerComission = order.Store.StorePartners.FirstOrDefault(x => x.PartnerId == order.PartnerId).Commission;
-
-                            collectedPrice = order.SubTotalPrice - (order.SubTotalPrice * decimal.Parse(storePartnerComission.ToString()) / 100);
-                        }
+                        decimal collectedPrice = order.SubTotalPrice - (order.SubTotalPrice * decimal.Parse(order.StorePartnerCommission.ToString()) / 100);
                         GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(order);
                         getOrderResponse.IsPaid = getOrderResponse.PaymentMethod.ToLower().Equals(OrderEnum.PaymentMethod.CASH.ToString().ToLower()) ? false : true;
                         if (getOrderResponse.IsPaid == true)
@@ -680,9 +712,8 @@ namespace MBKC.Service.Services.Implementations
                         throw new BadRequestException(MessageConstant.OrderMessage.OrderIdNotBelongToKitchenCenter);
                     }
                 }
-                float storePartnerComission = existedOrder.Store.StorePartners.FirstOrDefault(x => x.PartnerId == existedOrder.PartnerId).Commission;
 
-                decimal collectedPrice = existedOrder.SubTotalPrice - (existedOrder.SubTotalPrice * decimal.Parse(storePartnerComission.ToString()) / 100);
+                decimal collectedPrice = existedOrder.SubTotalPrice - (existedOrder.SubTotalPrice * decimal.Parse(existedOrder.StorePartnerCommission.ToString()) / 100);
 
                 GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(existedOrder);
                 getOrderResponse.IsPaid = getOrderResponse.PaymentMethod.ToLower().Equals(OrderEnum.PaymentMethod.CASH.ToString().ToLower()) ? false : true;
@@ -753,6 +784,11 @@ namespace MBKC.Service.Services.Implementations
                         throw new BadRequestException(MessageConstant.OrderMessage.OrderIdNotBelongToStore);
                     }
                 }
+                // Check order belong today or not
+                if (existedOrder.OrderHistories.Any(x => x.CreatedDate.Date < DateTime.Now.Date))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.NoChangeOrderStatusNotToday);
+                }
 
                 // Check partner order status  - partner order status must be PREPARING
                 if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.Status.UPCOMING.ToString()))
@@ -788,14 +824,14 @@ namespace MBKC.Service.Services.Implementations
 
                 #region orders
                 // assign READY status to partner order status.
-                existedOrder.PartnerOrderStatus = OrderEnum.Status.READY.ToString();
+                existedOrder.PartnerOrderStatus = OrderEnum.Status.READY.ToString().ToUpper();
                 this._unitOfWork.OrderRepository.UpdateOrder(existedOrder);
 
                 OrderHistory orderHistory = new OrderHistory()
                 {
                     CreatedDate = DateTime.Now,
-                    PartnerOrderStatus = OrderEnum.Status.READY.ToString(),
-                    SystemStatus = OrderEnum.SystemStatus.IN_STORE.ToString(),
+                    PartnerOrderStatus = OrderEnum.Status.READY.ToString().ToUpper(),
+                    SystemStatus = OrderEnum.SystemStatus.IN_STORE.ToString().ToUpper(),
                     Order = existedOrder,
                 };
                 await this._unitOfWork.OrderHistoryRepository.InsertOrderHistoryAsync(orderHistory);
@@ -818,6 +854,7 @@ namespace MBKC.Service.Services.Implementations
                 switch (ex.Message)
                 {
                     case MessageConstant.OrderMessage.OrderIsReady_Change_To_Ready:
+                    case MessageConstant.OrderMessage.NoChangeOrderStatusNotToday:
                     case MessageConstant.OrderMessage.OrderIsUpcoming_Change_To_Ready:
                     case MessageConstant.OrderMessage.OrderIsCompleted_Change_To_Ready:
                     case MessageConstant.OrderMessage.OrderIsCancelled_Change_To_Ready:
@@ -884,6 +921,12 @@ namespace MBKC.Service.Services.Implementations
                     }
                 }
 
+                // Check order belong today or not
+                if (existedOrder.OrderHistories.Any(x => x.CreatedDate.Date < DateTime.Now.Date))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.NoChangeOrderStatusNotToday);
+                }
+
                 // Check partner order status - partner order status must be READY
                 if (existedOrder.PartnerOrderStatus.ToUpper().Equals(OrderEnum.Status.UPCOMING.ToString()))
                 {
@@ -917,14 +960,14 @@ namespace MBKC.Service.Services.Implementations
                 }
 
                 #region orders
-                existedOrder.SystemStatus = OrderEnum.SystemStatus.READY_DELIVERY.ToString();
+                existedOrder.SystemStatus = OrderEnum.SystemStatus.READY_DELIVERY.ToString().ToUpper();
                 this._unitOfWork.OrderRepository.UpdateOrder(existedOrder);
 
                 OrderHistory orderHistory = new OrderHistory()
                 {
                     CreatedDate = DateTime.Now,
-                    PartnerOrderStatus = OrderEnum.Status.READY.ToString(),
-                    SystemStatus = OrderEnum.SystemStatus.READY_DELIVERY.ToString(),
+                    PartnerOrderStatus = OrderEnum.Status.READY.ToString().ToUpper(),
+                    SystemStatus = OrderEnum.SystemStatus.READY_DELIVERY.ToString().ToUpper(),
                     Order = existedOrder,
                 };
                 await this._unitOfWork.OrderHistoryRepository.InsertOrderHistoryAsync(orderHistory);
@@ -937,10 +980,12 @@ namespace MBKC.Service.Services.Implementations
                 switch (ex.Message)
                 {
                     case MessageConstant.OrderMessage.OrderIsPreparing_Change_To_ReadyDelivery:
+                    case MessageConstant.OrderMessage.NoChangeOrderStatusNotToday:
                     case MessageConstant.OrderMessage.OrderIsUpcoming_Change_To_ReadyDelivery:
                     case MessageConstant.OrderMessage.OrderIsCompeleted_Change_To_ReadyDelivery:
                     case MessageConstant.OrderMessage.OrderIsCancelled_Change_To_ReadyDelivery:
                     case MessageConstant.OrderMessage.OrderIsReadyDelivery_Change_To_ReadyDelivery:
+                    case MessageConstant.OrderMessage.NoChangeOrderStatusWhenClosedShift:
                         fieldName = "Order";
                         break;
                     case MessageConstant.OrderMessage.OrderIdNotBelongToKitchenCenter:
@@ -987,7 +1032,7 @@ namespace MBKC.Service.Services.Implementations
         #endregion 
 
         #region Cancel Order
-        public async Task CancelOrderAsync(OrderRequest orderRequest, IEnumerable<Claim> claims)
+        public async Task CancelOrderAsync(OrderRequest orderRequest, PutCancelOrderRequest cancelOrderRequest, IEnumerable<Claim> claims)
         {
             try
             {
@@ -1009,6 +1054,12 @@ namespace MBKC.Service.Services.Implementations
                     {
                         throw new BadRequestException(MessageConstant.OrderMessage.OrderIdNotBelongToStore);
                     }
+                }
+
+                // Check order belong today or not
+                if (existedOrder.OrderHistories.Any(x => x.CreatedDate.Date < DateTime.Now.Date))
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.NoChangeOrderStatusNotToday);
                 }
 
                 // Check partner order status  - partner order status must be UPCOMING or PREPARING
@@ -1041,15 +1092,16 @@ namespace MBKC.Service.Services.Implementations
 
                 #region orders
                 // assign CANCELLED status to partner order status and system status
-                existedOrder.PartnerOrderStatus = OrderEnum.Status.CANCELLED.ToString();
-                existedOrder.SystemStatus = OrderEnum.SystemStatus.CANCELLED.ToString();
+                existedOrder.PartnerOrderStatus = OrderEnum.Status.CANCELLED.ToString().ToUpper();
+                existedOrder.SystemStatus = OrderEnum.SystemStatus.CANCELLED.ToString().ToUpper();
+                existedOrder.RejectedReason = cancelOrderRequest.RejectedReason;
                 this._unitOfWork.OrderRepository.UpdateOrder(existedOrder);
 
                 OrderHistory orderHistory = new OrderHistory()
                 {
                     CreatedDate = DateTime.Now,
-                    PartnerOrderStatus = OrderEnum.Status.CANCELLED.ToString(),
-                    SystemStatus = OrderEnum.SystemStatus.CANCELLED.ToString(),
+                    PartnerOrderStatus = OrderEnum.Status.CANCELLED.ToString().ToUpper(),
+                    SystemStatus = OrderEnum.SystemStatus.CANCELLED.ToString().ToUpper(),
                     Order = existedOrder,
                 };
                 await this._unitOfWork.OrderHistoryRepository.InsertOrderHistoryAsync(orderHistory);
@@ -1072,6 +1124,7 @@ namespace MBKC.Service.Services.Implementations
                 switch (ex.Message)
                 {
                     case MessageConstant.OrderMessage.OrderIsReady_Cancel:
+                    case MessageConstant.OrderMessage.NoChangeOrderStatusNotToday:
                     case MessageConstant.OrderMessage.OrderIsCompleted_Cancel:
                     case MessageConstant.OrderMessage.OrderIsCancelled_Cancel:
                     case MessageConstant.OrderMessage.OrderIsReadyDelivery_Cancel:

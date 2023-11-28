@@ -33,6 +33,8 @@ namespace MBKC.Repository.Models
         public int? Cutlery { get; set; }
         public string PartnerOrderStatus { get; set; }
         public int? ConfirmedBy { get; set; }
+        public string? RejectedReason { get; set; }
+        public float StorePartnerCommission { get; set; }
 
         [ForeignKey("StoreId")]
         public virtual Store Store { get; set; }

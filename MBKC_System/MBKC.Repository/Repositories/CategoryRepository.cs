@@ -20,7 +20,21 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await _dbContext.Categories.SingleOrDefaultAsync(c => c.Code.Equals(code) && c.Brand.BrandId == brandId);
+                return await _dbContext.Categories.SingleOrDefaultAsync(c => c.Code.Equals(code) && c.Brand.BrandId == brandId && c.Status != (int)CategoryEnum.Status.DEACTIVE);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        #region Get Category By Name
+        public async Task<Category> GetCategoryByNameAsync(string categoryName, int brandId)
+        {
+            try
+            {
+                return await _dbContext.Categories.SingleOrDefaultAsync(c => c.Name.ToLower().Equals(categoryName.ToLower()) && c.Brand.BrandId == brandId && c.Status != (int)CategoryEnum.Status.DEACTIVE);
             }
             catch (Exception ex)
             {
@@ -518,11 +532,11 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await this._dbContext.Categories.Include(x => x.Products).ThenInclude(x => x.ChildrenProducts)
+                return await this._dbContext.Categories.Include(x => x.Products.Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE)).ThenInclude(x => x.ChildrenProducts)
                                                        .Include(x => x.Brand).ThenInclude(x => x.Stores)
                                                        .Include(x => x.ExtraCategoryExtraCategoryNavigations)
-                                                       .Include(x => x.Products).ThenInclude(x => x.PartnerProducts)
-                                                       .Where(x => x.Brand.Stores.Any(s => s.StoreId == storeId)).ToListAsync();
+                                                       .Include(x => x.Products.Where(x => x.Status != (int)ProductEnum.Status.DEACTIVE)).ThenInclude(x => x.PartnerProducts)
+                                                       .Where(x => x.Brand.Stores.Any(s => s.StoreId == storeId) && x.Status != (int)CategoryEnum.Status.DEACTIVE).ToListAsync();
             }
             catch (Exception ex)
             {

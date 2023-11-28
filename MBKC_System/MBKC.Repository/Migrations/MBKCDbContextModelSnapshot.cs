@@ -503,6 +503,11 @@ namespace MBKC.Repository.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(10)");
 
+                    b.Property<string>("RejectedReason")
+                        .HasMaxLength(200)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<string>("ShipperName")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -517,6 +522,9 @@ namespace MBKC.Repository.Migrations
 
                     b.Property<int>("StoreId")
                         .HasColumnType("int");
+
+                    b.Property<float>("StorePartnerCommission")
+                        .HasColumnType("real");
 
                     b.Property<decimal>("SubTotalPrice")
                         .HasColumnType("decimal(9,2)");

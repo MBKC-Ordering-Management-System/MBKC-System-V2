@@ -289,11 +289,13 @@ namespace MBKC.Service.Services.Implementations
                 }
                 Category existedCategory = await this._unitOfWork.CategoryRepository.GetCategoryByIdAsync(existedProduct.Category.CategoryId);
                 List<GetProductResponse> extraProducts = new List<GetProductResponse>();
-                
-                if (existedCategory != null && existedCategory.ExtraCategoryProductCategories.Count() > 0) {
+
+                if (existedCategory != null && existedCategory.ExtraCategoryProductCategories.Count() > 0)
+                {
                     foreach (var extraCategory in existedCategory.ExtraCategoryProductCategories)
                     {
-                        if (extraCategory.ExtraCategoryNavigation is not null && extraCategory.ExtraCategoryNavigation.Products.Count() > 0) {
+                        if (extraCategory.ExtraCategoryNavigation is not null && extraCategory.ExtraCategoryNavigation.Products.Count() > 0)
+                        {
                             foreach (var product in extraCategory.ExtraCategoryNavigation.Products)
                             {
                                 GetProductResponse productResponse = this._mapper.Map<GetProductResponse>(product);
@@ -342,12 +344,16 @@ namespace MBKC.Service.Services.Implementations
                 string email = registeredEmailClaim.Value;
                 Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandAsync(email);
 
-                Product existedProduct = await this._unitOfWork.ProductRepository.GetProductAsync(createProductRequest.Code, existedBrand.BrandId);
-                if (existedProduct != null && existedProduct.Status != (int)ProductEnum.Status.DISABLE)
+                Product existedProductCode = await this._unitOfWork.ProductRepository.CheckProductCodeInBrandAsync(createProductRequest.Code, existedBrand.BrandId);
+                if (existedProductCode != null)
                 {
                     throw new BadRequestException(MessageConstant.ProductMessage.ProductCodeExistedInBrand);
                 }
-
+                Product existedProductName = await this._unitOfWork.ProductRepository.CheckProductNameInBrandAsync(createProductRequest.Name, existedBrand.BrandId);
+                if (existedProductName != null)
+                {
+                    throw new BadRequestException(MessageConstant.ProductMessage.ProductNameExistedInBrand);
+                }
                 Product existedParentProduct = null;
                 if (createProductRequest.ParentProductId != null)
                 {
@@ -438,6 +444,7 @@ namespace MBKC.Service.Services.Implementations
             }
             catch (BadRequestException ex)
             {
+
                 string fieldName = "";
                 if (ex.Message.Equals(MessageConstant.ProductMessage.ParentProductIdNotBelongToBrand))
                 {
@@ -446,6 +453,10 @@ namespace MBKC.Service.Services.Implementations
                 else if (ex.Message.Equals(MessageConstant.ProductMessage.ProductCodeExistedInBrand))
                 {
                     fieldName = "Code";
+                }
+                else if (ex.Message.Equals(MessageConstant.ProductMessage.ProductNameExistedInBrand))
+                {
+                    fieldName = "Product name";
                 }
                 else if (ex.Message.Equals(MessageConstant.CommonMessage.CategoryIdNotBelongToBrand) ||
                     ex.Message.Equals(MessageConstant.ProductMessage.CategoryNotSuitableForSingleOrParentProductType) ||
@@ -593,9 +604,15 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new BadRequestException(MessageConstant.ProductMessage.ProductNameTypeChildNotAllowUpdate);
                 }
-
+                // Check product name existed in brand or not
                 if (updateProductRequest.Name != null)
                 {
+                    Product existedProductName = await this._unitOfWork.ProductRepository.CheckProductNameInBrandAsync(updateProductRequest.Name, existedBrand.BrandId);
+                    if (existedProductName != null && existedProductName.ProductId != idProduct)
+                    {
+                        throw new BadRequestException(MessageConstant.ProductMessage.ProductNameExistedInBrand);
+                    }
+                    // assign product name to existed product.
                     existedProduct.Name = updateProductRequest.Name;
                 }
 
@@ -721,15 +738,17 @@ namespace MBKC.Service.Services.Implementations
             }
             catch (BadRequestException ex)
             {
+
                 string fieldName = "";
                 if (ex.Message.Equals(MessageConstant.ProductMessage.ProductNotBelongToBrand) ||
                     ex.Message.Equals(MessageConstant.ProductMessage.ProductIdNotParentType))
                 {
                     fieldName = "Product id";
                 }
-                else if (ex.Message.Equals(MessageConstant.ProductMessage.ProductNameTypeChildNotAllowUpdate))
+                else if (ex.Message.Equals(MessageConstant.ProductMessage.ProductNameTypeChildNotAllowUpdate) ||
+                    ex.Message.Equals(MessageConstant.ProductMessage.ProductNameExistedInBrand))
                 {
-                    fieldName = "Name";
+                    fieldName = "Product name";
                 }
                 else if (ex.Message.Equals(MessageConstant.ProductMessage.ParentProductIdNotBelongToBrand))
                 {

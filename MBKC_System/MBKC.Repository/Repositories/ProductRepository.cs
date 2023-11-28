@@ -30,7 +30,19 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await this._dbContext.Products.SingleOrDefaultAsync(x => x.Code.ToLower().Equals(code.ToLower()) && x.Brand.BrandId == brandId);
+                return await this._dbContext.Products.SingleOrDefaultAsync(x => x.Code.ToLower().Equals(code.ToLower()) && x.Brand.BrandId == brandId && x.Status != (int)ProductEnum.Status.DEACTIVE);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<Product> CheckProductNameInBrandAsync(string productName, int brandId)
+        {
+            try
+            {
+                return await this._dbContext.Products.SingleOrDefaultAsync(x => x.Name.ToLower().Equals(productName.ToLower()) && x.Brand.BrandId == brandId && x.Status != (int)ProductEnum.Status.DEACTIVE);
             }
             catch (Exception ex)
             {

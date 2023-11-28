@@ -117,11 +117,20 @@ namespace MBKC.Repository.Repositories
         }
 
         public async Task<List<StorePartner>> GetStorePartnersAsync(string? searchValue, string? searchValueWithoutUnicode,
-            int currentPage, int itemsPerPage, string? sortByASC, string? sortByDESC, int brandId)
+            int currentPage, int itemsPerPage, string? sortByASC, string? sortByDESC, int brandId, bool? isGetAll)
         {
             try
             {
+                if (isGetAll != null && isGetAll == true)
+                {
+                    return this._dbContext.StorePartners.Include(x => x.Partner)
+                                                          .Include(x => x.Store).ThenInclude(x => x.KitchenCenter)
+                                                          .Where(x => x.Status != (int)StorePartnerEnum.Status.DEACTIVE &&
+                                                                     (brandId != null
+                                                                     ? x.Store.Brand.BrandId == brandId
+                                                                     : true)).ToList();
 
+                }
                 if (searchValue == null && searchValueWithoutUnicode != null)
                 {
                     if (sortByASC is not null)

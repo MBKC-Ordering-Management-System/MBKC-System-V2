@@ -634,11 +634,12 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
+                DateTime today = DateTime.Now;
                 return await this._dbContext.Orders.Where(o => o.PaymentMethod.ToUpper() == OrderEnum.PaymentMethod.CASH.ToString() 
                                                        && o.StoreId == storeId
                                                        && o.ShipperPayments.Any(sp => sp.Status == (int)ShipperPaymentEnum.Status.SUCCESS
-                                                                                   && sp.CreateDate.Date <= DateTime.Now.Date
-                                                                                   && sp.CreateDate.Date >= DateTime.Now.AddDays(-6).Date))
+                                                                                   && sp.CreateDate.Date <= today.Date
+                                                                                   && sp.CreateDate.Date >= today.AddDays(-6).Date))
                                                    .Include(o => o.ShipperPayments)
                                                    .ToListAsync();
 
@@ -675,8 +676,9 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
+                DateTime today = DateTime.Now;
                 return await this._dbContext.Orders.Where(o => o.Store.KitchenCenter.Cashiers.Any(c => c.AccountId == cashierId)
-                                                       && o.OrderHistories.Any(oh => oh.CreatedDate.Date == DateTime.Now.Date))
+                                                       && o.OrderHistories.Any(oh => oh.CreatedDate.Date == today.Date))
                                                    .CountAsync();  
 
             }
@@ -694,11 +696,46 @@ namespace MBKC.Repository.Repositories
             {
                 return await this._dbContext.Orders.Include(o => o.Store)
                                                    .Include(o => o.Partner)
+                                                   .Include(o => o.ShipperPayments)
                                                    .Where(o => o.ShipperPayments.Any(sp => sp.CreateBy == cashierId
                                                                                  && (dateFrom != null ? sp.CreateDate.Date >= dateFrom.Value.Date : true)
                                                                                  && (dateTo != null ? sp.CreateDate.Date <= dateTo.Value.Date : true)))
                                                    .ToListAsync();
 
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        #region Get list of orders that have not been completed or canceled
+        public async Task<List<Order>> GetOrdersOrdersNotYetProcessedToday()
+        {
+            try
+            {
+                DateTime today = DateTime.Now;
+                return await this._dbContext.Orders.Include(o => o.Store)
+                                                   .Where(o => (!o.PartnerOrderStatus.ToUpper().Equals(OrderEnum.Status.COMPLETED)
+                                                             && !o.PartnerOrderStatus.ToUpper().Equals(OrderEnum.Status.CANCELLED))
+                                                       && o.OrderHistories.Any(oh => oh.CreatedDate.Date == today.Date))
+                                                   .ToListAsync();
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        #endregion
+
+        #region update range order
+        public void UpdateRangeOrder(IEnumerable<Order> orders)
+        {
+            try
+            {
+                this._dbContext.Orders.UpdateRange(orders);
             }
             catch (Exception ex)
             {

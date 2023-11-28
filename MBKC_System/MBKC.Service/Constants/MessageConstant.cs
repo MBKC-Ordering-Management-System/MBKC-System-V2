@@ -1,4 +1,5 @@
 ﻿using MBKC.Repository.Models;
+using System.Security.Policy;
 
 namespace MBKC.Service.Constants
 {
@@ -117,6 +118,7 @@ namespace MBKC.Service.Constants
         public static class CategoryMessage
         {
             public const string CategoryCodeExistedInBrand = "Category code already exist in brand.";
+            public const string CategoryNameExistedInBrand = "Category name already exist in brand.";
             public const string CategoryCodeExisted = "Category code already exist in the system.";
             public const string DeactiveCategory_Delete = "Category cannot delete because that was deleted before.";
             public const string DeactiveCategory_Update = "Category was deleted before, so this category cannot update.";
@@ -142,6 +144,7 @@ namespace MBKC.Service.Constants
         public static class ProductMessage
         {
             public const string ProductCodeExistedInBrand = "Code already exist in brand.";
+            public const string ProductNameExistedInBrand = "Product name already exist in brand.";
             public const string ProductCodeExisted = "Code already exist in the system.";
             public const string ParentProductIdNotExist = "Parent product id does not exist in the system.";
             public const string ParentProductIdNotBelongToBrand = "Parent product id does not belong to your brand.";
@@ -230,6 +233,7 @@ namespace MBKC.Service.Constants
             public const string OrderNotBelongToKitchenCenter = "Order partner id does not belong to your kitchen center.";
             public const string OrderShipperPhoneNotMatch = "Shipper phone does not match with shipper phone in order.";
             public const string OrderIsPreparing = "This order is PREPARING status, so You can not confirm completed order.";
+            public const string OrderIsInStore = "This order is IN_STORE status, so You can not confirm completed order.";
             public const string OrderIsReady = "This order is READY status, so You can not confirm completed order.";
             public const string OrderIsUpcoming = "This order is UPCOMING status, so You can not confirm completed order.";
             public const string OrderIsCompleted = "This order is already COMPLETED status, so You can not confirm completed order..";
@@ -260,7 +264,13 @@ namespace MBKC.Service.Constants
             public const string OrderIsCancelled_Cancel = "This order is CANCELLED status, so You can not cancel order.";
             public const string OrderIsReadyDelivery_Cancel = "This order is READY_DELIVERY status, so You can not cancel order.";
             public const string NoChangeOrderStatusWhenClosedShift = "You've closed your shift today so you can't make a status change.";
-
+            public const string NoChangeOrderStatusNotToday = "Only today's order status can be changed. This order is not from today.";
+            public const string CannotCreateOrder = "You can not create new Order because this is not a scrawling time.";
+            public const string CannotUpdateOrder = "You can not update existed Order because this order status is preparing.";
+            public const string CannotUpdateOrderAlreadyPreparing = "You can not update existed Order because this order status already is preparing.";
+            public const string CannotUpdateOrderAlreadyUpcoming = "You can not update existed Order because this order status already is upcoming.";
+            public const string OrderHasBeenProcessed = "All orders placed today have been processed.";
+            public const string CancelAllOrder = "Cancel all orders that have not been processed today successfully.";
         }
 
         public static class WalletMessage

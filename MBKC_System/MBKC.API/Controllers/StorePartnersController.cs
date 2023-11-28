@@ -46,7 +46,7 @@ namespace MBKC.API.Controllers
         /// <summary>
         /// Get StorePartners in the system.
         /// </summary>
-        /// <param name="getStorePartnersRequest">An object incluce SearchValue, ItemsPerpage, CurrentPage, SortBy for search, sort and paging.</param>
+        /// <param name="getStorePartnersRequest">An object incluce SearchValue, ItemsPerpage, CurrentPage, SortBy, IsGetAll for search, sort and paging.</param>
         /// <returns>
         /// A list of store partners.
         /// </returns>

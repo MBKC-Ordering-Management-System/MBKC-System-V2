@@ -127,6 +127,9 @@ namespace MBKC.Service.Services.Implementations
                     case MessageConstant.WalletMessage.BalanceIsInvalid:
                         fieldName = "Wallet balance";
                         break;
+                    case MessageConstant.MoneyExchangeMessage.AlreadyTransferredToKitchenCenter:
+                        fieldName = "Money exchange";
+                        break;
 
                     default:
                         fieldName = "Exception";

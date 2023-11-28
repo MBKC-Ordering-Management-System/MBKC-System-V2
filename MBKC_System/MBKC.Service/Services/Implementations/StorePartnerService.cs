@@ -525,24 +525,29 @@ namespace MBKC.Service.Services.Implementations
                     numberItems = await this._unitOfWork.StorePartnerRepository.GetNumberStorePartnersAsync(null, getStorePartnersRequest.SearchValue, brandId);
                     storePartners = await this._unitOfWork.StorePartnerRepository.GetStorePartnersAsync(null, getStorePartnersRequest.SearchValue, getStorePartnersRequest.CurrentPage, getStorePartnersRequest.ItemsPerPage,
                                                                                                         getStorePartnersRequest.SortBy != null && getStorePartnersRequest.SortBy.ToLower().EndsWith("asc") ? getStorePartnersRequest.SortBy.Split("_")[0] : null,
-                                                                                                        getStorePartnersRequest.SortBy != null && getStorePartnersRequest.SortBy.ToLower().EndsWith("desc") ? getStorePartnersRequest.SortBy.Split("_")[0] : null, brandId);
+                                                                                                        getStorePartnersRequest.SortBy != null && getStorePartnersRequest.SortBy.ToLower().EndsWith("desc") ? getStorePartnersRequest.SortBy.Split("_")[0] : null, brandId, getStorePartnersRequest.IsGetAll);
                 }
                 else if (getStorePartnersRequest.SearchValue != null && StringUtil.IsUnicode(getStorePartnersRequest.SearchValue))
                 {
                     numberItems = await this._unitOfWork.StorePartnerRepository.GetNumberStorePartnersAsync(getStorePartnersRequest.SearchValue, null, brandId);
                     storePartners = await this._unitOfWork.StorePartnerRepository.GetStorePartnersAsync(getStorePartnersRequest.SearchValue, null, getStorePartnersRequest.CurrentPage, getStorePartnersRequest.ItemsPerPage,
                                                                                                         getStorePartnersRequest.SortBy != null && getStorePartnersRequest.SortBy.ToLower().EndsWith("asc") ? getStorePartnersRequest.SortBy.Split("_")[0] : null,
-                                                                                                        getStorePartnersRequest.SortBy != null && getStorePartnersRequest.SortBy.ToLower().EndsWith("desc") ? getStorePartnersRequest.SortBy.Split("_")[0] : null, brandId);
+                                                                                                        getStorePartnersRequest.SortBy != null && getStorePartnersRequest.SortBy.ToLower().EndsWith("desc") ? getStorePartnersRequest.SortBy.Split("_")[0] : null, brandId, getStorePartnersRequest.IsGetAll);
                 }
                 else if (getStorePartnersRequest.SearchValue == null)
                 {
                     numberItems = await this._unitOfWork.StorePartnerRepository.GetNumberStorePartnersAsync(null, null, brandId);
                     storePartners = await this._unitOfWork.StorePartnerRepository.GetStorePartnersAsync(null, null, getStorePartnersRequest.CurrentPage, getStorePartnersRequest.ItemsPerPage,
                                                                                                         getStorePartnersRequest.SortBy != null && getStorePartnersRequest.SortBy.ToLower().EndsWith("asc") ? getStorePartnersRequest.SortBy.Split("_")[0] : null,
-                                                                                                        getStorePartnersRequest.SortBy != null && getStorePartnersRequest.SortBy.ToLower().EndsWith("desc") ? getStorePartnersRequest.SortBy.Split("_")[0] : null, brandId);
+                                                                                                        getStorePartnersRequest.SortBy != null && getStorePartnersRequest.SortBy.ToLower().EndsWith("desc") ? getStorePartnersRequest.SortBy.Split("_")[0] : null, brandId, getStorePartnersRequest.IsGetAll);
                 }
 
-                int totalPages = (int)((numberItems + getStorePartnersRequest.ItemsPerPage) / getStorePartnersRequest.ItemsPerPage);
+                int totalPages = 0;
+                if (numberItems > 0 && getStorePartnersRequest.IsGetAll == null || numberItems > 0 && getStorePartnersRequest.IsGetAll != null && getStorePartnersRequest.IsGetAll == false)
+                {
+                    totalPages = (int)((numberItems + getStorePartnersRequest.ItemsPerPage) / getStorePartnersRequest.ItemsPerPage);
+                }
+
                 if (numberItems == 0)
                 {
                     totalPages = 0;

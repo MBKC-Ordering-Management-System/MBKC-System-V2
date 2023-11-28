@@ -1,4 +1,5 @@
 ﻿using MBKC.Repository.GrabFood.Models;
+using MBKC.Repository.Models;
 using MBKC.Service.DTOs.GrabFoods;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,23 @@ namespace MBKC.Service.Utils
             notMappingGrabFoodItems.ForEach(item =>
             {
                 dataTable.Rows.Add(item.GrabFoodItem.ItemID, item.GrabFoodItem.ItemCode, item.GrabFoodItem.ItemName, item.GrabFoodItem.PriceInMin, item.Reason);
+            });
+            return dataTable;
+        }
+
+        public static DataTable GetCancelOrderItemData(List<Order> cancelledOrders)
+        {
+            DataTable dataTable = new DataTable();
+            dataTable.TableName = "Order Items";
+            dataTable.Columns.Add("OrderId", typeof(int));
+            dataTable.Columns.Add("OrderPartnerId", typeof(string));
+            dataTable.Columns.Add("PaymentMethod", typeof(string));
+            dataTable.Columns.Add("FinalTotalPrice", typeof(decimal));
+            dataTable.Columns.Add("RejectedReason", typeof(string));
+
+            cancelledOrders.ForEach(item =>
+            {
+                dataTable.Rows.Add(item.Id, item.OrderPartnerId, item.PaymentMethod, item.FinalTotalPrice, item.RejectedReason);
             });
             return dataTable;
         }

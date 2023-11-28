@@ -230,6 +230,33 @@ namespace MBKC.Repository.SMTPs.Repositories
             }
         }
 
+        public async Task SendEmailToNotifyCancelOrder(string receiverEmail, string message, Attachment attachment)
+        {
+            try
+            {
+                Email email = GetEmailProperty();
+                MailMessage mailMessage = new MailMessage();
+                SmtpClient smtp = new SmtpClient();
+                mailMessage.From = new MailAddress(email.Sender);
+                mailMessage.To.Add(new MailAddress(receiverEmail));
+                mailMessage.Subject = $"Cancel unprocessed orders";
+                mailMessage.IsBodyHtml = true;
+                mailMessage.Body = message;
+                mailMessage.Attachments.Add(attachment);
+                smtp.Port = email.Port;
+                smtp.Host = email.Host;
+                smtp.EnableSsl = true;
+                smtp.UseDefaultCredentials = false;
+                smtp.Credentials = new NetworkCredential(email.Sender, email.Password);
+                smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+                await smtp.SendMailAsync(mailMessage);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         private string GenerateOTPCode()
         {
             Random random = new Random();

@@ -37,10 +37,11 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
+                var currentDate = DateTime.Now.Date;
                 return await this._dbContext.Cashiers.Include(c => c.Wallet)
                                                      .Include(c => c.KitchenCenter).ThenInclude(kc => kc.Wallet)
                                                      .Include(c => c.CashierMoneyExchanges.Where(ce => ce.MoneyExchange.ExchangeType.ToUpper().Equals(MoneyExchangeEnum.ExchangeType.SEND.ToString())
-                                                                                              && ce.MoneyExchange.Transactions.Any(ts => ts.TransactionTime.Date == DateTime.Now.Date)))
+                                                                                              && ce.MoneyExchange.Transactions.Any(ts => ts.TransactionTime.Date == currentDate)))
 
                                                      .SingleOrDefaultAsync(c => c.Account.Email.Equals(email)
                                                                              && c.Account.Status == (int)AccountEnum.Status.ACTIVE);
@@ -234,6 +235,7 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
+                var currentDate = DateTime.Now.Date;
                 return await this._dbContext.Cashiers.Include(x => x.Account)
                                                      .Include(x => x.Wallet)
                                                      .Include(x => x.Wallet)
@@ -242,7 +244,7 @@ namespace MBKC.Repository.Repositories
                                                      .Include(x => x.KitchenCenter).ThenInclude(kc => kc.BankingAccounts)
                                                      .Include(x => x.KitchenCenter).ThenInclude(kc => kc.Wallet)
                                                      .Include(x => x.CashierMoneyExchanges.Where(x => x.MoneyExchange.ExchangeType.ToUpper().Equals(MoneyExchangeEnum.ExchangeType.SEND.ToString())
-                                                                                                                  && x.MoneyExchange.Transactions.Any(ts => ts.TransactionTime.Date == DateTime.Now.Date)))
+                                                                                                                  && x.MoneyExchange.Transactions.Any(ts => ts.TransactionTime.Date == currentDate)))
 
                                                      .SingleOrDefaultAsync(x => x.Account.Email.Equals(email));
             }
@@ -325,13 +327,12 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
+                var currentDate = DateTime.Now.Date;
                 return await this._dbContext.Cashiers.Include(x => x.Account)
                                                      .Include(x => x.KitchenCenter)
                                                      .Include(x => x.CashierMoneyExchanges.Where(x => x.MoneyExchange.ExchangeType.ToUpper().Equals(MoneyExchangeEnum.ExchangeType.SEND.ToString())
-                                                                                                                  && x.MoneyExchange.Transactions.Any(ts => ts.TransactionTime.Day == DateTime.Now.Day
-                                                                                                                  && ts.TransactionTime.Month == DateTime.Now.Month
-                                                                                                                  && ts.TransactionTime.Year == DateTime.Now.Year)))
-                                                     .SingleOrDefaultAsync(x => x.AccountId == idCashier && x.Account.Status != (int)AccountEnum.Status.DISABLE);
+                                                                                                                  && x.MoneyExchange.Transactions.Any(ts => ts.TransactionTime.Date == currentDate)))
+                                                     .SingleOrDefaultAsync(x => x.AccountId == idCashier && x.Account.Status != (int)AccountEnum.Status.DEACTIVE);
             }
             catch (Exception ex)
             {
@@ -405,7 +406,7 @@ namespace MBKC.Repository.Repositories
             try
             {
                 return await this._dbContext.Cashiers.Include(c => c.CashierMoneyExchanges.OrderByDescending(cm => cm.ExchangeId).Take(5))
-                                                     .ThenInclude(cm => cm.MoneyExchange)
+                                                     .ThenInclude(cm => cm.MoneyExchange).ThenInclude(me => me.Transactions)
                                                      .SingleOrDefaultAsync(x => x.Account.Email.Equals(email));
             }
             catch (Exception ex)
