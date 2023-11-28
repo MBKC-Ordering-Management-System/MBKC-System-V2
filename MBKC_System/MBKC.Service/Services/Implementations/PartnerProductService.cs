@@ -528,7 +528,7 @@ namespace MBKC.Service.Services.Implementations
                 }
 
                 // Check Status valid or not
-                if (!updatePartnerProductRequest.Status.ToUpper().Equals(PartnerProductEnum.Status.DISABLE.ToString())
+                if (!updatePartnerProductRequest.Status.ToUpper().Equals(PartnerProductEnum.Status.AVAILABLE.ToString())
                     && !updatePartnerProductRequest.Status.ToUpper().Equals(PartnerProductEnum.Status.OUT_OF_STOCK_TODAY.ToString())
                     && !updatePartnerProductRequest.Status.ToUpper().Equals(PartnerProductEnum.Status.OUT_OF_STOCK_INDENTIFINITELY.ToString()))
                 {

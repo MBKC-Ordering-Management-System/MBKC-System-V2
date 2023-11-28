@@ -374,7 +374,7 @@ namespace MBKC.Service.Services.Implementations
                     {
                         throw new NotFoundException(MessageConstant.OrderMessage.ProductPartnerNotMappingBefore);
                     }
-                    if (existedProduct.PartnerProducts.FirstOrDefault(x => x.StoreId == existedStore.StoreId && x.PartnerId == existedPartner.PartnerId && x.CreatedDate == activeStorePartner.CreatedDate && x.ProductId == existedProduct.ProductId).Status != (int)PartnerProductEnum.Status.DISABLE)
+                    if (existedProduct.PartnerProducts.FirstOrDefault(x => x.StoreId == existedStore.StoreId && x.PartnerId == existedPartner.PartnerId && x.CreatedDate == activeStorePartner.CreatedDate && x.ProductId == existedProduct.ProductId).Status != (int)PartnerProductEnum.Status.AVAILABLE)
                     {
                         throw new BadRequestException(MessageConstant.PartnerProductMessage.ProductPartnerNotAvailableNow);
                     }
@@ -404,7 +404,7 @@ namespace MBKC.Service.Services.Implementations
                             {
                                 throw new NotFoundException(MessageConstant.OrderMessage.ProductExtraPartnerNotMappingBefore);
                             }
-                            if (existedProductExtra.PartnerProducts.FirstOrDefault(x => x.StoreId == existedStore.StoreId && x.PartnerId == existedPartner.PartnerId && x.CreatedDate == activeStorePartner.CreatedDate && x.ProductId == existedProductExtra.ProductId).Status != (int)PartnerProductEnum.Status.DISABLE)
+                            if (existedProductExtra.PartnerProducts.FirstOrDefault(x => x.StoreId == existedStore.StoreId && x.PartnerId == existedPartner.PartnerId && x.CreatedDate == activeStorePartner.CreatedDate && x.ProductId == existedProductExtra.ProductId).Status != (int)PartnerProductEnum.Status.AVAILABLE)
                             {
                                 throw new BadRequestException(MessageConstant.PartnerProductMessage.ProductPartnerNotAvailableNow);
                             }
