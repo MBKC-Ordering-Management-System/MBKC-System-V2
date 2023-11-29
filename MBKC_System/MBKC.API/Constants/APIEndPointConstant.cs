@@ -46,6 +46,7 @@
             public const string StoreProfileEndpoint = StoresEndpoint + "/profile";
             public const string UpdateingStatusStore = StoreEndpoint + "/updating-status";
             public const string ConfirmRegistrationStore = StoreEndpoint + "/confirming-registration";
+            public const string ActiveAndInactiveStoresEndPoint = StoresEndpoint + "/active-inactive-stores";
         }
 
         public static class Category

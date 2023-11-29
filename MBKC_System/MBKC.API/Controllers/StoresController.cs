@@ -85,6 +85,53 @@ namespace MBKC.API.Controllers
         }
         #endregion
 
+        #region Get Stores Active and Inactive
+        /// <summary>
+        /// Get stores active and inactive status in the system.
+        /// </summary>
+        /// <param name="getStoresRequest">An object include SearchValue, ItemPerPage,
+        /// CurrentPage, SortBy, IsGetAll, IdBrand, IdKitchenCenter, Status</param>
+        /// <returns>
+        /// An object contains NumberItems, TotalPage, a list of stores.
+        /// </returns>
+        /// <remarks>
+        ///     Sample request:
+        ///
+        ///         GET 
+        ///         searchValue = HighLand Coffee
+        ///         currentPage = 1
+        ///         itemsPerPage = 5
+        ///         sortBy = "propertyName_asc | propertyName_ASC | propertyName_desc | propertyName_DESC"
+        ///         isGetAll = True | False
+        ///         idBrand = 1
+        ///         idKitchenCenter = 2
+        ///         status = BE_CONFIRMING | ACTIVE | INACTIVE | REJECTED
+        /// </remarks>
+        /// <response code="200">Get a list of stores Successfully.</response>
+        /// <response code="400">Some Error about request data and logic data.</response>
+        /// <response code="500">Some Error about the system.</response>
+        /// <exception cref="BadRequestException">Throw Error about request data and logic bussiness.</exception>
+        /// <exception cref="Exception">Throw Error about the system.</exception>
+        [ProducesResponseType(typeof(GetStoresResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status500InternalServerError)]
+        [Produces(MediaTypeConstant.ApplicationJson)]
+        [PermissionAuthorize(PermissionAuthorizeConstant.MBKCAdmin, PermissionAuthorizeConstant.BrandManager, PermissionAuthorizeConstant.KitchenCenterManager)]
+        [HttpGet(APIEndPointConstant.Store.ActiveAndInactiveStoresEndPoint)]
+        public async Task<IActionResult> GetStoresActiveAndInactiveAync([FromQuery] GetStoresRequest getStoresRequest)
+        {
+            ValidationResult validationResult = await this._getStoresValidator.ValidateAsync(getStoresRequest);
+            if (validationResult.IsValid == false)
+            {
+                string errors = ErrorUtil.GetErrorsString(validationResult);
+                throw new BadRequestException(errors);
+            }
+            IEnumerable<Claim> claims = Request.HttpContext.User.Claims;
+            GetStoresResponse stores = await this._storeService.GetStoresWithInactiveAndActiveStatusAsync(getStoresRequest, claims);
+            return Ok(stores);
+        }
+        #endregion
+
         #region Get Store
         /// <summary>
         /// Get a specific store by store id.

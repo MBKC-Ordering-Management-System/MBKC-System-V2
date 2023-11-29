@@ -292,16 +292,16 @@ namespace MBKC.Repository.Repositories
         public async Task<List<KitchenCenter>> GetKitchenCentersIncludeOrderAsync()
         {
             try
-            {
+            {   var today = DateTime.Now;
                 return await this._dbContext.KitchenCenters.Include(kc => kc.Manager)
                                                            .Include(kc => kc.Wallet)
                                                            .Include(kc => kc.KitchenCenterMoneyExchanges.Where(kc => kc.MoneyExchange.ExchangeType.ToUpper().Equals(MoneyExchangeEnum.ExchangeType.SEND.ToString())
-                                                                                                                  && kc.MoneyExchange.Transactions.Any(ts => ts.TransactionTime.Date == DateTime.Now.Date)))
+                                                                                                                  && kc.MoneyExchange.Transactions.Any(ts => ts.TransactionTime.Date == today.Date)))
 
                                                            .Include(kc => kc.Stores.Where(s => s.Status == (int)StoreEnum.Status.ACTIVE))
                                                            .ThenInclude(s => s.Orders.Where(o => o.PartnerOrderStatus.Equals(OrderEnum.Status.COMPLETED.ToString())
                                                                                               && o.PaymentMethod.ToUpper().Equals(OrderEnum.PaymentMethod.CASH.ToString())
-                                                                                              && o.ShipperPayments.Any(sp => sp.CreateDate.Date == DateTime.Now.Date)))
+                                                                                              && o.ShipperPayments.Any(sp => sp.CreateDate.Date == today.Date)))
 
                                                            .Include(kc => kc.Stores.Where(s => s.Status == (int)StoreEnum.Status.ACTIVE))
                                                            .ThenInclude(s => s.StorePartners)

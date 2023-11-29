@@ -759,5 +759,154 @@ namespace MBKC.Service.Services.Implementations
                 throw new Exception(error);
             }
         }
+
+        public async Task<GetStoresResponse> GetStoresWithInactiveAndActiveStatusAsync(GetStoresRequest getStoresRequest, IEnumerable<Claim> claims)
+        {
+            try
+            {
+
+                int? statusParam = null;
+                if (getStoresRequest.Status != null)
+                {
+                    statusParam = StatusUtil.ChangeStoreStatus(getStoresRequest.Status);
+                }
+                Brand existedBrand = null;
+                if (getStoresRequest.IdBrand != null)
+                {
+                    existedBrand = await this._unitOfWork.BrandRepository.GetBrandByIdAsync(getStoresRequest.IdBrand.Value);
+                    if (existedBrand == null)
+                    {
+                        throw new NotFoundException(MessageConstant.CommonMessage.NotExistBrandId);
+                    }
+                }
+                KitchenCenter existedKitchenCenter = null;
+                if (getStoresRequest.IdKitchenCenter != null)
+                {
+                    existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(getStoresRequest.IdKitchenCenter.Value);
+                    if (existedKitchenCenter == null)
+                    {
+                        throw new NotFoundException(MessageConstant.CommonMessage.NotExistKitchenCenterId);
+                    }
+                }
+
+                Claim registeredEmailClaim = claims.First(x => x.Type == ClaimTypes.Email);
+                Claim registeredRoleClaim = claims.First(x => x.Type.ToLower().Equals("role"));
+                string email = registeredEmailClaim.Value;
+                string role = registeredRoleClaim.Value;
+                if (claims != null && getStoresRequest.IdBrand != null)
+                {
+                    if (role.ToLower().Equals(RoleConstant.Brand_Manager.ToLower()))
+                    {
+                        if (existedBrand.BrandManagerEmail.Equals(email) == false)
+                        {
+                            throw new BadRequestException(MessageConstant.BrandMessage.NotBelongToBrand);
+                        }
+                        if (getStoresRequest.IdKitchenCenter != null && existedBrand.Stores.Any(x => x.KitchenCenter.KitchenCenterId == getStoresRequest.IdKitchenCenter) == false)
+                        {
+                            throw new BadRequestException(MessageConstant.StoreMessage.BrandNotJoinKitchenCenter);
+                        }
+                    }
+                }
+                else if (claims != null && getStoresRequest.IdBrand == null)
+                {
+                    if (role.ToLower().Equals(RoleConstant.Brand_Manager.ToLower()))
+                    {
+                        existedBrand = await this._unitOfWork.BrandRepository.GetBrandAsync(email);
+                        getStoresRequest.IdBrand = existedBrand.BrandId;
+                    }
+                }
+
+                if (claims != null && getStoresRequest.IdKitchenCenter != null)
+                {
+                    if (role.ToLower().Equals(RoleConstant.Kitchen_Center_Manager.ToLower()))
+                    {
+                        if (existedKitchenCenter.Manager.Email.Equals(email) == false)
+                        {
+                            throw new BadRequestException(MessageConstant.KitchenCenterMessage.NotBelongToKitchenCenter);
+                        }
+                        if (getStoresRequest.IdBrand != null && existedKitchenCenter.Stores.Any(x => x.Brand.BrandId == getStoresRequest.IdBrand) == false)
+                        {
+                            throw new BadRequestException(MessageConstant.StoreMessage.KitchenCenterNotHaveBrand);
+                        }
+                    }
+                }
+                else if (claims != null && getStoresRequest.IdKitchenCenter == null)
+                {
+                    if (role.ToLower().Equals(RoleConstant.Kitchen_Center_Manager.ToLower()))
+                    {
+                        existedKitchenCenter = await this._unitOfWork.KitchenCenterRepository.GetKitchenCenterAsync(email);
+                        getStoresRequest.IdKitchenCenter = existedKitchenCenter.KitchenCenterId;
+                    }
+                }
+
+                int numberItems = 0;
+                List<Store> stores = null;
+                if (getStoresRequest.SearchValue != null && StringUtil.IsUnicode(getStoresRequest.SearchValue))
+                {
+                    numberItems = await this._unitOfWork.StoreRepository.GetNumberStoresActiveAndInactiveAsync(getStoresRequest.SearchValue, null, getStoresRequest.IdBrand, getStoresRequest.IdKitchenCenter, statusParam);
+                    stores = await this._unitOfWork.StoreRepository.GetStoresActiveAndInactiveAsync(getStoresRequest.SearchValue, null, getStoresRequest.CurrentPage, getStoresRequest.ItemsPerPage,
+                                                                                                              getStoresRequest.SortBy != null && getStoresRequest.SortBy.ToLower().EndsWith("asc") ? getStoresRequest.SortBy.Split("_")[0] : null,
+                                                                                                              getStoresRequest.SortBy != null && getStoresRequest.SortBy.ToLower().EndsWith("desc") ? getStoresRequest.SortBy.Split("_")[0] : null,
+                                                                                                              getStoresRequest.IdBrand, getStoresRequest.IdKitchenCenter, statusParam, getStoresRequest.IsGetAll);
+                }
+                else if (getStoresRequest.SearchValue != null && StringUtil.IsUnicode(getStoresRequest.SearchValue) == false)
+                {
+                    numberItems = await this._unitOfWork.StoreRepository.GetNumberStoresActiveAndInactiveAsync(null, getStoresRequest.SearchValue, getStoresRequest.IdBrand, getStoresRequest.IdKitchenCenter, statusParam);
+                    stores = await this._unitOfWork.StoreRepository.GetStoresActiveAndInactiveAsync(null, getStoresRequest.SearchValue, getStoresRequest.CurrentPage, getStoresRequest.ItemsPerPage,
+                                                                                                              getStoresRequest.SortBy != null && getStoresRequest.SortBy.ToLower().EndsWith("asc") ? getStoresRequest.SortBy.Split("_")[0] : null,
+                                                                                                              getStoresRequest.SortBy != null && getStoresRequest.SortBy.ToLower().EndsWith("desc") ? getStoresRequest.SortBy.Split("_")[0] : null,
+                                                                                                              getStoresRequest.IdBrand, getStoresRequest.IdKitchenCenter, statusParam, getStoresRequest.IsGetAll);
+                }
+                else if (getStoresRequest.SearchValue == null)
+                {
+                    numberItems = await this._unitOfWork.StoreRepository.GetNumberStoresActiveAndInactiveAsync(null, null, getStoresRequest.IdBrand, getStoresRequest.IdKitchenCenter, statusParam);
+                    stores = await this._unitOfWork.StoreRepository.GetStoresActiveAndInactiveAsync(null, null, getStoresRequest.CurrentPage, getStoresRequest.ItemsPerPage,
+                                                                                                              getStoresRequest.SortBy != null && getStoresRequest.SortBy.ToLower().EndsWith("asc") ? getStoresRequest.SortBy.Split("_")[0] : null,
+                                                                                                              getStoresRequest.SortBy != null && getStoresRequest.SortBy.ToLower().EndsWith("desc") ? getStoresRequest.SortBy.Split("_")[0] : null,
+                                                                                                              getStoresRequest.IdBrand, getStoresRequest.IdKitchenCenter, statusParam, getStoresRequest.IsGetAll);
+                }
+
+                int totalPages = 0;
+                if (numberItems > 0 && getStoresRequest.IsGetAll == null || numberItems > 0 && getStoresRequest.IsGetAll != null && getStoresRequest.IsGetAll == false)
+                {
+                    totalPages = (int)((numberItems + getStoresRequest.ItemsPerPage) / getStoresRequest.ItemsPerPage);
+                }
+
+                if (numberItems == 0)
+                {
+                    totalPages = 0;
+                }
+                List<GetStoreResponse> getStoreResponses = this._mapper.Map<List<GetStoreResponse>>(stores);
+                GetStoresResponse getStores = new GetStoresResponse()
+                {
+                    NumberItems = numberItems,
+                    TotalPages = totalPages,
+                    Stores = getStoreResponses
+                };
+                return getStores;
+            }
+            catch (NotFoundException ex)
+            {
+                string fieldName = "";
+                if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistBrandId) ||
+                    ex.Message.Equals(MessageConstant.StoreMessage.BrandNotJoinKitchenCenter))
+                {
+                    fieldName = "Brand id";
+                }
+                else if (ex.Message.Equals(MessageConstant.CommonMessage.NotExistKitchenCenterId) ||
+                    ex.Message.Equals(MessageConstant.StoreMessage.KitchenCenterNotHaveBrand))
+                {
+                    fieldName = "Kitchen center id";
+                }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new NotFoundException(error);
+            }
+
+            catch (Exception ex)
+            {
+                string error = ErrorUtil.GetErrorString("Exception", ex.Message);
+                throw new Exception(error);
+            }
+        }
     }
 }
