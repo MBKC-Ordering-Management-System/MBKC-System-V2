@@ -1041,15 +1041,15 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                if (isGetAll != null && isGetAll == true)
+                if (isGetAll != null && isGetAll == true && brandId != null)
                 {
                     return await this._dbContext.Stores.Include(x => x.Wallet)
                                                    .Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                    .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
                                                    .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                    .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
-                                                   .Where(x => x.Status == (int)StoreEnum.Status.ACTIVE || x.Status == (int)StoreEnum.Status.INACTIVE && (statusParam != null ? x.Status == statusParam : true) &&
-                                                   (brandId != null ? x.Brand.BrandId == brandId : true) &&
+                                                   .Where(x => x.Brand.BrandId == brandId && x.Status == (int)StoreEnum.Status.ACTIVE || x.Status == (int)StoreEnum.Status.INACTIVE && (statusParam != null ? x.Status == statusParam : true) &&
+                                                   /*(brandId != null ? x.Brand.BrandId == brandId : true) &&*/
                                                    (kitchenCenterId != null ? x.KitchenCenter.KitchenCenterId == kitchenCenterId : true))
                                                    .ToListAsync();
                 }
