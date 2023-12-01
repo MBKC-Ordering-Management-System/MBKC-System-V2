@@ -185,7 +185,7 @@ namespace MBKC.Service.Utils
             {
                 return (int)StoreEnum.Status.REJECTED;
             }
-            else if (status.ToLower().Equals($"{statusNameParts[0]} {statusNameParts[1]}".ToLower()))
+            else if (status.ToLower().Equals(StoreEnum.Status.CONFIRMING.ToString().ToLower()))
             {
                 return (int)StoreEnum.Status.CONFIRMING;
             }
