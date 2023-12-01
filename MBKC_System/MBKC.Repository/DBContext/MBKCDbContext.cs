@@ -226,7 +226,7 @@ namespace MBKC.Repository.DBContext
                 order.Property(prop => prop.PartnerOrderStatus).IsUnicode(false).HasMaxLength(20).IsRequired(true);
                 order.Property(prop => prop.DisplayId).IsUnicode(false).HasMaxLength(100).IsRequired(true);
                 order.Property(prop => prop.Address).IsUnicode(true).HasMaxLength(250).IsRequired(true);
-                order.Property(prop => prop.Cutlery).IsRequired(true);
+                order.Property(prop => prop.Cutlery).IsRequired(false);
                 order.Property(prop => prop.ConfirmedBy).IsRequired(false);
                 order.Property(prop => prop.RejectedReason).IsUnicode(true).HasMaxLength(200).IsRequired(false);
                 order.Property(prop => prop.StorePartnerCommission).IsRequired(true);
