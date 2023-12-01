@@ -839,6 +839,7 @@ namespace MBKC.Repository.Repositories
                                       .Include(x => x.StorePartners.Where(x => x.Status == (int)StorePartnerEnum.Status.ACTIVE))
                                       .ThenInclude(x => x.PartnerProducts).ThenInclude(x => x.Product).ThenInclude(x => x.ChildrenProducts)
                                       .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.UserDevices)
+                                      .Include(x => x.KitchenCenter)
                                       .Where(x => x.Status == (int)StoreEnum.Status.ACTIVE && x.StoreAccounts.Any(b => b.Account.Email.Equals(x.StoreManagerEmail))).ToListAsync();
             }
             catch (Exception ex)
