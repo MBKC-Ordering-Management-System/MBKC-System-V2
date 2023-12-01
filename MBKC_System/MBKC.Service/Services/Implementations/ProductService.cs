@@ -345,12 +345,12 @@ namespace MBKC.Service.Services.Implementations
                 Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandAsync(email);
 
                 Product existedProductCode = await this._unitOfWork.ProductRepository.CheckProductCodeInBrandAsync(createProductRequest.Code, existedBrand.BrandId);
-                if (existedProductCode != null)
+                if (existedProductCode != null && existedProductCode.Status != (int)ProductEnum.Status.DISABLE)
                 {
                     throw new BadRequestException(MessageConstant.ProductMessage.ProductCodeExistedInBrand);
                 }
                 Product existedProductName = await this._unitOfWork.ProductRepository.CheckProductNameInBrandAsync(createProductRequest.Name, existedBrand.BrandId);
-                if (existedProductName != null)
+                if (existedProductName != null && existedProductCode.Status != (int)ProductEnum.Status.DISABLE)
                 {
                     throw new BadRequestException(MessageConstant.ProductMessage.ProductNameExistedInBrand);
                 }
@@ -587,7 +587,7 @@ namespace MBKC.Service.Services.Implementations
             try
             {
                 Product existedProduct = await this._unitOfWork.ProductRepository.GetProductAsync(idProduct);
-                if (existedProduct == null)
+                if (existedProduct == null && existedProduct.Status != (int)ProductEnum.Status.DISABLE)
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistProductId);
                 }
@@ -608,7 +608,7 @@ namespace MBKC.Service.Services.Implementations
                 if (updateProductRequest.Name != null)
                 {
                     Product existedProductName = await this._unitOfWork.ProductRepository.CheckProductNameInBrandAsync(updateProductRequest.Name, existedBrand.BrandId);
-                    if (existedProductName != null && existedProductName.ProductId != idProduct)
+                    if (existedProductName != null && existedProductName.ProductId != idProduct && existedProductName.Status != (int)ProductEnum.Status.DISABLE)
                     {
                         throw new BadRequestException(MessageConstant.ProductMessage.ProductNameExistedInBrand);
                     }

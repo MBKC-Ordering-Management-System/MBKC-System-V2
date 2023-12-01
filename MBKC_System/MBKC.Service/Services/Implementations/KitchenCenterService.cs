@@ -110,7 +110,7 @@ namespace MBKC.Service.Services.Implementations
             try
             {
                 Account existedAccount = await this._unitOfWork.AccountRepository.GetAccountAsync(newKitchenCenter.ManagerEmail);
-                if (existedAccount != null)
+                if (existedAccount != null && existedAccount.Status != (int)AccountEnum.Status.DISABLE )
                 {
                     throw new BadRequestException(MessageConstant.KitchenCenterMessage.ManagerEmailExisted);
                 }
@@ -192,7 +192,7 @@ namespace MBKC.Service.Services.Implementations
                 if (existedKitchenCenter.Manager.Email.Equals(updatedKitchenCenter.ManagerEmail) == false)
                 {
                     Account existedAccount = await this._unitOfWork.AccountRepository.GetAccountAsync(updatedKitchenCenter.ManagerEmail);
-                    if (existedAccount != null)
+                    if (existedAccount != null && existedAccount.Status != (int)AccountEnum.Status.DISABLE)
                     {
                         throw new BadRequestException(MessageConstant.KitchenCenterMessage.ManagerEmailExisted);
                     }

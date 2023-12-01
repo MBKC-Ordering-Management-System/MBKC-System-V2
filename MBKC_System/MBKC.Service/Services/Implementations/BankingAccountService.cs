@@ -180,7 +180,7 @@ namespace MBKC.Service.Services.Implementations
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistKitchenCenter);
                 }
                 BankingAccount existedBankingAccount = await this._unitOfWork.BankingAccountRepository.GetBankingAccountAsync(createBankingAccountRequest.NumberAccount);
-                if (existedBankingAccount != null)
+                if (existedBankingAccount != null && existedBankingAccount.Status != (int)BankingAccountEnum.Status.DISABLE)
                 {
                     throw new BadRequestException(MessageConstant.BankingAccountMessage.NumberAccountExisted);
                 }

@@ -20,7 +20,8 @@ namespace MBKC.Service.Profiles.Stores
                                                 .ForMember(x => x.WalletBalance, opt => opt.MapFrom(src => src.Wallet.Balance))
                                                 .ForMember(x => x.UserDevices, opt => opt.MapFrom(src => src.StoreAccounts.FirstOrDefault().Account.UserDevices));
 
-            CreateMap<Store, GetStoreResponseForPrivateAPI>().ForMember(x => x.UserDevices, opt => opt.MapFrom(src => src.StoreAccounts.FirstOrDefault().Account.UserDevices));
+            CreateMap<Store, GetStoreResponseForPrivateAPI>().ForMember(x => x.UserDevices, opt => opt.MapFrom(src => src.StoreAccounts.FirstOrDefault().Account.UserDevices))
+                                                             .ForMember(x => x.Address, opt => opt.MapFrom(src => src.KitchenCenter.Address));
         }
     }
 }
