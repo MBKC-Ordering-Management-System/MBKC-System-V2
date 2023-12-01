@@ -102,7 +102,7 @@ namespace MBKC.Service.Services.Implementations
 
                     var checkUserNameInDifferenceStore = await this._unitOfWork.StorePartnerRepository.GetStorePartnersByUserNameAndStoreIdAsync(p.UserName, store.StoreId, p.PartnerId);
 
-                    if (checkUserNameInDifferenceStore.Any())
+                    if (checkUserNameInDifferenceStore.Any(x => x.Status != (int)StorePartnerEnum.Status.DISABLE))
                     {
                         throw new BadRequestException(MessageConstant.StorePartnerMessage.UsernameExisted);
                     }
@@ -621,7 +621,7 @@ namespace MBKC.Service.Services.Implementations
                 // Check user name with difference store id
                 var checkUserNameInDifferenceStore = await this._unitOfWork.StorePartnerRepository.GetStorePartnersByUserNameAndStoreIdAsync(updateStorePartnerRequest.UserName, store.StoreId, partnerId);
 
-                if (checkUserNameInDifferenceStore.Any())
+                if (checkUserNameInDifferenceStore.Any(x => x.Status != (int)StorePartnerEnum.Status.DISABLE))
                 {
                     throw new BadRequestException(MessageConstant.StorePartnerMessage.UsernameExisted);
                 }

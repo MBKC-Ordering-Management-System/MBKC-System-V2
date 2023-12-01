@@ -147,7 +147,7 @@ namespace MBKC.Service.Services.Implementations
             try
             {
                 var checkDupplicatedEmail = await _unitOfWork.AccountRepository.GetAccountByEmailAsync(postBrandRequest.ManagerEmail);
-                if (checkDupplicatedEmail != null)
+                if (checkDupplicatedEmail != null && checkDupplicatedEmail.Status != (int)AccountEnum.Status.DISABLE)
                 {
                     throw new BadRequestException(MessageConstant.CommonMessage.AlreadyExistEmail);
                 }
@@ -245,25 +245,9 @@ namespace MBKC.Service.Services.Implementations
 
                 string password = "";
                 var checkAccountExisted = await this._unitOfWork.AccountRepository.GetAccountByEmailAsync(updateBrandRequest.BrandManagerEmail);
-
-                if (checkAccountExisted != null && checkAccountExisted.Role.RoleId != (int)RoleEnum.Role.BRAND_MANAGER)
+                if (checkAccountExisted != null && checkAccountExisted.Status != (int)AccountEnum.Status.DISABLE)
                 {
-                    throw new BadRequestException(MessageConstant.BrandMessage.RoleNotSuitable);
-                }
-                if (checkAccountExisted != null)
-                {
-                    var checkAccountBrandExisted = await this._unitOfWork.BrandAccountRepository.GetBrandAccountByAccountIdAsync(checkAccountExisted.AccountId);
-                    if (checkAccountExisted != null && checkAccountExisted.Status == (int)AccountEnum.Status.ACTIVE && checkAccountExisted.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER)
-                    {
-                        if (checkAccountBrandExisted.Brand.BrandId != brandId)
-                        {
-                            throw new BadRequestException(MessageConstant.BrandMessage.ManagerEmailExisted);
-                        }
-                    }
-                    else if (checkAccountExisted != null && checkAccountExisted.Status == (int)AccountEnum.Status.DISABLE && checkAccountExisted.Role.RoleId == (int)RoleEnum.Role.BRAND_MANAGER)
-                    {
-                        throw new BadRequestException(MessageConstant.BrandMessage.ManagerEmailExisted);
-                    }
+                    throw new BadRequestException(MessageConstant.CommonMessage.AlreadyExistEmail);
                 }
                 if (checkAccountExisted == null)
                 {
@@ -349,7 +333,8 @@ namespace MBKC.Service.Services.Implementations
                 {
                     fieldName = "Role from account";
                 }
-                else if (ex.Message.Equals(MessageConstant.BrandMessage.ManagerEmailExisted))
+                else if (ex.Message.Equals(MessageConstant.BrandMessage.ManagerEmailExisted) ||
+                    ex.Message.Equals(MessageConstant.CommonMessage.AlreadyExistEmail))
                 {
                     fieldName = "Manager Email";
                 }
