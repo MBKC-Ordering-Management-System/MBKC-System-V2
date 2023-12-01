@@ -107,7 +107,7 @@ namespace MBKC.Repository.DBContext
                 brand.Property(prop => prop.Address).IsUnicode(true).HasMaxLength(255).IsRequired(true);
                 brand.Property(prop => prop.Logo).IsUnicode(false).HasMaxLength(int.MaxValue).IsRequired(true);
                 brand.Property(prop => prop.Status).IsRequired(true);
-                brand.Property(prop => prop.BrandManagerEmail).IsUnicode(false).HasMaxLength(100).IsRequired(false);
+                brand.Property(prop => prop.BrandManagerEmail).IsUnicode(false).HasMaxLength(100).IsRequired(true);
             });
             #endregion
 
@@ -199,7 +199,7 @@ namespace MBKC.Repository.DBContext
             #region MoneyExchange
             modelBuilder.Entity<MoneyExchange>(moneyExchange =>
             {
-                moneyExchange.Property(prop => prop.Amount).HasColumnType("decimal(18,2)").IsRequired(true);
+                moneyExchange.Property(prop => prop.Amount).HasColumnType("decimal(9,2)").IsRequired(true);
                 moneyExchange.Property(prop => prop.ExchangeType).IsUnicode(true).HasMaxLength(30).IsRequired(true);
                 moneyExchange.Property(prop => prop.Content).IsUnicode(true).HasMaxLength(300).IsRequired(true);
                 moneyExchange.Property(prop => prop.ExchangeImage).IsUnicode(false).HasMaxLength(int.MaxValue).IsRequired(false);
@@ -211,22 +211,22 @@ namespace MBKC.Repository.DBContext
             {
                 order.Property(prop => prop.OrderPartnerId).IsUnicode(false).HasMaxLength(100).IsRequired(true);
                 order.Property(prop => prop.ShipperName).IsUnicode(true).HasMaxLength(100).IsRequired(true);
-                order.Property(prop => prop.ShipperPhone).IsUnicode(false).HasMaxLength(100).IsRequired(true);
-                order.Property(prop => prop.CustomerName).IsUnicode(true).HasMaxLength(100).IsRequired(false);
-                order.Property(prop => prop.CustomerPhone).IsUnicode(false).HasMaxLength(10).IsRequired(false);
+                order.Property(prop => prop.ShipperPhone).IsUnicode(false).HasMaxLength(10).IsRequired(true);
+                order.Property(prop => prop.CustomerName).IsUnicode(true).HasMaxLength(100).IsRequired(true);
+                order.Property(prop => prop.CustomerPhone).IsUnicode(false).HasMaxLength(10).IsRequired(true);
                 order.Property(prop => prop.Note).IsUnicode(true).HasMaxLength(500).IsRequired(false);
-                order.Property(prop => prop.PaymentMethod).IsUnicode(false).HasMaxLength(10).IsRequired(false);
+                order.Property(prop => prop.PaymentMethod).IsUnicode(false).HasMaxLength(10).IsRequired(true);
                 order.Property(prop => prop.DeliveryFee).HasColumnType("decimal(9,2)").IsRequired(true);
                 order.Property(prop => prop.SubTotalPrice).HasColumnType("decimal(9,2)").IsRequired(true);
                 order.Property(prop => prop.TotalDiscount).HasColumnType("decimal(9,2)").IsRequired(true);
                 order.Property(prop => prop.FinalTotalPrice).HasColumnType("decimal(9,2)").IsRequired(true);
                 order.Property(prop => prop.Commission).HasColumnType("decimal(9,2)").IsRequired(true);
                 order.Property(prop => prop.Tax).IsRequired(true);
-                order.Property(prop => prop.SystemStatus).IsUnicode(false).HasMaxLength(20).IsRequired(false);
-                order.Property(prop => prop.PartnerOrderStatus).IsUnicode(false).HasMaxLength(20).IsRequired(false);
-                order.Property(prop => prop.DisplayId).IsUnicode(false).HasMaxLength(100).IsRequired(false);
-                order.Property(prop => prop.Address).IsUnicode(true).HasMaxLength(250).IsRequired(false);
-                order.Property(prop => prop.Cutlery).IsRequired(false);
+                order.Property(prop => prop.SystemStatus).IsUnicode(false).HasMaxLength(20).IsRequired(true);
+                order.Property(prop => prop.PartnerOrderStatus).IsUnicode(false).HasMaxLength(20).IsRequired(true);
+                order.Property(prop => prop.DisplayId).IsUnicode(false).HasMaxLength(100).IsRequired(true);
+                order.Property(prop => prop.Address).IsUnicode(true).HasMaxLength(250).IsRequired(true);
+                order.Property(prop => prop.Cutlery).IsRequired(true);
                 order.Property(prop => prop.ConfirmedBy).IsRequired(false);
                 order.Property(prop => prop.RejectedReason).IsUnicode(true).HasMaxLength(200).IsRequired(false);
                 order.Property(prop => prop.StorePartnerCommission).IsRequired(true);
@@ -302,7 +302,7 @@ namespace MBKC.Repository.DBContext
             modelBuilder.Entity<ShipperPayment>(shipperPayment =>
             {
                 shipperPayment.Property(prop => prop.Content).IsUnicode(true).HasMaxLength(300).IsRequired(true);
-                shipperPayment.Property(prop => prop.Amount).HasColumnType("decimal(18,2)").IsRequired(true);
+                shipperPayment.Property(prop => prop.Amount).HasColumnType("decimal(9,2)").IsRequired(true);
                 shipperPayment.Property(prop => prop.CreateDate).HasColumnType("datetime2").IsRequired(true);
                 shipperPayment.Property(prop => prop.PaymentMethod).IsUnicode(false).HasMaxLength(20).IsRequired(true);
                 shipperPayment.Property(prop => prop.KCBankingAccountId).IsRequired(false);
@@ -375,7 +375,7 @@ namespace MBKC.Repository.DBContext
             #region Wallet
             modelBuilder.Entity<Wallet>(wallet =>
             {
-                wallet.Property(prop => prop.Balance).HasColumnType("decimal(18,2)").IsRequired(true);
+                wallet.Property(prop => prop.Balance).HasColumnType("decimal(9,2)").IsRequired(true);
             });
             #endregion
 
