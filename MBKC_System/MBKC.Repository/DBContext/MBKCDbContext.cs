@@ -237,7 +237,7 @@ namespace MBKC.Repository.DBContext
             modelBuilder.Entity<OrderDetail>(orderDetail =>
             {
                 orderDetail.Property(prop => prop.SellingPrice).HasColumnType("decimal(9,2)").IsRequired(true);
-                orderDetail.Property(prop => prop.Note).IsUnicode(false).HasMaxLength(200).IsRequired(true);
+                orderDetail.Property(prop => prop.Note).IsUnicode(true).HasMaxLength(200).IsRequired(true);
                 orderDetail.Property(prop => prop.MasterOrderDetailId).IsRequired(false);
             });
 
@@ -271,9 +271,9 @@ namespace MBKC.Repository.DBContext
                 product.Property(prop => prop.Description).IsUnicode(true).HasMaxLength(1000).IsRequired(true);
                 product.Property(prop => prop.SellingPrice).HasColumnType("decimal(9,2)").IsRequired(true);
                 product.Property(prop => prop.DiscountPrice).HasColumnType("decimal(9,2)").IsRequired(true);
-                product.Property(prop => prop.Size).IsUnicode(true).HasMaxLength(10).IsRequired(false);
+                product.Property(prop => prop.Size).IsUnicode(false).HasMaxLength(5).IsRequired(false);
                 product.Property(prop => prop.Type).IsUnicode(true).HasMaxLength(20).IsRequired(true);
-                product.Property(prop => prop.Image).IsUnicode(true).HasMaxLength(int.MaxValue).IsRequired(true);
+                product.Property(prop => prop.Image).IsUnicode(false).HasMaxLength(int.MaxValue).IsRequired(true);
                 product.Property(prop => prop.HistoricalPrice).HasColumnType("decimal(9,2)").IsRequired(true);
                 product.Property(prop => prop.Status).IsRequired(true);
                 product.Property(prop => prop.DisplayOrder).IsRequired(true);
