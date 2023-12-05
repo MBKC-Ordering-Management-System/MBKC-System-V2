@@ -281,7 +281,8 @@ namespace MBKC.Service.Services.Implementations
                         var partnerProduct = new GetPartnerProductsForProductDetailResponse()
                         {
                             PartnerName = p.StorePartner.Partner.Name,
-                            ProductCode = p.ProductCode
+                            ProductCode = p.ProductCode,
+                            StoreName = p.StorePartner.Store.Name
                         };
                         partnerProducts.Add(partnerProduct);
                     }

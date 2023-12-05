@@ -10,5 +10,6 @@ namespace MBKC.Service.DTOs.PartnerProducts
     {
         public string PartnerName { get; set; }
         public string ProductCode { get; set; }
+        public string StoreName { get; set; }
     }
 }
