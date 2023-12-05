@@ -907,7 +907,7 @@ namespace MBKC.Repository.Repositories
                                         .Include(x => x.Brand).ThenInclude(x => x.Stores).ThenInclude(x => x.KitchenCenter)
                                         .Include(x => x.ParentProduct).ThenInclude(x => x.PartnerProducts)
                                         .Include(x => x.ChildrenProducts)
-                                        .SingleOrDefaultAsync(x => x.ProductId == id);
+                                        .SingleOrDefaultAsync(x => x.ProductId == id && x.Status != (int)ProductEnum.Status.DISABLE);
             }
             catch (Exception ex)
             {

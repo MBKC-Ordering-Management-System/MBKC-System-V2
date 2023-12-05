@@ -422,7 +422,7 @@ namespace MBKC.Service.Utils
             }
         }
 
-        public static void CheckProductCodeFromGrabFood(GrabFoodMenu grabFoodMenu, string productCode, string type, decimal price, int status, bool isUpdated, string? productCodeParentProduct)
+        public static void CheckProductCodeFromGrabFood(GrabFoodMenu grabFoodMenu, string productCode, string type, decimal price, int status, bool isUpdated, string? productCodeParentProduct, string productName)
         {
             try
             {
@@ -444,27 +444,45 @@ namespace MBKC.Service.Utils
                     GrabFoodItem grabFoodItem = category.Items.FirstOrDefault(x => x.ItemID.Trim().ToLower().Equals(productCode.Trim().ToLower()));
                     if (grabFoodItem is null)
                     {
-                        foreach (var modifierGroup in grabFoodMenu.ModifierGroups)
+                        if (grabFoodMenu.ModifierGroups is not null && grabFoodMenu.ModifierGroups.Count() > 0)
                         {
-                            GrabFoodModifier grabFoodModifier = modifierGroup.Modifiers.FirstOrDefault(x => x.ModifierID.Trim().ToLower().Equals(productCode.Trim().ToLower()));
-                            if(grabFoodModifier is not null)
+                            foreach (var modifierGroup in grabFoodMenu.ModifierGroups)
                             {
-                                isExisted = true;
-                                if (grabFoodModifier.PriceInMin != (price - parentGrabFoodItem.PriceInMin))
+                                GrabFoodModifier grabFoodModifier = modifierGroup.Modifiers.FirstOrDefault(x => x.ModifierID.Trim().ToLower().Equals(productCode.Trim().ToLower()));
+                                if (grabFoodModifier is not null)
                                 {
-                                    throw new BadRequestException(MessageConstant.PartnerProductMessage.PriceNotMatchWithProductInGrabFoodSystem);
+                                    isExisted = true;
+                                    string nameOfRule = grabFoodModifier.ModifierName;
+                                    if (type.ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()))
+                                    {
+                                        nameOfRule = $"{parentGrabFoodItem.ItemName} - {grabFoodModifier.ModifierName}";
+                                    }
+
+                                    if(nameOfRule.ToLower().Equals(productName) == false)
+                                    {
+                                        throw new BadRequestException(MessageConstant.PartnerProductMessage.GrabFoodProductWithProductCodeNotMatchWithProductSystem);
+                                    }
+                                    if (grabFoodModifier.PriceInMin != (price - parentGrabFoodItem.PriceInMin))
+                                    {
+                                        throw new BadRequestException(MessageConstant.PartnerProductMessage.PriceNotMatchWithProductInGrabFoodSystem);
+                                    }
+                                    if (grabFoodModifier.AvailableStatus != status && isUpdated == false)
+                                    {
+                                        throw new BadRequestException(MessageConstant.PartnerProductMessage.StatusNotMatchWithProductInGrabFoodSystem);
+                                    }
+                                    break;
                                 }
-                                if(grabFoodModifier.AvailableStatus != status && isUpdated == false)
-                                {
-                                    throw new BadRequestException(MessageConstant.PartnerProductMessage.StatusNotMatchWithProductInGrabFoodSystem);
-                                }
-                                break;
                             }
                         }
                     } else
                     {
                         isExisted = true;
-                        if(type.ToLower().Equals(ProductEnum.Type.PARENT.ToString().ToLower()) == false)
+                        string nameOfRule = grabFoodItem.ItemName;
+                        if (productName.ToLower().Equals(nameOfRule.ToLower()) == false)
+                        {
+                            throw new BadRequestException(MessageConstant.PartnerProductMessage.GrabFoodProductWithProductCodeNotMatchWithProductSystem);
+                        }
+                        if (type.ToLower().Equals(ProductEnum.Type.PARENT.ToString().ToLower()) == false)
                         {
                             if (grabFoodItem.PriceInMin != price)
                             {

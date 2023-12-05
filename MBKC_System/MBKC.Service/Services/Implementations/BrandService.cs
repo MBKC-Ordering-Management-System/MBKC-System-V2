@@ -425,6 +425,20 @@ namespace MBKC.Service.Services.Implementations
                     foreach (var store in brand.Stores)
                     {
                         store.Status = (int)StoreEnum.Status.DISABLE;
+                        if (store.StorePartners.Any())
+                        {
+                            foreach (var storePartner in store.StorePartners)
+                            {
+                                storePartner.Status = (int)StorePartnerEnum.Status.DISABLE;
+                                if (storePartner.PartnerProducts.Any())
+                                {
+                                    foreach (var partnerProduct in storePartner.PartnerProducts)
+                                    {
+                                        partnerProduct.Status = (int)PartnerProductEnum.Status.DISABLE;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 this._unitOfWork.BrandRepository.UpdateBrand(brand);

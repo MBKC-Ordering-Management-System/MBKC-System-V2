@@ -291,7 +291,7 @@ namespace MBKC.API.Controllers
         }
         #endregion
 
-        #region Delete existed Partner By Id
+        /*#region Delete existed Partner By Id
         /// <summary>
         /// Delete existed partner by id.
         /// </summary>
@@ -335,6 +335,6 @@ namespace MBKC.API.Controllers
                 Message = MessageConstant.PartnerMessage.DeletedPartnerSuccessfully
             });
         }
-        #endregion
+        #endregion*/
     }
 }

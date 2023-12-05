@@ -341,6 +341,14 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new BadRequestException(MessageConstant.KitchenCenterMessage.ExistedActiveStores_Delete);
                 }
+
+                if (existedKitchenCenter.Cashiers.Any())
+                {
+                    foreach (var cashier in existedKitchenCenter.Cashiers)
+                    {
+                        cashier.Account.Status = (int)AccountEnum.Status.DISABLE;
+                    }
+                }
                 // Deactive kitchen center.
                 existedKitchenCenter.Status = (int)KitchenCenterEnum.Status.DISABLE;
                 // Deactive kitchen center manger.

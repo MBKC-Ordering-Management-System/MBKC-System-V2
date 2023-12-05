@@ -388,15 +388,6 @@ namespace MBKC.Service.Services.Implementations
                 Claim registeredRoleClaim = claims.First(x => x.Type.ToLower().Equals("role"));
                 string email = registeredEmailClaim.Value;
                 string role = registeredRoleClaim.Value;
-                if (role.ToLower().Equals(RoleConstant.Brand_Manager.ToLower()))
-                {
-                    Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandAsync(email);
-                    if (existedBrand.Stores.FirstOrDefault(x => x.StoreId == storeId) == null)
-                    {
-                        throw new BadRequestException(MessageConstant.StoreMessage.BrandNotHaveStore);
-                    }
-                }
-
                 Store existedStore = await this._unitOfWork.StoreRepository.GetStoreAsync(storeId);
                 if (existedStore == null)
                 {
@@ -406,6 +397,14 @@ namespace MBKC.Service.Services.Implementations
                 if (existedStore.Status == (int)StoreEnum.Status.DISABLE)
                 {
                     throw new BadRequestException(MessageConstant.StoreMessage.DeactiveStore_Update);
+                }
+                if (role.ToLower().Equals(RoleConstant.Brand_Manager.ToLower()))
+                {
+                    Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandAsync(email);
+                    if (existedBrand.Stores.FirstOrDefault(x => x.StoreId == storeId) == null)
+                    {
+                        throw new BadRequestException(MessageConstant.StoreMessage.BrandNotHaveStore);
+                    }
                 }
 
                 string password = "";
@@ -533,15 +532,6 @@ namespace MBKC.Service.Services.Implementations
                 Claim registeredRoleClaim = claims.First(x => x.Type.ToLower().Equals("role"));
                 string email = registeredEmailClaim.Value;
                 string role = registeredRoleClaim.Value;
-                if (role.ToLower().Equals(RoleConstant.Brand_Manager.ToLower()))
-                {
-                    Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandAsync(email);
-                    if (existedBrand.Stores.FirstOrDefault(x => x.StoreId == storeId) == null)
-                    {
-                        throw new BadRequestException(MessageConstant.StoreMessage.BrandNotHaveStore);
-                    }
-                }
-
                 Store existedStore = await this._unitOfWork.StoreRepository.GetStoreAsync(storeId);
                 if (existedStore == null)
                 {
@@ -552,6 +542,14 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new BadRequestException(MessageConstant.StoreMessage.DeactiveStore_Delete);
                 }
+                if (role.ToLower().Equals(RoleConstant.Brand_Manager.ToLower()))
+                {
+                    Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandAsync(email);
+                    if (existedBrand.Stores.FirstOrDefault(x => x.StoreId == storeId) == null)
+                    {
+                        throw new BadRequestException(MessageConstant.StoreMessage.BrandNotHaveStore);
+                    }
+                }
 
                 existedStore.Status = (int)StoreEnum.Status.DISABLE;
                 foreach (var storeAccount in existedStore.StoreAccounts)
@@ -559,6 +557,23 @@ namespace MBKC.Service.Services.Implementations
                     if (storeAccount.Account.Status == (int)AccountEnum.Status.ACTIVE)
                     {
                         storeAccount.Account.Status = (int)AccountEnum.Status.DISABLE;
+                    }
+                }
+
+
+
+                if (existedStore.StorePartners.Any())
+                {
+                    foreach (var storePartner in existedStore.StorePartners)
+                    {
+                        storePartner.Status = (int)StorePartnerEnum.Status.DISABLE;
+                        if (storePartner.PartnerProducts.Any())
+                        {
+                            foreach (var partnerProduct in storePartner.PartnerProducts)
+                            {
+                                partnerProduct.Status = (int)PartnerProductEnum.Status.DISABLE;
+                            }
+                        }
                     }
                 }
 
@@ -605,15 +620,6 @@ namespace MBKC.Service.Services.Implementations
                 Claim registeredRoleClaim = claims.First(x => x.Type.ToLower().Equals("role"));
                 string email = registeredEmailClaim.Value;
                 string role = registeredRoleClaim.Value;
-                if (role.ToLower().Equals(RoleConstant.Brand_Manager.ToLower()))
-                {
-                    Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandAsync(email);
-                    if (existedBrand.Stores.FirstOrDefault(x => x.StoreId == storeId) == null)
-                    {
-                        throw new BadRequestException(MessageConstant.StoreMessage.BrandNotHaveStore);
-                    }
-                }
-
                 Store existedStore = await this._unitOfWork.StoreRepository.GetStoreAsync(storeId);
                 if (existedStore == null)
                 {
@@ -623,6 +629,14 @@ namespace MBKC.Service.Services.Implementations
                 if (existedStore.Status == (int)StoreEnum.Status.DISABLE)
                 {
                     throw new BadRequestException(MessageConstant.StoreMessage.DeactiveStore_Update);
+                }
+                if (role.ToLower().Equals(RoleConstant.Brand_Manager.ToLower()))
+                {
+                    Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandAsync(email);
+                    if (existedBrand.Stores.FirstOrDefault(x => x.StoreId == storeId) == null)
+                    {
+                        throw new BadRequestException(MessageConstant.StoreMessage.BrandNotHaveStore);
+                    }
                 }
 
                 if (updateStoreStatusRequest.Status.Trim().ToLower().Equals(StoreEnum.Status.ACTIVE.ToString().ToLower()))

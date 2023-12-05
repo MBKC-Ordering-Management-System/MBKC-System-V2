@@ -59,6 +59,7 @@ namespace MBKC.Repository.Repositories
                                               .ThenInclude(category => category.ExtraCategoryProductCategories)
                                               .Include(brand => brand.Products)
                                               .Include(brand => brand.Stores).ThenInclude(store => store.KitchenCenter)
+                                              .Include(x => x.Stores).ThenInclude(x => x.StorePartners).ThenInclude(x => x.PartnerProducts)
                                               .SingleOrDefaultAsync(b => b.BrandId == id && b.Status != (int)BrandEnum.Status.DISABLE);
             }
             catch (Exception ex)

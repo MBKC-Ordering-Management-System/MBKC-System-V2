@@ -215,9 +215,10 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
-                if (id <= 0)
+                var category = await _unitOfWork.CategoryRepository.GetCategoryByIdAsync(id);
+                if (category is null)
                 {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidCategoryId);
+                    throw new NotFoundException(MessageConstant.CommonMessage.NotExistCategoryId);
                 }
                 // Get brand from JWT
                 JwtSecurityToken jwtSecurityToken = TokenUtil.ReadToken(httpContext);
@@ -241,11 +242,6 @@ namespace MBKC.Service.Services.Implementations
                     {
                         throw new BadRequestException(MessageConstant.CommonMessage.CategoryIdNotBelongToStore);
                     }
-                }
-                var category = await _unitOfWork.CategoryRepository.GetCategoryByIdAsync(id);
-                if (category is null)
-                {
-                    throw new NotFoundException(MessageConstant.CommonMessage.NotExistCategoryId);
                 }
                 var categoryResponse = new GetCategoryResponse();
                 categoryResponse = this._mapper.Map<GetCategoryResponse>(category);
@@ -314,7 +310,7 @@ namespace MBKC.Service.Services.Implementations
                 }
 
                 //Deactive category's product
-                if (category.Products != null)
+                if (category.Products != null && category.Products.Count() > 0)
                 {
                     foreach (var product in category.Products)
                     {
@@ -544,9 +540,10 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
-                if (categoryId < 0)
+                var existedCategory = await _unitOfWork.CategoryRepository.GetCategoryByIdAsync(categoryId);
+                if (existedCategory is null)
                 {
-                    throw new BadRequestException(MessageConstant.CommonMessage.InvalidCategoryId);
+                    throw new NotFoundException(MessageConstant.CommonMessage.NotExistCategoryId);
                 }
                 // Get brandId from JWT
                 JwtSecurityToken jwtSecurityToken = TokenUtil.ReadToken(httpContext);
@@ -668,6 +665,8 @@ namespace MBKC.Service.Services.Implementations
                 {
                     fieldName = "List Extra Category id";
                 }
+                string error = ErrorUtil.GetErrorString(fieldName, ex.Message);
+                throw new NotFoundException(error);
             }
             catch (Exception ex)
             {

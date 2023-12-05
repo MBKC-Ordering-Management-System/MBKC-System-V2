@@ -383,7 +383,7 @@ namespace MBKC.Service.Services.Implementations
                         throw new BadRequestException(MessageConstant.CommonMessage.CategoryIdNotBelongToBrand);
                     }
 
-                    if (createProductRequest.Type.Trim().ToLower().Equals(ProductEnum.Type.CHILD.ToString().ToLower()) ||
+                    if (createProductRequest.Type.Trim().ToLower().Equals(ProductEnum.Type.SINGLE.ToString().ToLower()) ||
                         createProductRequest.Type.Trim().ToLower().Equals(ProductEnum.Type.PARENT.ToString().ToLower()))
                     {
                         if (existedCategory.Type.Trim().ToLower().Equals(CategoryEnum.Type.NORMAL.ToString().ToLower()) == false)
@@ -505,6 +505,10 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistProductId);
                 }
+                else if (existedProduct is not null && existedProduct.Status == (int)ProductEnum.Status.DISABLE)
+                {
+                    throw new NotFoundException(MessageConstant.CommonMessage.NotExistProductId);
+                }
                 Claim registeredEmailClaim = claims.First(x => x.Type == ClaimTypes.Email);
                 string email = registeredEmailClaim.Value;
                 Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandAsync(email);
@@ -550,12 +554,34 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistProductId);
                 }
+                else if (existedProduct is not null && existedProduct.Status == (int)ProductEnum.Status.DISABLE)
+                {
+                    throw new NotFoundException(MessageConstant.CommonMessage.NotExistProductId);
+                }
                 Claim registeredEmailClaim = claims.First(x => x.Type == ClaimTypes.Email);
                 string email = registeredEmailClaim.Value;
                 Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandAsync(email);
                 if (existedBrand.Products.SingleOrDefault(x => x.ProductId == idProduct) == null)
                 {
                     throw new BadRequestException(MessageConstant.ProductMessage.ProductNotBelongToBrand);
+                }
+                if (existedProduct.Type.ToLower().Equals(ProductEnum.Type.PARENT.ToString().ToLower()))
+                {
+                    if(existedProduct.ChildrenProducts is not null && existedProduct.ChildrenProducts.Count() > 0)
+                    {
+                        foreach (var childrenProduct in existedProduct.ChildrenProducts)
+                        {
+                            childrenProduct.Status = (int)ProductEnum.Status.DISABLE;
+                        }
+                    }
+                }
+
+                if(existedProduct.PartnerProducts is not null && existedProduct.PartnerProducts.Count() > 0)
+                {
+                    foreach (var partnerProduct in existedProduct.PartnerProducts)
+                    {
+                        partnerProduct.Status = (int)PartnerProductEnum.Status.DISABLE;
+                    }
                 }
                 existedProduct.Status = (int)ProductEnum.Status.DISABLE;
                 this._unitOfWork.ProductRepository.UpdateProduct(existedProduct);
@@ -587,7 +613,10 @@ namespace MBKC.Service.Services.Implementations
             try
             {
                 Product existedProduct = await this._unitOfWork.ProductRepository.GetProductAsync(idProduct);
-                if (existedProduct == null && existedProduct.Status != (int)ProductEnum.Status.DISABLE)
+                if (existedProduct == null )
+                {
+                    throw new NotFoundException(MessageConstant.CommonMessage.NotExistProductId);
+                } else if (existedProduct is not null && existedProduct.Status == (int)ProductEnum.Status.DISABLE)
                 {
                     throw new NotFoundException(MessageConstant.CommonMessage.NotExistProductId);
                 }

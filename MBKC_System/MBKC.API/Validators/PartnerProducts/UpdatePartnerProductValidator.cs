@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using MBKC.Service.DTOs.PartnerProducts;
+using MBKC.Service.Utils;
 
 namespace MBKC.API.Validators.PartnerProducts
 {
@@ -16,8 +17,13 @@ namespace MBKC.API.Validators.PartnerProducts
             RuleFor(mp => mp.Price)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .NotNull().WithMessage("{PropertyName} is not null.")
-                .NotEmpty().WithMessage("{PropertyName} is not empty.")
-                .GreaterThan(0).WithMessage("{PropertyName} must be greater than 0.");
+                .GreaterThanOrEqualTo(0).WithMessage("{PropertyName} must be greater than or equal to 0.");
+
+            RuleFor(mp => mp.Status)
+                     .Cascade(CascadeMode.StopOnFirstFailure)
+                     .NotNull().WithMessage("{PropertyName} is not null.")
+                     .NotEmpty().WithMessage("{PropertyName} is not empty.")
+                     .Must(StringUtil.CheckPartnerProductStatusName).WithMessage("{PropertyName} is required some types such as: Available, Out_Of_Stock_Today, or Out_Of_Stock_Indentifinitely.");
         }
     }
 }

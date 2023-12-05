@@ -56,6 +56,7 @@ namespace MBKC.Repository.Repositories
                                                            .ThenInclude(x => x.MoneyExchange)
                                                            .ThenInclude(x => x.Transactions)
                                                            .ThenInclude(x => x.ShipperPayment).ThenInclude(x => x.BankingAccount)
+                                                           .Include(x => x.Cashiers).ThenInclude(x => x.Account)
                                                            .FirstOrDefaultAsync(x => x.KitchenCenterId == id && x.Status != (int)KitchenCenterEnum.Status.DISABLE);
             }
             catch (Exception ex)
@@ -249,6 +250,7 @@ namespace MBKC.Repository.Repositories
                                                            .ThenInclude(x => x.ShipperPayment)
                                                            .ThenInclude(x => x.Order)
                                                            .Include(x => x.BankingAccounts).ThenInclude(x => x.ShipperPayments)
+                                                           .Include(x => x.Stores).ThenInclude(x => x.Brand).ThenInclude(x => x.Products)
                                                            .FirstOrDefaultAsync(x => x.Manager.Email.Equals(managerEmail)
                                                                                   && x.Status != (int)KitchenCenterEnum.Status.DISABLE);
             }

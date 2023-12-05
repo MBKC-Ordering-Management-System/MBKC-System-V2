@@ -226,6 +226,8 @@ namespace MBKC.Service.Constants
             public const string ExtraProductPriceNotMatchWithPartnerProduct = "Extra Product price does not match with partner product.";
             public const string NoOneOutOfStock = "No partner products are out of stock.";
             public const string UpdatePartnerProductSuccessfully = "Change the status of partner product successfully.";
+            public const string ProductParentNotUpdatePrice = "Price of Product type PARENT must be 0 VNĐ.";
+            public const string GrabFoodProductWithProductCodeNotMatchWithProductSystem = "GrabFood Product with Product Code does not match about the product name with Product in the MBKC System.";
         }
 
         public static class OrderMessage

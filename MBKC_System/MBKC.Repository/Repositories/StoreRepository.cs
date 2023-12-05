@@ -726,6 +726,7 @@ namespace MBKC.Repository.Repositories
             {
                 return await this._dbContext.Stores.Include(x => x.KitchenCenter).ThenInclude(x => x.Manager)
                                                    .Include(x => x.StorePartners).ThenInclude(x => x.Partner)
+                                                   .Include(x => x.StorePartners).ThenInclude(x => x.PartnerProducts)
                                                    .Include(x => x.Brand).ThenInclude(x => x.BrandAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                    .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.Role)
                                                    .Include(x => x.Wallet)
@@ -805,6 +806,7 @@ namespace MBKC.Repository.Repositories
                                                    .Include(x => x.Orders).ThenInclude(x => x.ShipperPayments).ThenInclude(x => x.BankingAccount)
                                                    .Include(x => x.Orders).ThenInclude(x => x.OrderHistories)
                                                    .Include(x => x.StoreAccounts).ThenInclude(x => x.Account).ThenInclude(x => x.UserDevices)
+                                                   .Include(x => x.Brand).ThenInclude(x => x.Products)
                                                    .Where(x => x.StoreAccounts.Any(b => b.Account.Email.Equals(x.StoreManagerEmail)))
                                                    .SingleOrDefaultAsync(x => x.StoreManagerEmail.Equals(managerEmail));
             }

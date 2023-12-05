@@ -268,6 +268,13 @@ namespace MBKC.Service.Services.Implementations
                 if (storePartner != null)
                 {
                     storePartner.Status = (int)StorePartnerEnum.Status.DISABLE;
+                    if (storePartner.PartnerProducts.Any())
+                    {
+                        foreach (var partnerProduct in storePartner.PartnerProducts)
+                        {
+                            partnerProduct.Status = (int)PartnerProductEnum.Status.DISABLE;
+                        }
+                    }
                 }
                 else
                 {
