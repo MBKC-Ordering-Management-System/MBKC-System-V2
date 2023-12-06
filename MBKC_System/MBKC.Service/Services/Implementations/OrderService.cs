@@ -295,7 +295,7 @@ namespace MBKC.Service.Services.Implementations
             {
                 List<Configuration> configurations = await this._unitOfWork.ConfigurationRepository.GetConfigurationsAsync();
                 Configuration configuration = configurations.First();
-                if(DateTime.Now.TimeOfDay > configuration.ScrawlingOrderEndTime && DateTime.Now.TimeOfDay < configuration.ScrawlingOrderStartTime)
+                if(DateTime.Now.TimeOfDay > configuration.ScrawlingOrderEndTime || DateTime.Now.TimeOfDay < configuration.ScrawlingOrderStartTime)
                 {
                     throw new BadRequestException(MessageConstant.OrderMessage.CannotCreateOrder);
                 }
