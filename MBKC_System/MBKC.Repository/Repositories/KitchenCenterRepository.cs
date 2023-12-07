@@ -304,7 +304,7 @@ namespace MBKC.Repository.Repositories
                                                            .ThenInclude(s => s.Orders.Where(o => o.PartnerOrderStatus.Equals(OrderEnum.Status.COMPLETED.ToString())
                                                                                               && o.PaymentMethod.ToUpper().Equals(OrderEnum.PaymentMethod.CASH.ToString())
                                                                                               && o.ShipperPayments.Any(sp => sp.CreateDate.Date == today.Date)))
-
+                                                           .ThenInclude(o => o.Partner)
                                                            .Include(kc => kc.Stores.Where(s => s.Status == (int)StoreEnum.Status.ACTIVE))
                                                            .ThenInclude(s => s.StorePartners)
                                                            .Include(kc => kc.Stores)

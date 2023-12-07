@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Hangfire;
+using MBKC.Repository.Constants;
 using MBKC.Repository.Enums;
 using MBKC.Repository.Infrastructures;
 using MBKC.Repository.Models;
@@ -435,14 +436,21 @@ namespace MBKC.Service.Services.Implementations
 
                         foreach (var order in store.Orders)
                         {
+                            decimal collectedPrice = 0;
+                            if (order.Partner.Name.ToLower().Equals(PartnerConstant.GrabFood.ToLower()))
+                            {
+                                decimal discountedPrice = order.SubTotalPrice - order.TotalStoreDiscount;
+                                decimal commissionPartnerPrice = discountedPrice * (decimal.Parse(order.StorePartnerCommission.ToString()) / 100);
+                                collectedPrice = Math.Round(discountedPrice - commissionPartnerPrice - commissionPartnerPrice * (decimal.Parse(order.TaxPartnerCommission.ToString()) / 100));
+                            }
                             //decimal finalToTalPriceSubstractDeliveryFee = order.FinalTotalPrice - order.DeliveryFee;
                             if (exchangeWallets.ContainsKey(store.StoreId))
                             {
-                                exchangeWallets[store.StoreId] += order.SubTotalPrice - (order.SubTotalPrice * (decimal)(store.StorePartners.FirstOrDefault(sp => sp.PartnerId == order.PartnerId && sp.Status == (int)StorePartnerEnum.Status.ACTIVE)!.Commission / 100));
+                                exchangeWallets[store.StoreId] += collectedPrice;
                             }
                             else
                             {
-                                exchangeWallets.Add(store.StoreId, order.SubTotalPrice - (order.SubTotalPrice * (decimal)(store.StorePartners.FirstOrDefault(sp => sp.PartnerId == order.PartnerId && sp.Status == (int)StorePartnerEnum.Status.ACTIVE)!.Commission / 100)));
+                                exchangeWallets.Add(store.StoreId, collectedPrice);
                             }
                         }
                     }
