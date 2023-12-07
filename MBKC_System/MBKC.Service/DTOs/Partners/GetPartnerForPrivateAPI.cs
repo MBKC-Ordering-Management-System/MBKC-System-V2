@@ -10,5 +10,6 @@ namespace MBKC.Service.DTOs.Partners
     {
         public int PartnerId { get; set; }
         public string Name { get; set; }
+        public float TaxCommission { get; set; }
     }
 }

@@ -267,7 +267,8 @@ namespace MBKC.Service.Constants
             public const string OrderIsReadyDelivery_Cancel = "This order is READY_DELIVERY status, so You can not cancel order.";
             public const string NoChangeOrderStatusWhenClosedShift = "You've closed your shift today so you can't make a status change.";
             public const string NoChangeOrderStatusNotToday = "Only today's order status can be changed. This order is not from today.";
-            public const string CannotCreateOrder = "You can not create new Order because this is not a scrawling time.";
+            public const string CannotCreateOrder = "You can not create new Order because this is not in a range of scrawling time.";
+            public const string CannotUpdateOrderOutRange = "You can not update an Order because this is not in a range of scrawling time.";
             public const string CannotUpdateOrder = "You can not update existed Order because this order status is preparing.";
             public const string CannotUpdateOrderAlreadyPreparing = "You can not update existed Order because this order status already is preparing.";
             public const string CannotUpdateOrderAlreadyUpcoming = "You can not update existed Order because this order status already is upcoming.";
@@ -291,6 +292,13 @@ namespace MBKC.Service.Constants
             public const string TransferToKitchenCenterSuccessfully = "Transfer money to kitchen center successfully.";
             public const string NotExistJobId = "Job id is not existed in the MBKC System.";
             public const string ConfigDoesNotExist = "Config to run background job does not exist.";
+        }
+
+
+        public static class ConfigurationMessage
+        {
+            public const string CannotUpdateTimeTransferMoneyToKitchenCenter = "The time of transferring money to kitchen center can not change because the transferring money was performed before.";
+            public const string CannotUpdateTimeTransferMoneyToStore = "The time of transferring money to store can not change because the transferring money was performed before.";
         }
 
     }

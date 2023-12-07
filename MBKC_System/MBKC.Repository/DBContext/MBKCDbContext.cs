@@ -2,6 +2,7 @@
 using MBKC.Repository.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -9,6 +10,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Configuration = MBKC.Repository.Models.Configuration;
+using Order = MBKC.Repository.Models.Order;
+using Role = MBKC.Repository.Models.Role;
 
 namespace MBKC.Repository.DBContext
 {
@@ -218,10 +221,11 @@ namespace MBKC.Repository.DBContext
                 order.Property(prop => prop.PaymentMethod).IsUnicode(false).HasMaxLength(10).IsRequired(true);
                 order.Property(prop => prop.DeliveryFee).HasColumnType("decimal(9,2)").IsRequired(true);
                 order.Property(prop => prop.SubTotalPrice).HasColumnType("decimal(9,2)").IsRequired(true);
-                order.Property(prop => prop.TotalDiscount).HasColumnType("decimal(9,2)").IsRequired(true);
+                order.Property(prop => prop.TotalStoreDiscount).HasColumnType("decimal(9,2)").IsRequired(true);
+                order.Property(prop => prop.PromotionPrice).HasColumnType("decimal(9,2)").IsRequired(true);
                 order.Property(prop => prop.FinalTotalPrice).HasColumnType("decimal(9,2)").IsRequired(true);
-                order.Property(prop => prop.Commission).HasColumnType("decimal(9,2)").IsRequired(true);
                 order.Property(prop => prop.Tax).IsRequired(true);
+                order.Property(prop => prop.TaxPartnerCommission).IsRequired(true);
                 order.Property(prop => prop.SystemStatus).IsUnicode(false).HasMaxLength(20).IsRequired(true);
                 order.Property(prop => prop.PartnerOrderStatus).IsUnicode(false).HasMaxLength(20).IsRequired(true);
                 order.Property(prop => prop.DisplayId).IsUnicode(false).HasMaxLength(100).IsRequired(true);
@@ -237,6 +241,7 @@ namespace MBKC.Repository.DBContext
             modelBuilder.Entity<OrderDetail>(orderDetail =>
             {
                 orderDetail.Property(prop => prop.SellingPrice).HasColumnType("decimal(9,2)").IsRequired(true);
+                orderDetail.Property(prop => prop.DiscountPrice).HasColumnType("decimal(9,2)").IsRequired(true);
                 orderDetail.Property(prop => prop.Note).IsUnicode(true).HasMaxLength(200).IsRequired(true);
                 orderDetail.Property(prop => prop.MasterOrderDetailId).IsRequired(false);
             });
@@ -260,6 +265,7 @@ namespace MBKC.Repository.DBContext
                 partner.Property(prop => prop.Logo).IsUnicode(false).HasMaxLength(int.MaxValue).IsRequired(false);
                 partner.Property(prop => prop.WebUrl).IsUnicode(false).HasMaxLength(int.MaxValue).IsRequired(false);
                 partner.Property(prop => prop.Status).IsRequired(true);
+                partner.Property(prop => prop.TaxCommission).IsRequired(true);
             });
             #endregion
 

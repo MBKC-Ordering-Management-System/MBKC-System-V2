@@ -16,6 +16,7 @@ namespace MBKC.Repository.Models
         public string? Logo { get; set; }
         public string? WebUrl { get; set; }
         public int Status { get; set; }
+        public float TaxCommission { get; set; }
 
         public virtual IEnumerable<Order> Orders { get; set; }
         public virtual IEnumerable<StorePartner> StorePartners { get; set; }

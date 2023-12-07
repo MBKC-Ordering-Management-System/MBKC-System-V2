@@ -150,7 +150,7 @@ namespace MBKC.Service.Services.Implementations
                     }
                 }
                 partner.WebUrl = updatePartnerRequest.WebUrl;
-
+                partner.TaxCommission = updatePartnerRequest.TaxCommission;
                 if (updatePartnerRequest.Status.ToLower().Equals(PartnerEnum.Status.ACTIVE.ToString().ToLower()))
                 {
                     partner.Status = (int)PartnerEnum.Status.ACTIVE;
@@ -163,6 +163,7 @@ namespace MBKC.Service.Services.Implementations
                     }
                     partner.Status = (int)PartnerEnum.Status.INACTIVE;
                 }
+
 
                 _unitOfWork.PartnerRepository.UpdatePartner(partner);
                 await _unitOfWork.CommitAsync();

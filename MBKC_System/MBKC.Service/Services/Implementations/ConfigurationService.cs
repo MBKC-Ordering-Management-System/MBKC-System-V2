@@ -131,8 +131,79 @@ namespace MBKC.Service.Services.Implementations
                     isChanged = true;
                 }
 
+                if(DateTime.Now.TimeOfDay >= firstConfiguration.ScrawlingMoneyExchangeToKitchenCenter && exchangeToKitchenCenterTime >= firstConfiguration.ScrawlingMoneyExchangeToKitchenCenter)
+                {
+                    throw new Exception(MessageConstant.ConfigurationMessage.CannotUpdateTimeTransferMoneyToKitchenCenter);
+                }
+
+                if (DateTime.Now.TimeOfDay >= firstConfiguration.ScrawlingMoneyExchangeToStore && exchangeToStoreTime >= firstConfiguration.ScrawlingMoneyExchangeToStore)
+                {
+                    throw new Exception(MessageConstant.ConfigurationMessage.CannotUpdateTimeTransferMoneyToStore);
+                }
+
                 if (TimeSpan.Compare(firstConfiguration.ScrawlingMoneyExchangeToKitchenCenter, exchangeToKitchenCenterTime) != 0)
                 {
+                    if(DateTime.Now.TimeOfDay >= exchangeToKitchenCenterTime)
+                    {
+                        var orders = await this._unitOfWork.OrderRepository.GetOrdersOrdersNotYetProcessedToday();
+
+                        if (orders.Any())
+                        {
+                            var orderHistories = new List<OrderHistory>();
+                            Dictionary<string, List<Order>> storeWithOrders = new Dictionary<string, List<Order>>();
+                            foreach (var order in orders)
+                            {
+                                order.SystemStatus = OrderEnum.SystemStatus.CANCELLED.ToString();
+                                order.PartnerOrderStatus = OrderEnum.Status.CANCELLED.ToString();
+                                order.RejectedReason = $"Cancel order [OrderId: {order.Id} - OrderPartnerId: {order.OrderPartnerId}] {StringUtil.GetContentRejectReason()}";
+
+                                var orderHistory = new OrderHistory()
+                                {
+                                    CreatedDate = DateTime.Now,
+                                    SystemStatus = OrderEnum.SystemStatus.CANCELLED.ToString(),
+                                    PartnerOrderStatus = OrderEnum.Status.CANCELLED.ToString(),
+                                    Order = order,
+                                };
+                                orderHistories.Add(orderHistory);
+
+
+                                if (storeWithOrders.ContainsKey(order.Store.StoreManagerEmail))
+                                {
+                                    storeWithOrders[order.Store.StoreManagerEmail].Add(order);
+                                }
+                                else
+                                {
+                                    storeWithOrders.Add(order.Store.StoreManagerEmail, new List<Order>() { order });
+                                }
+                            }
+
+                            // send email
+                            foreach (var store in storeWithOrders)
+                            {
+                                // excel file
+                                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                                DataTable cancelledOrders = ExcelUtil.GetCancelOrderItemData(store.Value);
+                                MemoryStream outputStream = new MemoryStream();
+                                using (ExcelPackage package = new ExcelPackage(outputStream))
+                                {
+                                    ExcelWorksheet grabFoodItemsWorksheet = package.Workbook.Worksheets.Add("Canceled Orders");
+                                    grabFoodItemsWorksheet.Cells.LoadFromDataTable(cancelledOrders, true);
+                                    package.Save();
+                                }
+
+                                outputStream.Position = 0;
+                                Attachment attachment = new Attachment(outputStream, "Cancelled_Orders.xlsx", "application/vnd.ms-excel");
+
+                                // send email
+                                string message = EmailMessageConstant.Order.Message;
+                                string messageBody = this._unitOfWork.EmailRepository.GetMessageToNotifyNonMappingProduct(store.Key, "empty", message);
+                                await this._unitOfWork.EmailRepository.SendEmailToNotifyCancelOrder(store.Key, messageBody, attachment);
+                            }
+
+                            this._unitOfWork.OrderRepository.UpdateRangeOrder(orders);
+                            await this._unitOfWork.OrderHistoryRepository.InsertRangeOrderHistoryAsync(orderHistories);
+                        }
+                    }
                     oldTimeExchangeToKitchenCenter = firstConfiguration.ScrawlingMoneyExchangeToKitchenCenter;
                     firstConfiguration.ScrawlingMoneyExchangeToKitchenCenter = exchangeToKitchenCenterTime;
                     RecurringJob.AddOrUpdate(HangfireConstant.MoneyExchangeToKitchenCenter_ID,

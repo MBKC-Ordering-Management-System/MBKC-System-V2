@@ -55,7 +55,7 @@ namespace MBKC.PrivateAPI.Validators.Orders
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .GreaterThanOrEqualTo(0).WithMessage("{PropertyName} is required greater than or equal to 0 VNĐ.");
             
-            RuleFor(x => x.TotalDiscount)
+            RuleFor(x => x.TotalStoreDiscount)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .GreaterThanOrEqualTo(0).WithMessage("{PropertyName} is required greater than or equal to 0 VNĐ.");
             
@@ -63,7 +63,7 @@ namespace MBKC.PrivateAPI.Validators.Orders
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .GreaterThanOrEqualTo(0).WithMessage("{PropertyName} is required greater than or equal to 0 VNĐ.");
             
-            RuleFor(x => x.Commission)
+            RuleFor(x => x.TotalStoreDiscount)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .GreaterThanOrEqualTo(0).WithMessage("{PropertyName} is required greater than or equal to 0 VNĐ.");
             
@@ -90,6 +90,10 @@ namespace MBKC.PrivateAPI.Validators.Orders
                 .GreaterThan(0).WithMessage("{PropertyName} is required greater than 0.");
 
             RuleFor(x => x.StorePartnerCommission)
+                .Cascade(CascadeMode.StopOnFirstFailure)
+                .InclusiveBetween(0, 100).WithMessage("{PropertyName} is required in range from 0% to 100%");
+            
+            RuleFor(x => x.TaxPartnerCommission)
                 .Cascade(CascadeMode.StopOnFirstFailure)
                 .InclusiveBetween(0, 100).WithMessage("{PropertyName} is required in range from 0% to 100%");
 

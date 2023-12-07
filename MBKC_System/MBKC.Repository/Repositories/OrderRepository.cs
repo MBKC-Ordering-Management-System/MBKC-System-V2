@@ -260,12 +260,10 @@ namespace MBKC.Repository.Repositories
                                                                   then => then.OrderBy(x => x.ShipperName))
                                                               .If(sortByASC != null && sortByASC.ToLower().Equals("customername"),
                                                                  then => then.OrderBy(x => x.CustomerName))
-                                                              .If(sortByASC != null && sortByASC.ToLower().Equals("totaldiscount"),
-                                                                         then => then.OrderBy(x => x.TotalDiscount))
+                                                              .If(sortByASC != null && sortByASC.ToLower().Equals("totalstorediscount"),
+                                                                         then => then.OrderBy(x => x.TotalStoreDiscount))
                                                               .If(sortByASC != null && sortByASC.ToLower().Equals("finaltotalprice"),
                                                                          then => then.OrderBy(x => x.FinalTotalPrice))
-                                                              .If(sortByASC != null && sortByASC.ToLower().Equals("commission"),
-                                                                         then => then.OrderBy(x => x.Commission))
                                                               .If(sortByASC != null && sortByASC.ToLower().Equals("tax"),
                                                                          then => then.OrderBy(x => x.Tax))
                                                               .If(sortByASC != null && sortByASC.ToLower().Equals("address"),
@@ -315,12 +313,10 @@ namespace MBKC.Repository.Repositories
                                                                   then => then.OrderByDescending(x => x.ShipperName))
                                                               .If(sortByDESC != null && sortByDESC.ToLower().Equals("customername"),
                                                                  then => then.OrderByDescending(x => x.CustomerName))
-                                                              .If(sortByDESC != null && sortByDESC.ToLower().Equals("totaldiscount"),
-                                                                         then => then.OrderByDescending(x => x.TotalDiscount))
+                                                              .If(sortByDESC != null && sortByDESC.ToLower().Equals("totalstorediscount"),
+                                                                         then => then.OrderByDescending(x => x.TotalStoreDiscount))
                                                               .If(sortByDESC != null && sortByDESC.ToLower().Equals("finaltotalprice"),
                                                                          then => then.OrderByDescending(x => x.FinalTotalPrice))
-                                                              .If(sortByDESC != null && sortByDESC.ToLower().Equals("commission"),
-                                                                         then => then.OrderByDescending(x => x.Commission))
                                                               .If(sortByDESC != null && sortByDESC.ToLower().Equals("tax"),
                                                                          then => then.OrderByDescending(x => x.Tax))
                                                               .If(sortByDESC != null && sortByDESC.ToLower().Equals("address"),
@@ -401,12 +397,10 @@ namespace MBKC.Repository.Repositories
                                                                       then => then.OrderBy(x => x.ShipperName))
                                                            .If(sortByASC != null && sortByASC.ToLower().Equals("customername"),
                                                               then => then.OrderBy(x => x.CustomerName))
-                                                           .If(sortByASC != null && sortByASC.ToLower().Equals("totaldiscount"),
-                                                                      then => then.OrderBy(x => x.TotalDiscount))
+                                                           .If(sortByASC != null && sortByASC.ToLower().Equals("totalstorediscount"),
+                                                                      then => then.OrderBy(x => x.TotalStoreDiscount))
                                                            .If(sortByASC != null && sortByASC.ToLower().Equals("finaltotalprice"),
                                                                       then => then.OrderBy(x => x.FinalTotalPrice))
-                                                           .If(sortByASC != null && sortByASC.ToLower().Equals("commission"),
-                                                                      then => then.OrderBy(x => x.Commission))
                                                            .If(sortByASC != null && sortByASC.ToLower().Equals("tax"),
                                                                       then => then.OrderBy(x => x.Tax))
                                                            .If(sortByASC != null && sortByASC.ToLower().Equals("address"),
@@ -447,12 +441,10 @@ namespace MBKC.Repository.Repositories
                                                                   then => then.OrderByDescending(x => x.ShipperName))
                                                               .If(sortByDESC != null && sortByDESC.ToLower().Equals("customername"),
                                                                  then => then.OrderByDescending(x => x.CustomerName))
-                                                              .If(sortByDESC != null && sortByDESC.ToLower().Equals("totaldiscount"),
-                                                                         then => then.OrderByDescending(x => x.TotalDiscount))
+                                                              .If(sortByDESC != null && sortByDESC.ToLower().Equals("totalstorediscount"),
+                                                                         then => then.OrderByDescending(x => x.TotalStoreDiscount))
                                                               .If(sortByDESC != null && sortByDESC.ToLower().Equals("finaltotalprice"),
                                                                          then => then.OrderByDescending(x => x.FinalTotalPrice))
-                                                              .If(sortByDESC != null && sortByDESC.ToLower().Equals("commission"),
-                                                                         then => then.OrderByDescending(x => x.Commission))
                                                               .If(sortByDESC != null && sortByDESC.ToLower().Equals("tax"),
                                                                          then => then.OrderByDescending(x => x.Tax))
                                                               .If(sortByDESC != null && sortByDESC.ToLower().Equals("address"),
@@ -523,12 +515,10 @@ namespace MBKC.Repository.Repositories
                                                                       then => then.OrderBy(x => x.ShipperName))
                                                            .If(sortByASC != null && sortByASC.ToLower().Equals("customername"),
                                                               then => then.OrderBy(x => x.CustomerName))
-                                                           .If(sortByASC != null && sortByASC.ToLower().Equals("totaldiscount"),
-                                                                      then => then.OrderBy(x => x.TotalDiscount))
+                                                           .If(sortByASC != null && sortByASC.ToLower().Equals("totalstorediscount"),
+                                                                      then => then.OrderBy(x => x.TotalStoreDiscount))
                                                            .If(sortByASC != null && sortByASC.ToLower().Equals("finaltotalprice"),
                                                                       then => then.OrderBy(x => x.FinalTotalPrice))
-                                                           .If(sortByASC != null && sortByASC.ToLower().Equals("commission"),
-                                                                      then => then.OrderBy(x => x.Commission))
                                                            .If(sortByASC != null && sortByASC.ToLower().Equals("tax"),
                                                                       then => then.OrderBy(x => x.Tax))
                                                            .If(sortByASC != null && sortByASC.ToLower().Equals("address"),
@@ -568,12 +558,10 @@ namespace MBKC.Repository.Repositories
                                                                   then => then.OrderByDescending(x => x.ShipperName))
                                                               .If(sortByDESC != null && sortByDESC.ToLower().Equals("customername"),
                                                                  then => then.OrderByDescending(x => x.CustomerName))
-                                                              .If(sortByDESC != null && sortByDESC.ToLower().Equals("totaldiscount"),
-                                                                         then => then.OrderByDescending(x => x.TotalDiscount))
+                                                              .If(sortByDESC != null && sortByDESC.ToLower().Equals("totalstorediscount"),
+                                                                         then => then.OrderByDescending(x => x.TotalStoreDiscount))
                                                               .If(sortByDESC != null && sortByDESC.ToLower().Equals("finaltotalprice"),
                                                                          then => then.OrderByDescending(x => x.FinalTotalPrice))
-                                                              .If(sortByDESC != null && sortByDESC.ToLower().Equals("commission"),
-                                                                         then => then.OrderByDescending(x => x.Commission))
                                                               .If(sortByDESC != null && sortByDESC.ToLower().Equals("tax"),
                                                                          then => then.OrderByDescending(x => x.Tax))
                                                               .If(sortByDESC != null && sortByDESC.ToLower().Equals("address"),

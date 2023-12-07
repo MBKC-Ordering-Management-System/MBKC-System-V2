@@ -19,7 +19,8 @@ namespace MBKC.Repository.DataSeedings
                 {
                     PartnerId = 1,
                     Name = PartnerConstant.GrabFood,
-                    Status = (int)PartnerEnum.Status.ACTIVE
+                    Status = (int)PartnerEnum.Status.ACTIVE,
+                    TaxCommission = 10
                 }
             );
         }

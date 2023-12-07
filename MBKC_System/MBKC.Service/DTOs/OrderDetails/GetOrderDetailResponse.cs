@@ -12,6 +12,7 @@ namespace MBKC.Service.DTOs.OrderDetails
     {
         public int OrderDetailId { get; set; }
         public decimal SellingPrice { get; set; }
+        public decimal DiscountPrice { get; set; }
         public int Quantity { get; set; }
         public string Note { get; set; }
         public int OrderId { get; set; }

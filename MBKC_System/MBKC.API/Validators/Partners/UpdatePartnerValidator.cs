@@ -34,6 +34,12 @@ namespace MBKC.API.Validators.Partners
                      .NotEmpty().WithMessage("{PropertyName} is not empty.")
                      .Must(StringUtil.CheckPartnerStatusName).WithMessage("{PropertyName} is required INACTIVE or ACTIVE");
             #endregion
+
+             RuleFor(p => p.TaxCommission)
+                .Cascade(CascadeMode.StopOnFirstFailure)
+                .NotNull().WithMessage("{PropertyName} is not null.")
+                .NotEmpty().WithMessage("{PropertyName} is not empty.")
+                .InclusiveBetween(0, 100).WithMessage("{PropertyName} must be between 0% and 100%.");
         }
 
     }

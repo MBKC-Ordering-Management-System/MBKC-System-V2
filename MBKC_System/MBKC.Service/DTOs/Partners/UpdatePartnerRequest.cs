@@ -12,5 +12,6 @@ namespace MBKC.Service.DTOs.Partners
         public IFormFile? Logo { get; set; }
         public string WebUrl { get; set; }
         public string Status { get; set; }
+        public float TaxCommission { get; set; }
     }
 }

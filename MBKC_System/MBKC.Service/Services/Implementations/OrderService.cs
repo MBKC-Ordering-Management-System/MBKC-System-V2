@@ -15,6 +15,7 @@ using MBKC.Service.Utils;
 using MBKC.Repository.Enums;
 using MBKC.Service.DTOs.Orders.MBKC.Service.DTOs.Orders;
 using MBKC.Service.DTOs.MoneyExchanges;
+using MBKC.Repository.Constants;
 
 namespace MBKC.Service.Services.Implementations
 {
@@ -153,12 +154,18 @@ namespace MBKC.Service.Services.Implementations
                 #region shipper payment and transaction and wallet (Cash only)
                 if (existedOrder.PaymentMethod.ToUpper().Equals(OrderEnum.PaymentMethod.CASH.ToString()))
                 {
+                    decimal finalPrice = 0;
+                    if (existedOrder.Partner.Name.ToLower().Equals(PartnerConstant.GrabFood.ToLower()))
+                    {
+                        decimal discountedPrice = existedOrder.SubTotalPrice - existedOrder.TotalStoreDiscount;
+                        decimal commissionPartnerPrice = discountedPrice * (decimal.Parse(existedOrder.StorePartnerCommission.ToString()) / 100);
+                        finalPrice = discountedPrice - commissionPartnerPrice - commissionPartnerPrice * (decimal.Parse(existedOrder.TaxPartnerCommission.ToString()) / 100);
+                    }
                     //decimal finalToTalPriceSubstractDeliveryFee = existedOrder.FinalTotalPrice - existedOrder.DeliveryFee;
-                    decimal finalPrice = existedOrder.SubTotalPrice - (existedOrder.SubTotalPrice * (decimal)(existedOrder.Store.StorePartners.FirstOrDefault(x => x.PartnerId == existedOrder.PartnerId && x.Status == (int)StorePartnerEnum.Status.ACTIVE)!.Commission / 100));
                     ShipperPayment shipperPayment = new ShipperPayment()
                     {
                         Status = (int)ShipperPaymentEnum.Status.SUCCESS,
-                        Content = $"Payment for the order[orderId:{existedOrder.Id}] with {existedOrder.Store.StorePartners.FirstOrDefault(x => x.PartnerId == existedOrder.PartnerId && x.Status == (int)StorePartnerEnum.Status.ACTIVE)!.Commission}% commission {StringUtil.GetContentAmountAndTime(finalPrice)}",
+                        Content = $"Payment for the order From {existedOrder.Partner.Name}[orderId:{existedOrder.Id}] with {existedOrder.StorePartnerCommission}% commission and {existedOrder.TaxPartnerCommission}% tax of commission {StringUtil.GetContentAmountAndTime(finalPrice)}",
                         OrderId = existedOrder.Id,
                         Amount = finalPrice,
                         CreateDate = DateTime.Now,
@@ -342,7 +349,6 @@ namespace MBKC.Service.Services.Implementations
                     CustomerName = postOrderRequest.CustomerName,
                     CustomerPhone = postOrderRequest.CustomerPhone,
                     Address = postOrderRequest.Address,
-                    Commission = decimal.Parse(postOrderRequest.Commission.ToString().Replace(".", ",")),
                     Cutlery = postOrderRequest.Cutlery,
                     DeliveryFee = decimal.Parse(postOrderRequest.DeliveryFee.ToString().Replace(".", ",")),
                     DisplayId = postOrderRequest.DisplayId,
@@ -355,7 +361,9 @@ namespace MBKC.Service.Services.Implementations
                     PartnerOrderStatus = postOrderRequest.PartnerOrderStatus.ToUpper(),
                     SystemStatus = OrderEnum.SystemStatus.IN_STORE.ToString().ToUpper(),
                     SubTotalPrice = decimal.Parse(postOrderRequest.SubTotalPrice.ToString().Replace(".", ",")),
-                    TotalDiscount = decimal.Parse(postOrderRequest.TotalDiscount.ToString().Replace(".", ",")),
+                    TotalStoreDiscount = decimal.Parse(postOrderRequest.TotalStoreDiscount.ToString().Replace(".", ",")),
+                    PromotionPrice = decimal.Parse(postOrderRequest.PromotionPrice.ToString().Replace(".", ",")),
+                    TaxPartnerCommission = postOrderRequest.TaxPartnerCommission,
                     Store = existedStore,
                     Tax = postOrderRequest.Tax,
                     OrderHistories = new List<OrderHistory>() { orderHistory },
@@ -385,10 +393,12 @@ namespace MBKC.Service.Services.Implementations
                     OrderDetail newOrderDetail = new OrderDetail()
                     {
                         SellingPrice = orderDetail.SellingPrice,
+                        DiscountPrice = orderDetail.DiscountPrice,
                         Note = orderDetail.Note,
                         MasterOrderDetailId = null,
                         Product = existedProduct,
-                        Quantity = orderDetail.Quantity
+                        Quantity = orderDetail.Quantity,
+                        
                     };
                     newOrderDetails.Add(newOrderDetail);
                     if (orderDetail.ExtraOrderDetails is not null && orderDetail.ExtraOrderDetails.Count() > 0)
@@ -416,6 +426,7 @@ namespace MBKC.Service.Services.Implementations
                             {
                                 Note = extraOrderDetail.Note,
                                 SellingPrice = extraOrderDetail.SellingPrice,
+                                DiscountPrice = extraOrderDetail.DiscountPrice,
                                 MasterOrderDetail = newOrderDetail,
                                 Product = existedProductExtra,
                                 Quantity = extraOrderDetail.Quantity
@@ -494,6 +505,12 @@ namespace MBKC.Service.Services.Implementations
         {
             try
             {
+                List<Configuration> configurations = await this._unitOfWork.ConfigurationRepository.GetConfigurationsAsync();
+                Configuration configuration = configurations.First();
+                if (DateTime.Now.TimeOfDay > configuration.ScrawlingOrderEndTime || DateTime.Now.TimeOfDay < configuration.ScrawlingOrderStartTime)
+                {
+                    throw new BadRequestException(MessageConstant.OrderMessage.CannotUpdateOrderOutRange);
+                }
                 Order existedOrder = await this._unitOfWork.OrderRepository.GetOrderByOrderPartnerIdAsync(putOrderIdRequest.Id);
                 if (existedOrder is null)
                 {
@@ -619,7 +636,14 @@ namespace MBKC.Service.Services.Implementations
                     // Get totalQuantity of each order
                     foreach (var order in orders)
                     {
-                        decimal collectedPrice = order.SubTotalPrice - (order.SubTotalPrice * decimal.Parse(order.StorePartnerCommission.ToString()) / 100);
+                        decimal collectedPrice = 0;
+                        if (order.Partner.Name.ToLower().Equals(PartnerConstant.GrabFood.ToLower()))
+                        {
+                            decimal discountedPrice = order.SubTotalPrice - order.TotalStoreDiscount;
+                            decimal commissionPartnerPrice = discountedPrice * (decimal.Parse(order.StorePartnerCommission.ToString()) / 100);
+                            collectedPrice = discountedPrice - commissionPartnerPrice - commissionPartnerPrice * (decimal.Parse(order.TaxPartnerCommission.ToString()) / 100);
+                        }
+                        
                         GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(order);
                         getOrderResponse.IsPaid = getOrderResponse.PaymentMethod.ToLower().Equals(OrderEnum.PaymentMethod.CASH.ToString().ToLower()) ? false : true;
                         if (getOrderResponse.IsPaid == true)
@@ -713,7 +737,13 @@ namespace MBKC.Service.Services.Implementations
                     }
                 }
 
-                decimal collectedPrice = existedOrder.SubTotalPrice - (existedOrder.SubTotalPrice * decimal.Parse(existedOrder.StorePartnerCommission.ToString()) / 100);
+                decimal collectedPrice = 0;
+                if (existedOrder.Partner.Name.ToLower().Equals(PartnerConstant.GrabFood.ToLower()))
+                {
+                    decimal discountedPrice = existedOrder.SubTotalPrice - existedOrder.TotalStoreDiscount;
+                    decimal commissionPartnerPrice = discountedPrice * (decimal.Parse(existedOrder.StorePartnerCommission.ToString()) / 100);
+                    collectedPrice = discountedPrice - commissionPartnerPrice - commissionPartnerPrice * (decimal.Parse(existedOrder.TaxPartnerCommission.ToString()) / 100);
+                }
 
                 GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(existedOrder);
                 getOrderResponse.IsPaid = getOrderResponse.PaymentMethod.ToLower().Equals(OrderEnum.PaymentMethod.CASH.ToString().ToLower()) ? false : true;

@@ -13,5 +13,6 @@ namespace MBKC.Service.DTOs.Partners
         public string? Logo { get; set; }
         public string? WebUrl { get; set; }
         public string Status { get; set; }
+        public float TaxCommission { get; set; }
     }
 }
