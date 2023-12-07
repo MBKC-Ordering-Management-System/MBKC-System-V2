@@ -159,7 +159,7 @@ namespace MBKC.Service.Services.Implementations
                     {
                         decimal discountedPrice = existedOrder.SubTotalPrice - existedOrder.TotalStoreDiscount;
                         decimal commissionPartnerPrice = discountedPrice * (decimal.Parse(existedOrder.StorePartnerCommission.ToString()) / 100);
-                        finalPrice = discountedPrice - commissionPartnerPrice - commissionPartnerPrice * (decimal.Parse(existedOrder.TaxPartnerCommission.ToString()) / 100);
+                        finalPrice = Math.Round(discountedPrice - commissionPartnerPrice - commissionPartnerPrice * (decimal.Parse(existedOrder.TaxPartnerCommission.ToString()) / 100), 3);
                     }
                     //decimal finalToTalPriceSubstractDeliveryFee = existedOrder.FinalTotalPrice - existedOrder.DeliveryFee;
                     ShipperPayment shipperPayment = new ShipperPayment()
@@ -641,7 +641,7 @@ namespace MBKC.Service.Services.Implementations
                         {
                             decimal discountedPrice = order.SubTotalPrice - order.TotalStoreDiscount;
                             decimal commissionPartnerPrice = discountedPrice * (decimal.Parse(order.StorePartnerCommission.ToString()) / 100);
-                            collectedPrice = discountedPrice - commissionPartnerPrice - commissionPartnerPrice * (decimal.Parse(order.TaxPartnerCommission.ToString()) / 100);
+                            collectedPrice = Math.Round(discountedPrice - commissionPartnerPrice - commissionPartnerPrice * (decimal.Parse(order.TaxPartnerCommission.ToString()) / 100), 3);
                         }
                         
                         GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(order);
@@ -742,7 +742,7 @@ namespace MBKC.Service.Services.Implementations
                 {
                     decimal discountedPrice = existedOrder.SubTotalPrice - existedOrder.TotalStoreDiscount;
                     decimal commissionPartnerPrice = discountedPrice * (decimal.Parse(existedOrder.StorePartnerCommission.ToString()) / 100);
-                    collectedPrice = discountedPrice - commissionPartnerPrice - commissionPartnerPrice * (decimal.Parse(existedOrder.TaxPartnerCommission.ToString()) / 100);
+                    collectedPrice = Math.Round(discountedPrice - commissionPartnerPrice - commissionPartnerPrice * (decimal.Parse(existedOrder.TaxPartnerCommission.ToString()) / 100), 3);
                 }
 
                 GetOrderResponse getOrderResponse = this._mapper.Map<GetOrderResponse>(existedOrder);
