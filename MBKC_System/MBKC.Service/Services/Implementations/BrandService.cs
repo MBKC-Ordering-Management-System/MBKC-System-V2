@@ -245,7 +245,7 @@ namespace MBKC.Service.Services.Implementations
 
                 string password = "";
                 var checkAccountExisted = await this._unitOfWork.AccountRepository.GetAccountByEmailAsync(updateBrandRequest.BrandManagerEmail);
-                if (checkAccountExisted != null && checkAccountExisted.Status != (int)AccountEnum.Status.DISABLE)
+                if (checkAccountExisted != null && checkAccountExisted.Status != (int)AccountEnum.Status.DISABLE && brand.BrandManagerEmail.Equals(updateBrandRequest.BrandManagerEmail) == false)
                 {
                     throw new BadRequestException(MessageConstant.CommonMessage.AlreadyExistEmail);
                 }
