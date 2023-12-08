@@ -365,7 +365,7 @@ namespace MBKC.Service.Services.Implementations
                 var getCashierDashBoardResponse = new GetCashierDashBoardResponse()
                 {
                     TotalRevenuesDaily = totalRevenueDaily,
-                    //TotalOrdersDaily = totalOrderDaily,
+                    TotalOrdersDaily = totalOrderDaily,
                     Orders = ordersHasPaidResponse,
                     MoneyExchanges  = moneyExchangesResponse,
                     ShipperPayments = shipperPaymentsResponse,
