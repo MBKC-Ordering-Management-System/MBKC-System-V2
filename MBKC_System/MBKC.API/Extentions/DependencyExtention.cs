@@ -19,6 +19,8 @@ using System.Security.Cryptography.Xml;
 using Hangfire.Storage.SQLite;
 using MBKC.API.Constants;
 using System.Linq.Expressions;
+using Microsoft.AspNetCore.Mvc.Filters;
+using MBKC.API.Authorization;
 
 namespace MBKC.API.Extentions
 {
@@ -167,7 +169,10 @@ namespace MBKC.API.Extentions
             //Add middleware extentions
             app.ConfigureExceptionMiddleware();
             app.MapControllers();
-            app.UseHangfireDashboard();
+            app.UseHangfireDashboard("/hangfire", new DashboardOptions
+            {
+                Authorization = new[] { new HangfireAuthenticationFilter() }
+            });
             BackgroundJob.Enqueue<IConfigurationService>(cf => cf.StartAllBackgroundJob());
             return app;
         }
