@@ -36,7 +36,7 @@ namespace MBKC.Repository.Repositories
             {
                 return await _dbContext.Accounts
                     .Include(a => a.Role)
-                    .SingleOrDefaultAsync(r => r.Email.Equals(email));
+                    .SingleOrDefaultAsync(r => r.Email.Equals(email) && r.Status != (int)AccountEnum.Status.DISABLE);
             }
             catch (Exception ex)
             {
@@ -61,7 +61,7 @@ namespace MBKC.Repository.Repositories
             try
             {
                 return await this._dbContext.Accounts.Include(x => x.Role)
-                                                     .SingleOrDefaultAsync(x => x.AccountId == accountId);
+                                                     .SingleOrDefaultAsync(x => x.AccountId == accountId && x.Status != (int)AccountEnum.Status.DISABLE);
             }
             catch (Exception ex)
             {
@@ -74,7 +74,7 @@ namespace MBKC.Repository.Repositories
             try
             {
                 return await this._dbContext.Accounts.Include(x => x.Role)
-                                                     .SingleOrDefaultAsync(x => x.Email == email);
+                                                     .SingleOrDefaultAsync(x => x.Email == email && x.Status != (int)AccountEnum.Status.DISABLE);
             }
             catch (Exception ex)
             {

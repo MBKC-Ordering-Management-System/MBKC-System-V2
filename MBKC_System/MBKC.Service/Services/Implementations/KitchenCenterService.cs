@@ -110,7 +110,7 @@ namespace MBKC.Service.Services.Implementations
             try
             {
                 Account existedAccount = await this._unitOfWork.AccountRepository.GetAccountAsync(newKitchenCenter.ManagerEmail);
-                if (existedAccount != null && existedAccount.Status != (int)AccountEnum.Status.DISABLE )
+                if (existedAccount != null)
                 {
                     throw new BadRequestException(MessageConstant.KitchenCenterMessage.ManagerEmailExisted);
                 }

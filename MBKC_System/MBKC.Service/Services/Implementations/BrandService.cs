@@ -147,7 +147,7 @@ namespace MBKC.Service.Services.Implementations
             try
             {
                 var checkDupplicatedEmail = await _unitOfWork.AccountRepository.GetAccountByEmailAsync(postBrandRequest.ManagerEmail);
-                if (checkDupplicatedEmail != null && checkDupplicatedEmail.Status != (int)AccountEnum.Status.DISABLE)
+                if (checkDupplicatedEmail != null)
                 {
                     throw new BadRequestException(MessageConstant.CommonMessage.AlreadyExistEmail);
                 }

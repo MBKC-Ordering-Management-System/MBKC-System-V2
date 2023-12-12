@@ -346,12 +346,12 @@ namespace MBKC.Service.Services.Implementations
                 Brand existedBrand = await this._unitOfWork.BrandRepository.GetBrandAsync(email);
 
                 Product existedProductCode = await this._unitOfWork.ProductRepository.CheckProductCodeInBrandAsync(createProductRequest.Code, existedBrand.BrandId);
-                if (existedProductCode != null && existedProductCode.Status != (int)ProductEnum.Status.DISABLE)
+                if (existedProductCode != null)
                 {
                     throw new BadRequestException(MessageConstant.ProductMessage.ProductCodeExistedInBrand);
                 }
                 Product existedProductName = await this._unitOfWork.ProductRepository.CheckProductNameInBrandAsync(createProductRequest.Name, existedBrand.BrandId);
-                if (existedProductName != null && existedProductCode.Status != (int)ProductEnum.Status.DISABLE)
+                if (existedProductName != null)
                 {
                     throw new BadRequestException(MessageConstant.ProductMessage.ProductNameExistedInBrand);
                 }
@@ -638,7 +638,7 @@ namespace MBKC.Service.Services.Implementations
                 if (updateProductRequest.Name != null)
                 {
                     Product existedProductName = await this._unitOfWork.ProductRepository.CheckProductNameInBrandAsync(updateProductRequest.Name, existedBrand.BrandId);
-                    if (existedProductName != null && existedProductName.ProductId != idProduct && existedProductName.Status != (int)ProductEnum.Status.DISABLE)
+                    if (existedProductName != null && existedProductName.ProductId != idProduct)
                     {
                         throw new BadRequestException(MessageConstant.ProductMessage.ProductNameExistedInBrand);
                     }

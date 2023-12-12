@@ -38,13 +38,13 @@ namespace MBKC.Service.Services.Implementations
                 var brand = brandAccount.Brand;
 
                 var existedCategoryCode = await _unitOfWork.CategoryRepository.GetCategoryByCodeAsync(postCategoryRequest.Code, brand.BrandId);
-                if (existedCategoryCode != null && existedCategoryCode.Status != (int)CategoryEnum.Status.DISABLE)
+                if (existedCategoryCode != null)
                 {
                     throw new BadRequestException(MessageConstant.CategoryMessage.CategoryCodeExistedInBrand);
                 }
 
                 var existedCategoryName = await _unitOfWork.CategoryRepository.GetCategoryByNameAsync(postCategoryRequest.Name, brand.BrandId);
-                if (existedCategoryName != null && existedCategoryName.Status != (int)CategoryEnum.Status.DISABLE)
+                if (existedCategoryName != null)
                 {
                     throw new BadRequestException(MessageConstant.CategoryMessage.CategoryNameExistedInBrand);
                 }
@@ -126,7 +126,7 @@ namespace MBKC.Service.Services.Implementations
                 }
 
                 var existedCategoryName = await _unitOfWork.CategoryRepository.GetCategoryByNameAsync(updateCategoryRequest.Name, brandId);
-                if (existedCategoryName != null && existedCategoryName.CategoryId != categoryId && existedCategoryName.Status != (int)CategoryEnum.Status.DISABLE)
+                if (existedCategoryName != null && existedCategoryName.CategoryId != categoryId)
                 {
                     throw new BadRequestException(MessageConstant.CategoryMessage.CategoryNameExistedInBrand);
                 }

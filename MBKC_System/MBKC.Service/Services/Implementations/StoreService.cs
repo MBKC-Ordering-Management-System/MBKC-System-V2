@@ -287,7 +287,7 @@ namespace MBKC.Service.Services.Implementations
                 }
 
                 Account existedAccount = await this._unitOfWork.AccountRepository.GetAccountAsync(registerStoreRequest.StoreManagerEmail);
-                if (existedAccount != null && existedAccount.Status != (int)AccountEnum.Status.DISABLE)
+                if (existedAccount != null)
                 {
                     throw new BadRequestException(MessageConstant.StoreMessage.ManageremailExisted);
                 }

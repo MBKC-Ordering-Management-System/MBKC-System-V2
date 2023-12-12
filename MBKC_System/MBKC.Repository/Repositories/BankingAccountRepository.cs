@@ -188,7 +188,7 @@ namespace MBKC.Repository.Repositories
         {
             try
             {
-                return await this._dbContext.BankingAccounts.FirstOrDefaultAsync(x => x.NumberAccount.Equals(numberAccount));
+                return await this._dbContext.BankingAccounts.FirstOrDefaultAsync(x => x.NumberAccount.Equals(numberAccount) && x.Status !=  (int)BankingAccountEnum.Status.DISABLE);
             }
             catch (Exception ex)
             {
