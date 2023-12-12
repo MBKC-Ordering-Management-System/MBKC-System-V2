@@ -411,7 +411,7 @@ namespace MBKC.Service.Services.Implementations
                 if (existedStore.StoreManagerEmail.Equals(updateStoreRequest.StoreManagerEmail) == false)
                 {
                     Account existedStoreManagerAccount = await this._unitOfWork.AccountRepository.GetAccountAsync(updateStoreRequest.StoreManagerEmail);
-                    if (existedStoreManagerAccount != null && existedStoreManagerAccount.Status != (int)AccountEnum.Status.DISABLE)
+                    if (existedStoreManagerAccount != null)
                     {
                         throw new BadRequestException(MessageConstant.StoreMessage.ManageremailExisted);
                     }
