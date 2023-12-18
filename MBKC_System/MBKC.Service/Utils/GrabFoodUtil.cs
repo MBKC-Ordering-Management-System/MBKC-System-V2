@@ -458,7 +458,7 @@ namespace MBKC.Service.Utils
                                         nameOfRule = $"{parentGrabFoodItem.ItemName} - {grabFoodModifier.ModifierName}";
                                     }
 
-                                    if(nameOfRule.ToLower().Equals(productName) == false)
+                                    if(nameOfRule.ToLower().Equals(productName.ToLower()) == false)
                                     {
                                         throw new BadRequestException(MessageConstant.PartnerProductMessage.GrabFoodProductWithProductCodeNotMatchWithProductSystem);
                                     }
