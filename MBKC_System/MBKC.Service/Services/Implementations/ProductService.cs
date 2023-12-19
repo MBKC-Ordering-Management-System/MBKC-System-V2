@@ -634,8 +634,9 @@ namespace MBKC.Service.Services.Implementations
                 {
                     throw new BadRequestException(MessageConstant.ProductMessage.ProductNameTypeChildNotAllowUpdate);
                 }
+                bool isUpdatedProductName = false;
                 // Check product name existed in brand or not
-                if (updateProductRequest.Name != null)
+                if (updateProductRequest.Name != null && updateProductRequest.Name.ToLower().Equals(existedProduct.Name.ToLower()) == false)
                 {
                     Product existedProductName = await this._unitOfWork.ProductRepository.CheckProductNameInBrandAsync(updateProductRequest.Name, existedBrand.BrandId);
                     if (existedProductName != null && existedProductName.ProductId != idProduct)
@@ -644,6 +645,12 @@ namespace MBKC.Service.Services.Implementations
                     }
                     // assign product name to existed product.
                     existedProduct.Name = updateProductRequest.Name;
+                    isUpdatedProductName = true;
+                }
+
+                if (existedProduct.PartnerProducts is not null && existedProduct.PartnerProducts.Count() > 0 && isUpdatedProductName == true)
+                {
+                    throw new BadRequestException(MessageConstant.ProductMessage.CanNotUpdateProductNameWhenHavePartnerProduct);
                 }
 
                 Product existedParentProduct = null;
@@ -776,7 +783,8 @@ namespace MBKC.Service.Services.Implementations
                     fieldName = "Product id";
                 }
                 else if (ex.Message.Equals(MessageConstant.ProductMessage.ProductNameTypeChildNotAllowUpdate) ||
-                    ex.Message.Equals(MessageConstant.ProductMessage.ProductNameExistedInBrand))
+                    ex.Message.Equals(MessageConstant.ProductMessage.ProductNameExistedInBrand) ||
+                    ex.Message.Equals(MessageConstant.ProductMessage.CanNotUpdateProductNameWhenHavePartnerProduct))
                 {
                     fieldName = "Product name";
                 }

@@ -167,6 +167,7 @@ namespace MBKC.Service.Constants
             public const string InvalidProductTypeSingle = "is invalid for product type: SINGLE.";
             public const string InvalidProductTypeExtra = "is invalid for product type: EXTRA.";
             public const string InvalidOnField = "Invalid on field";
+            public const string CanNotUpdateProductNameWhenHavePartnerProduct = "Product name cannot be updated when it has been mapped to partners.";
 
         }
 
