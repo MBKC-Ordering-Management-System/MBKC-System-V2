@@ -648,7 +648,7 @@ namespace MBKC.Service.Services.Implementations
                     isUpdatedProductName = true;
                 }
 
-                if (existedProduct.PartnerProducts is not null && existedProduct.PartnerProducts.Count() > 0 && isUpdatedProductName == true)
+                if (existedProduct.PartnerProducts is not null && existedProduct.PartnerProducts.Where(x => x.Status != (int) PartnerProductEnum.Status.DISABLE).Count() > 0 && isUpdatedProductName == true)
                 {
                     throw new BadRequestException(MessageConstant.ProductMessage.CanNotUpdateProductNameWhenHavePartnerProduct);
                 }
